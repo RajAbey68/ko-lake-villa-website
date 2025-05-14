@@ -215,6 +215,35 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   
   // Use uploadFile from the top-level import
 
+  // Direct Save - Bypassing firebase for simplicity in testing
+  const handleDirectSave = () => {
+    const basicValues = {
+      category: form.getValues("category") || "family-suite", // Default to a category
+      alt: form.getValues("alt") || "Image title", // Default description
+      description: form.getValues("description") || "",
+      tags: form.getValues("tags") || "",
+      featured: form.getValues("featured") || false,
+      sortOrder: form.getValues("sortOrder") || 0,
+      mediaType: form.getValues("mediaType") || "image",
+      imageUrl: form.getValues("imageUrl") || "https://images.unsplash.com/photo-1544957992-6ef475c58fb1?q=80&w=1000&auto=format&fit=crop"
+    };
+    
+    console.log("Directly saving with values:", basicValues);
+    
+    // Show success toast
+    toast({
+      title: "Saving image...",
+      description: "We'll attempt to save using the URL method.",
+    });
+    
+    // Use the mutation directly
+    if (isEditingImage !== null) {
+      updateMutation.mutate({ id: isEditingImage, data: basicValues });
+    } else {
+      createMutation.mutate(basicValues);
+    }
+  };
+
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
     console.log("Form submitted with values:", values);
