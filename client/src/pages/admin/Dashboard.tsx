@@ -16,7 +16,8 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { Spinner } from '../../components/ui/spinner';
-import { useToast } from '../../hooks/use-toast'; 
+import { useToast } from '../../hooks/use-toast';
+import { toast as hotToast } from '../../hooks/use-toast'; 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { apiRequest } from '../../lib/queryClient';
@@ -294,24 +295,24 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           setIsUploading(true);
           setUploadProgress(0);
           
-          // Progress tracking toast
-          const uploadingToastId = toast({
+          // Progress tracking toast - show initial progress
+          toast({
             title: "Uploading file...",
             description: (
               <div className="w-full">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm font-medium">Uploading: {values.file.name}</span>
-                  <span className="text-sm font-medium">{uploadProgress}%</span>
+                  <span className="text-sm font-medium">0%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div 
                     className="bg-[#FF914D] h-2.5 rounded-full transition-all duration-300" 
-                    style={{ width: `${uploadProgress}%` }}
+                    style={{ width: "0%" }}
                   ></div>
                 </div>
               </div>
             ),
-            duration: 100000, // Long duration, we'll dismiss it manually
+            duration: 100000, // Long duration, we'll update it as we go
           });
           
           console.log("About to upload file:", values.file);
@@ -335,7 +336,43 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           try {
             // Upload file to Firebase Storage
             console.log("Starting file upload to Firebase...");
-            const downloadURL = await uploadFile(values.file);
+            // Use uploadFile with progress tracking callback
+            const downloadURL = await uploadFile(
+              values.file,
+              values.category.toLowerCase(), // Use category as folder name
+              (progress) => {
+                // Update our local progress state
+                setUploadProgress(progress);
+                
+                // Update progress toast with new info each time without dismiss
+                // No need for toast.dismiss() here
+                toast({
+                  title: "Uploading file...",
+                  description: (
+                    <div className="w-full">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">Uploading: {values.file.name}</span>
+                        <span className="text-sm font-medium">{progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className="bg-[#FF914D] h-2.5 rounded-full transition-all duration-300" 
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ),
+                  duration: 2000, // Short duration as we'll update frequently
+                });
+              }
+            );
+            
+            // Show a success toast when complete
+            toast({
+              title: "Upload Complete!",
+              description: "File has been successfully uploaded.",
+              variant: "default",
+            });
             console.log("File uploaded successfully with URL:", downloadURL);
             
             // Replace file with download URL
@@ -343,12 +380,28 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           } catch (error) {
             // More detailed error handling for Firebase upload
             console.error("Firebase upload error:", error);
+            setIsUploading(false);
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
+            
             toast({
-              title: "Firebase Upload Error",
-              description: "Error connecting to Firebase: " + errorMessage,
+              title: "File Upload Failed",
+              description: (
+                <div className="space-y-2">
+                  <p className="text-red-600">Error: {errorMessage}</p>
+                  <div className="pt-2 border-t">
+                    <p className="font-medium mb-1">Try these options instead:</p>
+                    <ul className="list-disc pl-4 text-sm">
+                      <li>Use the "URL" upload method instead</li>
+                      <li>Try a smaller image file (under 5MB)</li>
+                      <li>Click "Quick Save with URL" below</li>
+                    </ul>
+                  </div>
+                </div>
+              ),
               variant: "destructive",
+              duration: 8000,
             });
+            
             return;
           }
         } catch (error) {
