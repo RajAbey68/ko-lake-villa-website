@@ -1,5 +1,5 @@
 import { 
-  users, type User, type InsertUser,
+  users, type User, type InsertUser, type UpsertUser,
   rooms, type Room, type InsertRoom,
   testimonials, type Testimonial, type InsertTestimonial,
   activities, type Activity, type InsertActivity,
@@ -9,13 +9,15 @@ import {
   contactMessages, type ContactMessage, type InsertContactMessage,
   newsletterSubscribers, type NewsletterSubscriber, type InsertNewsletterSubscriber
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 // Define storage interface with all required CRUD operations
 export interface IStorage {
   // User operations
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
 
   // Room operations
   getRooms(): Promise<Room[]>;

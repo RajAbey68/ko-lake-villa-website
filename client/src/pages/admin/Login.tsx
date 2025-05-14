@@ -12,34 +12,23 @@ export default function AdminLogin() {
   const { currentUser, isAdmin } = useAuth();
   const [location] = useLocation();
 
-  // Check for redirect result on page load
+  // No need to check for redirect result with popup authentication
   useEffect(() => {
-    async function checkRedirectResult() {
-      try {
-        setIsSigningIn(true);
-        await handleRedirectResult();
-        // Auth state will update through the onAuthStateChanged listener
-      } catch (err) {
-        console.error('Error handling redirect:', err);
-        setError('Authentication failed. Please try again.');
-      } finally {
-        setIsSigningIn(false);
-      }
-    }
-    
-    checkRedirectResult();
+    // This effect can be used for initialization if needed
+    // The auth state will update through the onAuthStateChanged listener
   }, []);
 
-  // Handle Google Sign-in
+  // Handle Google Sign-in with popup
   const handleGoogleSignIn = async () => {
     try {
       setIsSigningIn(true);
       setError(null);
-      await signInWithGoogle();
-      // The page will redirect to Google login
-    } catch (err) {
+      const user = await signInWithGoogle();
+      console.log("User signed in:", user?.email);
+      // No redirect needed - the popup handles the flow
+    } catch (err: any) {
       console.error('Login failed:', err);
-      setError('Failed to sign in with Google. Please try again.');
+      setError(err?.message || 'Failed to sign in with Google. Please try again.');
       setIsSigningIn(false);
     }
   };
