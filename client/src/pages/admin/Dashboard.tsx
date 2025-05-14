@@ -264,6 +264,9 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
         duration: 3000,
       });
       
+      // Set a loader state
+      const saveStartTime = Date.now();
+      
       // Make a direct API call instead of using mutation
       const response = await fetch('/api/admin/gallery', {
         method: 'POST',
@@ -281,24 +284,30 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       
       console.log("Save response:", response);
       
-      // Show success message
+      // Show very explicit success message
       toast({
-        title: "Success!",
+        title: "SUCCESS: IMAGE SAVED!",
         description: (
           <div className="space-y-2">
-            <p className="text-green-600">✅ Image added to gallery successfully!</p>
+            <p className="text-green-600 font-bold">✅ Image has been added to your gallery!</p>
+            <div className="bg-gray-100 p-2 rounded text-sm">
+              <p className="font-medium">What happened:</p>
+              <ul className="list-disc pl-4 mt-1">
+                <li>Your image was saved to the database</li>
+                <li>You can view it in the gallery tab</li>
+                <li>Close this dialog when ready</li>
+              </ul>
+            </div>
           </div>
         ),
-        duration: 3000,
+        duration: 10000, // Keep visible for 10 seconds
       });
       
       // Invalidate the gallery cache to refresh the list
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
       
-      // Close the dialog after a brief delay
-      setTimeout(() => {
-        setIsAddingImage(false);
-      }, 2000);
+      // Don't automatically close - let user see confirmation
+      // The user can close the dialog manually when ready
       
     } catch (error) {
       console.error("Error saving image:", error);
