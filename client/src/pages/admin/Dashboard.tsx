@@ -512,30 +512,65 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   name="file"
                   render={({ field: { value, onChange, ...fieldProps } }) => (
                     <FormItem>
-                      <FormLabel>{form.watch("mediaType") === "video" ? "Video File" : "Image File"}</FormLabel>
+                      <FormLabel className="text-base font-semibold">
+                        {form.watch("mediaType") === "video" ? "Select Video File" : "Select Image File"}
+                      </FormLabel>
+                      
                       <FormControl>
-                        <div className="flex flex-col gap-2">
-                          <Input 
-                            type="file" 
-                            accept={form.watch("mediaType") === "video" ? "video/*" : "image/*"}
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) {
-                                onChange(e.target.files[0]);
-                              }
-                            }}
-                            className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#FF914D] file:text-white hover:file:bg-[#e67e3d]"
-                            {...fieldProps}
-                          />
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors">
+                          <div className="space-y-3">
+                            <div className="flex justify-center">
+                              <div className="bg-[#FF914D]/10 p-3 rounded-full">
+                                <ImagePlusIcon className="h-8 w-8 text-[#FF914D]" />
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <p className="text-base font-medium mb-1">
+                                {value 
+                                  ? "File selected! Click button to change" 
+                                  : "Click button to select a file from your device"}
+                              </p>
+                            </div>
+                            
+                            <Button
+                              type="button"
+                              className="font-medium bg-[#FF914D] hover:bg-[#e67e3d] text-white"
+                              onClick={() => document.getElementById('file-upload')?.click()}
+                            >
+                              <span className="flex items-center gap-2">
+                                {value ? 'Change File' : 'Browse Files'}
+                                <UploadIcon className="h-4 w-4" />
+                              </span>
+                              <Input 
+                                id="file-upload"
+                                type="file" 
+                                accept={form.watch("mediaType") === "video" ? "video/*" : "image/*"}
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) {
+                                    onChange(e.target.files[0]);
+                                  }
+                                }}
+                                className="sr-only"
+                                {...fieldProps}
+                              />
+                            </Button>
+                          </div>
+                          
                           {value && (
-                            <div className="text-sm text-green-600 flex items-center gap-1">
-                              <CheckCircleIcon className="h-4 w-4" />
-                              File selected: {typeof value === 'object' && 'name' in value ? value.name : 'File ready for upload'}
+                            <div className="mt-4 p-3 bg-green-50 border border-green-100 rounded-md text-sm text-green-800 flex items-center gap-2">
+                              <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0" />
+                              <span className="font-medium">Ready to upload:</span> 
+                              <span className="font-semibold truncate">
+                                {typeof value === 'object' && 'name' in value ? value.name : 'File selected'}
+                              </span>
                             </div>
                           )}
                         </div>
                       </FormControl>
-                      <FormDescription>
-                        Select a file from your device to upload
+                      
+                      <FormDescription className="text-center font-medium mt-2">
+                        After selecting a file, click the large "Upload & Save Image" button at the bottom
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -705,18 +740,22 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 />
               </div>
               
-              <DialogFooter className="sticky bottom-0 pt-6 mt-4 border-t bg-white shadow-md pb-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleCloseDialog}
-                  className="w-full sm:w-auto"
-                >
-                  Cancel
-                </Button>
+              {/* Upload Button Section */}
+              <div className="mt-8 border-t pt-6 flex flex-col gap-4">
+                {form.watch("uploadMethod") === "file" && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4 flex items-start">
+                    <CheckCircleIcon className="text-blue-500 mt-0.5 w-5 h-5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="text-blue-800 text-sm">
+                        <strong>Ready to upload?</strong> Make sure you've filled out all required fields and selected a file.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
                 <Button 
                   type="submit"
-                  className="bg-[#FF914D] hover:bg-[#e67e3d] text-lg py-5 px-8 w-full sm:w-auto"
+                  className="bg-[#FF914D] hover:bg-[#e67e3d] text-lg py-6 w-full font-semibold"
                   disabled={createMutation.isPending || updateMutation.isPending}
                 >
                   {(createMutation.isPending || updateMutation.isPending) ? (
@@ -725,13 +764,22 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                       {isEditingImage !== null ? "Saving..." : form.watch("uploadMethod") === "file" ? "Uploading..." : "Saving..."}
                     </span>
                   ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      {isEditingImage !== null ? "Save Changes" : form.watch("uploadMethod") === "file" ? "Upload & Save" : "Save Image"}
-                      {form.watch("uploadMethod") === "file" && <ImagePlusIcon className="h-5 w-5" />}
+                    <span className="flex items-center justify-center gap-2 text-xl">
+                      {isEditingImage !== null ? "Save Changes" : form.watch("uploadMethod") === "file" ? "Upload & Save Image" : "Save Image"}
+                      {form.watch("uploadMethod") === "file" && <ImagePlusIcon className="h-6 w-6 ml-1" />}
                     </span>
                   )}
                 </Button>
-              </DialogFooter>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCloseDialog}
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+              </div>
             </form>
           </Form>
         </DialogContent>
