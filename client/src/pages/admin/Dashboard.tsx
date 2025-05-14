@@ -85,18 +85,18 @@ function AdminDashboardContent() {
           {/* Sidebar */}
           <div className="bg-white rounded-lg shadow-md p-4 h-fit">
             <nav className="space-y-2">
-              <Link href="/admin/dashboard">
-                <a className="flex items-center space-x-2 px-4 py-2 rounded-md text-[#8B5E3C] hover:bg-[#FDF6EE] font-medium">
-                  <LayoutDashboardIcon className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </a>
+              <Link href="/admin/dashboard" className="flex items-center space-x-2 px-4 py-2 rounded-md text-[#8B5E3C] hover:bg-[#FDF6EE] font-medium">
+                <LayoutDashboardIcon className="w-5 h-5" />
+                <span>Dashboard</span>
               </Link>
-              <Link href="/">
-                <a className="flex items-center space-x-2 px-4 py-2 rounded-md text-[#8B5E3C] hover:bg-[#FDF6EE] font-medium" target="_blank">
-                  <HomeIcon className="w-5 h-5" />
-                  <span>View Website</span>
-                </a>
-              </Link>
+              <a 
+                href="/" 
+                className="flex items-center space-x-2 px-4 py-2 rounded-md text-[#8B5E3C] hover:bg-[#FDF6EE] font-medium" 
+                target="_blank"
+              >
+                <HomeIcon className="w-5 h-5" />
+                <span>View Website</span>
+              </a>
               <hr className="my-3 border-gray-200" />
               
               <button 
