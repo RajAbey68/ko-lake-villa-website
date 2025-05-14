@@ -40,7 +40,7 @@ const Gallery = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 bg-[#1E4E5F]">
+      <section className="relative pt-32 pb-20 bg-[#8B5E3C]">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl text-white font-display font-bold mb-6">Photo Gallery</h1>
           <p className="text-lg text-white max-w-3xl mx-auto">
@@ -50,50 +50,120 @@ const Gallery = () => {
       </section>
 
       {/* Gallery Section */}
-      <section className="py-20 bg-[#F8F6F2]">
+      <section className="py-20 bg-[#FDF6EE]">
         <div className="container mx-auto px-4">
           {/* Category Filter */}
           <div className="flex justify-center mb-12 overflow-x-auto pb-4">
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap justify-center gap-2">
               <button
                 onClick={() => handleCategoryChange(null)}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
                   selectedCategory === null
-                    ? 'bg-[#1E4E5F] text-white'
-                    : 'bg-white text-[#1E4E5F] hover:bg-[#E6D9C7]'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
               >
                 All
               </button>
               <button
-                onClick={() => handleCategoryChange('exterior')}
+                onClick={() => handleCategoryChange('family-suite')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'exterior'
-                    ? 'bg-[#1E4E5F] text-white'
-                    : 'bg-white text-[#1E4E5F] hover:bg-[#E6D9C7]'
+                  selectedCategory === 'family-suite'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
               >
-                Exterior
+                Family Suite
               </button>
               <button
-                onClick={() => handleCategoryChange('interior')}
+                onClick={() => handleCategoryChange('group-room')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'interior'
-                    ? 'bg-[#1E4E5F] text-white'
-                    : 'bg-white text-[#1E4E5F] hover:bg-[#E6D9C7]'
+                  selectedCategory === 'group-room'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
               >
-                Interior
+                Group Room
               </button>
               <button
-                onClick={() => handleCategoryChange('activities')}
+                onClick={() => handleCategoryChange('triple-room')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'activities'
-                    ? 'bg-[#1E4E5F] text-white'
-                    : 'bg-white text-[#1E4E5F] hover:bg-[#E6D9C7]'
+                  selectedCategory === 'triple-room'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
               >
-                Activities
+                Triple Room
+              </button>
+              <button
+                onClick={() => handleCategoryChange('dining-area')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'dining-area'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Dining Area
+              </button>
+              <button
+                onClick={() => handleCategoryChange('pool-deck')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'pool-deck'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Pool Deck
+              </button>
+              <button
+                onClick={() => handleCategoryChange('lake-garden')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'lake-garden'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Lake Garden
+              </button>
+              <button
+                onClick={() => handleCategoryChange('roof-garden')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'roof-garden'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Roof Garden
+              </button>
+              <button
+                onClick={() => handleCategoryChange('front-garden')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'front-garden'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Front Garden & Entrance
+              </button>
+              <button
+                onClick={() => handleCategoryChange('koggala-lake')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'koggala-lake'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Koggala Lake & Surrounding
+              </button>
+              <button
+                onClick={() => handleCategoryChange('excursions')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'excursions'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Excursions
               </button>
             </div>
           </div>
@@ -113,18 +183,34 @@ const Gallery = () => {
             </div>
           ) : (
             // Gallery grid
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {galleryImages?.map((image) => (
                 <div 
                   key={image.id} 
-                  className="overflow-hidden rounded-lg cursor-pointer"
+                  className="group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] hover:shadow-lg transition-all duration-300"
                   onClick={() => openImageModal(image)}
                 >
-                  <img 
-                    src={image.imageUrl} 
-                    alt={image.alt} 
-                    className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300"
-                  />
+                  <div className="relative overflow-hidden rounded-md">
+                    <img 
+                      src={image.imageUrl} 
+                      alt={image.alt} 
+                      className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {image.featured && (
+                      <span className="absolute top-2 right-2 bg-[#FF914D] text-white text-xs px-2 py-1 rounded-full">
+                        Featured
+                      </span>
+                    )}
+                  </div>
+                  <div className="pt-2 pb-1 px-1">
+                    <p className="text-[#8B5E3C] font-medium truncate">{image.alt}</p>
+                    <p className="text-xs text-[#62C3D2] mt-1">
+                      {image.category
+                        .split('-')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -132,15 +218,23 @@ const Gallery = () => {
 
           {/* Image Modal */}
           <Dialog open={!!selectedImage} onOpenChange={() => closeImageModal()}>
-            <DialogContent className="max-w-6xl bg-white p-4 rounded-lg">
+            <DialogContent className="max-w-6xl bg-[#FDF6EE] p-6 rounded-lg border-2 border-[#A0B985] shadow-xl">
               {selectedImage && (
                 <div className="flex flex-col items-center">
                   <img 
                     src={selectedImage.imageUrl} 
                     alt={selectedImage.alt} 
-                    className="max-h-[80vh] w-auto object-contain"
+                    className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
                   />
-                  <p className="mt-2 text-[#333333] font-medium">{selectedImage.alt}</p>
+                  <p className="mt-4 text-[#8B5E3C] font-medium text-lg">{selectedImage.alt}</p>
+                  {selectedImage.category && (
+                    <span className="mt-2 px-3 py-1 bg-[#A0B985] text-white text-sm rounded-full">
+                      {selectedImage.category
+                        .split('-')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}
+                    </span>
+                  )}
                 </div>
               )}
             </DialogContent>
@@ -149,11 +243,11 @@ const Gallery = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#E6D9C7]">
+      <section className="py-16 bg-[#A0B985]">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-display font-bold text-[#1E4E5F] mb-6">Experience the Beauty in Person</h2>
+          <h2 className="text-3xl font-display font-bold text-[#8B5E3C] mb-6">Experience the Beauty in Person</h2>
           <p className="text-[#333333] max-w-2xl mx-auto mb-8">Photos can only capture a glimpse of the beauty that awaits you at Ko Lake Villa. Book your stay now to experience it firsthand.</p>
-          <a href="/booking" className="inline-block bg-[#1E4E5F] text-white px-8 py-4 rounded text-lg font-medium hover:bg-[#E8B87D] transition-colors">Book Your Stay</a>
+          <a href="/booking" className="inline-block bg-[#FF914D] text-white px-8 py-4 rounded text-lg font-medium hover:bg-[#8B5E3C] transition-colors shadow-md">Book Your Stay</a>
         </div>
       </section>
     </>
