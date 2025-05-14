@@ -286,12 +286,13 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             
             // Replace file with download URL
             formData.imageUrl = downloadURL;
-          } catch (uploadError) {
+          } catch (error) {
             // More detailed error handling for Firebase upload
-            console.error("Firebase upload error:", uploadError);
+            console.error("Firebase upload error:", error);
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
             toast({
               title: "Firebase Upload Error",
-              description: "Error connecting to Firebase: " + (uploadError.message || "Unknown error"),
+              description: "Error connecting to Firebase: " + errorMessage,
               variant: "destructive",
             });
             return;
@@ -544,31 +545,51 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 control={form.control}
                 name="uploadMethod"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Upload Method</FormLabel>
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-base font-semibold">Upload Method</FormLabel>
                     <FormControl>
-                      <div className="flex gap-4">
-                        <div className="flex items-center space-x-2">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div 
+                          className={`flex items-center border-2 rounded-md p-3 cursor-pointer transition-all
+                            ${field.value === 'file' 
+                              ? 'border-[#FF914D] bg-orange-50' 
+                              : 'border-gray-200 hover:bg-gray-50'}
+                          `}
+                          onClick={() => field.onChange("file")}
+                        >
                           <input
                             type="radio"
                             id="upload-file"
                             value="file"
                             checked={field.value === "file"}
                             onChange={() => field.onChange("file")}
-                            className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
+                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]"
                           />
-                          <Label htmlFor="upload-file">Upload from Device</Label>
+                          <Label htmlFor="upload-file" className="font-medium ml-2 cursor-pointer flex items-center">
+                            <UploadIcon className="w-4 h-4 mr-2 text-[#FF914D]" />
+                            Upload File
+                          </Label>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div 
+                          className={`flex items-center border-2 rounded-md p-3 cursor-pointer transition-all
+                            ${field.value === 'url' 
+                              ? 'border-[#FF914D] bg-orange-50' 
+                              : 'border-gray-200 hover:bg-gray-50'}
+                          `}
+                          onClick={() => field.onChange("url")}
+                        >
                           <input
                             type="radio"
                             id="upload-url"
                             value="url"
                             checked={field.value === "url"}
                             onChange={() => field.onChange("url")}
-                            className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
+                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]"
                           />
-                          <Label htmlFor="upload-url">Provide URL</Label>
+                          <Label htmlFor="upload-url" className="font-medium ml-2 cursor-pointer flex items-center">
+                            <LinkIcon className="w-4 h-4 mr-2 text-[#FF914D]" />
+                            Use URL
+                          </Label>
                         </div>
                       </div>
                     </FormControl>
@@ -664,19 +685,52 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{form.watch("mediaType") === "video" ? "Video URL" : "Image URL"}</FormLabel>
+                      <FormLabel className="text-base font-semibold">
+                        {form.watch("mediaType") === "video" ? "Video URL" : "Image URL"}
+                      </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder={form.watch("mediaType") === "video" 
-                            ? "https://www.youtube.com/embed/..." 
-                            : "https://example.com/image.jpg"} 
-                          {...field} 
-                        />
+                        <div className="space-y-3">
+                          <Input 
+                            placeholder={form.watch("mediaType") === "video" 
+                              ? "https://www.youtube.com/embed/..." 
+                              : "https://example.com/image.jpg"} 
+                            className="p-3 text-base"
+                            {...field} 
+                          />
+                          
+                          {form.watch("mediaType") === "image" && (
+                            <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+                              <h4 className="font-medium text-sm mb-2">Quick Image URLs:</h4>
+                              <div className="grid grid-cols-1 gap-2">
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="justify-start text-left"
+                                  onClick={() => field.onChange("https://images.unsplash.com/photo-1544957992-6ef475c58fb1?q=80&w=1000&auto=format&fit=crop")}
+                                >
+                                  <ImageIcon className="h-4 w-4 mr-2 text-gray-500" />
+                                  Koggala Lake (Unsplash)
+                                </Button>
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="justify-start text-left"
+                                  onClick={() => field.onChange("https://images.unsplash.com/photo-1567445429450-7d8f3fa486a5?q=80&w=1000&auto=format&fit=crop")}
+                                >
+                                  <ImageIcon className="h-4 w-4 mr-2 text-gray-500" />
+                                  Sri Lanka Beach (Unsplash)
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormDescription>
                         {form.watch("mediaType") === "video" 
                           ? "For YouTube videos, use the embed URL (e.g., https://www.youtube.com/embed/VIDEO_ID)" 
-                          : "Provide a direct link to your image"}
+                          : "Enter a direct URL to an image or select one of the sample images above"}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
