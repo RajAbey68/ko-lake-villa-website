@@ -52,7 +52,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-display text-2xl font-bold mb-4">Ko Lake Villa</h3>
+            <h3 className="font-display text-2xl font-bold mb-4 whitespace-nowrap">Ko Lake Villa</h3>
             <p className="mb-6">A boutique lakeside retreat offering luxury accommodation and personalized experiences in a serene natural setting.</p>
             <div className="flex space-x-4">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#E8B87D] transition-colors" aria-label="Facebook">

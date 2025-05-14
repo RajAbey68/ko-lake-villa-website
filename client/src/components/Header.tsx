@@ -33,7 +33,7 @@ const Header = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center">
-          <h1 className="text-[#1E4E5F] font-display text-2xl md:text-3xl font-bold">Ko Lake Villa</h1>
+          <h1 className="text-[#1E4E5F] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
         </Link>
         
         {/* Mobile Menu Button */}
