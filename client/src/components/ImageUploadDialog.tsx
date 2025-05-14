@@ -183,11 +183,11 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
       // Call success callback to refresh the gallery
       onSuccess();
       
-    } catch (err) {
-      console.error("Error in handleSubmit:", err);
+    } catch (error: any) {
+      console.error("Error in handleSubmit:", error);
       toast({
         title: "Error",
-        description: `Failed to upload: ${err.message}`,
+        description: `Failed to upload: ${error?.message || 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
