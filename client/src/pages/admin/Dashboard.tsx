@@ -208,14 +208,57 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     }
   });
   
+  // Import for file upload handling
+  const { uploadFile } = require('../../lib/firebaseStorage');
+
   // Handle form submission
-  const onSubmit = (values: FormValues) => {
-    if (isEditingImage !== null) {
-      // Update existing image
-      updateMutation.mutate({ id: isEditingImage, data: values });
-    } else {
-      // Create new image
-      createMutation.mutate(values);
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const formData = { ...values };
+      
+      // Handle file upload if method is 'file'
+      if (values.uploadMethod === 'file' && values.file) {
+        try {
+          // Show upload in progress toast
+          toast({
+            title: "Uploading file...",
+            description: "Please wait while your file is being uploaded.",
+            variant: "default",
+          });
+          
+          // Upload file to Firebase Storage
+          const downloadURL = await uploadFile(values.file);
+          
+          // Replace file with download URL
+          formData.imageUrl = downloadURL;
+        } catch (error) {
+          console.error("File upload error:", error);
+          toast({
+            title: "Upload Failed",
+            description: "Failed to upload file. Please try again.",
+            variant: "destructive",
+          });
+          return; // Exit early if upload fails
+        }
+      }
+      
+      // Remove the file object as it can't be serialized
+      delete formData.file;
+      
+      if (isEditingImage !== null) {
+        // Update existing image
+        updateMutation.mutate({ id: isEditingImage, data: formData });
+      } else {
+        // Create new image
+        createMutation.mutate(formData);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save image. Please try again.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -356,12 +399,13 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Media Type Selection */}
               <FormField
                 control={form.control}
                 name="mediaType"
                 render={({ field }) => (
                   <FormItem className="space-y-1">
-                    <FormLabel>Media Type</FormLabel>
+                    <FormLabel>Content Type</FormLabel>
                     <FormControl>
                       <div className="flex gap-4">
                         <div className="flex items-center space-x-2">
@@ -373,7 +417,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             onChange={() => field.onChange("image")}
                             className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
                           />
-                          <Label htmlFor="media-image">Image</Label>
+                          <Label htmlFor="media-image">Photo</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <input
@@ -384,33 +428,115 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             onChange={() => field.onChange("video")}
                             className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
                           />
-                          <Label htmlFor="media-video">Video Embed</Label>
+                          <Label htmlFor="media-video">Video</Label>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Upload Method Selection */}
+              <FormField
+                control={form.control}
+                name="uploadMethod"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>Upload Method</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="upload-file"
+                            value="file"
+                            checked={field.value === "file"}
+                            onChange={() => field.onChange("file")}
+                            className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
+                          />
+                          <Label htmlFor="upload-file">Upload from Device</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="upload-url"
+                            value="url"
+                            checked={field.value === "url"}
+                            onChange={() => field.onChange("url")}
+                            className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
+                          />
+                          <Label htmlFor="upload-url">Provide URL</Label>
                         </div>
                       </div>
                     </FormControl>
                     <FormDescription>
-                      {field.value === "video" 
-                        ? "Enter an embed URL (YouTube, Vimeo, etc)" 
-                        : "Enter a direct link to your image"}
+                      {field.value === "file" 
+                        ? "Upload directly from your device" 
+                        : form.watch("mediaType") === "video" 
+                          ? "Provide a link to a video (YouTube, Vimeo, etc)" 
+                          : "Provide a direct link to your image"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               
-              <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{form.watch("mediaType") === "video" ? "Video URL" : "Image URL"}</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* File Upload Field - shown when upload method is 'file' */}
+              {form.watch("uploadMethod") === "file" && (
+                <FormField
+                  control={form.control}
+                  name="file"
+                  render={({ field: { value, onChange, ...fieldProps } }) => (
+                    <FormItem>
+                      <FormLabel>{form.watch("mediaType") === "video" ? "Video File" : "Image File"}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="file" 
+                          accept={form.watch("mediaType") === "video" ? "video/*" : "image/*"}
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                              onChange(e.target.files[0]);
+                            }
+                          }}
+                          {...fieldProps}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Select a file from your device to upload
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
+              {/* URL Field - shown when upload method is 'url' */}
+              {form.watch("uploadMethod") === "url" && (
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{form.watch("mediaType") === "video" ? "Video URL" : "Image URL"}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder={form.watch("mediaType") === "video" 
+                            ? "https://www.youtube.com/embed/..." 
+                            : "https://example.com/image.jpg"} 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {form.watch("mediaType") === "video" 
+                          ? "For YouTube videos, use the embed URL (e.g., https://www.youtube.com/embed/VIDEO_ID)" 
+                          : "Provide a direct link to your image"}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               
               <FormField
                 control={form.control}
