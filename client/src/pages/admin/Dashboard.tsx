@@ -114,6 +114,8 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const queryClient = useQueryClient();
   const [isEditingImage, setIsEditingImage] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   
   // Load gallery images
   const { data: images = [], isLoading, isError } = useQuery<GalleryImage[]>({
@@ -218,6 +220,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   // Direct Save - Bypassing firebase for simplicity in testing
   const handleDirectSave = () => {
     const basicValues = {
+      uploadMethod: "url" as const, // Explicitly set to URL method
       category: form.getValues("category") || "family-suite", // Default to a category
       alt: form.getValues("alt") || "Image title", // Default description
       description: form.getValues("description") || "",
@@ -242,6 +245,11 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     } else {
       createMutation.mutate(basicValues);
     }
+    
+    // Close the dialog after saving
+    setTimeout(() => {
+      setIsAddingImage(false);
+    }, 1000);
   };
 
   // Handle form submission
@@ -282,11 +290,28 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       // Handle file upload if method is 'file'
       if (values.uploadMethod === 'file' && values.file) {
         try {
-          // Show upload in progress toast
-          toast({
+          // Set uploading state and reset progress
+          setIsUploading(true);
+          setUploadProgress(0);
+          
+          // Progress tracking toast
+          const uploadingToastId = toast({
             title: "Uploading file...",
-            description: "Please wait while your file is being uploaded.",
-            variant: "default",
+            description: (
+              <div className="w-full">
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium">Uploading: {values.file.name}</span>
+                  <span className="text-sm font-medium">{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div 
+                    className="bg-[#FF914D] h-2.5 rounded-full transition-all duration-300" 
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+              </div>
+            ),
+            duration: 100000, // Long duration, we'll dismiss it manually
           });
           
           console.log("About to upload file:", values.file);
