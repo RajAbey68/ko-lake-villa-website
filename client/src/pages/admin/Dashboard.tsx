@@ -240,65 +240,95 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   // Use uploadFile from the top-level import
 
   // Direct Save - Bypassing firebase for simplicity in testing
-  const handleDirectSave = () => {
-    // Generate a guaranteed success case with sample image
-    const basicValues = {
-      uploadMethod: "url" as const, // Explicitly set to URL method
-      category: form.getValues("category") || "family-suite", // Default to a category
-      alt: form.getValues("alt") || "Sample Image " + new Date().toLocaleTimeString(), // Auto-generate title
-      description: form.getValues("description") || "Sample description added via quick save",
-      tags: form.getValues("tags") || "sample,demo",
-      featured: form.getValues("featured") || false,
-      sortOrder: form.getValues("sortOrder") || 0,
-      mediaType: "image" as const, // Always image for quick save
-      imageUrl: "https://images.unsplash.com/photo-1544957992-6ef475c58fb1?q=80&w=1000&auto=format&fit=crop" // Guaranteed image URL
-    };
-    
-    console.log("Directly saving with values:", basicValues);
-    
-    // Show success toast
-    toast({
-      title: "Quick Save Started",
-      description: "Saving sample image to the gallery...",
-      duration: 2000,
-    });
-    
-    // Use the mutation directly
-    if (isEditingImage !== null) {
-      updateMutation.mutate({ id: isEditingImage, data: basicValues });
-    } else {
-      createMutation.mutate(basicValues);
-    }
-    
-    // Add a final success message
-    setTimeout(() => {
+  const handleDirectSave = async () => {
+    try {
+      // Generate a guaranteed success case with sample image
+      const basicValues = {
+        uploadMethod: "url" as const, // Explicitly set to URL method
+        category: form.getValues("category") || "family-suite", // Default to a category
+        alt: form.getValues("alt") || "Sample Image " + new Date().toLocaleTimeString(), // Auto-generate title
+        description: form.getValues("description") || "Sample description added via quick save",
+        tags: form.getValues("tags") || "sample,demo",
+        featured: form.getValues("featured") || false,
+        sortOrder: form.getValues("sortOrder") || 0,
+        mediaType: "image" as const, // Always image for quick save
+        imageUrl: "https://images.unsplash.com/photo-1544957992-6ef475c58fb1?q=80&w=1000&auto=format&fit=crop" // Guaranteed image URL
+      };
+      
+      console.log("Directly saving with values:", basicValues);
+      
+      // Show initial toast
+      toast({
+        title: "Saving Image...",
+        description: "Please wait while we save your image.",
+        duration: 3000,
+      });
+      
+      // Make a direct API call instead of using mutation
+      const response = await fetch('/api/admin/gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(basicValues),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      
+      console.log("Save response:", response);
+      
+      // Show success message
       toast({
         title: "Success!",
         description: (
           <div className="space-y-2">
             <p className="text-green-600">✅ Image added to gallery successfully!</p>
-            <p className="text-sm">Dialog will close automatically...</p>
           </div>
         ),
         duration: 3000,
       });
       
-      // Close the dialog after a short delay
+      // Invalidate the gallery cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      
+      // Close the dialog after a brief delay
       setTimeout(() => {
         setIsAddingImage(false);
-      }, 1500);
-    }, 1000);
+      }, 2000);
+      
+    } catch (error) {
+      console.error("Error saving image:", error);
+      
+      // Error toast
+      toast({
+        title: "Save Failed",
+        description: (
+          <div>
+            <p className="text-red-600">Error saving image. Please try again.</p>
+            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">
+              {error instanceof Error ? error.message : String(error)}
+            </pre>
+          </div>
+        ),
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
   };
 
-  // Handle form submission
+  // Handle form submission with reliable save
   const onSubmit = async (values: FormValues) => {
     console.log("Form submitted with values:", values);
-    console.log("Form validation errors:", form.formState.errors);
     
     // Show the submission in progress
     toast({
       title: "Processing submission...",
-      description: "Please wait while we process your request.",
+      description: "Please wait while we save your image.",
+      duration: 5000,
     });
     
     try {
@@ -640,11 +670,11 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             {/* Alternative URL option and Quick Save */}
             <div className="text-center text-sm text-gray-600 border-t mt-2 pt-2">
               <p className="mb-1"><strong>Having trouble with file upload?</strong></p>
-              <div className="flex justify-center mt-2">
+              <div className="flex flex-col items-center gap-2 mt-2">
                 <Button 
                   type="button" 
                   onClick={handleDirectSave}
-                  className="bg-[#62C3D2] hover:bg-[#54b5c4] text-white"
+                  className="bg-[#62C3D2] hover:bg-[#54b5c4] text-white w-full"
                   size="sm"
                 >
                   <span className="flex items-center">
@@ -652,6 +682,10 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                     Guaranteed Quick Save
                   </span>
                 </Button>
+                
+                <div className="text-xs text-center text-gray-500 mt-1">
+                  This button will definitely add a sample image to your gallery.
+                </div>
               </div>
               <p className="mt-2">Or try the "Provide URL" option below</p>
             </div>
