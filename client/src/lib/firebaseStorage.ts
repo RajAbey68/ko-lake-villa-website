@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 
 // Log Firebase configuration for debugging
@@ -31,12 +31,17 @@ try {
 const storage = getStorage(app);
 
 /**
- * Upload a file to Firebase Storage
+ * Upload a file to Firebase Storage with progress tracking
  * @param {File} file - The file to upload
  * @param {string} path - Optional path within the storage bucket
+ * @param {Function} progressCallback - Optional callback to track upload progress (0-100)
  * @returns {Promise<string>} - URL of the uploaded file
  */
-export const uploadFile = async (file: File, path = 'gallery'): Promise<string> => {
+export const uploadFile = async (
+  file: File, 
+  path = 'gallery', 
+  progressCallback?: (progress: number) => void
+): Promise<string> => {
   try {
     // Create a unique filename to prevent overwriting
     const fileExtension = file.name.split('.').pop();
@@ -46,16 +51,47 @@ export const uploadFile = async (file: File, path = 'gallery'): Promise<string> 
     // Create reference to the file location
     const storageRef = ref(storage, fullPath);
     
-    // Upload the file
-    const snapshot = await uploadBytes(storageRef, file);
-    
-    // Get the download URL
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    
-    return downloadURL;
+    return new Promise((resolve, reject) => {
+      // Use resumable upload for progress tracking
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      
+      // Listen for state changes
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          // Track upload progress
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          
+          // Call progress callback if provided
+          if (progressCallback) {
+            progressCallback(progress);
+          }
+          
+          console.log(`Upload progress: ${progress}%`);
+        },
+        (error) => {
+          // Handle errors
+          console.error("Upload error:", error);
+          reject(new Error('Failed to upload file: ' + error.message));
+        },
+        async () => {
+          // Upload completed successfully
+          try {
+            // Get the download URL
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            console.error("Error getting download URL:", error);
+            reject(new Error('Failed to get download URL'));
+          }
+        }
+      );
+    });
   } catch (error) {
     console.error("Error uploading file:", error);
-    throw new Error('Failed to upload file.');
+    throw new Error('Failed to upload file: ' + (error instanceof Error ? error.message : String(error)));
   }
 };
 
