@@ -48,7 +48,13 @@ import {
   CheckCircleIcon,
   ExternalLinkIcon,
   UploadIcon,
-  LinkIcon
+  LinkIcon,
+  RefreshCwIcon,
+  BugIcon,
+  PlusCircleIcon,
+  CheckIcon,
+  XIcon,
+  FilterIcon
 } from 'lucide-react';
 
 // Forward declaration of components
@@ -1124,21 +1130,134 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
 // Gallery Tab Component to combine the button and gallery manager
 function GalleryTab() {
   const [isAddingImage, setIsAddingImage] = useState(false);
+  const [debugImages, setDebugImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  
+  // Direct test function to add an image and fetch gallery
+  const testAddImage = async () => {
+    try {
+      setLoading(true);
+      toast({
+        title: "Adding test image...",
+        description: "Please wait while we add a test image.",
+      });
+      
+      // Create a test image
+      const testImage = {
+        uploadMethod: "url",
+        imageUrl: `https://images.unsplash.com/photo-1544957992-6ef475c58fb1?timestamp=${Date.now()}`,
+        alt: "Test Image " + new Date().toLocaleTimeString(),
+        description: "Test image added on " + new Date().toLocaleString(),
+        category: "family-suite",
+        tags: "test,debug",
+        featured: false,
+        sortOrder: 0,
+        mediaType: "image"
+      };
+      
+      // Make a direct API call
+      const response = await fetch('/api/admin/gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testImage),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to add image: ${response.status}`);
+      }
+      
+      // Now fetch all images to verify it was added
+      const galleryResponse = await fetch('/api/gallery');
+      if (!galleryResponse.ok) {
+        throw new Error(`Failed to fetch gallery: ${galleryResponse.status}`);
+      }
+      
+      const images = await galleryResponse.json();
+      setDebugImages(images);
+      
+      toast({
+        title: "Success!",
+        description: `Added test image and found ${images.length} total images in gallery.`,
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error("Test add image error:", error);
+      toast({
+        title: "Error",
+        description: `Failed to add test image: ${error}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   return (
     <Card>
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <CardTitle>Gallery Management</CardTitle>
-          <CardDescription>Upload and organize photos for your website</CardDescription>
+      <CardHeader className="flex flex-col space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Gallery Management</CardTitle>
+            <CardDescription>Upload and organize photos for your website</CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              onClick={testAddImage}
+              className="bg-green-600 hover:bg-green-700 text-white"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <RefreshCwIcon className="w-4 h-4 mr-2 animate-spin" />
+                  Testing...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <BugIcon className="w-4 h-4 mr-2" />
+                  Test Add+View
+                </span>
+              )}
+            </Button>
+            <Button 
+              onClick={() => setIsAddingImage(true)}
+              className="bg-[#FF914D] hover:bg-[#e67e3d]"
+            >
+              <ImageIcon className="w-4 h-4 mr-2" />
+              Add New Image
+            </Button>
+          </div>
         </div>
-        <Button 
-          onClick={() => setIsAddingImage(true)}
-          className="bg-[#FF914D] hover:bg-[#e67e3d]"
-        >
-          <ImageIcon className="w-4 h-4 mr-2" />
-          Add New Image
-        </Button>
+        
+        {/* Debug display of images */}
+        {debugImages.length > 0 && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-md border">
+            <h4 className="font-medium mb-2">{debugImages.length} Images in Database:</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              {debugImages.slice(0, 8).map((img, i) => (
+                <div key={i} className="relative rounded overflow-hidden border h-20">
+                  <img 
+                    src={img.imageUrl} 
+                    alt={img.alt} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // On error, show error indicator
+                      e.currentTarget.src = "https://via.placeholder.com/100x100?text=Error";
+                    }}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
+                    {img.alt || "No title"}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              These images exist in the database.
+            </p>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <GalleryManager isAddingImage={isAddingImage} setIsAddingImage={setIsAddingImage} />
