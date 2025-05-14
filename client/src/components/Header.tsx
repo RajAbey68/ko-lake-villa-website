@@ -31,22 +31,35 @@ const Header = () => {
         isScrolled ? "py-2" : "py-4"
       )}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between">
+      {/* Top section with logo and book now button */}
+      <div className="container mx-auto px-4 flex items-center justify-between border-b pb-2 mb-2">
         <Link href="/" className="flex items-center">
           <h1 className="text-[#1E4E5F] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
         </Link>
         
         {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-[#1E4E5F] focus:outline-none" 
-          onClick={toggleMobileMenu}
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-        >
-          <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
-        </button>
-        
+        <div className="flex items-center">
+          <Link 
+            href="/booking" 
+            className="hidden md:block bg-[#E8B87D] text-white px-6 py-2 rounded hover:bg-[#1E4E5F] transition-colors font-medium mr-4"
+          >
+            Book Now
+          </Link>
+          
+          <button 
+            className="md:hidden text-[#1E4E5F] focus:outline-none" 
+            onClick={toggleMobileMenu}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+          </button>
+        </div>
+      </div>
+      
+      {/* Bottom section with navigation */}
+      <div className="container mx-auto px-4">
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center justify-center space-x-8">
           <Link 
             href="/" 
             className={cn(
@@ -101,19 +114,13 @@ const Header = () => {
           >
             Contact
           </Link>
-          <Link 
-            href="/booking" 
-            className="bg-[#E8B87D] text-white px-6 py-2 rounded hover:bg-[#1E4E5F] transition-colors font-medium"
-          >
-            Book Now
-          </Link>
         </nav>
       </div>
       
       {/* Mobile Navigation Menu */}
       <div 
         className={cn(
-          "md:hidden bg-white absolute w-full left-0 top-16 shadow-md transition-all duration-300",
+          "md:hidden bg-white absolute w-full left-0 top-20 shadow-md transition-all duration-300",
           mobileMenuOpen ? "block" : "hidden"
         )}
       >
