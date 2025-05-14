@@ -5,13 +5,28 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useToast } from '../../hooks/use-toast';
+
+// Helper function to extract YouTube video ID from URL
+function getYouTubeVideoId(url: string): string {
+  try {
+    // Handle different YouTube URL formats
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+  } catch (error) {
+    console.error('Error extracting YouTube ID:', error);
+    return '';
+  }
+}
 import { 
   HomeIcon, 
   ArrowLeftIcon,
   ImageIcon, 
   PlusIcon,
   TrashIcon,
-  RefreshCwIcon
+  RefreshCwIcon,
+  AlertCircleIcon,
+  CheckCircleIcon
 } from 'lucide-react';
 
 // Simple GalleryImage type
@@ -22,6 +37,9 @@ type GalleryImage = {
   description?: string;
   category: string;
   featured: boolean;
+  mediaType?: string; // Can be "image" or "video"
+  tags?: string;
+  sortOrder?: number;
 };
 
 export default function AdminGallery() {
@@ -48,6 +66,8 @@ function SimpleGalleryManager() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [addingImage, setAddingImage] = useState(false);
+  const [addSuccess, setAddSuccess] = useState(false);
   const { toast } = useToast();
   
   // Load gallery images on component mount
@@ -91,19 +111,32 @@ function SimpleGalleryManager() {
   const addSampleImage = async () => {
     try {
       setLoading(true);
+      setAddingImage(true);
+      setAddSuccess(false);
+      setError(null);
       
-      // Sample image data
+      // Show immediate feedback
+      toast({
+        title: "Adding sample image...",
+        description: "Please wait while we add a sample image to your gallery.",
+      });
+      
+      // Sample image data with random variation to prevent duplicate detection
+      const randomNum = Math.floor(Math.random() * 1000);
+      const timestamp = Date.now();
       const sampleImage = {
         uploadMethod: "url",
-        imageUrl: `https://images.unsplash.com/photo-1544957992-6ef475c58fb1?timestamp=${Date.now()}`,
-        alt: "Sample Image " + new Date().toLocaleTimeString(),
-        description: "Sample image added on " + new Date().toLocaleString(),
+        imageUrl: `https://images.unsplash.com/photo-1544957992-6ef475c58fb1?v=${randomNum}&t=${timestamp}`,
+        alt: `Sample Image ${new Date().toLocaleTimeString()}`,
+        description: `Sample image added on ${new Date().toLocaleString()} #${randomNum}`,
         category: "family-suite",
-        tags: "sample",
+        tags: "sample,test",
         featured: false,
         sortOrder: 0,
         mediaType: "image"
       };
+      
+      console.log("Adding sample image:", sampleImage);
       
       // Send API request
       const response = await fetch('/api/admin/gallery', {
@@ -112,28 +145,55 @@ function SimpleGalleryManager() {
         body: JSON.stringify(sampleImage),
       });
       
+      const responseText = await response.text();
+      console.log("Response from server:", response.status, responseText);
+      
       if (!response.ok) {
-        throw new Error(`Failed to add image: ${response.status}`);
+        throw new Error(`Failed to add image: ${response.status} - ${responseText}`);
       }
       
-      // Show success message
+      // Show success message with more details
       toast({
-        title: "Success!",
-        description: "Sample image added to gallery",
+        title: "Image Added Successfully!",
+        description: (
+          <div className="space-y-2">
+            <p className="font-medium text-green-600 flex items-center">
+              <CheckCircleIcon className="h-4 w-4 mr-1" />
+              Sample image has been added to your gallery
+            </p>
+            <p className="text-sm">Check below to see your updated gallery.</p>
+          </div>
+        ),
+        duration: 5000,
       });
       
-      // Refresh the image list
-      fetchImages();
+      // Mark as success
+      setAddSuccess(true);
       
-    } catch (err) {
+      // Refresh the image list
+      await fetchImages();
+      
+    } catch (err: any) {
       console.error("Error adding sample image:", err);
+      setError(`Failed to add image: ${err?.message || 'Unknown error'}`);
+      
       toast({
-        title: "Error",
-        description: "Failed to add sample image",
+        title: "Error Adding Image",
+        description: (
+          <div className="space-y-2">
+            <p className="font-medium text-red-600 flex items-center">
+              <AlertCircleIcon className="h-4 w-4 mr-1" />
+              Failed to add sample image
+            </p>
+            <p className="text-sm">{err.message}</p>
+          </div>
+        ),
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setLoading(false);
+      setAddingImage(false);
     }
   };
   
@@ -189,14 +249,85 @@ function SimpleGalleryManager() {
               <RefreshCwIcon className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button
-              onClick={addSampleImage}
-              className="bg-[#FF914D] hover:bg-[#e67e3d]"
-              disabled={loading}
-            >
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Add Sample Image
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={addSampleImage}
+                className="bg-[#FF914D] hover:bg-[#e67e3d]"
+                disabled={loading}
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Sample Image
+              </Button>
+              
+              <Button
+                onClick={() => {
+                  // Add sample video
+                  try {
+                    setLoading(true);
+                    setAddingImage(true);
+                    
+                    // Show immediate feedback
+                    toast({
+                      title: "Adding sample video...",
+                      description: "Please wait while we add a sample video to your gallery.",
+                    });
+                    
+                    // Sample video data - YouTube video of Ko Lake area in Sri Lanka
+                    const sampleVideo = {
+                      uploadMethod: "url",
+                      imageUrl: "https://www.youtube.com/watch?v=zcNbwSF4x1U", // YouTube video of Sri Lanka lake
+                      alt: `Sri Lanka Lake Video (${new Date().toLocaleTimeString()})`,
+                      description: `Sample video of beautiful Sri Lanka landscapes added on ${new Date().toLocaleString()}`,
+                      category: "koggala-lake",
+                      tags: "sample,video,lake,sri lanka",
+                      featured: false,
+                      sortOrder: 0,
+                      mediaType: "video"
+                    };
+                    
+                    // Send API request
+                    fetch('/api/admin/gallery', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(sampleVideo),
+                    })
+                    .then(response => response.text())
+                    .then(responseText => {
+                      console.log("Video response:", responseText);
+                      toast({
+                        title: "Video Added Successfully!",
+                        description: "Sample video has been added to your gallery",
+                        duration: 5000,
+                      });
+                      
+                      // Refresh the image list
+                      fetchImages();
+                    })
+                    .catch(err => {
+                      console.error("Error adding video:", err);
+                      toast({
+                        title: "Error",
+                        description: `Failed to add video: ${err.message}`,
+                        variant: "destructive",
+                      });
+                    })
+                    .finally(() => {
+                      setLoading(false);
+                      setAddingImage(false);
+                    });
+                  } catch (err) {
+                    console.error("Error in video upload:", err);
+                    setLoading(false);
+                    setAddingImage(false);
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={loading}
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Sample Video
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -227,17 +358,41 @@ function SimpleGalleryManager() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image) => (
               <div key={image.id} className="relative group overflow-hidden rounded-lg border">
-                <img 
-                  src={image.imageUrl} 
-                  alt={image.alt}
-                  className="w-full h-48 object-cover transition-all duration-300 group-hover:opacity-75"
-                  onError={(e) => {
-                    // On error, show placeholder
-                    e.currentTarget.src = "https://via.placeholder.com/300x200?text=Image+Error";
-                  }}
-                />
+                {/* Show YouTube video embed if it's a video */}
+                {image.mediaType === 'video' && image.imageUrl?.includes('youtube.com') ? (
+                  <div className="aspect-video bg-gray-100">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(image.imageUrl)}`}
+                      allowFullScreen
+                      className="w-full h-48"
+                      title={image.alt}
+                    />
+                  </div>
+                ) : (
+                  <img 
+                    src={image.imageUrl} 
+                    alt={image.alt}
+                    className="w-full h-48 object-cover transition-all duration-300 group-hover:opacity-75"
+                    onError={(e) => {
+                      // On error, show placeholder
+                      e.currentTarget.src = "https://via.placeholder.com/300x200?text=Image+Error";
+                    }}
+                  />
+                )}
+                
                 <div className="p-3">
-                  <h3 className="font-medium truncate">{image.alt}</h3>
+                  <div className="flex items-center gap-2">
+                    {image.mediaType === 'video' ? (
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                        Video
+                      </span>
+                    ) : (
+                      <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded">
+                        Image
+                      </span>
+                    )}
+                    <h3 className="font-medium truncate">{image.alt}</h3>
+                  </div>
                   <p className="text-sm text-gray-500 truncate">{image.category}</p>
                 </div>
                 
