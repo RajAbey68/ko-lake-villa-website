@@ -21,6 +21,11 @@ export default function AdminLogin() {
   // Handle Google Sign-in with popup
   const handleGoogleSignIn = async () => {
     try {
+      // Show current location for debugging
+      console.log("Current location:", window.location.href);
+      console.log("Hostname:", window.location.hostname);
+      console.log("Origin:", window.location.origin);
+      
       setIsSigningIn(true);
       setError(null);
       const user = await signInWithGoogle();
@@ -28,7 +33,7 @@ export default function AdminLogin() {
       // No redirect needed - the popup handles the flow
     } catch (err: any) {
       console.error('Login failed:', err);
-      setError(err?.message || 'Failed to sign in with Google. Please try again.');
+      setError(`Firebase: Error (auth/unauthorized-domain). Please add ${window.location.hostname} to Firebase authorized domains.`);
       setIsSigningIn(false);
     }
   };
