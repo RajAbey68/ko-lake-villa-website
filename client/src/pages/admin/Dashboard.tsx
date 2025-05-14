@@ -60,12 +60,26 @@ export default function AdminDashboard() {
 
 // Validation schema for gallery images
 const galleryImageSchema = z.object({
-  imageUrl: z.string().url({ message: "Please enter a valid image URL" }),
-  alt: z.string().min(3, { message: "Alt text must be at least 3 characters" }),
+  uploadMethod: z.enum(["url", "file"]).default("url"),
+  imageUrl: z.string().url({ message: "Please enter a valid URL" }).optional(),
+  file: z.any().optional(),
+  alt: z.string().min(3, { message: "Description must be at least 3 characters" }),
   category: z.string().min(2, { message: "Please select a category" }),
+  tags: z.string().optional(),
+  description: z.string().optional(),
   featured: z.boolean().default(false),
   sortOrder: z.number().int().nonnegative().default(0),
   mediaType: z.enum(["image", "video"]).default("image"),
+}).refine((data) => {
+  // Ensure either imageUrl or file is provided based on uploadMethod
+  if (data.uploadMethod === "url") {
+    return !!data.imageUrl;
+  } else {
+    return !!data.file;
+  }
+}, {
+  message: "Please provide either a URL or upload a file",
+  path: ["imageUrl"],
 });
 
 type FormValues = z.infer<typeof galleryImageSchema>;
@@ -106,9 +120,12 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const form = useForm<FormValues>({
     resolver: zodResolver(galleryImageSchema),
     defaultValues: {
+      uploadMethod: 'url',
       imageUrl: '',
       alt: '',
       category: '',
+      tags: '',
+      description: '',
       featured: false,
       sortOrder: 0,
       mediaType: 'image',
