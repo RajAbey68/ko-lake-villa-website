@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 export default function AdminLogin() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser, isAdmin, setCurrentUser } = useAuth();
   const [location] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +61,9 @@ export default function AdminLogin() {
       
       const user = await signInWithEmail(email, password);
       console.log("User signed in with email:", user?.email);
+      
+      // Manually set the current user in the auth context
+      setCurrentUser(user);
     } catch (err: any) {
       console.error('Login failed:', err);
       setError(err?.message || 'Invalid email or password');
