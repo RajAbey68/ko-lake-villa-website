@@ -59,11 +59,11 @@ function Router() {
   return (
     <main className="min-h-screen">
       <Switch>
-        <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/gallery" component={AdminGallery} />
         <Route path="/admin/statistics" component={Statistics} />
+        <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>
