@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '../../contexts/AuthContext';
 import { logOut } from '../../lib/firebase';
+import { uploadFile } from '../../lib/firebaseStorage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Button } from '../../components/ui/button';
@@ -25,6 +26,8 @@ type GalleryImage = {
   id: number;
   imageUrl: string;
   alt: string;
+  description?: string;
+  tags?: string;
   category: string;
   featured: boolean;
   sortOrder: number;
@@ -208,8 +211,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     }
   });
   
-  // Import for file upload handling
-  const { uploadFile } = require('../../lib/firebaseStorage');
+  // Use uploadFile from the top-level import
 
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
@@ -265,8 +267,11 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   // Handle editing an image
   const handleEdit = (image: GalleryImage) => {
     form.reset({
+      uploadMethod: 'url',  // Default to URL method when editing
       imageUrl: image.imageUrl,
       alt: image.alt,
+      description: image.description || '',
+      tags: image.tags || '',
       category: image.category,
       featured: image.featured,
       sortOrder: image.sortOrder,
@@ -538,19 +543,65 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 />
               )}
               
+              {/* Title field (alt is repurposed as title) */}
               <FormField
                 control={form.control}
                 name="alt"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter a title for this item" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      A concise name for this {form.watch("mediaType") === "video" ? "video" : "image"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Description field */}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Describe this image" 
+                        placeholder="Describe this content in detail" 
                         {...field} 
                         className="resize-none"
                       />
                     </FormControl>
+                    <FormDescription>
+                      Provide more details about this {form.watch("mediaType") === "video" ? "video" : "image"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Tags field */}
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="beach, sunset, family, etc." 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter tags separated by commas
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
