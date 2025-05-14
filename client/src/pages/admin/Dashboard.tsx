@@ -218,11 +218,20 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
     console.log("Form submitted with values:", values);
+    console.log("Form validation errors:", form.formState.errors);
+    
+    // Show the submission in progress
+    toast({
+      title: "Processing submission...",
+      description: "Please wait while we process your request.",
+    });
+    
     try {
       const formData = { ...values };
       
-      // Check all required fields
+      // Check all required fields with more detailed logging
       if (!values.category) {
+        console.error("Missing category");
         toast({
           title: "Missing information",
           description: "Please select a category for this image.",
@@ -232,6 +241,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       }
       
       if (!values.alt) {
+        console.error("Missing alt text");
         toast({
           title: "Missing information",
           description: "Please provide a description (alt text) for this image.",
@@ -251,8 +261,15 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           });
           
           console.log("About to upload file:", values.file);
+          
+          // Display Firebase config status to debug
+          console.log("Firebase API Key exists:", !!import.meta.env.VITE_FIREBASE_API_KEY);
+          console.log("Firebase Storage Bucket exists:", !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET);
+          console.log("Firebase Project ID exists:", !!import.meta.env.VITE_FIREBASE_PROJECT_ID);
+          
           // Redirect to URL method if Firebase credentials are missing
-          if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+          if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_STORAGE_BUCKET) {
+            console.error("Firebase credentials missing");
             toast({
               title: "Firebase not configured",
               description: "File upload is not available yet. Please use the URL method instead.",
@@ -261,12 +278,24 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             return;
           }
           
-          // Upload file to Firebase Storage
-          const downloadURL = await uploadFile(values.file);
-          console.log("File uploaded successfully with URL:", downloadURL);
-          
-          // Replace file with download URL
-          formData.imageUrl = downloadURL;
+          try {
+            // Upload file to Firebase Storage
+            console.log("Starting file upload to Firebase...");
+            const downloadURL = await uploadFile(values.file);
+            console.log("File uploaded successfully with URL:", downloadURL);
+            
+            // Replace file with download URL
+            formData.imageUrl = downloadURL;
+          } catch (uploadError) {
+            // More detailed error handling for Firebase upload
+            console.error("Firebase upload error:", uploadError);
+            toast({
+              title: "Firebase Upload Error",
+              description: "Error connecting to Firebase: " + (uploadError.message || "Unknown error"),
+              variant: "destructive",
+            });
+            return;
+          }
         } catch (error) {
           console.error("File upload error:", error);
           toast({
@@ -462,6 +491,12 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             <p className="text-sm text-center text-gray-600">
               Fill in all required fields below before clicking this button
             </p>
+            
+            {/* Alternative URL option */}
+            <div className="text-center text-sm text-gray-600 border-t mt-2 pt-2">
+              <p className="mb-1"><strong>Having trouble with file upload?</strong></p>
+              <p>Try the "Provide URL" option instead</p>
+            </div>
           </div>
           
           <Form {...form}>
@@ -725,7 +760,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="max-h-[200px] overflow-y-auto">
                         {CATEGORIES.map(category => (
                           <SelectItem key={category.value} value={category.value}>
                             {category.label}
