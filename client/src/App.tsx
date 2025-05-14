@@ -18,6 +18,7 @@ import Booking from "@/pages/Booking";
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminGallery from "@/pages/admin/Gallery";
 
 function Router() {
   const [location] = useLocation();
@@ -52,6 +53,7 @@ function Router() {
       <Switch>
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />
+        <Route path="/admin/gallery" component={AdminGallery} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>
