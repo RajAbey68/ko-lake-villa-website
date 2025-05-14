@@ -45,7 +45,10 @@ export interface IStorage {
   // Gallery operations
   getGalleryImages(): Promise<GalleryImage[]>;
   getGalleryImagesByCategory(category: string): Promise<GalleryImage[]>;
+  getGalleryImageById(id: number): Promise<GalleryImage | undefined>;
   createGalleryImage(galleryImage: InsertGalleryImage): Promise<GalleryImage>;
+  updateGalleryImage(galleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage>;
+  deleteGalleryImage(id: number): Promise<boolean>;
 
   // Booking operations
   createBookingInquiry(bookingInquiry: InsertBookingInquiry): Promise<BookingInquiry>;
@@ -461,11 +464,50 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getGalleryImageById(id: number): Promise<GalleryImage | undefined> {
+    return this.galleryImages.get(id);
+  }
+
   async createGalleryImage(insertGalleryImage: InsertGalleryImage): Promise<GalleryImage> {
     const id = this.nextGalleryImageId++;
-    const galleryImage: GalleryImage = { ...insertGalleryImage, id };
+    
+    // Ensure all required fields have values
+    const galleryImage: GalleryImage = { 
+      ...insertGalleryImage, 
+      id,
+      featured: insertGalleryImage.featured ?? false,
+      sortOrder: insertGalleryImage.sortOrder ?? 0,
+      mediaType: insertGalleryImage.mediaType ?? "image"
+    };
+    
     this.galleryImages.set(id, galleryImage);
     return galleryImage;
+  }
+  
+  async updateGalleryImage(partialGalleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage> {
+    const { id } = partialGalleryImage;
+    const existingImage = this.galleryImages.get(id);
+    
+    if (!existingImage) {
+      throw new Error(`Gallery image with ID ${id} not found`);
+    }
+    
+    // Update the existing image with the new properties
+    const updatedImage: GalleryImage = {
+      ...existingImage,
+      ...partialGalleryImage,
+    };
+    
+    this.galleryImages.set(id, updatedImage);
+    return updatedImage;
+  }
+  
+  async deleteGalleryImage(id: number): Promise<boolean> {
+    if (!this.galleryImages.has(id)) {
+      return false;
+    }
+    
+    return this.galleryImages.delete(id);
   }
 
   // Booking methods
