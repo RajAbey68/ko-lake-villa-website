@@ -18,8 +18,9 @@ const googleProvider = new GoogleAuthProvider();
 
 // List of authorized admin emails
 const AUTHORIZED_EMAILS: string[] = [
-  // Add the Ko Lake Villa admin email
-  "contact@KoLakeHouse.com"
+  // Ko Lake Villa admin emails
+  "contact@KoLakeHouse.com",
+  "RajAbey68@google.com"
 ];
 
 // Check if a user is an authorized admin
