@@ -1,25 +1,28 @@
-import { cn } from "../../lib/utils";
+import React from 'react';
+import { cn } from '../../lib/utils';
 
-interface SpinnerProps {
-  size?: "sm" | "md" | "lg";
-  className?: string;
+export interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function Spinner({ size = "md", className }: SpinnerProps) {
+export function Spinner({ className, size = 'md', ...props }: SpinnerProps) {
   const sizeClasses = {
-    sm: "w-4 h-4 border-2",
-    md: "w-8 h-8 border-2",
-    lg: "w-12 h-12 border-3",
+    sm: 'h-4 w-4',
+    md: 'h-6 w-6',
+    lg: 'h-8 w-8',
   };
 
   return (
     <div
-      className={cn(
-        "border-solid rounded-full animate-spin border-t-transparent",
-        "border-[#8B5E3C]", // Using Kurumba Brown from our color scheme
+      className={cn("inline-block animate-spin rounded-full border-4 border-solid border-current border-t-transparent", 
         sizeClasses[size],
         className
       )}
-    />
+      {...props}
+      role="status"
+      aria-label="loading"
+    >
+      <span className="sr-only">Loading...</span>
+    </div>
   );
 }
