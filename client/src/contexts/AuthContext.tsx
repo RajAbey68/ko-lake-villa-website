@@ -7,6 +7,7 @@ interface AuthContextType {
   currentUser: User | null;
   isLoading: boolean;
   isAdmin: boolean;
+  setCurrentUser: (user: User | null) => void;
 }
 
 // Create the context with a default value
@@ -14,6 +15,7 @@ const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   isLoading: true,
   isAdmin: false,
+  setCurrentUser: () => {},
 });
 
 // Create a provider component
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     currentUser,
     isLoading,
     isAdmin,
+    setCurrentUser,
   };
   
   return (
