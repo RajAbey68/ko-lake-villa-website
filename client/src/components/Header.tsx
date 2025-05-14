@@ -27,27 +27,27 @@ const Header = () => {
   return (
     <header 
       className={cn(
-        "fixed w-full bg-white z-50 transition-all duration-300 header-shadow",
+        "fixed w-full bg-[#FDF6EE] z-50 transition-all duration-300 header-shadow",
         isScrolled ? "py-2" : "py-4"
       )}
     >
       {/* Top section with logo and book now button */}
-      <div className="container mx-auto px-4 flex items-center justify-between border-b pb-2 mb-2">
+      <div className="container mx-auto px-4 flex items-center justify-between border-b border-[#A0B985] pb-2 mb-2">
         <Link href="/" className="flex items-center">
-          <h1 className="text-[#1E4E5F] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
+          <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
         </Link>
         
         {/* Mobile Menu Button */}
         <div className="flex items-center">
           <Link 
             href="/booking" 
-            className="hidden md:block bg-[#E8B87D] text-white px-6 py-2 rounded hover:bg-[#1E4E5F] transition-colors font-medium mr-4"
+            className="hidden md:block bg-[#FF914D] text-white px-6 py-2 rounded hover:bg-[#8B5E3C] transition-colors font-medium mr-4"
           >
             Book Now
           </Link>
           
           <button 
-            className="md:hidden text-[#1E4E5F] focus:outline-none" 
+            className="md:hidden text-[#8B5E3C] focus:outline-none" 
             onClick={toggleMobileMenu}
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
@@ -63,8 +63,8 @@ const Header = () => {
           <Link 
             href="/" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium",
-              location === '/' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/' && "text-[#FF914D]"
             )}
           >
             Home
@@ -72,8 +72,8 @@ const Header = () => {
           <Link 
             href="/accommodation" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium",
-              location === '/accommodation' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/accommodation' && "text-[#FF914D]"
             )}
           >
             Accommodation
@@ -81,8 +81,8 @@ const Header = () => {
           <Link 
             href="/dining" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium",
-              location === '/dining' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/dining' && "text-[#FF914D]"
             )}
           >
             Dining
@@ -90,8 +90,8 @@ const Header = () => {
           <Link 
             href="/experiences" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium",
-              location === '/experiences' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/experiences' && "text-[#FF914D]"
             )}
           >
             Experiences
@@ -99,8 +99,8 @@ const Header = () => {
           <Link 
             href="/gallery" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium",
-              location === '/gallery' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/gallery' && "text-[#FF914D]"
             )}
           >
             Gallery
@@ -108,8 +108,8 @@ const Header = () => {
           <Link 
             href="/contact" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium",
-              location === '/contact' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/contact' && "text-[#FF914D]"
             )}
           >
             Contact
@@ -120,7 +120,7 @@ const Header = () => {
       {/* Mobile Navigation Menu */}
       <div 
         className={cn(
-          "md:hidden bg-white absolute w-full left-0 top-20 shadow-md transition-all duration-300",
+          "md:hidden bg-[#FDF6EE] absolute w-full left-0 top-20 shadow-md transition-all duration-300",
           mobileMenuOpen ? "block" : "hidden"
         )}
       >
@@ -128,8 +128,8 @@ const Header = () => {
           <Link 
             href="/" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium py-2",
-              location === '/' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/' && "text-[#FF914D]"
             )}
             onClick={closeMobileMenu}
           >
@@ -138,8 +138,8 @@ const Header = () => {
           <Link 
             href="/accommodation" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium py-2",
-              location === '/accommodation' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/accommodation' && "text-[#FF914D]"
             )}
             onClick={closeMobileMenu}
           >
@@ -148,8 +148,8 @@ const Header = () => {
           <Link 
             href="/dining" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium py-2",
-              location === '/dining' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/dining' && "text-[#FF914D]"
             )}
             onClick={closeMobileMenu}
           >
@@ -158,8 +158,8 @@ const Header = () => {
           <Link 
             href="/experiences" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium py-2",
-              location === '/experiences' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/experiences' && "text-[#FF914D]"
             )}
             onClick={closeMobileMenu}
           >
@@ -168,8 +168,8 @@ const Header = () => {
           <Link 
             href="/gallery" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium py-2",
-              location === '/gallery' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/gallery' && "text-[#FF914D]"
             )}
             onClick={closeMobileMenu}
           >
@@ -178,8 +178,8 @@ const Header = () => {
           <Link 
             href="/contact" 
             className={cn(
-              "text-[#1E4E5F] hover:text-[#E8B87D] transition-colors font-medium py-2",
-              location === '/contact' && "text-[#E8B87D]"
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/contact' && "text-[#FF914D]"
             )}
             onClick={closeMobileMenu}
           >
@@ -187,7 +187,7 @@ const Header = () => {
           </Link>
           <Link 
             href="/booking" 
-            className="bg-[#E8B87D] text-white px-6 py-3 rounded text-center hover:bg-[#1E4E5F] transition-colors font-medium"
+            className="bg-[#FF914D] text-white px-6 py-3 rounded text-center hover:bg-[#8B5E3C] transition-colors font-medium"
             onClick={closeMobileMenu}
           >
             Book Now
