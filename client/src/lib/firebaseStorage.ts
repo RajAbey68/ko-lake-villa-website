@@ -2,6 +2,12 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
 
+// Log Firebase configuration for debugging
+console.log("Firebase configuration status:");
+console.log("- API Key exists:", !!import.meta.env.VITE_FIREBASE_API_KEY);
+console.log("- Storage Bucket exists:", !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET);
+console.log("- Project ID exists:", !!import.meta.env.VITE_FIREBASE_PROJECT_ID);
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,7 +19,15 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase - avoid duplicate initialization
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+let app;
+try {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  console.log("Firebase app initialized successfully");
+} catch (error) {
+  console.error("Error initializing Firebase:", error);
+  // Create a minimal fallback for testing
+  app = { name: 'fallback-app' } as any;
+}
 const storage = getStorage(app);
 
 /**
