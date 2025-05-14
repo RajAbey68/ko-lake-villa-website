@@ -93,7 +93,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-[#1E4E5F] mb-1">Phone</h4>
-                  <p className="text-[#333333]">+94 77 123 4567</p>
+                  <p className="text-[#333333]">+94 071 173 0345</p>
                 </div>
               </div>
               
@@ -103,9 +103,9 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-[#1E4E5F] mb-1">WhatsApp</h4>
-                  <p className="text-[#333333]">+94 77 123 4567</p>
+                  <p className="text-[#333333]">+94 071 173 0345</p>
                   <a 
-                    href="https://wa.me/9477123456" 
+                    href="https://wa.me/940711730345" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="text-[#E8B87D] hover:text-[#1E4E5F] transition-colors"
@@ -121,7 +121,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-[#1E4E5F] mb-1">Email</h4>
-                  <p className="text-[#333333]">info@kolakevilla.com</p>
+                  <p className="text-[#333333]">contact@KoLakeHouse.com</p>
                 </div>
               </div>
 

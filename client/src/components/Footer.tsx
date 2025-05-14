@@ -88,11 +88,11 @@ const Footer = () => {
               </li>
               <li className="flex items-start">
                 <i className="fas fa-phone-alt mt-1 mr-3"></i>
-                <span>+94 77 123 4567</span>
+                <span>+94 071 173 0345</span>
               </li>
               <li className="flex items-start">
                 <i className="fas fa-envelope mt-1 mr-3"></i>
-                <span>info@kolakevilla.com</span>
+                <span>contact@KoLakeHouse.com</span>
               </li>
             </ul>
           </div>
