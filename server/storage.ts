@@ -204,47 +204,162 @@ export class MemStorage implements IStorage {
 
     sampleDiningOptions.forEach(diningOption => this.createDiningOption(diningOption));
 
-    // Sample gallery images
+    // Sample gallery images - organized by categories as requested
     const sampleGalleryImages: InsertGalleryImage[] = [
+      // Family Suite
       {
-        imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Villa Exterior",
-        category: "exterior"
+        imageUrl: "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Family Suite Master Bedroom",
+        category: "family-suite",
+        featured: true,
+        sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Living Room",
-        category: "interior"
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1540518614846-7eded433c457?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Master Bedroom",
-        category: "interior"
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Lakeside Deck",
-        category: "exterior"
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1514516345957-556ca7d90a29?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Dining Area",
-        category: "interior"
+        imageUrl: "https://images.unsplash.com/photo-1582582621959-48d27397dc69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Family Suite Living Area",
+        category: "family-suite",
+        sortOrder: 2
       },
       {
         imageUrl: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Luxury Bathroom",
-        category: "interior"
+        alt: "Family Suite Bathroom",
+        category: "family-suite",
+        sortOrder: 3
       },
+      
+      // Group Room
+      {
+        imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Group Room with Multiple Beds",
+        category: "group-room",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Group Room Seating Area",
+        category: "group-room",
+        sortOrder: 2
+      },
+      
+      // Triple Room
+      {
+        imageUrl: "https://images.unsplash.com/photo-1540518614846-7eded433c457?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Triple Room Overview",
+        category: "triple-room",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1595526228415-4c7bea711c2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Triple Room Writing Desk",
+        category: "triple-room",
+        sortOrder: 2
+      },
+      
+      // Dining Area
+      {
+        imageUrl: "https://images.unsplash.com/photo-1514516345957-556ca7d90a29?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Main Dining Area",
+        category: "dining-area",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1586195830864-b87abacec993?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Private Dining Nook",
+        category: "dining-area",
+        sortOrder: 2
+      },
+      
+      // Pool Deck
+      {
+        imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Pool Deck with Loungers",
+        category: "pool-deck",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Pool Deck Sunset View",
+        category: "pool-deck",
+        sortOrder: 2
+      },
+      
+      // Lake Garden
       {
         imageUrl: "https://images.unsplash.com/photo-1558521558-037f1cb027c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Garden Area",
-        category: "exterior"
+        alt: "Lake Garden Pathway",
+        category: "lake-garden",
+        featured: true,
+        sortOrder: 1
       },
       {
+        imageUrl: "https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Lake Garden Seating Area",
+        category: "lake-garden",
+        sortOrder: 2
+      },
+      
+      // Roof Garden
+      {
+        imageUrl: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Roof Garden Panoramic View",
+        category: "roof-garden",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1620219655479-763fb8f8784a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Roof Garden Lounge Area",
+        category: "roof-garden",
+        sortOrder: 2
+      },
+      
+      // Front Garden and Entrance
+      {
+        imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Villa Main Entrance",
+        category: "front-garden",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1570737209810-87a8e7245f88?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Front Garden Path",
+        category: "front-garden",
+        sortOrder: 2
+      },
+      
+      // Koggala Lake Ahangama and Surrounding
+      {
         imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        alt: "Aerial View",
-        category: "exterior"
+        alt: "Koggala Lake Aerial View",
+        category: "koggala-lake",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Koggala Lake Traditional Fishing Boats",
+        category: "koggala-lake",
+        sortOrder: 2
+      },
+      
+      // Excursions
+      {
+        imageUrl: "https://images.unsplash.com/photo-1586500036066-55435f49e071?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Local Temple Visit",
+        category: "excursions",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1606165210513-5e3214da0029?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        alt: "Beach Excursion",
+        category: "excursions",
+        sortOrder: 2
       }
     ];
 
