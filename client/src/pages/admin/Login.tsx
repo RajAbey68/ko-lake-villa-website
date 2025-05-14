@@ -64,6 +64,9 @@ export default function AdminLogin() {
       
       // Manually set the current user in the auth context
       setCurrentUser(user);
+      
+      // Directly navigate to the dashboard after successful login
+      window.location.href = '/admin/dashboard';
     } catch (err: any) {
       console.error('Login failed:', err);
       setError(err?.message || 'Invalid email or password');
