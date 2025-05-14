@@ -90,7 +90,7 @@ const Home = () => {
             {roomsLoading ? (
               // Loading skeleton
               Array(3).fill(0).map((_, i) => (
-                <div key={i} className="bg-[#F8F6F2] rounded-lg overflow-hidden shadow-lg animate-pulse">
+                <div key={i} className="bg-white rounded-lg overflow-hidden shadow-lg animate-pulse">
                   <div className="w-full h-64 bg-gray-300"></div>
                   <div className="p-6">
                     <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
@@ -109,24 +109,24 @@ const Home = () => {
               ))
             ) : (
               rooms?.slice(0, 3).map((room) => (
-                <div key={room.id} className="bg-[#F8F6F2] rounded-lg overflow-hidden shadow-lg hover-scale">
+                <div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
                   <img 
                     src={room.imageUrl} 
                     alt={room.name} 
                     className="w-full h-64 object-cover" 
                   />
                   <div className="p-6">
-                    <h3 className="text-xl font-display font-bold text-[#1E4E5F] mb-2">{room.name}</h3>
-                    <p className="text-[#333333] mb-4">{room.description}</p>
+                    <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">{room.name}</h3>
+                    <p className="text-[#8B5E3C] mb-4">{room.description}</p>
                     <div className="flex flex-wrap mb-4">
                       {room.features.map((feature, index) => (
-                        <span key={index} className="bg-[#E6D9C7] text-[#333333] px-3 py-1 rounded-full text-sm mr-2 mb-2">{feature}</span>
+                        <span key={index} className="bg-[#A0B985] text-[#8B5E3C] px-3 py-1 rounded-full text-sm mr-2 mb-2">{feature}</span>
                       ))}
-                      <span className="bg-[#E6D9C7] text-[#333333] px-3 py-1 rounded-full text-sm mr-2 mb-2">{room.size}m²</span>
+                      <span className="bg-[#A0B985] text-[#8B5E3C] px-3 py-1 rounded-full text-sm mr-2 mb-2">{room.size}m²</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <p className="text-[#1E4E5F] font-bold text-lg">${room.price} / night</p>
-                      <Link href="/booking" className="bg-[#E8B87D] text-white px-4 py-2 rounded hover:bg-[#1E4E5F] transition-colors text-sm font-medium">Book Now</Link>
+                      <p className="text-[#8B5E3C] font-bold text-lg">${room.price} / night</p>
+                      <Link href="/booking" className="bg-[#FF914D] text-white px-4 py-2 rounded hover:bg-[#8B5E3C] transition-colors text-sm font-medium">Book Now</Link>
                     </div>
                   </div>
                 </div>
@@ -135,7 +135,7 @@ const Home = () => {
           </div>
           
           <div className="text-center mt-12">
-            <Link href="/accommodation" className="inline-block border-2 border-[#1E4E5F] text-[#1E4E5F] px-6 py-3 rounded font-medium hover:bg-[#1E4E5F] hover:text-white transition-colors">
+            <Link href="/accommodation" className="inline-block border-2 border-[#8B5E3C] text-[#8B5E3C] px-6 py-3 rounded font-medium hover:bg-[#8B5E3C] hover:text-white transition-colors">
               View All Accommodation Options
             </Link>
           </div>
@@ -143,11 +143,11 @@ const Home = () => {
       </section>
 
       {/* Activities Section Preview */}
-      <section className="py-20 bg-[#F8F6F2]">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#1E4E5F] mb-4">Activities & Experiences</h2>
-            <p className="text-[#333333] max-w-3xl mx-auto">Discover the natural beauty and cultural richness of the surrounding area with our curated activities and experiences.</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">Activities & Experiences</h2>
+            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Discover the natural beauty and cultural richness of the surrounding area with our curated activities and experiences.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -172,9 +172,9 @@ const Home = () => {
                     className="w-full h-56 object-cover" 
                   />
                   <div className="p-6">
-                    <h3 className="text-xl font-display font-bold text-[#1E4E5F] mb-2">{activity.name}</h3>
-                    <p className="text-[#333333] mb-4">{activity.description}</p>
-                    <Link href="/experiences" className="text-[#E8B87D] hover:text-[#1E4E5F] transition-colors font-medium">
+                    <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">{activity.name}</h3>
+                    <p className="text-[#8B5E3C] mb-4">{activity.description}</p>
+                    <Link href="/experiences" className="text-[#FF914D] hover:text-[#8B5E3C] transition-colors font-medium">
                       Learn More <i className="fas fa-arrow-right ml-1"></i>
                     </Link>
                   </div>
