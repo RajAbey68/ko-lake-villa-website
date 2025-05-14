@@ -217,8 +217,28 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
 
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
+    console.log("Form submitted with values:", values);
     try {
       const formData = { ...values };
+      
+      // Check all required fields
+      if (!values.category) {
+        toast({
+          title: "Missing information",
+          description: "Please select a category for this image.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (!values.alt) {
+        toast({
+          title: "Missing information",
+          description: "Please provide a description (alt text) for this image.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       // Handle file upload if method is 'file'
       if (values.uploadMethod === 'file' && values.file) {
@@ -230,8 +250,20 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             variant: "default",
           });
           
+          console.log("About to upload file:", values.file);
+          // Redirect to URL method if Firebase credentials are missing
+          if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+            toast({
+              title: "Firebase not configured",
+              description: "File upload is not available yet. Please use the URL method instead.",
+              variant: "destructive",
+            });
+            return;
+          }
+          
           // Upload file to Firebase Storage
           const downloadURL = await uploadFile(values.file);
+          console.log("File uploaded successfully with URL:", downloadURL);
           
           // Replace file with download URL
           formData.imageUrl = downloadURL;
@@ -239,7 +271,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           console.error("File upload error:", error);
           toast({
             title: "Upload Failed",
-            description: "Failed to upload file. Please try again.",
+            description: "Failed to upload file. Please try again or use URL method.",
             variant: "destructive",
           });
           return; // Exit early if upload fails
@@ -415,7 +447,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           </DialogHeader>
           
           {/* Simplified form with prominent buttons at top */}
-          <div className="flex items-center gap-3 py-3 my-2">
+          <div className="flex flex-col gap-3 py-3 my-2">
             {/* Submit button at the top */}
             <Button 
               type="submit"
@@ -427,6 +459,9 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 <ImagePlusIcon className="h-5 w-5" />
               </span>
             </Button>
+            <p className="text-sm text-center text-gray-600">
+              Fill in all required fields below before clicking this button
+            </p>
           </div>
           
           <Form {...form}>
