@@ -354,9 +354,19 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 )}
               </div>
               <div className="p-3 flex-1 flex flex-col">
-                <div className="text-sm text-gray-700 mb-1 line-clamp-2 flex-1">{image.alt}</div>
-                <div className="text-xs text-gray-500 mb-2">
-                  Category: {CATEGORIES.find(c => c.value === image.category)?.label || image.category}
+                <div className="text-sm font-medium text-gray-800 mb-1">{image.alt}</div>
+                <div className="text-xs text-gray-600 mb-1 line-clamp-2 flex-1">
+                  {image.description || "No description provided"}
+                </div>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                    {CATEGORIES.find(c => c.value === image.category)?.label || image.category}
+                  </span>
+                  {image.tags && image.tags.split(',').map((tag, index) => (
+                    <span key={index} className="text-xs bg-[#A0B985]/30 text-[#5A6B45] px-2 py-0.5 rounded-full">
+                      {tag.trim()}
+                    </span>
+                  ))}
                 </div>
                 <div className="flex justify-between gap-2 mt-auto">
                   <Button 

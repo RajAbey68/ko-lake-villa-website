@@ -73,6 +73,8 @@ export const galleryImages = pgTable("gallery_images", {
   id: serial("id").primaryKey(),
   imageUrl: text("image_url").notNull(),
   alt: text("alt").notNull(),
+  description: text("description"), // Additional details about the image
+  tags: text("tags"), // Comma-separated list of tags for searching and filtering
   category: text("category").notNull(), // Specific areas like "family-suite", "pool-deck", etc.
   featured: boolean("featured").default(false).notNull(), // Flag for featured images
   sortOrder: integer("sort_order").default(0).notNull(), // For custom ordering within a category
