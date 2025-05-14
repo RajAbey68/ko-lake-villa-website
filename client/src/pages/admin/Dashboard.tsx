@@ -123,7 +123,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const form = useForm<FormValues>({
     resolver: zodResolver(galleryImageSchema),
     defaultValues: {
-      uploadMethod: 'url',
+      uploadMethod: 'file', // Default to file upload
       imageUrl: '',
       alt: '',
       category: '',
@@ -400,7 +400,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       
       {/* Add/Edit Image Dialog */}
       <Dialog open={isAddingImage || isEditingImage !== null} onOpenChange={handleCloseDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {isEditingImage !== null ? "Edit Gallery Image" : "Add New Gallery Image"}
@@ -413,7 +413,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           </DialogHeader>
           
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pr-2">
               {/* Media Type Selection */}
               <FormField
                 control={form.control}
@@ -506,16 +506,25 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                     <FormItem>
                       <FormLabel>{form.watch("mediaType") === "video" ? "Video File" : "Image File"}</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="file" 
-                          accept={form.watch("mediaType") === "video" ? "video/*" : "image/*"}
-                          onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                              onChange(e.target.files[0]);
-                            }
-                          }}
-                          {...fieldProps}
-                        />
+                        <div className="flex flex-col gap-2">
+                          <Input 
+                            type="file" 
+                            accept={form.watch("mediaType") === "video" ? "video/*" : "image/*"}
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                onChange(e.target.files[0]);
+                              }
+                            }}
+                            className="p-2 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#FF914D] file:text-white hover:file:bg-[#e67e3d]"
+                            {...fieldProps}
+                          />
+                          {value && (
+                            <div className="text-sm text-green-600 flex items-center gap-1">
+                              <CheckCircleIcon className="h-4 w-4" />
+                              File selected: {typeof value === 'object' && 'name' in value ? value.name : 'File ready for upload'}
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormDescription>
                         Select a file from your device to upload
