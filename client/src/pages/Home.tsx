@@ -36,7 +36,7 @@ const Home = () => {
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative z-10 text-center px-4 max-w-4xl">
-          <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow">Ko Lake Villa</h1>
+          <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow whitespace-nowrap">Ko Lake Villa</h1>
           <p className="text-xl md:text-2xl text-white mb-8 text-shadow">A Boutique Stay by the Lake</p>
           <Link href="/booking" className="inline-block bg-[#E8B87D] text-white px-8 py-4 rounded text-lg font-medium hover:bg-[#1E4E5F] transition-colors">
             Book Your Stay
