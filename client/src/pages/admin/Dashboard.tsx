@@ -1,12 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '../../contexts/AuthContext';
 import { logOut } from '../../lib/firebase';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
+import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Checkbox } from '../../components/ui/checkbox';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { Spinner } from '../../components/ui/spinner';
+import { useToast } from '../../hooks/use-toast'; 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { apiRequest } from '../../lib/queryClient';
+import { z } from 'zod';
+// Import GalleryImage type directly to fix the import error
+type GalleryImage = {
+  id: number;
+  imageUrl: string;
+  alt: string;
+  category: string;
+  featured: boolean;
+  sortOrder: number;
+  mediaType: string;
+};
 import { 
   HomeIcon, 
   LayoutDashboardIcon, 
@@ -14,7 +37,12 @@ import {
   MailIcon, 
   CalendarRangeIcon, 
   ImageIcon, 
-  UsersIcon 
+  UsersIcon,
+  EditIcon,
+  TrashIcon,
+  ImagePlusIcon,
+  CheckCircleIcon,
+  ExternalLinkIcon
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -25,10 +53,460 @@ export default function AdminDashboard() {
   );
 }
 
+// Validation schema for gallery images
+const galleryImageSchema = z.object({
+  imageUrl: z.string().url({ message: "Please enter a valid image URL" }),
+  alt: z.string().min(3, { message: "Alt text must be at least 3 characters" }),
+  category: z.string().min(2, { message: "Please select a category" }),
+  featured: z.boolean().default(false),
+  sortOrder: z.number().int().nonnegative().default(0),
+  mediaType: z.enum(["image", "video"]).default("image"),
+});
+
+type FormValues = z.infer<typeof galleryImageSchema>;
+
+// Category options for the gallery
+const CATEGORIES = [
+  { value: "family-suite", label: "Family Suite" },
+  { value: "group-room", label: "Group Room" },
+  { value: "triple-room", label: "Triple Room" },
+  { value: "dining-area", label: "Dining Area" },
+  { value: "pool-deck", label: "Pool Deck" },
+  { value: "lake-garden", label: "Lake Garden" },
+  { value: "roof-garden", label: "Roof Garden" },
+  { value: "front-garden", label: "Front Garden and Entrance" },
+  { value: "koggala-lake", label: "Koggala Lake and Surrounding" },
+  { value: "excursions", label: "Excursions" },
+];
+
+// Gallery Manager Component
+function GalleryManager() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isAddingImage, setIsAddingImage] = useState(false);
+  const [isEditingImage, setIsEditingImage] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  
+  // Load gallery images
+  const { data: images = [], isLoading, isError } = useQuery<GalleryImage[]>({
+    queryKey: [selectedCategory ? `/api/gallery?category=${selectedCategory}` : '/api/gallery'],
+    retry: false
+  });
+  
+  // Form for adding/editing images
+  const form = useForm<FormValues>({
+    resolver: zodResolver(galleryImageSchema),
+    defaultValues: {
+      imageUrl: '',
+      alt: '',
+      category: '',
+      featured: false,
+      sortOrder: 0,
+      mediaType: 'image',
+    }
+  });
+  
+  // Create image mutation
+  const createMutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const response = await apiRequest("POST", "/api/admin/gallery", data);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setIsAddingImage(false);
+      form.reset();
+      toast({
+        title: "Success",
+        description: "Image added successfully",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      console.error("Error adding image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Update image mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: FormValues }) => {
+      const response = await apiRequest("PATCH", `/api/admin/gallery/${id}`, data);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setIsEditingImage(null);
+      form.reset();
+      toast({
+        title: "Success",
+        description: "Image updated successfully",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      console.error("Error updating image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Delete image mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/gallery/${id}`);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({
+        title: "Success",
+        description: "Image deleted successfully",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      console.error("Error deleting image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Handle form submission
+  const onSubmit = (values: FormValues) => {
+    if (isEditingImage !== null) {
+      // Update existing image
+      updateMutation.mutate({ id: isEditingImage, data: values });
+    } else {
+      // Create new image
+      createMutation.mutate(values);
+    }
+  };
+  
+  // Handle editing an image
+  const handleEdit = (image: GalleryImage) => {
+    form.reset({
+      imageUrl: image.imageUrl,
+      alt: image.alt,
+      category: image.category,
+      featured: image.featured,
+      sortOrder: image.sortOrder,
+      mediaType: image.mediaType as "image" | "video",
+    });
+    setIsEditingImage(image.id);
+  };
+  
+  // Handle closing the dialog
+  const handleCloseDialog = () => {
+    setIsAddingImage(false);
+    setIsEditingImage(null);
+    form.reset();
+  };
+  
+  // Handle deleting an image with confirmation
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this image?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+  
+  return (
+    <div className="space-y-6">
+      {/* Category filter */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <Button 
+          variant={selectedCategory === undefined ? "default" : "outline"}
+          onClick={() => setSelectedCategory(undefined)}
+          className={selectedCategory === undefined ? "bg-[#FF914D] hover:bg-[#e67e3d]" : ""}
+        >
+          All Categories
+        </Button>
+        {CATEGORIES.map(category => (
+          <Button 
+            key={category.value}
+            variant={selectedCategory === category.value ? "default" : "outline"}
+            onClick={() => setSelectedCategory(category.value)}
+            className={selectedCategory === category.value ? "bg-[#FF914D] hover:bg-[#e67e3d]" : ""}
+          >
+            {category.label}
+          </Button>
+        ))}
+      </div>
+      
+      {/* Gallery grid */}
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Spinner size="lg" />
+        </div>
+      ) : isError ? (
+        <div className="text-center py-12 text-red-500">
+          Error loading gallery images. Please try again.
+        </div>
+      ) : images && images.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {images.map((image: GalleryImage) => (
+            <div key={image.id} className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 flex flex-col">
+              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                {image.mediaType === 'video' ? (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <iframe
+                      src={image.imageUrl}
+                      title={image.alt}
+                      className="w-full h-full object-cover"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <img 
+                    src={image.imageUrl}
+                    alt={image.alt}
+                    className="w-full h-full object-cover transition-transform hover:scale-105"
+                  />
+                )}
+                {image.featured && (
+                  <span className="absolute top-2 right-2 bg-[#FF914D] text-white text-xs px-2 py-1 rounded-full">
+                    Featured
+                  </span>
+                )}
+              </div>
+              <div className="p-3 flex-1 flex flex-col">
+                <div className="text-sm text-gray-700 mb-1 line-clamp-2 flex-1">{image.alt}</div>
+                <div className="text-xs text-gray-500 mb-2">
+                  Category: {CATEGORIES.find(c => c.value === image.category)?.label || image.category}
+                </div>
+                <div className="flex justify-between gap-2 mt-auto">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleEdit(image)}
+                    className="flex-1"
+                  >
+                    <EditIcon className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => handleDelete(image.id)}
+                    className="flex-1"
+                  >
+                    <TrashIcon className="w-4 h-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-gray-500">
+          No images found. Click "Add New Image" to add your first gallery image.
+        </div>
+      )}
+      
+      {/* Add/Edit Image Dialog */}
+      <Dialog open={isAddingImage || isEditingImage !== null} onOpenChange={handleCloseDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>
+              {isEditingImage !== null ? "Edit Gallery Image" : "Add New Gallery Image"}
+            </DialogTitle>
+            <DialogDescription>
+              {isEditingImage !== null 
+                ? "Update the details of this gallery image." 
+                : "Add a new image or video to your gallery."}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="mediaType"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>Media Type</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="media-image"
+                            value="image"
+                            checked={field.value === "image"}
+                            onChange={() => field.onChange("image")}
+                            className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
+                          />
+                          <Label htmlFor="media-image">Image</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="media-video"
+                            value="video"
+                            checked={field.value === "video"}
+                            onChange={() => field.onChange("video")}
+                            className="h-4 w-4 text-[#FF914D] focus:ring-[#FF914D]"
+                          />
+                          <Label htmlFor="media-video">Video Embed</Label>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      {field.value === "video" 
+                        ? "Enter an embed URL (YouTube, Vimeo, etc)" 
+                        : "Enter a direct link to your image"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{form.watch("mediaType") === "video" ? "Video URL" : "Image URL"}</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="alt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Describe this image" 
+                        {...field} 
+                        className="resize-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CATEGORIES.map(category => (
+                          <SelectItem key={category.value} value={category.value}>
+                            {category.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="featured"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Featured Image</FormLabel>
+                        <FormDescription>
+                          Display prominently on the website
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="sortOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="1"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Lower numbers appear first
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCloseDialog}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  className="bg-[#FF914D] hover:bg-[#e67e3d]"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
+                  {(createMutation.isPending || updateMutation.isPending) && (
+                    <Spinner size="sm" className="mr-2" />
+                  )}
+                  {isEditingImage !== null ? "Update Image" : "Add Image"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 function AdminDashboardContent() {
   const { currentUser } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isAddingImage, setIsAddingImage] = useState(false);
 
   const handleLogout = async () => {
     try {
