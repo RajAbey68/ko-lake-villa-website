@@ -151,9 +151,17 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       setIsAddingImage(false);
       form.reset();
       toast({
-        title: "Success",
-        description: "Image added successfully",
+        title: "Gallery Updated",
+        description: (
+          <div className="space-y-2">
+            <p className="text-green-600">✅ Image added successfully to the gallery!</p>
+            <div className="pt-1 text-sm">
+              <p>You can view this image in the gallery now.</p>
+            </div>
+          </div>
+        ),
         variant: "default",
+        duration: 5000,
       });
     },
     onError: (error) => {
@@ -177,9 +185,17 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       setIsEditingImage(null);
       form.reset();
       toast({
-        title: "Success",
-        description: "Image updated successfully",
+        title: "Gallery Updated",
+        description: (
+          <div className="space-y-2">
+            <p className="text-green-600">✅ Image updated successfully!</p>
+            <div className="pt-1 text-sm">
+              <p>Your changes have been applied to the gallery.</p>
+            </div>
+          </div>
+        ),
         variant: "default",
+        duration: 5000,
       });
     },
     onError: (error) => {
@@ -201,9 +217,14 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
       toast({
-        title: "Success",
-        description: "Image deleted successfully",
+        title: "Image Removed",
+        description: (
+          <div className="space-y-2">
+            <p className="text-green-600">✅ Image deleted successfully from the gallery!</p>
+          </div>
+        ),
         variant: "default",
+        duration: 3000,
       });
     },
     onError: (error) => {
@@ -600,10 +621,23 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
               Fill in all required fields below before clicking this button
             </p>
             
-            {/* Alternative URL option */}
+            {/* Alternative URL option and Quick Save */}
             <div className="text-center text-sm text-gray-600 border-t mt-2 pt-2">
               <p className="mb-1"><strong>Having trouble with file upload?</strong></p>
-              <p>Try the "Provide URL" option instead</p>
+              <div className="flex justify-center mt-2">
+                <Button 
+                  type="button" 
+                  onClick={handleDirectSave}
+                  className="bg-[#62C3D2] hover:bg-[#54b5c4] text-white"
+                  size="sm"
+                >
+                  <span className="flex items-center">
+                    <ExternalLinkIcon className="h-4 w-4 mr-1" />
+                    Quick Save with Sample URL
+                  </span>
+                </Button>
+              </div>
+              <p className="mt-2">Or try the "Provide URL" option below</p>
             </div>
           </div>
           
