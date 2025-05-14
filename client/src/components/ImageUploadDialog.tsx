@@ -202,117 +202,117 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
         onOpenChange(newOpen);
       }
     }}>
-      <DialogContent className="sm:max-w-[600px] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="w-full max-w-[90vw] sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader className="mb-1">
           <DialogTitle className="text-[#8B5E3C]">Add to Gallery</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs">
             Upload a new image or video to your gallery
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-3 py-2">
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-4 mb-2">
-              <Button
-                type="button"
-                variant={isUrlUpload ? "outline" : "default"}
-                className={!isUrlUpload ? "bg-[#FF914D] text-white" : ""}
-                onClick={() => {
-                  setIsUrlUpload(false);
-                  setImageUrl("");
-                }}
-              >
-                Upload File
-              </Button>
-              <Button
-                type="button"
-                variant={!isUrlUpload ? "outline" : "default"}
-                className={isUrlUpload ? "bg-[#FF914D] text-white" : ""}
-                onClick={() => {
-                  setIsUrlUpload(true);
-                  setImageFile(null);
-                }}
-              >
-                Use URL
-              </Button>
+        {/* Upload Type Buttons */}
+        <div className="flex gap-2 mb-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={isUrlUpload ? "outline" : "default"}
+            className={!isUrlUpload ? "bg-[#FF914D] text-white" : ""}
+            onClick={() => {
+              setIsUrlUpload(false);
+              setImageUrl("");
+            }}
+          >
+            Upload File
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={!isUrlUpload ? "outline" : "default"}
+            className={isUrlUpload ? "bg-[#FF914D] text-white" : ""}
+            onClick={() => {
+              setIsUrlUpload(true);
+              setImageFile(null);
+            }}
+          >
+            Use URL
+          </Button>
+        </div>
+        
+        {/* Compact Form */}
+        <div className="space-y-3">
+          {/* File Upload or URL Input */}
+          {!isUrlUpload ? (
+            <div className="space-y-1">
+              <Label htmlFor="image-upload" className="text-xs">Select Image File</Label>
+              <Input 
+                id="image-upload" 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileChange}
+                className="h-8 text-xs"
+              />
+              {imageFile && (
+                <p className="text-xs text-gray-500">
+                  Selected: {imageFile.name} ({Math.round(imageFile.size / 1024)} KB)
+                </p>
+              )}
             </div>
-            
-            {!isUrlUpload ? (
-              <div>
-                <Label htmlFor="image-upload">Select Image File</Label>
-                <Input 
-                  id="image-upload" 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleFileChange}
-                  className="mt-1"
-                />
-                {imageFile && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Selected: {imageFile.name} ({Math.round(imageFile.size / 1024)} KB)
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div>
-                <div className="flex gap-2 items-center">
-                  <div className="flex-1">
-                    <Label htmlFor="image-url">Image or Video URL</Label>
-                    <Input 
-                      id="image-url" 
-                      type="url" 
-                      placeholder="https://example.com/image.jpg or YouTube URL"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2 pt-6">
-                    <Checkbox 
-                      id="is-video" 
-                      checked={isVideoUpload}
-                      onCheckedChange={(checked) => {
-                        setIsVideoUpload(checked === true);
-                      }} 
-                    />
-                    <label
-                      htmlFor="is-video"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      This is a video
-                    </label>
-                  </div>
+          ) : (
+            <div className="space-y-1">
+              <div className="grid grid-cols-3 gap-2 items-start">
+                <div className="col-span-2">
+                  <Label htmlFor="image-url" className="text-xs">Image or Video URL</Label>
+                  <Input 
+                    id="image-url" 
+                    type="url" 
+                    placeholder="https://example.com/image.jpg"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="h-8 text-xs"
+                  />
                 </div>
-                {isVideoUpload && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    For videos, use YouTube URLs (e.g., https://www.youtube.com/watch?v=VIDEOID)
-                  </p>
-                )}
+                <div className="flex items-center space-x-2 mt-5">
+                  <Checkbox 
+                    id="is-video" 
+                    checked={isVideoUpload}
+                    onCheckedChange={(checked) => {
+                      setIsVideoUpload(checked === true);
+                    }} 
+                  />
+                  <label
+                    htmlFor="is-video"
+                    className="text-xs font-medium"
+                  >
+                    Is video
+                  </label>
+                </div>
               </div>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="alt-text">Alt Text / Title *</Label>
+            </div>
+          )}
+
+          {/* Alt Text and Category */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label htmlFor="alt-text" className="text-xs">Alt Text / Title *</Label>
               <Input 
                 id="alt-text" 
-                placeholder="Description for accessibility"
+                placeholder="Image title"
                 value={alt}
                 onChange={(e) => setAlt(e.target.value)}
                 required
+                className="h-8 text-xs"
               />
             </div>
             
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="category">Category *</Label>
+            <div className="space-y-1">
+              <Label htmlFor="category" className="text-xs">Category *</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
                   {galleryCategories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
+                    <SelectItem key={cat.value} value={cat.value} className="text-xs">
                       {cat.label}
                     </SelectItem>
                   ))}
@@ -321,27 +321,31 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
             </div>
           </div>
           
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="description">Description</Label>
+          {/* Description */}
+          <div className="space-y-1">
+            <Label htmlFor="description" className="text-xs">Description</Label>
             <Textarea 
               id="description" 
               placeholder="Add more details about this image"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              className="min-h-[60px] text-xs"
             />
           </div>
           
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="tags">Tags (comma separated)</Label>
+          {/* Tags */}
+          <div className="space-y-1">
+            <Label htmlFor="tags" className="text-xs">Tags (comma separated)</Label>
             <Input 
               id="tags" 
               placeholder="e.g. landscape, sunset, room"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
+              className="h-8 text-xs"
             />
           </div>
           
+          {/* Featured Checkbox */}
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="featured" 
@@ -352,34 +356,38 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
             />
             <label
               htmlFor="featured"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-xs font-medium"
             >
               Featured image (appears in highlights)
             </label>
           </div>
         </div>
         
+        {/* Upload Progress */}
         {isUploading && (
-          <div className="mt-2">
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div className="mt-2 mb-0">
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-[#FF914D] h-2.5 rounded-full" 
+                className="bg-[#FF914D] h-2 rounded-full" 
                 style={{ width: `${uploadProgress}%` }}
               ></div>
             </div>
-            <p className="text-sm text-center mt-1">{uploadProgress}% uploaded</p>
+            <p className="text-xs text-center">{uploadProgress}% uploaded</p>
           </div>
         )}
         
-        <DialogFooter className="mt-6 pb-4">
+        {/* Fixed Footer */}
+        <DialogFooter className="mt-3 pt-2 border-t">
           <Button 
-            variant="outline" 
+            variant="outline"
+            size="sm" 
             onClick={() => onOpenChange(false)}
             disabled={isUploading}
           >
             Cancel
           </Button>
           <Button 
+            size="sm"
             onClick={handleSubmit}
             disabled={isUploading || (!imageFile && !imageUrl)}
             className="bg-[#FF914D] hover:bg-[#e67e3d]"
