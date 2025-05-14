@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, type User } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, type User } from "firebase/auth";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -29,13 +29,30 @@ export const isAuthorizedAdmin = (user: User | null): boolean => {
   return AUTHORIZED_EMAILS.includes(user.email || "");
 };
 
-// Sign in with Google
+// Sign in with Google (using redirect method which works better with domain restrictions)
 export const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
+    // Using redirect instead of popup to avoid domain authorization issues
+    await signInWithRedirect(auth, googleProvider);
+    // Note: This function won't return as the page will redirect
+    return null;
   } catch (error) {
     console.error("Error signing in with Google:", error);
+    throw error;
+  }
+};
+
+// Handle the redirect result when user comes back after authentication
+export const handleRedirectResult = async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result) {
+      console.log("Successfully signed in");
+      return result.user;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error handling redirect result:", error);
     throw error;
   }
 };

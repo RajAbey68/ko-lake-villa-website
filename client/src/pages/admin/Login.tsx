@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../../contexts/AuthContext';
-import { signInWithGoogle } from '../../lib/firebase';
+import { signInWithGoogle, handleRedirectResult } from '../../lib/firebase';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { Spinner } from '../../components/ui/spinner';
@@ -12,17 +12,34 @@ export default function AdminLogin() {
   const { currentUser, isAdmin } = useAuth();
   const [location] = useLocation();
 
+  // Check for redirect result on page load
+  useEffect(() => {
+    async function checkRedirectResult() {
+      try {
+        setIsSigningIn(true);
+        await handleRedirectResult();
+        // Auth state will update through the onAuthStateChanged listener
+      } catch (err) {
+        console.error('Error handling redirect:', err);
+        setError('Authentication failed. Please try again.');
+      } finally {
+        setIsSigningIn(false);
+      }
+    }
+    
+    checkRedirectResult();
+  }, []);
+
   // Handle Google Sign-in
   const handleGoogleSignIn = async () => {
     try {
       setIsSigningIn(true);
       setError(null);
       await signInWithGoogle();
-      // The auth state will update automatically through the context
+      // The page will redirect to Google login
     } catch (err) {
       console.error('Login failed:', err);
       setError('Failed to sign in with Google. Please try again.');
-    } finally {
       setIsSigningIn(false);
     }
   };
