@@ -45,7 +45,9 @@ import {
   TrashIcon,
   ImagePlusIcon,
   CheckCircleIcon,
-  ExternalLinkIcon
+  ExternalLinkIcon,
+  UploadIcon,
+  LinkIcon
 } from 'lucide-react';
 
 // Forward declaration of components
