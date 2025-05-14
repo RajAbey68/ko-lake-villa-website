@@ -48,20 +48,20 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-[#1E4E5F] py-12 text-white">
+    <footer className="bg-[#8B5E3C] py-12 text-[#FDF6EE]">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <h3 className="font-display text-2xl font-bold mb-4 whitespace-nowrap">Ko Lake Villa</h3>
             <p className="mb-6">A boutique lakeside retreat offering luxury accommodation and personalized experiences in a serene natural setting.</p>
             <div className="flex space-x-4">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#E8B87D] transition-colors" aria-label="Facebook">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors" aria-label="Facebook">
                 <i className="fab fa-facebook-f text-xl"></i>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#E8B87D] transition-colors" aria-label="Instagram">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors" aria-label="Instagram">
                 <i className="fab fa-instagram text-xl"></i>
               </a>
-              <a href="https://tripadvisor.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#E8B87D] transition-colors" aria-label="Tripadvisor">
+              <a href="https://tripadvisor.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors" aria-label="Tripadvisor">
                 <i className="fab fa-tripadvisor text-xl"></i>
               </a>
             </div>
@@ -70,12 +70,12 @@ const Footer = () => {
           <div>
             <h4 className="font-display text-xl font-bold mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              <li><Link href="/" className="hover:text-[#E8B87D] transition-colors">Home</Link></li>
-              <li><Link href="/accommodation" className="hover:text-[#E8B87D] transition-colors">Accommodation</Link></li>
-              <li><Link href="/dining" className="hover:text-[#E8B87D] transition-colors">Dining & Services</Link></li>
-              <li><Link href="/experiences" className="hover:text-[#E8B87D] transition-colors">Activities & Experiences</Link></li>
-              <li><Link href="/gallery" className="hover:text-[#E8B87D] transition-colors">Gallery</Link></li>
-              <li><Link href="/contact" className="hover:text-[#E8B87D] transition-colors">Contact</Link></li>
+              <li><Link href="/" className="hover:text-[#FF914D] transition-colors">Home</Link></li>
+              <li><Link href="/accommodation" className="hover:text-[#FF914D] transition-colors">Accommodation</Link></li>
+              <li><Link href="/dining" className="hover:text-[#FF914D] transition-colors">Dining & Services</Link></li>
+              <li><Link href="/experiences" className="hover:text-[#FF914D] transition-colors">Activities & Experiences</Link></li>
+              <li><Link href="/gallery" className="hover:text-[#FF914D] transition-colors">Gallery</Link></li>
+              <li><Link href="/contact" className="hover:text-[#FF914D] transition-colors">Contact</Link></li>
             </ul>
           </div>
           
@@ -111,7 +111,7 @@ const Footer = () => {
                         <Input 
                           {...field} 
                           placeholder="Your Email Address" 
-                          className="px-4 py-2 bg-white bg-opacity-10 border border-white border-opacity-20 rounded focus:outline-none focus:ring-2 focus:ring-[#E8B87D] text-white placeholder:text-white placeholder:opacity-70"
+                          className="px-4 py-2 bg-white bg-opacity-10 border border-white border-opacity-20 rounded focus:outline-none focus:ring-2 focus:ring-[#FF914D] text-white placeholder:text-white placeholder:opacity-70"
                         />
                       </FormControl>
                       <FormMessage className="text-red-300" />
@@ -121,7 +121,7 @@ const Footer = () => {
                 <Button 
                   type="submit" 
                   disabled={subscribing}
-                  className="bg-[#E8B87D] text-white px-4 py-2 rounded hover:bg-white hover:text-[#1E4E5F] transition-colors font-medium"
+                  className="bg-[#FF914D] text-white px-4 py-2 rounded hover:bg-white hover:text-[#8B5E3C] transition-colors font-medium"
                 >
                   {subscribing ? "Subscribing..." : "Subscribe"}
                 </Button>
@@ -130,11 +130,11 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-white border-opacity-20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t border-[#FDF6EE] border-opacity-20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p>&copy; {new Date().getFullYear()} Ko Lake Villa. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
-            <Link href="/privacy-policy" className="hover:text-[#E8B87D] transition-colors">Privacy Policy</Link>
-            <Link href="/terms-of-service" className="hover:text-[#E8B87D] transition-colors">Terms of Service</Link>
+            <Link href="/privacy-policy" className="hover:text-[#FF914D] transition-colors">Privacy Policy</Link>
+            <Link href="/terms-of-service" className="hover:text-[#FF914D] transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
