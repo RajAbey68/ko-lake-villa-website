@@ -4,7 +4,8 @@ import { storage } from "./storage";
 import { 
   insertBookingInquirySchema, 
   insertContactMessageSchema,
-  insertNewsletterSubscriberSchema
+  insertNewsletterSubscriberSchema,
+  insertGalleryImageSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { ZodError } from "zod-validation-error";
@@ -156,6 +157,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(404).json({ message: "Email not found in subscribers list" });
     } catch (error) {
       res.status(500).json({ message: "Failed to unsubscribe from newsletter" });
+    }
+  });
+
+  // Admin Gallery Management
+  // Create a new gallery image
+  app.post("/api/admin/gallery", async (req, res) => {
+    try {
+      const validatedData = insertGalleryImageSchema.parse(req.body);
+      const galleryImage = await storage.createGalleryImage(validatedData);
+      res.status(201).json({
+        message: "Gallery image added successfully!",
+        data: galleryImage
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid gallery image data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to add gallery image" });
+    }
+  });
+
+  // Delete a gallery image
+  app.delete("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+    
+    try {
+      const success = await storage.deleteGalleryImage(id);
+      if (success) {
+        return res.json({ message: "Gallery image deleted successfully!" });
+      }
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // Update a gallery image
+  app.patch("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+    
+    try {
+      const galleryImage = await storage.getGalleryImageById(id);
+      if (!galleryImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      const updatedData = { ...req.body, id };
+      const updatedImage = await storage.updateGalleryImage(updatedData);
+      
+      res.json({
+        message: "Gallery image updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid gallery image data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to update gallery image" });
     }
   });
 

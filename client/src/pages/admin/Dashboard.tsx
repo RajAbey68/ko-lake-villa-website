@@ -259,12 +259,21 @@ function AdminDashboardContent() {
               
               <TabsContent value="gallery">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Gallery Management</CardTitle>
-                    <CardDescription>Upload and organize photos for your website</CardDescription>
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle>Gallery Management</CardTitle>
+                      <CardDescription>Upload and organize photos for your website</CardDescription>
+                    </div>
+                    <Button 
+                      onClick={() => setIsAddingImage(true)}
+                      className="bg-[#FF914D] hover:bg-[#e67e3d]"
+                    >
+                      <ImageIcon className="w-4 h-4 mr-2" />
+                      Add New Image
+                    </Button>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-center py-6 text-gray-500">Gallery management functionality will be added here.</p>
+                    <GalleryManager />
                   </CardContent>
                 </Card>
               </TabsContent>
