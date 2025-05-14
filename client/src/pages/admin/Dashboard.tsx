@@ -697,23 +697,31 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 />
               </div>
               
-              <DialogFooter>
+              <DialogFooter className="pt-6 mt-4 border-t">
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={handleCloseDialog}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit"
-                  className="bg-[#FF914D] hover:bg-[#e67e3d]"
+                  className="bg-[#FF914D] hover:bg-[#e67e3d] text-lg py-5 px-8 w-full sm:w-auto"
                   disabled={createMutation.isPending || updateMutation.isPending}
                 >
-                  {(createMutation.isPending || updateMutation.isPending) && (
-                    <Spinner size="sm" className="mr-2" />
+                  {(createMutation.isPending || updateMutation.isPending) ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Spinner size="sm" />
+                      {isEditingImage !== null ? "Saving..." : form.watch("uploadMethod") === "file" ? "Uploading..." : "Saving..."}
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      {isEditingImage !== null ? "Save Changes" : form.watch("uploadMethod") === "file" ? "Upload & Save" : "Save Image"}
+                      {form.watch("uploadMethod") === "file" && <ImagePlusIcon className="h-5 w-5" />}
+                    </span>
                   )}
-                  {isEditingImage !== null ? "Update Image" : "Add Image"}
                 </Button>
               </DialogFooter>
             </form>
