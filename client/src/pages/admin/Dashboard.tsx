@@ -402,7 +402,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       
       {/* Add/Edit Image Dialog */}
       <Dialog open={isAddingImage || isEditingImage !== null} onOpenChange={handleCloseDialog}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-visible">
+        <DialogContent className="sm:max-w-[600px] overflow-y-auto max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>
               {isEditingImage !== null ? "Edit Gallery Image" : "Add New Gallery Image"}
@@ -414,16 +414,23 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             </DialogDescription>
           </DialogHeader>
           
-          {/* Notice about the upload button */}
-          {form.watch("uploadMethod") === "file" && (
-            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6">
-              <h3 className="font-medium text-amber-800">Important:</h3>
-              <p className="text-amber-700">After filling out this form, click the <strong>Upload & Save</strong> button at the bottom to complete the process.</p>
-            </div>
-          )}
+          {/* Simplified form with prominent buttons at top */}
+          <div className="flex items-center gap-3 py-3 my-2">
+            {/* Submit button at the top */}
+            <Button 
+              type="submit"
+              form="gallery-form"
+              className="bg-[#FF914D] hover:bg-[#e67e3d] text-lg py-4 px-6 w-full"
+            >
+              <span className="flex items-center justify-center gap-2">
+                {isEditingImage !== null ? "Save Changes" : "Upload & Save Image"}
+                <ImagePlusIcon className="h-5 w-5" />
+              </span>
+            </Button>
+          </div>
           
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pr-2">
+            <form id="gallery-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pr-2">
               {/* Media Type Selection */}
               <FormField
                 control={form.control}
