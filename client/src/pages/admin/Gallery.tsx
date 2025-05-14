@@ -11,7 +11,7 @@ import {
   ImageIcon, 
   PlusIcon,
   TrashIcon,
-  RefreshIcon
+  RefreshCwIcon
 } from 'lucide-react';
 
 // Simple GalleryImage type
@@ -186,7 +186,7 @@ function SimpleGalleryManager() {
               variant="outline"
               disabled={loading}
             >
-              <RefreshIcon className="h-4 w-4 mr-2" />
+              <RefreshCwIcon className="h-4 w-4 mr-2" />
               Refresh
             </Button>
             <Button

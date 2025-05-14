@@ -1499,7 +1499,30 @@ function AdminDashboardContent() {
               </TabsContent>
               
               <TabsContent value="gallery">
-                <GalleryTab />
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle>Gallery Management</CardTitle>
+                      <CardDescription>Add and manage gallery images</CardDescription>
+                    </div>
+                    <Link href="/admin/gallery">
+                      <Button className="bg-[#FF914D] hover:bg-[#e67e3d]">
+                        <ExternalLinkIcon className="w-4 h-4 mr-2" />
+                        Open Gallery Manager
+                      </Button>
+                    </Link>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="p-6 bg-gray-50 border rounded-lg text-center">
+                      <ImageIcon className="w-12 h-12 mx-auto text-gray-400" />
+                      <h3 className="mt-4 text-lg font-medium">Dedicated Gallery Management</h3>
+                      <p className="mt-2 text-gray-600">
+                        We've created a dedicated page for gallery management that's more reliable and easier to use.
+                        Click the button above to access it.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
               
               <TabsContent value="subscribers">
