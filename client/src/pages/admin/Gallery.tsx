@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useToast } from '../../hooks/use-toast';
+import ImageUploadDialog from '../../components/ImageUploadDialog';
 
 // Helper function to extract YouTube video ID from URL
 function getYouTubeVideoId(url: string): string {
@@ -68,6 +69,7 @@ function SimpleGalleryManager() {
   const [error, setError] = useState<string | null>(null);
   const [addingImage, setAddingImage] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const { toast } = useToast();
   
   // Load gallery images on component mount
@@ -251,8 +253,17 @@ function SimpleGalleryManager() {
             </Button>
             <div className="flex gap-2">
               <Button
-                onClick={addSampleImage}
+                onClick={() => setUploadDialogOpen(true)}
                 className="bg-[#FF914D] hover:bg-[#e67e3d]"
+                disabled={loading}
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Image/Video
+              </Button>
+              
+              <Button
+                onClick={addSampleImage}
+                variant="outline"
                 disabled={loading}
               >
                 <PlusIcon className="h-4 w-4 mr-2" />
@@ -412,6 +423,13 @@ function SimpleGalleryManager() {
           </div>
         )}
       </CardContent>
+      
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog 
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        onSuccess={fetchImages}
+      />
     </Card>
   );
 }
