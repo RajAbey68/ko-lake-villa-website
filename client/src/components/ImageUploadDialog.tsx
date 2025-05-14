@@ -202,7 +202,7 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
         onOpenChange(newOpen);
       }
     }}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-[#8B5E3C]">Add to Gallery</DialogTitle>
           <DialogDescription>
@@ -210,7 +210,7 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-3 py-2">
           <div className="flex flex-col gap-2">
             <div className="flex gap-4 mb-2">
               <Button
@@ -371,7 +371,7 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
           </div>
         )}
         
-        <DialogFooter>
+        <DialogFooter className="mt-6 pb-4">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
