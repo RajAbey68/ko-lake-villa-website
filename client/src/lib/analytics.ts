@@ -15,6 +15,11 @@ export const initGA = () => {
     return;
   }
 
+  // Skip if already initialized
+  if (window.gtag) {
+    return;
+  }
+
   // Add Google Analytics script to the head
   const script1 = document.createElement('script');
   script1.async = true;
@@ -30,6 +35,8 @@ export const initGA = () => {
     gtag('config', '${measurementId}');
   `;
   document.head.appendChild(script2);
+  
+  console.log(`Google Analytics initialized with ID: ${measurementId}`);
 };
 
 // Track page views - useful for single-page applications
@@ -42,6 +49,8 @@ export const trackPageView = (url: string) => {
   window.gtag('config', measurementId, {
     page_path: url
   });
+  
+  console.log(`Page view tracked: ${url}`);
 };
 
 // Track events
@@ -58,4 +67,6 @@ export const trackEvent = (
     event_label: label,
     value: value,
   });
+  
+  console.log(`Event tracked: ${action} (${category || ''} / ${label || ''})`);
 };

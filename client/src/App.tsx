@@ -23,6 +23,7 @@ import AdminLogin from "@/pages/admin/Login";
 import AdminLanding from "@/pages/admin/AdminLanding";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminGallery from "@/pages/admin/Gallery";
+import Statistics from "@/pages/admin/Statistics";
 
 function Router() {
   const [location] = useLocation();
@@ -62,6 +63,7 @@ function Router() {
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/gallery" component={AdminGallery} />
+        <Route path="/admin/statistics" component={Statistics} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>

@@ -1,170 +1,274 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
-import { LockIcon, HomeIcon, KeyIcon } from 'lucide-react';
-import { signInWithEmail } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../../hooks/use-toast';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { 
+  HomeIcon, 
+  UsersIcon, 
+  GalleryVerticalIcon, 
+  BarChartIcon, 
+  CalendarIcon, 
+  MessageSquareIcon, 
+  MailIcon,
+  LogOutIcon
+} from 'lucide-react';
 
 export default function AdminLanding() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [, setLocation] = useLocation();
-  const { currentUser } = useAuth();
-  const { toast } = useToast();
-
-  // If already logged in, redirect to dashboard
-  if (currentUser) {
-    setLocation('/admin/dashboard');
+  const { currentUser, isLoading, isAdmin } = useAuth();
+  const [, navigate] = useLocation();
+  
+  useEffect(() => {
+    // If user is not authenticated and we're done loading, redirect to login
+    if (!isLoading && !currentUser) {
+      navigate('/admin/login');
+    }
+    
+    // If user is authenticated but not an admin, redirect to home
+    if (!isLoading && currentUser && !isAdmin) {
+      navigate('/');
+    }
+  }, [currentUser, isLoading, isAdmin, navigate]);
+  
+  // If still loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#FDF6EE]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF914D]"></div>
+          <p className="mt-4 text-lg text-[#8B5E3C]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If not logged in, don't render anything (redirect will happen)
+  if (!currentUser || !isAdmin) {
     return null;
   }
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      toast({
-        title: "Required Fields",
-        description: "Please enter both email and password",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-      setIsLoading(true);
-      await signInWithEmail(email, password);
-      // Redirect will happen via auth context
-      toast({
-        title: "Login Successful",
-        description: "Welcome to Ko Lake Villa Admin",
-      });
-    } catch (error: any) {
-      console.error("Login error:", error);
-      toast({
-        title: "Login Failed",
-        description: error.message || "Invalid email or password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDF6EE] p-4">
-      <div className="w-full max-w-md">
-        <Link href="/">
-          <Button variant="ghost" className="absolute top-4 left-4 flex items-center gap-2 text-[#8B5E3C]">
-            <HomeIcon className="h-4 w-4" />
-            Return to Website
-          </Button>
-        </Link>
-        
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-[#8B5E3C]">Ko Lake Villa</h1>
-          <p className="text-[#8B5E3C] mt-2">Administration Portal</p>
+    <div className="min-h-screen bg-[#FDF6EE]">
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        {/* Header */}
+        <div className="mb-12 flex flex-col md:flex-row justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-[#8B5E3C]">Ko Lake Villa Admin Portal</h1>
+            <p className="mt-2 text-[#8B5E3C]/80">
+              Manage your website content, bookings, and analytics
+            </p>
+          </div>
+          
+          <div className="mt-4 md:mt-0 flex items-center">
+            <div className="mr-4 text-right">
+              <p className="font-medium text-[#8B5E3C]">Welcome, {currentUser.email}</p>
+              <p className="text-sm text-[#8B5E3C]/70">Admin User</p>
+            </div>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => {
+                // Handle logout
+                navigate('/admin/login');
+              }}
+            >
+              <LogOutIcon className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
         
-        <Card className="border-[#A0B985] shadow-lg">
-          <CardHeader className="bg-[#8B5E3C] text-white rounded-t-lg">
-            <div className="flex justify-center mb-2">
-              <div className="p-3 bg-white rounded-full">
-                <LockIcon className="h-6 w-6 text-[#8B5E3C]" />
-              </div>
-            </div>
-            <CardTitle className="text-center">Admin Login</CardTitle>
-            <CardDescription className="text-gray-200 text-center">
-              Enter your credentials to access the dashboard
-            </CardDescription>
-          </CardHeader>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <Card className="bg-white border border-[#A0B985]/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium text-[#8B5E3C]">Today's Visitors</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-[#FF914D]">28</p>
+              <p className="text-[#8B5E3C]/70 text-sm">+12% from yesterday</p>
+            </CardContent>
+          </Card>
           
-          <form onSubmit={handleLogin}>
+          <Card className="bg-white border border-[#A0B985]/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium text-[#8B5E3C]">New Bookings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-[#FF914D]">3</p>
+              <p className="text-[#8B5E3C]/70 text-sm">In the last 24 hours</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white border border-[#A0B985]/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium text-[#8B5E3C]">Unread Messages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-[#FF914D]">5</p>
+              <p className="text-[#8B5E3C]/70 text-sm">Awaiting response</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Main Menu */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Link href="/admin/dashboard">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                      <HomeIcon className="h-8 w-8 text-[#FF914D]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Dashboard</h3>
+                      <p className="text-[#8B5E3C]/70">Overview and quick actions</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+          
+          <Link href="/admin/gallery">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                      <GalleryVerticalIcon className="h-8 w-8 text-[#FF914D]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Gallery Manager</h3>
+                      <p className="text-[#8B5E3C]/70">Manage photos and videos</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+          
+          <Link href="/admin/statistics">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                      <BarChartIcon className="h-8 w-8 text-[#FF914D]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Analytics</h3>
+                      <p className="text-[#8B5E3C]/70">Website statistics and reports</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+          
+          <div className="cursor-pointer transition-all hover:shadow-lg opacity-60">
+            <Card className="h-full bg-white border border-[#A0B985]/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                    <UsersIcon className="h-8 w-8 text-[#FF914D]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#8B5E3C]">User Management</h3>
+                    <p className="text-[#8B5E3C]/70">Manage user accounts</p>
+                    <span className="inline-block px-2 py-1 mt-2 text-xs bg-[#62C3D2]/20 text-[#62C3D2] rounded">Coming Soon</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="cursor-pointer transition-all hover:shadow-lg opacity-60">
+            <Card className="h-full bg-white border border-[#A0B985]/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                    <CalendarIcon className="h-8 w-8 text-[#FF914D]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#8B5E3C]">Booking Manager</h3>
+                    <p className="text-[#8B5E3C]/70">Manage accommodation bookings</p>
+                    <span className="inline-block px-2 py-1 mt-2 text-xs bg-[#62C3D2]/20 text-[#62C3D2] rounded">Coming Soon</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="cursor-pointer transition-all hover:shadow-lg opacity-60">
+            <Card className="h-full bg-white border border-[#A0B985]/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                    <MessageSquareIcon className="h-8 w-8 text-[#FF914D]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#8B5E3C]">Message Center</h3>
+                    <p className="text-[#8B5E3C]/70">View and reply to inquiries</p>
+                    <span className="inline-block px-2 py-1 mt-2 text-xs bg-[#62C3D2]/20 text-[#62C3D2] rounded">Coming Soon</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        
+        {/* Recent Activity */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-[#8B5E3C] mb-6">Recent Activity</h2>
+          
+          <Card className="bg-white border border-[#A0B985]/20">
             <CardContent className="pt-6">
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium text-[#8B5E3C]">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="admin@kolakevilla.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 border-[#A0B985]"
-                      disabled={isLoading}
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <svg
-                        className="h-5 w-5 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
+                <div className="flex items-start gap-4">
+                  <div className="bg-[#62C3D2]/10 p-2 rounded-full">
+                    <CalendarIcon className="h-5 w-5 text-[#62C3D2]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#8B5E3C]">New booking request received</p>
+                    <p className="text-sm text-[#8B5E3C]/70">Family Suite for 4 nights (June 12-16)</p>
+                    <p className="text-xs text-[#8B5E3C]/60 mt-1">Today, 10:24 AM</p>
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <label htmlFor="password" className="text-sm font-medium text-[#8B5E3C]">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="•••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 border-[#A0B985]"
-                      disabled={isLoading}
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <KeyIcon className="h-5 w-5 text-gray-400" />
-                    </div>
+                <div className="flex items-start gap-4">
+                  <div className="bg-[#62C3D2]/10 p-2 rounded-full">
+                    <GalleryVerticalIcon className="h-5 w-5 text-[#62C3D2]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#8B5E3C]">New photos uploaded to gallery</p>
+                    <p className="text-sm text-[#8B5E3C]/70">5 photos added to "Pool Deck" category</p>
+                    <p className="text-xs text-[#8B5E3C]/60 mt-1">Yesterday, 3:45 PM</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="bg-[#62C3D2]/10 p-2 rounded-full">
+                    <MailIcon className="h-5 w-5 text-[#62C3D2]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#8B5E3C]">New contact message</p>
+                    <p className="text-sm text-[#8B5E3C]/70">From: sarah.johnson@example.com</p>
+                    <p className="text-xs text-[#8B5E3C]/60 mt-1">Yesterday, 11:32 AM</p>
                   </div>
                 </div>
               </div>
             </CardContent>
-            
-            <CardFooter className="flex flex-col gap-4">
-              <Button
-                type="submit"
-                className="w-full bg-[#FF914D] hover:bg-[#e67e3d]"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </div>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-              
-              <p className="text-center text-sm text-gray-500">
-                Authorized personnel only. All access attempts are logged.
-              </p>
-            </CardFooter>
-          </form>
-        </Card>
+          </Card>
+        </div>
+        
+        {/* Footer */}
+        <div className="mt-12 pt-8 border-t border-[#A0B985]/20 text-center">
+          <p className="text-sm text-[#8B5E3C]/60">
+            &copy; {new Date().getFullYear()} Ko Lake Villa Admin Portal
+          </p>
+        </div>
       </div>
     </div>
   );
