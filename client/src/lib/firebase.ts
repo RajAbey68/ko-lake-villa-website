@@ -36,13 +36,13 @@ export const isAuthorizedAdmin = (user: User | null): boolean => {
   return AUTHORIZED_EMAILS.includes(user.email || "");
 };
 
-// Sign in with Google (using redirect method which works better with domain restrictions)
+// Sign in with Google (using popup method for better compatibility with Replit)
 export const signInWithGoogle = async () => {
   try {
-    // Using redirect instead of popup to avoid domain authorization issues
-    await signInWithRedirect(auth, googleProvider);
-    // Note: This function won't return as the page will redirect
-    return null;
+    // Using popup instead of redirect for better compatibility with Replit
+    const result = await signInWithPopup(auth, googleProvider);
+    console.log("Successfully signed in with popup");
+    return result.user;
   } catch (error) {
     console.error("Error signing in with Google:", error);
     throw error;
