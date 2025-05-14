@@ -17,8 +17,9 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 // List of authorized admin emails
-const AUTHORIZED_EMAILS = [
-  // Add admin emails here, e.g., "admin@kolakevilla.com"
+const AUTHORIZED_EMAILS: string[] = [
+  // Add the Ko Lake Villa admin email
+  "contact@KoLakeHouse.com"
 ];
 
 // Check if a user is an authorized admin

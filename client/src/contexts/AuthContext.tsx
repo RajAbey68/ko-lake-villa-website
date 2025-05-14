@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { onAuthChange, isAuthorizedAdmin } from "@lib/firebase";
+import { onAuthChange, isAuthorizedAdmin } from "../lib/firebase";
 import type { User } from "firebase/auth";
 
 // Define the context type
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     // Subscribe to auth state changes
-    const unsubscribe = onAuthChange((user) => {
+    const unsubscribe = onAuthChange((user: User | null) => {
       setCurrentUser(user);
       setIsLoading(false);
     });
