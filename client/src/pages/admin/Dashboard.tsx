@@ -45,6 +45,11 @@ import {
   ExternalLinkIcon
 } from 'lucide-react';
 
+// Forward declaration of components
+function AdminDashboardContent();
+function GalleryTab();
+function GalleryManager(props: GalleryManagerProps);
+
 export default function AdminDashboard() {
   return (
     <ProtectedRoute>
@@ -80,10 +85,14 @@ const CATEGORIES = [
 ];
 
 // Gallery Manager Component
-function GalleryManager() {
+interface GalleryManagerProps {
+  isAddingImage: boolean;
+  setIsAddingImage: (isAdding: boolean) => void;
+}
+
+function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isAddingImage, setIsAddingImage] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   
@@ -502,11 +511,36 @@ function GalleryManager() {
   );
 }
 
+// Gallery Tab Component to combine the button and gallery manager
+function GalleryTab() {
+  const [isAddingImage, setIsAddingImage] = useState(false);
+  
+  return (
+    <Card>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <CardTitle>Gallery Management</CardTitle>
+          <CardDescription>Upload and organize photos for your website</CardDescription>
+        </div>
+        <Button 
+          onClick={() => setIsAddingImage(true)}
+          className="bg-[#FF914D] hover:bg-[#e67e3d]"
+        >
+          <ImageIcon className="w-4 h-4 mr-2" />
+          Add New Image
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <GalleryManager isAddingImage={isAddingImage} setIsAddingImage={setIsAddingImage} />
+      </CardContent>
+    </Card>
+  );
+}
+
 function AdminDashboardContent() {
   const { currentUser } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isAddingImage, setIsAddingImage] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -736,24 +770,7 @@ function AdminDashboardContent() {
               </TabsContent>
               
               <TabsContent value="gallery">
-                <Card>
-                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                      <CardTitle>Gallery Management</CardTitle>
-                      <CardDescription>Upload and organize photos for your website</CardDescription>
-                    </div>
-                    <Button 
-                      onClick={() => setIsAddingImage(true)}
-                      className="bg-[#FF914D] hover:bg-[#e67e3d]"
-                    >
-                      <ImageIcon className="w-4 h-4 mr-2" />
-                      Add New Image
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <GalleryManager />
-                  </CardContent>
-                </Card>
+                <GalleryTab />
               </TabsContent>
               
               <TabsContent value="subscribers">
