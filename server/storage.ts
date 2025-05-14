@@ -18,6 +18,10 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  
+  // For backward compatibility
+  getUserByUsername?(username: string): Promise<User | undefined>;
+  createUser?(user: InsertUser): Promise<User>;
 
   // Room operations
   getRooms(): Promise<Room[]>;
@@ -583,4 +587,5 @@ export class MemStorage implements IStorage {
   }
 }
 
+// Use memory storage for now since we're focused on the auth issue
 export const storage = new MemStorage();
