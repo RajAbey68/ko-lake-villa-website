@@ -16,7 +16,7 @@ export const initGA = () => {
   }
 
   // Skip if already initialized
-  if (window.gtag) {
+  if (typeof window.gtag !== 'undefined') {
     return;
   }
 
