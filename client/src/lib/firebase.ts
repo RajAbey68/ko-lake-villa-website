@@ -58,6 +58,36 @@ export const signInWithGoogle = async () => {
   }
 };
 
+// Local storage key for storing authenticated user
+const USER_STORAGE_KEY = 'kolakevilla_auth_user';
+
+// Helper to store user in local storage
+export const storeAuthUser = (user: User | null) => {
+  if (user) {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+    }));
+  } else {
+    localStorage.removeItem(USER_STORAGE_KEY);
+  }
+};
+
+// Helper to retrieve user from local storage
+export const getStoredAuthUser = (): User | null => {
+  const userStr = localStorage.getItem(USER_STORAGE_KEY);
+  if (!userStr) return null;
+  
+  try {
+    const userData = JSON.parse(userStr);
+    return userData as User;
+  } catch (e) {
+    console.error('Error parsing stored user:', e);
+    return null;
+  }
+};
+
 // Sign in with email/password as an alternative to Google Sign-in
 export const signInWithEmail = async (email: string, password: string) => {
   try {
@@ -70,6 +100,8 @@ export const signInWithEmail = async (email: string, password: string) => {
         email: "contact@KoLakeHouse.com",
         displayName: "Ko Lake House Admin",
       };
+      // Store the user in local storage
+      storeAuthUser(mockUser as User);
       return mockUser as User;
     } else if (email === "RajAbey68@google.com" && password === "rajabey2023") {
       // Same mock implementation for the second admin
@@ -78,6 +110,8 @@ export const signInWithEmail = async (email: string, password: string) => {
         email: "RajAbey68@google.com",
         displayName: "Raj Abey Admin",
       };
+      // Store the user in local storage
+      storeAuthUser(mockUser as User);
       return mockUser as User;
     } else {
       // For all other attempts, reject with auth error
@@ -107,10 +141,26 @@ export const handleRedirectResult = async () => {
 // Sign out
 export const logOut = async () => {
   try {
+    // Clear local storage first
+    storeAuthUser(null);
+    
+    // Try to sign out from Firebase auth
     await signOut(auth);
+    
+    // Redirect to home page
+    window.location.href = '/';
+    
+    return true;
   } catch (error) {
     console.error("Error signing out:", error);
-    throw error;
+    
+    // Even if Firebase sign out fails, clear local storage
+    storeAuthUser(null);
+    
+    // Redirect to home page
+    window.location.href = '/';
+    
+    return true; // We consider it a success if we cleared local storage
   }
 };
 

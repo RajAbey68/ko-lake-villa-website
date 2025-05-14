@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { onAuthChange, isAuthorizedAdmin } from "../lib/firebase";
+import { onAuthChange, isAuthorizedAdmin, getStoredAuthUser, storeAuthUser } from "../lib/firebase";
 import type { User } from "firebase/auth";
 
 // Define the context type
@@ -20,11 +20,29 @@ const AuthContext = createContext<AuthContextType>({
 
 // Create a provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // Initialize state with stored user if available
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    return getStoredAuthUser();
+  });
   const [isLoading, setIsLoading] = useState(true);
   
+  // Effect to handle storing user in local storage when it changes
   useEffect(() => {
-    // Subscribe to auth state changes
+    if (currentUser) {
+      storeAuthUser(currentUser);
+    }
+  }, [currentUser]);
+  
+  useEffect(() => {
+    // Check local storage first for stored user
+    const storedUser = getStoredAuthUser();
+    if (storedUser) {
+      setCurrentUser(storedUser);
+      setIsLoading(false);
+      return () => {};
+    }
+    
+    // If no stored user, subscribe to auth state changes
     const unsubscribe = onAuthChange((user: User | null) => {
       setCurrentUser(user);
       setIsLoading(false);
