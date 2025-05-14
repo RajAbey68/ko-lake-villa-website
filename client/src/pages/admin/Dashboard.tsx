@@ -400,7 +400,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       
       {/* Add/Edit Image Dialog */}
       <Dialog open={isAddingImage || isEditingImage !== null} onOpenChange={handleCloseDialog}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-visible">
           <DialogHeader>
             <DialogTitle>
               {isEditingImage !== null ? "Edit Gallery Image" : "Add New Gallery Image"}
@@ -411,6 +411,14 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 : "Add a new image or video to your gallery."}
             </DialogDescription>
           </DialogHeader>
+          
+          {/* Notice about the upload button */}
+          {form.watch("uploadMethod") === "file" && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6">
+              <h3 className="font-medium text-amber-800">Important:</h3>
+              <p className="text-amber-700">After filling out this form, click the <strong>Upload & Save</strong> button at the bottom to complete the process.</p>
+            </div>
+          )}
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pr-2">
@@ -697,7 +705,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 />
               </div>
               
-              <DialogFooter className="pt-6 mt-4 border-t">
+              <DialogFooter className="sticky bottom-0 pt-6 mt-4 border-t bg-white shadow-md pb-2">
                 <Button 
                   type="button" 
                   variant="outline" 
