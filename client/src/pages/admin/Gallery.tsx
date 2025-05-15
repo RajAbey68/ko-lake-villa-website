@@ -496,7 +496,7 @@ function SimpleGalleryManager() {
                   <p className="text-sm text-gray-500 truncate">{image.category}</p>
                   
                   {/* Tags display */}
-                  {image.tags && (
+                  {image.tags && typeof image.tags === 'string' && image.tags.length > 0 && (
                     <div className="mt-1 flex flex-wrap gap-1">
                       {image.tags.split(',').map((tag, index) => {
                         const trimmedTag = tag.trim();
