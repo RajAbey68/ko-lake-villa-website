@@ -85,6 +85,17 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
   // Handle form submission
   const handleSubmit = async () => {
     try {
+      console.log("Form submission starting with data:", {
+        uploadMethod,
+        imageFile: imageFile ? imageFile.name : null,
+        imageUrl,
+        alt,
+        description,
+        category,
+        tags,
+        featured
+      });
+      
       setIsUploading(true);
       
       if (uploadMethod === 'file' && !imageFile) {
@@ -129,9 +140,18 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
           formData.append('category', category);
           formData.append('title', alt); // Use alt text as title
           formData.append('description', description || '');
-          formData.append('tags', tags || '');
+          
+          // Ensure tags are properly formatted
+          const tagsValue = tags || '';
+          console.log("Adding tags to FormData:", tagsValue);
+          formData.append('tags', tagsValue);
+          
           formData.append('featured', featured ? 'true' : 'false');
           formData.append('mediaType', mediaType);
+          
+          // Log out formData entries for debugging
+          console.log("FormData entries:");
+          console.log("tags value:", formData.get('tags'));
           
           // Upload using our server-side API
           const uploadResponse = await fetch('/api/upload', {
