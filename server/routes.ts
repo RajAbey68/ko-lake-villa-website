@@ -29,17 +29,16 @@ if (!fs.existsSync(GALLERY_DIR)) {
 // Set up multer for file uploads
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Get category from request body or params
-    const category = req.body.category || req.query.category || 'default';
-    const categoryPath = category.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
-    const categoryDir = path.join(GALLERY_DIR, categoryPath);
+    // Always use the default directory for simplicity
+    // This ensures consistency between uploads and serving
+    const destination = path.join(GALLERY_DIR, 'default');
     
-    // Create category directory if it doesn't exist
-    if (!fs.existsSync(categoryDir)) {
-      fs.mkdirSync(categoryDir, { recursive: true });
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(destination)) {
+      fs.mkdirSync(destination, { recursive: true });
     }
     
-    cb(null, categoryDir);
+    cb(null, destination);
   },
   filename: (req, file, cb) => {
     // Create a unique filename
@@ -102,8 +101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         console.log("Form data:", { category, title, description, tags, featured });
         
-        // Create URL for the uploaded file
-        const fileUrl = `/uploads/gallery/${category.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}/${file.filename}`;
+        // Create URL for the uploaded file - always using the default folder
+        const fileUrl = `/uploads/gallery/default/${file.filename}`;
         console.log("Generated file URL:", fileUrl);
         
         // Save to database
@@ -122,18 +121,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: "File uploaded successfully!",
             data: galleryImage
           });
-        } catch (dbError) {
+        } catch (dbError: any) {
           console.error("Database error:", dbError);
           res.status(500).json({ 
             message: "Failed to save image to database",
-            error: dbError.message
+            error: dbError?.message || 'Unknown database error'
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Upload processing error:", error);
         res.status(500).json({ 
           message: "Failed to process uploaded file",
-          error: error.message
+          error: error?.message || 'Unknown error'
         });
       }
     });
