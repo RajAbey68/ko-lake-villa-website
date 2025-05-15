@@ -199,7 +199,7 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
         onOpenChange(newOpen);
       }
     }}>
-      <DialogContent className="h-auto max-h-screen overflow-auto">
+      <DialogContent className="h-[500px] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle className="text-[#8B5E3C]">Add to Gallery</DialogTitle>
         </DialogHeader>
@@ -224,7 +224,7 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
           </Button>
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-3 pb-16">
           {/* File or URL Input */}
           {uploadMethod === 'file' ? (
             <div>
@@ -279,21 +279,21 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
             />
           </div>
           
-          {/* Category */}
+          {/* Category - Simple Select (No Radix) */}
           <div>
-            <Label className="text-xs">Category*</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {galleryCategories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="category-select" className="text-xs">Category*</Label>
+            <select
+              id="category-select"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full p-2 border rounded-md text-sm"
+            >
+              {galleryCategories.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
           </div>
           
           {/* Description */}
@@ -341,23 +341,24 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
           </div>
         )}
         
-        {/* Actions */}
-        <DialogFooter className="mt-3 pt-3 border-t flex items-center justify-between">
+        {/* Fixed Actions at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t flex items-center justify-between space-x-4">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
             disabled={isUploading}
+            className="px-6"
           >
             Cancel
           </Button>
           <Button 
-            className="bg-[#FF914D] hover:bg-[#e67e3d]"
+            className="bg-[#FF914D] hover:bg-[#e67e3d] px-6"
             onClick={handleSubmit}
             disabled={isUploading || (!imageFile && !imageUrl) || !alt}
           >
             {isUploading ? 'Uploading...' : 'Upload'}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
