@@ -229,12 +229,13 @@ function SimpleGalleryManager() {
         description: "Please wait while we add a sample image to your gallery.",
       });
       
-      // Sample image data with random variation to prevent duplicate detection
+      // Sample image data with reliable image URL
       const randomNum = Math.floor(Math.random() * 1000);
       const timestamp = Date.now();
+      // Use Picsum which is more reliable for testing
       const sampleImage = {
         uploadMethod: "url",
-        imageUrl: `https://images.unsplash.com/photo-1544957992-6ef475c58fb1?v=${randomNum}&t=${timestamp}`,
+        imageUrl: `https://picsum.photos/800/600?random=${randomNum}&t=${timestamp}`,
         alt: `Sample Image ${new Date().toLocaleTimeString()}`,
         description: `Sample image added on ${new Date().toLocaleString()} #${randomNum}`,
         category: "family-suite",
@@ -521,13 +522,13 @@ function SimpleGalleryManager() {
                 ) : (
                   <div className="relative">
                     <img 
-                      src={image.imageUrl.startsWith('http') ? image.imageUrl : image.imageUrl} 
+                      src={image.imageUrl} 
                       alt={image.alt}
                       className="w-full h-48 object-cover transition-all duration-300 group-hover:opacity-75"
                       onError={(e) => {
                         console.error("Image load error for URL:", image.imageUrl);
-                        // On error, show placeholder
-                        e.currentTarget.src = "https://via.placeholder.com/300x200?text=Image+Error";
+                        // On error, show placeholder with transparent text
+                        e.currentTarget.src = "https://placehold.co/800x600/F5F5F5/CCCCCC?text=Image+Not+Found";
                       }}
                     />
                     {/* Display image URL for debugging */}
