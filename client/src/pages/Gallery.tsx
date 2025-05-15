@@ -1,7 +1,89 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { GalleryImage } from '@shared/schema';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+
+// Video Thumbnail Component
+const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    if (!video || !canvas) return;
+    
+    const generateThumbnail = () => {
+      try {
+        const context = canvas.getContext('2d');
+        if (!context) return;
+        
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw the video frame to the canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to data URL
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        setThumbnail(dataUrl);
+        
+        // Cleanup
+        video.removeEventListener('loadeddata', handleVideoLoad);
+        video.removeEventListener('seeked', generateThumbnail);
+      } catch (error) {
+        console.error('Error generating thumbnail:', error);
+      }
+    };
+    
+    const handleVideoLoad = () => {
+      // Seek to the middle of the video for thumbnail
+      if (video.duration) {
+        video.currentTime = Math.min(1, video.duration / 4);
+      } else {
+        generateThumbnail();
+      }
+    };
+    
+    video.crossOrigin = 'anonymous';
+    video.addEventListener('loadeddata', handleVideoLoad);
+    video.addEventListener('seeked', generateThumbnail);
+    
+    video.src = videoUrl;
+    video.load();
+    
+    return () => {
+      video.removeEventListener('loadeddata', handleVideoLoad);
+      video.removeEventListener('seeked', generateThumbnail);
+    };
+  }, [videoUrl]);
+  
+  return (
+    <div className={className}>
+      {thumbnail ? (
+        <img 
+          src={thumbnail} 
+          alt="Video thumbnail" 
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+          <span className="text-sm text-gray-500">Loading thumbnail...</span>
+        </div>
+      )}
+      <video 
+        ref={videoRef} 
+        className="hidden" 
+        muted 
+        preload="metadata"
+      />
+      <canvas ref={canvasRef} className="hidden" />
+    </div>
+  );
+};
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -193,10 +275,9 @@ const Gallery = () => {
                   <div className="relative overflow-hidden rounded-md">
                     {image.mediaType === 'video' ? (
                       <div className="relative">
-                        <video 
-                          src={image.imageUrl} 
-                          className="w-full h-40 md:h-56 object-cover"
-                          muted
+                        <VideoThumbnail
+                          videoUrl={image.imageUrl}
+                          className="w-full h-40 md:h-56"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
                           <div className="w-12 h-12 rounded-full bg-white bg-opacity-70 flex items-center justify-center">
