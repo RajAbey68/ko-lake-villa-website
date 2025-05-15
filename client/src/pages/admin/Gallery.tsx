@@ -422,6 +422,44 @@ function SimpleGalleryManager() {
                     <h3 className="font-medium truncate">{image.alt}</h3>
                   </div>
                   <p className="text-sm text-gray-500 truncate">{image.category}</p>
+                  
+                  {/* Tags display */}
+                  {image.tags && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {image.tags.split(',').map((tag, index) => {
+                        const trimmedTag = tag.trim();
+                        if (!trimmedTag) return null;
+                        return (
+                          <span key={index} className="px-2 py-0.5 bg-[#62C3D2] bg-opacity-20 text-[#62C3D2] text-xs rounded-full">
+                            #{trimmedTag}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  
+                  {/* Priority/Sorting controls */}
+                  <div className="mt-2 flex items-center text-sm text-gray-500">
+                    <p className="mr-1">Priority:</p>
+                    <div className="flex">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        title="Move up in priority"
+                      >
+                        <ArrowUpIcon className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        title="Move down in priority"
+                      >
+                        <ArrowDownIcon className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Actions */}
