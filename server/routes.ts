@@ -1,6 +1,7 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import express from "express";
+import { storage as dataStorage } from "./storage";
 import { 
   insertBookingInquirySchema, 
   insertContactMessageSchema,
@@ -9,11 +10,97 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { ZodError } from "zod-validation-error";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Create upload directories
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+const GALLERY_DIR = path.join(UPLOAD_DIR, 'gallery');
+
+// Ensure directories exist
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+if (!fs.existsSync(GALLERY_DIR)) {
+  fs.mkdirSync(GALLERY_DIR, { recursive: true });
+}
+
+// Set up multer for file uploads
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Get category from request body or params
+    const category = req.body.category || req.query.category || 'default';
+    const categoryPath = category.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+    const categoryDir = path.join(GALLERY_DIR, categoryPath);
+    
+    // Create category directory if it doesn't exist
+    if (!fs.existsSync(categoryDir)) {
+      fs.mkdirSync(categoryDir, { recursive: true });
+    }
+    
+    cb(null, categoryDir);
+  },
+  filename: (req, file, cb) => {
+    // Create a unique filename
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const safeFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    cb(null, uniqueSuffix + '-' + safeFilename);
+  }
+});
+
+const upload = multer({ 
+  storage: fileStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max file size
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files
+  app.use('/uploads', express.static(UPLOAD_DIR));
+  
+  // File upload endpoint
+  app.post("/api/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Get file details
+      const file = req.file;
+      const category = req.body.category || 'default';
+      const title = req.body.title || file.originalname;
+      const description = req.body.description || '';
+      const tags = req.body.tags || '';
+      const featured = req.body.featured === 'true';
+      
+      // Create URL for the uploaded file
+      const fileUrl = `/uploads/gallery/${category.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}/${file.filename}`;
+      
+      // Save to database
+      const galleryImage = await dataStorage.createGalleryImage({
+        imageUrl: fileUrl,
+        title,
+        description,
+        category,
+        tags,
+        featured
+      });
+      
+      res.status(201).json({
+        message: "File uploaded successfully!",
+        data: galleryImage
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
   // API Routes
   app.get("/api/rooms", async (req, res) => {
-    const rooms = await storage.getRooms();
+    const rooms = await dataStorage.getRooms();
     res.json(rooms);
   });
 
@@ -23,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: "Invalid room ID" });
     }
     
-    const room = await storage.getRoomById(id);
+    const room = await dataStorage.getRoomById(id);
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
     }
@@ -32,12 +119,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/testimonials", async (req, res) => {
-    const testimonials = await storage.getTestimonials();
+    const testimonials = await dataStorage.getTestimonials();
     res.json(testimonials);
   });
 
   app.get("/api/activities", async (req, res) => {
-    const activities = await storage.getActivities();
+    const activities = await dataStorage.getActivities();
     res.json(activities);
   });
 
@@ -47,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: "Invalid activity ID" });
     }
     
-    const activity = await storage.getActivityById(id);
+    const activity = await dataStorage.getActivityById(id);
     if (!activity) {
       return res.status(404).json({ message: "Activity not found" });
     }
@@ -56,7 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/dining-options", async (req, res) => {
-    const diningOptions = await storage.getDiningOptions();
+    const diningOptions = await dataStorage.getDiningOptions();
     res.json(diningOptions);
   });
 
@@ -66,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: "Invalid dining option ID" });
     }
     
-    const diningOption = await storage.getDiningOptionById(id);
+    const diningOption = await dataStorage.getDiningOptionById(id);
     if (!diningOption) {
       return res.status(404).json({ message: "Dining option not found" });
     }
@@ -78,11 +165,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const category = req.query.category as string | undefined;
     
     if (category) {
-      const images = await storage.getGalleryImagesByCategory(category);
+      const images = await dataStorage.getGalleryImagesByCategory(category);
       return res.json(images);
     }
     
-    const allImages = await storage.getGalleryImages();
+    const allImages = await dataStorage.getGalleryImages();
     res.json(allImages);
   });
 
@@ -90,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/booking", async (req, res) => {
     try {
       const validatedData = insertBookingInquirySchema.parse(req.body);
-      const bookingInquiry = await storage.createBookingInquiry(validatedData);
+      const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
       res.status(201).json({
         message: "Booking inquiry submitted successfully!",
         data: bookingInquiry
@@ -110,7 +197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contact", async (req, res) => {
     try {
       const validatedData = insertContactMessageSchema.parse(req.body);
-      const contactMessage = await storage.createContactMessage(validatedData);
+      const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
         message: "Message sent successfully!",
         data: contactMessage
@@ -130,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/newsletter", async (req, res) => {
     try {
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
-      const subscriber = await storage.subscribeToNewsletter(validatedData);
+      const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
         message: "Subscribed to newsletter successfully!",
         data: subscriber
@@ -150,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/newsletter/:email", async (req, res) => {
     const email = req.params.email;
     try {
-      const success = await storage.unsubscribeFromNewsletter(email);
+      const success = await dataStorage.unsubscribeFromNewsletter(email);
       if (success) {
         return res.json({ message: "Unsubscribed from newsletter successfully!" });
       }
@@ -165,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/gallery", async (req, res) => {
     try {
       const validatedData = insertGalleryImageSchema.parse(req.body);
-      const galleryImage = await storage.createGalleryImage(validatedData);
+      const galleryImage = await dataStorage.createGalleryImage(validatedData);
       res.status(201).json({
         message: "Gallery image added successfully!",
         data: galleryImage
@@ -189,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const success = await storage.deleteGalleryImage(id);
+      const success = await dataStorage.deleteGalleryImage(id);
       if (success) {
         return res.json({ message: "Gallery image deleted successfully!" });
       }
@@ -207,13 +294,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const galleryImage = await storage.getGalleryImageById(id);
+      const galleryImage = await dataStorage.getGalleryImageById(id);
       if (!galleryImage) {
         return res.status(404).json({ message: "Gallery image not found" });
       }
       
       const updatedData = { ...req.body, id };
-      const updatedImage = await storage.updateGalleryImage(updatedData);
+      const updatedImage = await dataStorage.updateGalleryImage(updatedData);
       
       res.json({
         message: "Gallery image updated successfully!",
