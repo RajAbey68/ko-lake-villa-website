@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useToast } from '../../hooks/use-toast';
-import SimpleImageUploadDialog from '../../components/SimpleImageUploadDialog';
+import MinimalUploadDialog from '../../components/MinimalUploadDialog';
 
 // Helper function to extract YouTube video ID from URL
 function getYouTubeVideoId(url: string): string {
@@ -425,9 +425,9 @@ function SimpleGalleryManager() {
       </CardContent>
       
       {/* Image Upload Dialog */}
-      <SimpleImageUploadDialog 
+      <MinimalUploadDialog 
         open={uploadDialogOpen}
-        onOpenChange={setUploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
         onSuccess={fetchImages}
       />
     </Card>
