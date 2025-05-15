@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -32,17 +31,17 @@ const galleryCategories = [
   { value: "lake-garden", label: "Lake Garden" },
   { value: "roof-garden", label: "Roof Garden" },
   { value: "front-garden", label: "Front Garden and Entrance" },
-  { value: "koggala-lake", label: "Koggala Lake Ahangama and Surrounding" },
+  { value: "koggala-lake", label: "Koggala Lake Ahangama" },
   { value: "excursions", label: "Excursions" }
 ];
 
-interface ImageUploadDialogProps {
+interface SimpleImageUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
 
-const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogProps) => {
+const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageUploadDialogProps) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -200,108 +199,92 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
         onOpenChange(newOpen);
       }
     }}>
-      <DialogContent className="w-full max-w-[400px] overflow-auto">
+      <DialogContent className="h-auto max-h-screen overflow-auto">
         <DialogHeader>
-          <DialogTitle className="text-[#8B5E3C] text-lg">Add to Gallery</DialogTitle>
+          <DialogTitle className="text-[#8B5E3C]">Add to Gallery</DialogTitle>
         </DialogHeader>
         
-        {/* Top tabs for upload method */}
-        <div className="flex gap-2 mt-2 mb-4">
+        {/* Method Selector */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
           <Button
-            type="button"
             size="sm"
             variant={uploadMethod === 'file' ? "default" : "outline"}
-            className={uploadMethod === 'file' ? "bg-[#FF914D] text-white" : ""}
+            className={uploadMethod === 'file' ? "bg-[#FF914D]" : ""}
             onClick={() => setUploadMethod('file')}
           >
             Upload File
           </Button>
           <Button
-            type="button"
             size="sm"
             variant={uploadMethod === 'url' ? "default" : "outline"}
-            className={uploadMethod === 'url' ? "bg-[#FF914D] text-white" : ""}
+            className={uploadMethod === 'url' ? "bg-[#FF914D]" : ""}
             onClick={() => setUploadMethod('url')}
           >
             Use URL
           </Button>
         </div>
         
-        {/* Main form - vertical layout for better fit */}
-        <div className="space-y-4">
-          {/* Upload method-specific section */}
+        <div className="space-y-3">
+          {/* File or URL Input */}
           {uploadMethod === 'file' ? (
             <div>
-              <Label htmlFor="image-upload">Select Image File</Label>
               <Input 
-                id="image-upload" 
                 type="file" 
                 accept="image/*" 
                 onChange={handleFileChange}
                 className="mt-1"
               />
               {imageFile && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Selected: {imageFile.name}
-                </p>
+                <p className="text-xs mt-1">{imageFile.name}</p>
               )}
             </div>
           ) : (
-            <>
-              <div>
-                <Label htmlFor="image-url">Image or Video URL</Label>
-                <Input 
-                  id="image-url" 
-                  type="url" 
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
+            <div className="space-y-2">
+              <Input 
+                placeholder="Enter image or video URL" 
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
               
-              <div className="flex items-center space-x-2">
-                <label className="text-sm">Media Type:</label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="mr-1"
-                    checked={mediaType === 'image'}
+              <div className="flex items-center gap-3">
+                <span className="text-xs">Type:</span>
+                <label className="inline-flex items-center gap-1 text-xs">
+                  <input 
+                    type="radio" 
+                    checked={mediaType === 'image'} 
                     onChange={() => setMediaType('image')}
                   />
-                  <span className="text-sm">Image</span>
+                  Image
                 </label>
-                <label className="inline-flex items-center ml-4">
-                  <input
-                    type="radio"
-                    className="mr-1"
-                    checked={mediaType === 'video'}
+                <label className="inline-flex items-center gap-1 text-xs">
+                  <input 
+                    type="radio" 
+                    checked={mediaType === 'video'} 
                     onChange={() => setMediaType('video')}
                   />
-                  <span className="text-sm">Video</span>
+                  Video
                 </label>
               </div>
-            </>
+            </div>
           )}
           
-          {/* Required fields */}
+          {/* Title */}
           <div>
-            <Label htmlFor="alt-text">Alt Text / Title *</Label>
+            <Label className="text-xs">Title/Alt Text*</Label>
             <Input 
-              id="alt-text" 
-              placeholder="Title or description"
               value={alt}
               onChange={(e) => setAlt(e.target.value)}
+              placeholder="Enter title"
               required
-              className="mt-1"
             />
           </div>
           
+          {/* Category */}
           <div>
-            <Label htmlFor="category">Category *</Label>
+            <Label className="text-xs">Category*</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="category" className="mt-1">
-                <SelectValue placeholder="Select a category" />
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 {galleryCategories.map((cat) => (
@@ -313,67 +296,64 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
             </Select>
           </div>
           
-          {/* Optional fields */}
+          {/* Description */}
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label className="text-xs">Description</Label>
             <Textarea 
-              id="description" 
-              placeholder="Add more details"
+              placeholder="Optional description" 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 h-16"
+              className="h-20"
             />
           </div>
           
+          {/* Tags */}
           <div>
-            <Label htmlFor="tags">Tags (comma separated)</Label>
+            <Label className="text-xs">Tags (comma separated)</Label>
             <Input 
-              id="tags" 
-              placeholder="e.g. landscape, sunset"
+              placeholder="e.g. beach, sunset, view"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="mt-1"
             />
           </div>
           
-          <div className="flex items-center space-x-2">
+          {/* Featured */}
+          <div className="flex items-center gap-2">
             <Checkbox 
-              id="featured" 
+              id="featured-image" 
               checked={featured}
               onCheckedChange={(checked) => setFeatured(!!checked)}
             />
-            <Label htmlFor="featured">
-              Featured image
+            <Label htmlFor="featured-image" className="text-xs">
+              Featured image (shows on homepage)
             </Label>
           </div>
         </div>
         
-        {/* Upload Progress */}
+        {/* Progress */}
         {isUploading && (
-          <div className="mt-4 mb-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-[#FF914D] h-2 rounded-full" 
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-            </div>
+          <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
+            <div 
+              className="bg-[#FF914D] h-2 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            />
             <p className="text-xs text-center mt-1">{uploadProgress}% uploaded</p>
           </div>
         )}
         
-        {/* Footer actions */}
-        <DialogFooter className="mt-6 flex justify-between">
+        {/* Actions */}
+        <DialogFooter className="mt-3 pt-3 border-t flex items-center justify-between">
           <Button 
-            variant="outline"
+            variant="outline" 
             onClick={() => onOpenChange(false)}
             disabled={isUploading}
           >
             Cancel
           </Button>
           <Button 
-            onClick={handleSubmit}
-            disabled={isUploading || (uploadMethod === 'file' && !imageFile) || (uploadMethod === 'url' && !imageUrl)}
             className="bg-[#FF914D] hover:bg-[#e67e3d]"
+            onClick={handleSubmit}
+            disabled={isUploading || (!imageFile && !imageUrl) || !alt}
           >
             {isUploading ? 'Uploading...' : 'Upload'}
           </Button>
@@ -383,4 +363,4 @@ const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogP
   );
 };
 
-export default ImageUploadDialog;
+export default SimpleImageUploadDialog;
