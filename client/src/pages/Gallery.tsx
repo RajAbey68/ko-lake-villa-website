@@ -191,14 +191,36 @@ const Gallery = () => {
                   onClick={() => openImageModal(image)}
                 >
                   <div className="relative overflow-hidden rounded-md">
-                    <img 
-                      src={image.imageUrl} 
-                      alt={image.alt} 
-                      className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                    {image.mediaType === 'video' ? (
+                      <div className="relative">
+                        <video 
+                          src={image.imageUrl} 
+                          className="w-full h-40 md:h-56 object-cover"
+                          muted
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
+                          <div className="w-12 h-12 rounded-full bg-white bg-opacity-70 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#FF914D]">
+                              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <img 
+                        src={image.imageUrl} 
+                        alt={image.alt} 
+                        className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
                     {image.featured && (
                       <span className="absolute top-2 right-2 bg-[#FF914D] text-white text-xs px-2 py-1 rounded-full">
                         Featured
+                      </span>
+                    )}
+                    {image.mediaType === 'video' && (
+                      <span className="absolute bottom-2 left-2 bg-[#62C3D2] text-white text-xs px-2 py-1 rounded-full">
+                        Video
                       </span>
                     )}
                   </div>
@@ -221,12 +243,30 @@ const Gallery = () => {
             <DialogContent className="max-w-6xl bg-[#FDF6EE] p-6 rounded-lg border-2 border-[#A0B985] shadow-xl">
               {selectedImage && (
                 <div className="flex flex-col items-center">
-                  <img 
-                    src={selectedImage.imageUrl} 
-                    alt={selectedImage.alt} 
-                    className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
-                  />
-                  <p className="mt-4 text-[#8B5E3C] font-medium text-lg">{selectedImage.alt}</p>
+                  {selectedImage.mediaType === 'video' ? (
+                    <div className="relative w-full max-w-3xl">
+                      <video 
+                        src={selectedImage.imageUrl} 
+                        className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                        controls
+                        autoPlay
+                      />
+                    </div>
+                  ) : (
+                    <img 
+                      src={selectedImage.imageUrl} 
+                      alt={selectedImage.alt} 
+                      className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
+                    />
+                  )}
+                  <div className="mt-4 flex items-center gap-3">
+                    {selectedImage.mediaType === 'video' && (
+                      <span className="px-2 py-1 bg-[#62C3D2] text-white text-xs rounded-full">
+                        Video
+                      </span>
+                    )}
+                    <p className="text-[#8B5E3C] font-medium text-lg">{selectedImage.alt}</p>
+                  </div>
                   
                   {/* Description if available */}
                   {selectedImage.description && (

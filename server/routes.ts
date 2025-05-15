@@ -97,6 +97,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const title = req.body.title || file.originalname;
         const description = req.body.description || '';
         
+        // Determine media type from file mimetype or form data
+        const mediaType = req.body.mediaType || 
+          (file.mimetype.startsWith('video/') ? 'video' : 'image');
+        
+        console.log("Media type detected:", mediaType);
+        
         // Properly process tags - ensure they're in a consistent format
         let tags = req.body.tags || '';
         console.log("Raw tags:", tags);
@@ -115,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const featured = req.body.featured === 'true';
         
-        console.log("Form data:", { category, title, description, tags, featured });
+        console.log("Form data:", { category, title, description, tags, featured, mediaType });
         
         // Create URL for the uploaded file - always using the default folder
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
@@ -129,7 +135,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description,
             category,
             tags,
-            featured
+            featured,
+            mediaType,
+            sortOrder: 0
           });
           console.log("Image saved to database:", galleryImage);
           
