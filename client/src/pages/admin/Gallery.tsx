@@ -127,6 +127,75 @@ function SimpleGalleryManager() {
     }
   };
   
+  // Add a sample video
+  const addSampleVideo = async () => {
+    try {
+      setLoading(true);
+      setAddingImage(true);
+      setAddSuccess(false);
+      setError(null);
+      
+      // Show immediate feedback
+      toast({
+        title: "Adding sample video...",
+        description: "Please wait while we add a sample video to your gallery.",
+      });
+      
+      // Video data - using a popular tourism video
+      const timestamp = Date.now();
+      const sampleVideo = {
+        uploadMethod: "url",
+        imageUrl: "https://www.youtube.com/watch?v=cR-OPyeCtCQ", // Aerial view of Sri Lanka video
+        alt: `Sri Lanka Tour Video ${new Date().toLocaleTimeString()}`,
+        description: `Sample video added on ${new Date().toLocaleString()}`,
+        category: "koggala-lake",
+        tags: "video,tour,aerial,drone",
+        featured: false,
+        sortOrder: 0,
+        mediaType: "video"
+      };
+      
+      console.log("Adding sample video:", sampleVideo);
+      
+      // Send API request
+      const response = await fetch('/api/admin/gallery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sampleVideo),
+      });
+      
+      const responseText = await response.text();
+      console.log("Video response from server:", response.status, responseText);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to add video: ${response.status} - ${responseText}`);
+      }
+      
+      // Show success message
+      toast({
+        title: "Video Added Successfully!",
+        description: "Sample video has been added to your gallery",
+        duration: 5000,
+      });
+      
+      setAddSuccess(true);
+      
+      // Refresh the image list
+      fetchImages();
+    } catch (err: any) {
+      console.error("Error adding sample video:", err);
+      setError(err.message || "Failed to add sample video");
+      toast({
+        title: "Error",
+        description: `Failed to add video: ${err.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setAddingImage(false);
+    }
+  };
+  
   // Add a sample image
   const addSampleImage = async () => {
     try {
@@ -361,73 +430,13 @@ function SimpleGalleryManager() {
               <Button
                 variant="outline"
                 className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
-                onClick={() => {
-                  // Add sample video
-                  try {
-                    setLoading(true);
-                    setAddingImage(true);
-                    
-                    // Show immediate feedback
-                    toast({
-                      title: "Adding Ko Lake Area Video...",
-                      description: "Please wait while we add a Ko Lake area video to your gallery.",
-                    });
-                    
-                    // Video data - using a popular Sri Lanka tourism video that's definitely available
-                    const sampleVideo = {
-                      uploadMethod: "url",
-                      imageUrl: "https://www.youtube.com/watch?v=cR-OPyeCtCQ", // Aerial view of Sri Lanka
-                      alt: `Sri Lanka Aerial Tour`,
-                      description: `Aerial drone footage of beautiful Sri Lanka landscapes including lakes and beaches`,
-                      category: "koggala-lake",
-                      tags: "tour,video,lake,drone,aerial",
-                      featured: false,
-                      sortOrder: 0,
-                      mediaType: "video"
-                    };
-                    
-                    // Send API request
-                    fetch('/api/admin/gallery', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(sampleVideo),
-                    })
-                    .then(response => response.text())
-                    .then(responseText => {
-                      console.log("Video response:", responseText);
-                      toast({
-                        title: "Video Added Successfully!",
-                        description: "Sample video has been added to your gallery",
-                        duration: 5000,
-                      });
-                      
-                      // Refresh the image list
-                      fetchImages();
-                    })
-                    .catch(err => {
-                      console.error("Error adding video:", err);
-                      toast({
-                        title: "Error",
-                        description: `Failed to add video: ${err.message}`,
-                        variant: "destructive",
-                      });
-                    })
-                    .finally(() => {
-                      setLoading(false);
-                      setAddingImage(false);
-                    });
-                  } catch (err) {
-                    console.error("Error in video upload:", err);
-                    setLoading(false);
-                    setAddingImage(false);
-                  }
-                }}
-                disabled={loading}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={addSampleVideo}
               >
                 <PlayCircleIcon className="h-4 w-4 mr-2" />
-                Add Video Example
+                Add Video
               </Button>
+
+
             </div>
           </div>
         </div>
