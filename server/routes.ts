@@ -99,6 +99,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Properly process tags - ensure they're in a consistent format
         let tags = req.body.tags || '';
+        console.log("Raw tags:", tags);
+        
         // Clean up tags by removing extra spaces and ensuring comma separation
         if (tags) {
           // Convert to array, clean each tag, and join back with proper type annotation
@@ -107,6 +109,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .map(tag => tag.trim())
             .filter(tag => tag.length > 0) // Remove empty tags
             .join(',');
+          
+          console.log("Processed tags:", tags);
         }
         
         const featured = req.body.featured === 'true';
