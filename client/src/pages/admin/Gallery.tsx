@@ -6,6 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useToast } from '../../hooks/use-toast';
 import SimpleImageUploadDialog from '../../components/SimpleImageUploadDialog';
+import { 
+  HomeIcon, 
+  ArrowLeftIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ImageIcon, 
+  PlusIcon,
+  TrashIcon,
+  RefreshCwIcon,
+  AlertCircleIcon,
+  CheckCircleIcon
+} from 'lucide-react';
 
 // Helper function to extract YouTube video ID from URL
 function getYouTubeVideoId(url: string): string {
@@ -19,16 +31,6 @@ function getYouTubeVideoId(url: string): string {
     return '';
   }
 }
-import { 
-  HomeIcon, 
-  ArrowLeftIcon,
-  ImageIcon, 
-  PlusIcon,
-  TrashIcon,
-  RefreshCwIcon,
-  AlertCircleIcon,
-  CheckCircleIcon
-} from 'lucide-react';
 
 // Simple GalleryImage type
 type GalleryImage = {
