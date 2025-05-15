@@ -22,10 +22,27 @@ import {
 
 // Helper function to extract YouTube video ID from URL
 function getYouTubeVideoId(url: string): string {
+  if (!url) return '';
+  
   try {
-    // Handle different YouTube URL formats
+    // Already an embed URL
+    if (url.includes('/embed/')) {
+      const parts = url.split('/embed/');
+      if (parts.length > 1) {
+        const idPart = parts[1].split('?')[0].split('#')[0];
+        if (idPart.length === 11) return idPart;
+      }
+    }
+    
+    // Handle different YouTube URL formats (youtu.be, watch?v=, etc)
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
+    
+    // Direct ID input - if it's exactly 11 chars and not a URL
+    if (!url.includes('youtube.com') && !url.includes('youtu.be') && url.length === 11) {
+      return url;
+    }
+    
     return (match && match[2].length === 11) ? match[2] : '';
   } catch (error) {
     console.error('Error extracting YouTube ID:', error);
@@ -143,9 +160,11 @@ function SimpleGalleryManager() {
       
       // Video data - using a popular tourism video
       const timestamp = Date.now();
+      // Use YouTube URL with embed format to ensure maximum compatibility
+      const videoId = "cR-OPyeCtCQ"; // Aerial view of Sri Lanka video
       const sampleVideo = {
         uploadMethod: "url",
-        imageUrl: "https://www.youtube.com/watch?v=cR-OPyeCtCQ", // Aerial view of Sri Lanka video
+        imageUrl: `https://www.youtube.com/embed/${videoId}`, // Using embed URL format for better compatibility
         alt: `Sri Lanka Tour Video ${new Date().toLocaleTimeString()}`,
         description: `Sample video added on ${new Date().toLocaleString()}`,
         category: "koggala-lake",
@@ -479,14 +498,25 @@ function SimpleGalleryManager() {
             {images.map((image) => (
               <div key={image.id} className="relative group overflow-hidden rounded-lg border">
                 {/* Show YouTube video embed if it's a video */}
-                {image.mediaType === 'video' && image.imageUrl?.includes('youtube.com') ? (
+                {image.mediaType === 'video' && image.imageUrl ? (
                   <div className="aspect-video bg-gray-100">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${getYouTubeVideoId(image.imageUrl)}`}
-                      allowFullScreen
-                      className="w-full h-48"
-                      title={image.alt}
-                    />
+                    {getYouTubeVideoId(image.imageUrl) ? (
+                      <iframe
+                        src={`https://www.youtube.com/embed/${getYouTubeVideoId(image.imageUrl)}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-48"
+                        title={image.alt}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-48 bg-gray-100 text-gray-500">
+                        <div className="text-center p-4">
+                          <PlayCircleIcon className="h-8 w-8 mx-auto mb-2" />
+                          <p>Invalid YouTube URL</p>
+                          <p className="text-xs text-gray-400">{image.imageUrl}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="relative">
