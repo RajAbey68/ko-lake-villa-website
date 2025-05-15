@@ -256,7 +256,7 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
     }}>
       <DialogContent className="sm:max-w-md md:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-[#8B5E3C]">Add to Gallery</DialogTitle>
+          <DialogTitle className="text-[#8B5E3C]">Add Media to Gallery</DialogTitle>
         </DialogHeader>
         
         {/* Method Selector */}
@@ -279,49 +279,77 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
           </Button>
         </div>
         
+        {/* Media Type Selector */}
+        <div className="flex justify-between items-center mb-3 border-b pb-2">
+          <span className="text-sm font-medium text-gray-700">Media Type:</span>
+          <div className="flex space-x-4">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                checked={mediaType === 'image'}
+                onChange={() => setMediaType('image')}
+                className="text-[#FF914D]"
+              />
+              <span className="text-sm">Image</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                checked={mediaType === 'video'}
+                onChange={() => setMediaType('video')}
+                className="text-[#FF914D]"
+              />
+              <span className="text-sm">Video</span>
+            </label>
+          </div>
+        </div>
+        
         {/* Scrollable content area */}
         <div className="max-h-[50vh] overflow-y-auto pr-1 mb-12">
           <div className="space-y-3">
             {/* File or URL Input */}
             {uploadMethod === 'file' ? (
               <div>
+                <Label className="text-xs mb-1 block">Select {mediaType === 'video' ? 'Video' : 'Image'} File</Label>
                 <Input 
                   type="file" 
-                  accept="image/*" 
+                  accept={mediaType === 'video' ? "video/*,.mp4,.webm,.mov" : "image/*,.jpg,.png,.gif,.webp"} 
                   onChange={handleFileChange}
                   className="mt-1"
                 />
                 {imageFile && (
-                  <p className="text-xs mt-1">{imageFile.name}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-xs">{imageFile.name}</p>
+                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                      {mediaType === 'video' ? 'Video' : 'Image'}
+                    </span>
+                  </div>
+                )}
+                {mediaType === 'video' && (
+                  <p className="text-xs text-amber-700 mt-2">
+                    Note: Video uploads may take longer depending on file size.
+                  </p>
                 )}
               </div>
             ) : (
               <div className="space-y-2">
+                <Label className="text-xs mb-1 block">
+                  {mediaType === 'video' ? 'YouTube Video URL' : 'Image URL'}
+                </Label>
                 <Input 
-                  placeholder="Enter image or video URL" 
+                  placeholder={mediaType === 'video' 
+                    ? "Enter YouTube video URL (e.g., https://www.youtube.com/watch?v=VIDEOID)" 
+                    : "Enter image URL (e.g., https://example.com/image.jpg)"
+                  } 
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                 />
                 
-                <div className="flex items-center gap-3">
-                  <span className="text-xs">Type:</span>
-                  <label className="inline-flex items-center gap-1 text-xs">
-                    <input 
-                      type="radio" 
-                      checked={mediaType === 'image'} 
-                      onChange={() => setMediaType('image')}
-                    />
-                    Image
-                  </label>
-                  <label className="inline-flex items-center gap-1 text-xs">
-                    <input 
-                      type="radio" 
-                      checked={mediaType === 'video'} 
-                      onChange={() => setMediaType('video')}
-                    />
-                    Video
-                  </label>
-                </div>
+                {mediaType === 'video' && (
+                  <p className="text-xs text-amber-700">
+                    Currently supported: YouTube videos only
+                  </p>
+                )}
               </div>
             )}
             
@@ -466,7 +494,7 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
               onClick={handleSubmit}
               disabled={isUploading || (!imageFile && !imageUrl) || !alt}
             >
-              {isUploading ? 'Uploading...' : 'Upload'}
+              {isUploading ? 'Uploading...' : `Upload ${mediaType === 'video' ? 'Video' : 'Image'}`}
             </Button>
           </div>
         </DialogFooter>
