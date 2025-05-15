@@ -91,7 +91,22 @@ function SimpleGalleryManager() {
       }
       
       const data = await response.json();
-      setImages(data);
+      
+      // Sort images by sortOrder if available
+      const sortedData = [...data].sort((a, b) => {
+        // If sortOrder is defined for both, use it
+        if (a.sortOrder !== undefined && b.sortOrder !== undefined) {
+          return a.sortOrder - b.sortOrder;
+        }
+        // If only one has sortOrder, prioritize the one with sortOrder
+        if (a.sortOrder !== undefined) return -1;
+        if (b.sortOrder !== undefined) return 1;
+        // Otherwise keep original order
+        return 0;
+      });
+      
+      console.log("Fetched and sorted gallery images:", sortedData.slice(0, 3));
+      setImages(sortedData);
       
       // Show user feedback
       toast({
