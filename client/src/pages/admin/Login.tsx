@@ -159,7 +159,7 @@ export default function AdminLogin() {
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@kolakehouse.com" 
+                    placeholder="contact@KoLakeHouse.com" 
                     className="border-[#A0B985]"
                   />
                 </div>
