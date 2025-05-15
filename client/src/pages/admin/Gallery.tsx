@@ -510,15 +510,22 @@ function SimpleGalleryManager() {
                         title={image.alt}
                       />
                     ) : image.imageUrl.startsWith('/uploads') ? (
-                      <div className="relative h-48 bg-gray-100">
+                      <div 
+                        className="relative h-48 bg-gray-100 cursor-pointer" 
+                        onClick={() => window.open(image.imageUrl, '_blank')}
+                        title="Click to view video in a new tab"
+                      >
                         <video 
                           src={image.imageUrl}
                           className="w-full h-full object-cover"
                           preload="metadata"
                           muted
                         />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-30">
                           <PlayCircleIcon className="h-12 w-12 text-white" />
+                          <span className="text-white text-xs mt-2 px-2 py-1 bg-black bg-opacity-50 rounded">
+                            Click to play
+                          </span>
                         </div>
                       </div>
                     ) : (
