@@ -179,7 +179,9 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
           onOpenChange(false);
           
           // Call success callback to refresh the gallery
-          onSuccess();
+          if (onSuccess) {
+            onSuccess();
+          }
           return;
           
         } catch (err) {
@@ -233,7 +235,9 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
       onOpenChange(false);
       
       // Call success callback to refresh the gallery
-      onSuccess();
+      if (onSuccess) {
+        onSuccess();
+      }
       
     } catch (error: any) {
       console.error("Error in handleSubmit:", error);
