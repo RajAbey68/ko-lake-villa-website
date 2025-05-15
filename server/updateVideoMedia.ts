@@ -9,25 +9,31 @@ async function updateVideoMediaTypes() {
     console.log('Starting video mediaType update...');
     
     // Get all gallery images
-    const images = await dataStorage.getGalleryImages();
+    const images = await storage.getGalleryImages();
     console.log(`Found ${images.length} gallery items`);
     
     let updatedCount = 0;
     
     // Loop through images and check file extensions
     for (const image of images) {
-      // Check if the file is an MP4 but mediaType is not set to 'video'
+      // Check if the file is an MP4 or if the URL contains YouTube links
       const isMP4 = image.imageUrl.toLowerCase().endsWith('.mp4');
+      const isYouTube = image.imageUrl.includes('youtube.com') || image.imageUrl.includes('youtu.be');
       
-      if (isMP4 && image.mediaType !== 'video') {
+      if ((isMP4 || isYouTube) && image.mediaType !== 'video') {
         console.log(`Updating mediaType for ID: ${image.id}, File: ${image.imageUrl}`);
         
-        // Update the mediaType to 'video'
-        await db.update(galleryImages)
-          .set({ mediaType: 'video' })
-          .where(eq(galleryImages.id, image.id));
+        try {
+          // For MemStorage implementation, we need to update the full object
+          await storage.updateGalleryImage({
+            id: image.id,
+            mediaType: 'video'
+          });
           
-        updatedCount++;
+          updatedCount++;
+        } catch (err) {
+          console.error(`Failed to update gallery item ${image.id}:`, err);
+        }
       }
     }
     

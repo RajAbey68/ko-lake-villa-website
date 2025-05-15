@@ -98,10 +98,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const description = req.body.description || '';
         
         // Determine media type from file mimetype or form data
-        const mediaType = req.body.mediaType || 
-          (file.mimetype.startsWith('video/') ? 'video' : 'image');
+        const isVideoFile = file.mimetype.startsWith('video/') || 
+                            file.originalname.toLowerCase().endsWith('.mp4') ||
+                            file.originalname.toLowerCase().endsWith('.mov') ||
+                            file.originalname.toLowerCase().endsWith('.avi');
         
-        console.log("Media type detected:", mediaType);
+        const mediaType = req.body.mediaType || (isVideoFile ? 'video' : 'image');
+        
+        console.log("Media type detected:", mediaType, "for file:", file.originalname);
         
         // Properly process tags - ensure they're in a consistent format
         let tags = req.body.tags || '';
@@ -122,6 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const featured = req.body.featured === 'true';
         
         console.log("Form data:", { category, title, description, tags, featured, mediaType });
+        console.log("File mimetype:", file.mimetype);
         
         // Create URL for the uploaded file - always using the default folder
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
@@ -129,7 +134,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Save to database
         try {
-          const galleryImage = await dataStorage.createGalleryImage({
+          // Prepare gallery image data
+          const galleryImageData = {
             imageUrl: fileUrl,
             alt: title || file.originalname, // Using title as alt text
             description,
@@ -138,7 +144,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             featured,
             mediaType,
             sortOrder: 0
-          });
+          };
+          
+          console.log("Creating gallery image with data:", galleryImageData);
+          
+          const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
           console.log("Image saved to database:", galleryImage);
           
           res.status(201).json({
