@@ -338,6 +338,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Increase image priority (move up in sort order)
+  app.post("/api/admin/gallery/:id/priority/increase", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+    
+    try {
+      const image = await dataStorage.getGalleryImageById(id);
+      if (!image) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      // Decrease sortOrder to move it up (higher priority)
+      const currentOrder = image.sortOrder || 0;
+      const updatedImage = await dataStorage.updateGalleryImage({
+        ...image,
+        id,
+        sortOrder: Math.max(0, currentOrder - 1) // Ensure we don't go below 0
+      });
+      
+      res.json({
+        message: "Gallery image priority increased!",
+        data: updatedImage
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update image priority" });
+    }
+  });
+  
+  // Decrease image priority (move down in sort order)
+  app.post("/api/admin/gallery/:id/priority/decrease", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+    
+    try {
+      const image = await dataStorage.getGalleryImageById(id);
+      if (!image) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      // Increase sortOrder to move it down (lower priority)
+      const currentOrder = image.sortOrder || 0;
+      const updatedImage = await dataStorage.updateGalleryImage({
+        ...image,
+        id,
+        sortOrder: currentOrder + 1
+      });
+      
+      res.json({
+        message: "Gallery image priority decreased!",
+        data: updatedImage
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update image priority" });
+    }
+  });
+  
   // Update a gallery image
   app.patch("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
