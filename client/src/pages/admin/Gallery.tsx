@@ -365,6 +365,16 @@ function SimpleGalleryManager() {
           </div>
         )}
         
+        {/* Debug section to show image URLs for troubleshooting */}
+        {!loading && !error && images.length > 0 && (
+          <div className="bg-gray-100 p-4 mb-6 rounded-md">
+            <h3 className="text-sm font-semibold mb-2">Debug: Latest Image</h3>
+            <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-32">
+              {JSON.stringify(images[images.length - 1], null, 2)}
+            </pre>
+          </div>
+        )}
+        
         {!loading && !error && images.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image) => (
@@ -380,15 +390,22 @@ function SimpleGalleryManager() {
                     />
                   </div>
                 ) : (
-                  <img 
-                    src={image.imageUrl} 
-                    alt={image.alt}
-                    className="w-full h-48 object-cover transition-all duration-300 group-hover:opacity-75"
-                    onError={(e) => {
-                      // On error, show placeholder
-                      e.currentTarget.src = "https://via.placeholder.com/300x200?text=Image+Error";
-                    }}
-                  />
+                  <div className="relative">
+                    <img 
+                      src={image.imageUrl.startsWith('http') ? image.imageUrl : image.imageUrl} 
+                      alt={image.alt}
+                      className="w-full h-48 object-cover transition-all duration-300 group-hover:opacity-75"
+                      onError={(e) => {
+                        console.error("Image load error for URL:", image.imageUrl);
+                        // On error, show placeholder
+                        e.currentTarget.src = "https://via.placeholder.com/300x200?text=Image+Error";
+                      }}
+                    />
+                    {/* Display image URL for debugging */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-1 text-xs overflow-hidden">
+                      {image.imageUrl}
+                    </div>
+                  </div>
                 )}
                 
                 <div className="p-3">

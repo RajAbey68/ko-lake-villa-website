@@ -1,10 +1,25 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import path from "path";
+
+// Make sure uploads directory exists and is accessible 
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+console.log("Uploads directory:", UPLOADS_DIR);
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve static uploads directory directly 
+app.use('/uploads', express.static(UPLOADS_DIR, {
+  // Set cache control headers to prevent browser caching
+  setHeaders: (res, path) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();
