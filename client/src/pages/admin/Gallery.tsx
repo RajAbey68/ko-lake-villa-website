@@ -235,6 +235,76 @@ function SimpleGalleryManager() {
       setLoading(false);
     }
   };
+  
+  // Increase image priority
+  const increasePriority = async (id: number) => {
+    try {
+      setLoading(true);
+      
+      // Send API request
+      const response = await fetch(`/api/admin/gallery/${id}/priority/increase`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update priority: ${response.status}`);
+      }
+      
+      // Show success message
+      toast({
+        title: "Success!",
+        description: "Image priority increased",
+      });
+      
+      // Refresh the image list
+      fetchImages();
+      
+    } catch (err) {
+      console.error("Error updating priority:", err);
+      toast({
+        title: "Error",
+        description: "Failed to update priority",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Decrease image priority
+  const decreasePriority = async (id: number) => {
+    try {
+      setLoading(true);
+      
+      // Send API request
+      const response = await fetch(`/api/admin/gallery/${id}/priority/decrease`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update priority: ${response.status}`);
+      }
+      
+      // Show success message
+      toast({
+        title: "Success!",
+        description: "Image priority decreased",
+      });
+      
+      // Refresh the image list
+      fetchImages();
+      
+    } catch (err) {
+      console.error("Error updating priority:", err);
+      toast({
+        title: "Error",
+        description: "Failed to update priority",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card>
@@ -449,6 +519,7 @@ function SimpleGalleryManager() {
                         variant="ghost"
                         className="h-6 w-6 p-0"
                         title="Move up in priority"
+                        onClick={() => increasePriority(image.id)}
                       >
                         <ArrowUpIcon className="h-3 w-3" />
                       </Button>
@@ -457,9 +528,15 @@ function SimpleGalleryManager() {
                         variant="ghost"
                         className="h-6 w-6 p-0"
                         title="Move down in priority"
+                        onClick={() => decreasePriority(image.id)}
                       >
                         <ArrowDownIcon className="h-3 w-3" />
                       </Button>
+                      {image.sortOrder !== undefined && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          {image.sortOrder}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
