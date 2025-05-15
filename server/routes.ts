@@ -101,10 +101,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let tags = req.body.tags || '';
         // Clean up tags by removing extra spaces and ensuring comma separation
         if (tags) {
-          // Convert to array, clean each tag, and join back
-          tags = tags.split(',')
+          // Convert to array, clean each tag, and join back with proper type annotation
+          const tagArray: string[] = tags.split(',');
+          tags = tagArray
             .map(tag => tag.trim())
-            .filter(tag => tag) // Remove empty tags
+            .filter(tag => tag.length > 0) // Remove empty tags
             .join(',');
         }
         
