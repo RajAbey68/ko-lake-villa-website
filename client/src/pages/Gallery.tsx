@@ -227,13 +227,36 @@ const Gallery = () => {
                     className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
                   />
                   <p className="mt-4 text-[#8B5E3C] font-medium text-lg">{selectedImage.alt}</p>
+                  
+                  {/* Description if available */}
+                  {selectedImage.description && (
+                    <p className="mt-2 text-gray-600 text-center max-w-lg">
+                      {selectedImage.description}
+                    </p>
+                  )}
+                  
+                  {/* Category badge */}
                   {selectedImage.category && (
-                    <span className="mt-2 px-3 py-1 bg-[#A0B985] text-white text-sm rounded-full">
+                    <span className="mt-3 px-3 py-1 bg-[#A0B985] text-white text-sm rounded-full">
                       {selectedImage.category
                         .split('-')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ')}
                     </span>
+                  )}
+                  
+                  {/* Tags */}
+                  {selectedImage.tags && selectedImage.tags.length > 0 && (
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                      {selectedImage.tags.split(',').map((tag, index) => (
+                        <span 
+                          key={index} 
+                          className="px-2 py-1 bg-[#62C3D2] bg-opacity-20 text-[#62C3D2] text-xs rounded-full"
+                        >
+                          #{tag.trim()}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
               )}
