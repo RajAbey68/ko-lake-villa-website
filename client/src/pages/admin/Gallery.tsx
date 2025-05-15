@@ -16,7 +16,8 @@ import {
   TrashIcon,
   RefreshCwIcon,
   AlertCircleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  PlayCircleIcon
 } from 'lucide-react';
 
 // Helper function to extract YouTube video ID from URL
@@ -358,6 +359,8 @@ function SimpleGalleryManager() {
               </Button>
               
               <Button
+                variant="outline"
+                className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
                 onClick={() => {
                   // Add sample video
                   try {
@@ -366,18 +369,18 @@ function SimpleGalleryManager() {
                     
                     // Show immediate feedback
                     toast({
-                      title: "Adding sample video...",
-                      description: "Please wait while we add a sample video to your gallery.",
+                      title: "Adding Ko Lake Area Video...",
+                      description: "Please wait while we add a Ko Lake area video to your gallery.",
                     });
                     
-                    // Sample video data - YouTube video of Ko Lake area in Sri Lanka
+                    // Video data - using a popular Sri Lanka tourism video that's definitely available
                     const sampleVideo = {
                       uploadMethod: "url",
-                      imageUrl: "https://www.youtube.com/watch?v=zcNbwSF4x1U", // YouTube video of Sri Lanka lake
-                      alt: `Sri Lanka Lake Video (${new Date().toLocaleTimeString()})`,
-                      description: `Sample video of beautiful Sri Lanka landscapes added on ${new Date().toLocaleString()}`,
+                      imageUrl: "https://www.youtube.com/watch?v=cR-OPyeCtCQ", // Aerial view of Sri Lanka
+                      alt: `Sri Lanka Aerial Tour`,
+                      description: `Aerial drone footage of beautiful Sri Lanka landscapes including lakes and beaches`,
                       category: "koggala-lake",
-                      tags: "sample,video,lake,sri lanka",
+                      tags: "tour,video,lake,drone,aerial",
                       featured: false,
                       sortOrder: 0,
                       mediaType: "video"
@@ -419,11 +422,11 @@ function SimpleGalleryManager() {
                     setAddingImage(false);
                   }
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={loading}
+                className="bg-red-600 hover:bg-red-700 text-white"
               >
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Add Sample Video
+                <PlayCircleIcon className="h-4 w-4 mr-2" />
+                Add Video Example
               </Button>
             </div>
           </div>
