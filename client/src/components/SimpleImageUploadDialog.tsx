@@ -360,12 +360,34 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
                     inputValue = inputValue.replace(/#/g, '');
                   }
                   
+                  // Auto-add commas between words if the user uses spaces instead
+                  if (inputValue.includes(' ') && !inputValue.includes(',')) {
+                    inputValue = inputValue.split(' ')
+                      .filter(tag => tag.trim())
+                      .join(',');
+                  }
+                  
                   setTags(inputValue);
                 }}
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Enter tags separated by commas. Hashtags will be converted automatically.
-              </p>
+              <div className="mt-2">
+                {tags && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {tags.split(',').map((tag, index) => {
+                      const trimmedTag = tag.trim();
+                      if (!trimmedTag) return null;
+                      return (
+                        <span key={index} className="px-2 py-1 bg-[#62C3D2] bg-opacity-20 text-[#62C3D2] text-xs rounded-full">
+                          #{trimmedTag}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter tags separated by commas. Hashtags will be converted automatically.
+                </p>
+              </div>
             </div>
             
             {/* Featured */}
