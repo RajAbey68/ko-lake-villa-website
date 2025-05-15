@@ -326,9 +326,14 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
                   </div>
                 )}
                 {mediaType === 'video' && (
-                  <p className="text-xs text-amber-700 mt-2">
-                    Note: Video uploads may take longer depending on file size.
-                  </p>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-amber-700">
+                      Note: Video uploads may take longer depending on file size.
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Maximum upload size: 100MB. For larger videos, use YouTube URL.
+                    </p>
+                  </div>
                 )}
               </div>
             ) : (
