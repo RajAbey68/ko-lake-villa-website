@@ -61,41 +61,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/uploads', express.static(UPLOAD_DIR));
   
   // File upload endpoint
-  app.post("/api/upload", upload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+  app.post("/api/upload", (req, res) => {
+    console.log("Upload endpoint called");
+    console.log("Request body:", req.body);
+    console.log("Request files:", req.files);
+    
+    upload.single('file')(req, res, async (err) => {
+      if (err) {
+        console.error("Multer error:", err);
+        return res.status(500).json({ 
+          message: "File upload error", 
+          error: err.message 
+        });
       }
       
-      // Get file details
-      const file = req.file;
-      const category = req.body.category || 'default';
-      const title = req.body.title || file.originalname;
-      const description = req.body.description || '';
-      const tags = req.body.tags || '';
-      const featured = req.body.featured === 'true';
-      
-      // Create URL for the uploaded file
-      const fileUrl = `/uploads/gallery/${category.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}/${file.filename}`;
-      
-      // Save to database
-      const galleryImage = await dataStorage.createGalleryImage({
-        imageUrl: fileUrl,
-        alt: title || file.originalname, // Using title as alt text
-        description,
-        category,
-        tags,
-        featured
-      });
-      
-      res.status(201).json({
-        message: "File uploaded successfully!",
-        data: galleryImage
-      });
-    } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ message: "Failed to upload file" });
-    }
+      try {
+        console.log("Processing file upload");
+        console.log("Request file after multer:", req.file);
+        
+        if (!req.file) {
+          console.error("No file in request");
+          return res.status(400).json({ message: "No file uploaded" });
+        }
+        
+        // Get file details
+        const file = req.file;
+        console.log("File details:", {
+          filename: file.filename,
+          originalname: file.originalname,
+          mimetype: file.mimetype,
+          size: file.size,
+          path: file.path
+        });
+        
+        const category = req.body.category || 'default';
+        const title = req.body.title || file.originalname;
+        const description = req.body.description || '';
+        const tags = req.body.tags || '';
+        const featured = req.body.featured === 'true';
+        
+        console.log("Form data:", { category, title, description, tags, featured });
+        
+        // Create URL for the uploaded file
+        const fileUrl = `/uploads/gallery/${category.replace(/[^a-z0-9-]/gi, '-').toLowerCase()}/${file.filename}`;
+        console.log("Generated file URL:", fileUrl);
+        
+        // Save to database
+        try {
+          const galleryImage = await dataStorage.createGalleryImage({
+            imageUrl: fileUrl,
+            alt: title || file.originalname, // Using title as alt text
+            description,
+            category,
+            tags,
+            featured
+          });
+          console.log("Image saved to database:", galleryImage);
+          
+          res.status(201).json({
+            message: "File uploaded successfully!",
+            data: galleryImage
+          });
+        } catch (dbError) {
+          console.error("Database error:", dbError);
+          res.status(500).json({ 
+            message: "Failed to save image to database",
+            error: dbError.message
+          });
+        }
+      } catch (error) {
+        console.error("Upload processing error:", error);
+        res.status(500).json({ 
+          message: "Failed to process uploaded file",
+          error: error.message
+        });
+      }
+    });
   });
 
   // API Routes
