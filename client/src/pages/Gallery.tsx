@@ -6,10 +6,17 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   useEffect(() => {
+    // Check if it's a YouTube URL and don't try to generate thumbnail
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+      setError(true);
+      return;
+    }
+    
     const video = videoRef.current;
     const canvas = canvasRef.current;
     
@@ -36,6 +43,7 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
         video.removeEventListener('seeked', generateThumbnail);
       } catch (error) {
         console.error('Error generating thumbnail:', error);
+        setError(true);
       }
     };
     
@@ -48,22 +56,76 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
       }
     };
     
+    const handleError = () => {
+      console.error('Error loading video:', videoUrl);
+      setError(true);
+      
+      // Cleanup
+      video.removeEventListener('loadeddata', handleVideoLoad);
+      video.removeEventListener('seeked', generateThumbnail);
+      video.removeEventListener('error', handleError);
+    };
+    
+    // Set proper URL for local files
+    let videoSrc = videoUrl;
+    if (videoUrl.startsWith('/uploads')) {
+      // Local file, use as is
+      videoSrc = videoUrl;
+    } else if (!videoUrl.startsWith('http')) {
+      // External URL does not have protocol, add it
+      videoSrc = 'https://' + videoUrl;
+    }
+    
     video.crossOrigin = 'anonymous';
     video.addEventListener('loadeddata', handleVideoLoad);
     video.addEventListener('seeked', generateThumbnail);
+    video.addEventListener('error', handleError);
     
-    video.src = videoUrl;
-    video.load();
+    try {
+      video.src = videoSrc;
+      video.load();
+    } catch (loadError) {
+      console.error('Failed to load video:', loadError);
+      setError(true);
+    }
     
     return () => {
       video.removeEventListener('loadeddata', handleVideoLoad);
       video.removeEventListener('seeked', generateThumbnail);
+      video.removeEventListener('error', handleError);
     };
   }, [videoUrl]);
   
+  // Determine if this is a YouTube URL
+  const isYouTubeUrl = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+  
+  if (isYouTubeUrl) {
+    return (
+      <div className={`${className} bg-gray-200 flex items-center justify-center`}>
+        <div className="text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#FF0000" stroke="none">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+          </svg>
+          <span className="text-xs block mt-1">YouTube Video</span>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className={className}>
-      {thumbnail ? (
+      {error ? (
+        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+          <div className="text-center px-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-400">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span className="text-xs text-gray-500 block mt-2">Video Preview Unavailable</span>
+          </div>
+        </div>
+      ) : thumbnail ? (
         <img 
           src={thumbnail} 
           alt="Video thumbnail" 
@@ -326,12 +388,41 @@ const Gallery = () => {
                 <div className="flex flex-col items-center">
                   {selectedImage.mediaType === 'video' ? (
                     <div className="relative w-full max-w-3xl">
-                      <video 
-                        src={selectedImage.imageUrl} 
-                        className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
-                        controls
-                        autoPlay
-                      />
+                      {selectedImage.imageUrl.startsWith('/uploads') ? (
+                        // Local video file
+                        <video 
+                          src={selectedImage.imageUrl} 
+                          className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                          controls
+                          autoPlay
+                        />
+                      ) : selectedImage.imageUrl.includes('youtube.com') || selectedImage.imageUrl.includes('youtu.be') ? (
+                        // YouTube embed
+                        <div className="aspect-video w-full border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
+                          <div className="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#FF0000" stroke="none" className="mx-auto">
+                              <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                            <p className="mt-2 text-gray-600">YouTube Video</p>
+                            <a 
+                              href={selectedImage.imageUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="mt-3 inline-block px-4 py-2 bg-[#FF914D] text-white rounded-full text-sm hover:bg-[#8B5E3C] transition-colors"
+                            >
+                              Open in YouTube
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        // Other video
+                        <video 
+                          src={selectedImage.imageUrl} 
+                          className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                          controls
+                          autoPlay
+                        />
+                      )}
                     </div>
                   ) : (
                     <img 
