@@ -41,7 +41,7 @@ interface SimpleImageUploadDialogProps {
   onSuccess: () => void;
 }
 
-const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageUploadDialogProps) => {
+const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open, onOpenChange, onSuccess }) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -120,51 +120,86 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
       // Prepare the data object
       let uploadedImageUrl = "";
       
-      // If uploading a file, use Firebase Storage
+      // Check if we're using direct URL or file upload
       if (uploadMethod === 'file' && imageFile) {
         try {
-          // Upload to Firebase with progress tracking
-          uploadedImageUrl = await uploadFile(imageFile, `gallery/${category}/`, (progress) => {
-            setUploadProgress(progress);
+          // Create a FormData object to submit the file
+          const formData = new FormData();
+          formData.append('file', imageFile);
+          formData.append('category', category);
+          formData.append('title', alt); // Use alt text as title
+          formData.append('description', description || '');
+          formData.append('tags', tags || '');
+          formData.append('featured', featured ? 'true' : 'false');
+          formData.append('mediaType', mediaType);
+          
+          // Upload using our server-side API
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+            // No Content-Type header - browser will set it with proper boundary
           });
+          
+          if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            throw new Error(`Upload error: ${uploadResponse.status} - ${errorText}`);
+          }
+          
+          const uploadResult = await uploadResponse.json();
+          uploadedImageUrl = uploadResult.data.imageUrl;
+          
+          // Success - we'll exit early
+          toast({
+            title: "Success!",
+            description: `${mediaType === 'video' ? 'Video' : 'Image'} uploaded successfully!`,
+          });
+          
+          // Reset form and close dialog
+          resetForm();
+          onOpenChange(false);
+          
+          // Call success callback to refresh the gallery
+          onSuccess();
+          return;
+          
         } catch (err) {
-          console.error("Error uploading file to Firebase:", err);
+          console.error("Error uploading file:", err);
           toast({
             title: "Upload Error",
-            description: "Failed to upload image to storage. Please try again.",
+            description: "Failed to upload file. Please try again.",
             variant: "destructive",
           });
           setIsUploading(false);
           return;
         }
       } else {
-        // If using a URL, use the provided URL
+        // If using a URL, use the provided URL and continue with API call
         uploadedImageUrl = imageUrl;
-      }
-      
-      // Prepare the image data
-      const imageData = {
-        uploadMethod,
-        imageUrl: uploadedImageUrl,
-        alt,
-        description,
-        category,
-        tags,
-        featured,
-        sortOrder: 0,
-        mediaType
-      };
-      
-      // Submit to API
-      const response = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(imageData),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API error: ${response.status} - ${errorText}`);
+        
+        // Prepare the image data for direct URL
+        const imageData = {
+          uploadMethod,
+          imageUrl: uploadedImageUrl,
+          alt,
+          description,
+          category,
+          tags,
+          featured,
+          sortOrder: 0,
+          mediaType
+        };
+        
+        // Submit to API
+        const response = await fetch('/api/admin/gallery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(imageData),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API error: ${response.status} - ${errorText}`);
+        }
       }
       
       // Show success message

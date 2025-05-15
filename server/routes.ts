@@ -81,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save to database
       const galleryImage = await dataStorage.createGalleryImage({
         imageUrl: fileUrl,
-        title,
+        alt: title || file.originalname, // Using title as alt text
         description,
         category,
         tags,
