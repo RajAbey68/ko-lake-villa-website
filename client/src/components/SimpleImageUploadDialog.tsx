@@ -347,29 +347,44 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
             {/* Tags */}
             <div>
               <Label className="text-xs">Tags (comma separated)</Label>
-              <Input 
-                placeholder="e.g. beach, sunset, view"
-                value={tags}
-                onChange={(e) => {
-                  // Handle comma-separated tags and hashtags
-                  let inputValue = e.target.value;
-                  
-                  // If user enters a hashtag, we'll handle it properly
-                  if (inputValue.includes('#')) {
-                    // Remove the # symbols but keep the words
-                    inputValue = inputValue.replace(/#/g, '');
-                  }
-                  
-                  // Auto-add commas between words if the user uses spaces instead
-                  if (inputValue.includes(' ') && !inputValue.includes(',')) {
-                    inputValue = inputValue.split(' ')
-                      .filter(tag => tag.trim())
-                      .join(',');
-                  }
-                  
-                  setTags(inputValue);
-                }}
-              />
+              <div className="relative">
+                <Input 
+                  placeholder="e.g. beach, sunset, view"
+                  value={tags}
+                  onChange={(e) => {
+                    // Handle comma-separated tags and hashtags
+                    let inputValue = e.target.value;
+                    
+                    // If user enters a hashtag, we'll handle it properly
+                    if (inputValue.includes('#')) {
+                      // Remove the # symbols but keep the words
+                      inputValue = inputValue.replace(/#/g, '');
+                    }
+                    
+                    // Auto-add commas between words if the user uses spaces instead
+                    if (inputValue.includes(' ') && !inputValue.includes(',')) {
+                      inputValue = inputValue.split(' ')
+                        .filter(tag => tag.trim())
+                        .join(',');
+                    }
+                    
+                    setTags(inputValue);
+                  }}
+                />
+                {/* Show clear button if there are tags */}
+                {tags && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    onClick={() => setTags('')}
+                    title="Clear tags"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
               <div className="mt-2">
                 {tags && (
                   <div className="flex flex-wrap gap-1 mb-2">
