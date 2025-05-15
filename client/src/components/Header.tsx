@@ -41,21 +41,21 @@ const Header = () => {
         
         {/* Mobile Menu Button */}
         <div className="flex items-center">
+          <Link 
+            href="/booking" 
+            className="hidden md:block bg-[#FF914D] text-white px-6 py-2 rounded hover:bg-[#8B5E3C] transition-colors font-medium mr-2"
+          >
+            Book Now
+          </Link>
+          
           {isAdmin && (
             <Link 
               href="/admin" 
-              className="hidden md:block bg-[#62C3D2] text-white px-4 py-2 rounded hover:bg-[#54b5c4] transition-colors font-medium mr-2"
+              className="hidden md:block text-[#8B5E3C] text-xs border border-[#8B5E3C] px-3 py-1 rounded hover:bg-[#8B5E3C] hover:text-white transition-colors font-medium mr-2"
             >
               Admin
             </Link>
           )}
-          
-          <Link 
-            href="/booking" 
-            className="hidden md:block bg-[#FF914D] text-white px-6 py-2 rounded hover:bg-[#8B5E3C] transition-colors font-medium mr-4"
-          >
-            Book Now
-          </Link>
           
           <button 
             className="md:hidden text-[#8B5E3C] focus:outline-none" 
@@ -207,10 +207,10 @@ const Header = () => {
           {isAdmin && (
             <Link 
               href="/admin" 
-              className="bg-[#62C3D2] text-white px-6 py-3 rounded text-center hover:bg-[#54b5c4] transition-colors font-medium mt-2"
+              className="text-[#8B5E3C] text-sm border border-[#8B5E3C] px-4 py-2 rounded text-center hover:bg-[#8B5E3C] hover:text-white transition-colors mt-2"
               onClick={closeMobileMenu}
             >
-              Admin Portal
+              Admin
             </Link>
           )}
         </div>
