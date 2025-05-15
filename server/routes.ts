@@ -96,7 +96,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const category = req.body.category || 'default';
         const title = req.body.title || file.originalname;
         const description = req.body.description || '';
-        const tags = req.body.tags || '';
+        
+        // Properly process tags - ensure they're in a consistent format
+        let tags = req.body.tags || '';
+        // Clean up tags by removing extra spaces and ensuring comma separation
+        if (tags) {
+          // Convert to array, clean each tag, and join back
+          tags = tags.split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag) // Remove empty tags
+            .join(',');
+        }
+        
         const featured = req.body.featured === 'true';
         
         console.log("Form data:", { category, title, description, tags, featured });
