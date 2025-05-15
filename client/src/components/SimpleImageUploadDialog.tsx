@@ -199,7 +199,7 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
         onOpenChange(newOpen);
       }
     }}>
-      <DialogContent className="h-[500px] overflow-y-scroll">
+      <DialogContent className="sm:max-w-md md:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-[#8B5E3C]">Add to Gallery</DialogTitle>
         </DialogHeader>
@@ -224,109 +224,112 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
           </Button>
         </div>
         
-        <div className="space-y-3 pb-16">
-          {/* File or URL Input */}
-          {uploadMethod === 'file' ? (
-            <div>
-              <Input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileChange}
-                className="mt-1"
-              />
-              {imageFile && (
-                <p className="text-xs mt-1">{imageFile.name}</p>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Input 
-                placeholder="Enter image or video URL" 
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-              
-              <div className="flex items-center gap-3">
-                <span className="text-xs">Type:</span>
-                <label className="inline-flex items-center gap-1 text-xs">
-                  <input 
-                    type="radio" 
-                    checked={mediaType === 'image'} 
-                    onChange={() => setMediaType('image')}
-                  />
-                  Image
-                </label>
-                <label className="inline-flex items-center gap-1 text-xs">
-                  <input 
-                    type="radio" 
-                    checked={mediaType === 'video'} 
-                    onChange={() => setMediaType('video')}
-                  />
-                  Video
-                </label>
+        {/* Scrollable content area */}
+        <div className="max-h-[50vh] overflow-y-auto pr-1 mb-12">
+          <div className="space-y-3">
+            {/* File or URL Input */}
+            {uploadMethod === 'file' ? (
+              <div>
+                <Input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                  className="mt-1"
+                />
+                {imageFile && (
+                  <p className="text-xs mt-1">{imageFile.name}</p>
+                )}
               </div>
+            ) : (
+              <div className="space-y-2">
+                <Input 
+                  placeholder="Enter image or video URL" 
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                />
+                
+                <div className="flex items-center gap-3">
+                  <span className="text-xs">Type:</span>
+                  <label className="inline-flex items-center gap-1 text-xs">
+                    <input 
+                      type="radio" 
+                      checked={mediaType === 'image'} 
+                      onChange={() => setMediaType('image')}
+                    />
+                    Image
+                  </label>
+                  <label className="inline-flex items-center gap-1 text-xs">
+                    <input 
+                      type="radio" 
+                      checked={mediaType === 'video'} 
+                      onChange={() => setMediaType('video')}
+                    />
+                    Video
+                  </label>
+                </div>
+              </div>
+            )}
+            
+            {/* Title */}
+            <div>
+              <Label className="text-xs">Title/Alt Text*</Label>
+              <Input 
+                value={alt}
+                onChange={(e) => setAlt(e.target.value)}
+                placeholder="Enter title"
+                required
+              />
             </div>
-          )}
-          
-          {/* Title */}
-          <div>
-            <Label className="text-xs">Title/Alt Text*</Label>
-            <Input 
-              value={alt}
-              onChange={(e) => setAlt(e.target.value)}
-              placeholder="Enter title"
-              required
-            />
-          </div>
-          
-          {/* Category - Simple Select (No Radix) */}
-          <div>
-            <Label htmlFor="category-select" className="text-xs">Category*</Label>
-            <select
-              id="category-select"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-2 border rounded-md text-sm"
-            >
-              {galleryCategories.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Description */}
-          <div>
-            <Label className="text-xs">Description</Label>
-            <Textarea 
-              placeholder="Optional description" 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="h-20"
-            />
-          </div>
-          
-          {/* Tags */}
-          <div>
-            <Label className="text-xs">Tags (comma separated)</Label>
-            <Input 
-              placeholder="e.g. beach, sunset, view"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-            />
-          </div>
-          
-          {/* Featured */}
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              id="featured-image" 
-              checked={featured}
-              onCheckedChange={(checked) => setFeatured(!!checked)}
-            />
-            <Label htmlFor="featured-image" className="text-xs">
-              Featured image (shows on homepage)
-            </Label>
+            
+            {/* Category - Simple Select (No Radix) */}
+            <div>
+              <Label htmlFor="category-select" className="text-xs">Category*</Label>
+              <select
+                id="category-select"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-2 border rounded-md text-sm"
+              >
+                {galleryCategories.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Description */}
+            <div>
+              <Label className="text-xs">Description</Label>
+              <Textarea 
+                placeholder="Optional description" 
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="h-20"
+              />
+            </div>
+            
+            {/* Tags */}
+            <div>
+              <Label className="text-xs">Tags (comma separated)</Label>
+              <Input 
+                placeholder="e.g. beach, sunset, view"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+              />
+            </div>
+            
+            {/* Featured */}
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                id="featured-image" 
+                checked={featured}
+                onCheckedChange={(checked) => setFeatured(!!checked)}
+              />
+              <Label htmlFor="featured-image" className="text-xs">
+                Featured image (shows on homepage)
+              </Label>
+            </div>
           </div>
         </div>
         
@@ -342,7 +345,7 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
         )}
         
         {/* Fixed Actions at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t flex items-center justify-between space-x-4">
+        <div className="fixed bottom-4 left-4 right-4 md:static md:mt-4 flex items-center justify-between space-x-4">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
