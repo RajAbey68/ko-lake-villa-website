@@ -509,11 +509,23 @@ function SimpleGalleryManager() {
                         className="w-full h-48"
                         title={image.alt}
                       />
+                    ) : image.imageUrl.startsWith('/uploads') ? (
+                      <div className="relative h-48 bg-gray-100">
+                        <video 
+                          src={image.imageUrl}
+                          className="w-full h-full object-cover"
+                          preload="metadata"
+                          muted
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                          <PlayCircleIcon className="h-12 w-12 text-white" />
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex items-center justify-center h-48 bg-gray-100 text-gray-500">
                         <div className="text-center p-4">
                           <PlayCircleIcon className="h-8 w-8 mx-auto mb-2" />
-                          <p>Invalid YouTube URL</p>
+                          <p>Video Preview</p>
                           <p className="text-xs text-gray-400">{image.imageUrl}</p>
                         </div>
                       </div>
