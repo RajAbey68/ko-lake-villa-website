@@ -315,8 +315,22 @@ const SimpleImageUploadDialog = ({ open, onOpenChange, onSuccess }: SimpleImageU
               <Input 
                 placeholder="e.g. beach, sunset, view"
                 value={tags}
-                onChange={(e) => setTags(e.target.value)}
+                onChange={(e) => {
+                  // Handle comma-separated tags and hashtags
+                  let inputValue = e.target.value;
+                  
+                  // If user enters a hashtag, we'll handle it properly
+                  if (inputValue.includes('#')) {
+                    // Remove the # symbols but keep the words
+                    inputValue = inputValue.replace(/#/g, '');
+                  }
+                  
+                  setTags(inputValue);
+                }}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter tags separated by commas. Hashtags will be converted automatically.
+              </p>
             </div>
             
             {/* Featured */}
