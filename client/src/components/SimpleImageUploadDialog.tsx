@@ -345,9 +345,9 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
             </div>
             
             {/* Tags */}
-            <div>
-              <Label className="text-xs">Tags (comma separated)</Label>
-              <div className="relative">
+            <div className="border-t border-gray-200 pt-3 mt-3">
+              <Label className="text-xs font-semibold text-[#8B5E3C]">Tags (comma separated)</Label>
+              <div className="relative mt-1">
                 <Input 
                   placeholder="e.g. beach, sunset, view"
                   value={tags}
@@ -430,24 +430,26 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
           </div>
         )}
         
-        {/* Fixed Actions at bottom */}
-        <div className="fixed bottom-4 left-4 right-4 md:static md:mt-4 flex items-center justify-between space-x-4">
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-            disabled={isUploading}
-            className="px-6"
-          >
-            Cancel
-          </Button>
-          <Button 
-            className="bg-[#FF914D] hover:bg-[#e67e3d] px-6"
-            onClick={handleSubmit}
-            disabled={isUploading || (!imageFile && !imageUrl) || !alt}
-          >
-            {isUploading ? 'Uploading...' : 'Upload'}
-          </Button>
-        </div>
+        {/* Actions */}
+        <DialogFooter className="mt-6 border-t border-gray-100 pt-4">
+          <div className="w-full flex items-center justify-between space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isUploading}
+              className="px-6"
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="bg-[#FF914D] hover:bg-[#e67e3d] px-6 font-medium"
+              onClick={handleSubmit}
+              disabled={isUploading || (!imageFile && !imageUrl) || !alt}
+            >
+              {isUploading ? 'Uploading...' : 'Upload'}
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
