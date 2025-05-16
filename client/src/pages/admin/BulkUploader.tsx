@@ -1,629 +1,611 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { User } from '@shared/schema';
-import { useToast } from '@/hooks/use-toast';
-import { Link } from 'wouter';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import {
+import { useLocation } from 'wouter';
+import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../../components/ui/card';
+import { 
+  ArrowLeft as BackIcon,
+  Upload as UploadIcon,
+  CheckCircle as SuccessIcon,
+  AlertCircle as ErrorIcon,
+  Loader as LoadingIcon,
+  Home as HomeIcon,
+  Image as ImageIcon,
+  FolderOpen as FolderIcon,
+  Plus as PlusIcon
+} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeftIcon, UploadIcon, ImageIcon, RefreshCwIcon, FolderIcon, AlertCircleIcon, CheckCircleIcon, ChevronLeftIcon } from 'lucide-react';
+  SelectValue,
+} from "../../components/ui/select";
+import { Progress } from "../../components/ui/progress";
+import { ScrollArea } from "../../components/ui/scroll-area";
 
-// List of all categories used in the gallery
-const CATEGORIES = [
-  'Family Suite',
-  'Garden Twin Room',
-  'Group Room',
-  'Triple Room',
-  'Dining Area',
-  'Pool Deck',
-  'Lake Garden',
-  'Roof Garden',
-  'Front Garden and Entrance',
-  'Koggala Lake Ahangama and Surrounding',
-  'Excursions'
+// Define the gallery categories
+const GALLERY_CATEGORIES = [
+  "Family Suite",
+  "Group Room", 
+  "Triple Room", 
+  "Dining Area", 
+  "Pool Deck", 
+  "Lake Garden", 
+  "Roof Garden", 
+  "Front Garden and Entrance", 
+  "Koggala Lake Ahangama and Surrounding", 
+  "Excursions"
 ];
 
-// Interface for file with upload status
-interface FileWithStatus {
+interface ImagePreview {
   file: File;
-  id: string;
+  preview: string;
+  name: string;
+  size: string;
+  category: string;
   status: 'pending' | 'uploading' | 'success' | 'error';
-  progress: number;
   error?: string;
-  preview?: string;
 }
 
-const BulkUploader = () => {
-  // Authentication check
-  const { data: user, isLoading: userLoading } = useQuery<User>({
-    queryKey: ['/api/auth/user'],
-    retry: false,
-  });
-
-  const { toast } = useToast();
-  const [files, setFiles] = useState<FileWithStatus[]>([]);
-  const [category, setCategory] = useState<string>('');
-  const [uploadDisabled, setUploadDisabled] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [currentUploadIndex, setCurrentUploadIndex] = useState(0);
-  const [totalUploaded, setTotalUploaded] = useState(0);
-  const [overallProgress, setOverallProgress] = useState(0);
-  const [uploadComplete, setUploadComplete] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function BulkUploader() {
+  const { currentUser, isLoading, isAdmin } = useAuth();
+  const [, navigate] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  
+  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [defaultCategory, setDefaultCategory] = useState<string>(GALLERY_CATEGORIES[0]);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [overallProgress, setOverallProgress] = useState<number>(0);
+  const [uploadStats, setUploadStats] = useState({
+    total: 0,
+    success: 0,
+    failed: 0
+  });
+  
+  // Authentication check
   useEffect(() => {
-    document.title = "Bulk Image Uploader - Admin";
-  }, []);
-
-  // Update overall progress based on individual file progress
+    if (!isLoading && !currentUser) {
+      navigate('/admin/login');
+    }
+    
+    if (!isLoading && currentUser && !isAdmin) {
+      navigate('/');
+    }
+  }, [currentUser, isLoading, isAdmin, navigate]);
+  
+  // Cleanup preview URLs on unmount
   useEffect(() => {
-    if (files.length === 0) {
-      setOverallProgress(0);
-      return;
-    }
-
-    const totalProgress = files.reduce((acc, file) => acc + file.progress, 0);
-    setOverallProgress(Math.floor(totalProgress / files.length));
-  }, [files]);
-
-  // Clear all selected files
-  const clearFiles = () => {
-    setFiles([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    setUploadDisabled(false);
-    setUploading(false);
-    setCurrentUploadIndex(0);
-    setTotalUploaded(0);
-    setUploadComplete(false);
-    setError(null);
-  };
-
-  // Handle file selection
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) return;
-
-    // Validate number of files (limit to 100 for performance)
-    if (selectedFiles.length > 100) {
-      toast({
-        title: "Too many files",
-        description: "Please select no more than 100 files at once.",
-        variant: "destructive",
+    return () => {
+      imagePreviews.forEach((image) => {
+        URL.revokeObjectURL(image.preview);
       });
+    };
+  }, [imagePreviews]);
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles: ImagePreview[] = Array.from(e.target.files).map(file => {
+        // Create preview
+        const preview = URL.createObjectURL(file);
+        
+        // Format file size
+        const size = formatFileSize(file.size);
+        
+        return {
+          file,
+          preview,
+          name: file.name,
+          size,
+          category: defaultCategory,
+          status: 'pending'
+        };
+      });
+      
+      setImagePreviews(prev => [...prev, ...newFiles]);
+      setUploadStats(prev => ({
+        ...prev,
+        total: prev.total + newFiles.length
+      }));
+      
+      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      return;
     }
-
-    // Reset states
-    setUploadComplete(false);
-    setError(null);
-    setCurrentUploadIndex(0);
-    setTotalUploaded(0);
-
-    // Build file array with status
-    const newFiles: FileWithStatus[] = Array.from(selectedFiles).map(file => {
-      let preview = '';
-      if (file.type.startsWith('image/')) {
-        preview = URL.createObjectURL(file);
-      } else if (file.type.startsWith('video/')) {
-        preview = '/assets/video-placeholder.png';
-      }
-
-      return {
-        file,
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        status: 'pending',
-        progress: 0,
-        preview
-      };
+  };
+  
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  };
+  
+  const removeImage = (index: number) => {
+    setImagePreviews(prev => {
+      const newPreviews = [...prev];
+      URL.revokeObjectURL(newPreviews[index].preview);
+      newPreviews.splice(index, 1);
+      return newPreviews;
     });
-
-    setFiles(prev => [...prev, ...newFiles]);
-  };
-
-  // Remove a single file from the list
-  const removeFile = (id: string) => {
-    setFiles(prev => {
-      const updatedFiles = prev.filter(file => file.id !== id);
-      
-      // If we're deleting a file with preview URL, clean it up
-      const fileToRemove = prev.find(file => file.id === id);
-      if (fileToRemove?.preview && fileToRemove.file.type.startsWith('image/')) {
-        URL.revokeObjectURL(fileToRemove.preview);
-      }
-      
-      return updatedFiles;
-    });
-  };
-
-  // Process all files for upload
-  const processUpload = async () => {
-    if (files.length === 0) {
-      toast({
-        title: "No files selected",
-        description: "Please select files to upload first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!category) {
-      toast({
-        title: "Missing category",
-        description: "Please select a category for these images.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setUploading(true);
-    setUploadDisabled(true);
-    setCurrentUploadIndex(0);
-    setTotalUploaded(0);
-    setUploadComplete(false);
-    setError(null);
-
-    // Upload files sequentially to prevent server overload
-    await uploadNextFile();
-  };
-
-  // Upload files one by one
-  const uploadNextFile = async () => {
-    if (currentUploadIndex >= files.length) {
-      // All files processed
-      setUploading(false);
-      setUploadComplete(true);
-      
-      toast({
-        title: "Upload Complete",
-        description: `Successfully uploaded ${totalUploaded} of ${files.length} files.`,
-      });
-      
-      return;
-    }
-
-    const file = files[currentUploadIndex];
     
-    if (file.status === 'success') {
-      // Skip already uploaded files
-      setCurrentUploadIndex(prev => prev + 1);
-      uploadNextFile();
-      return;
-    }
-
-    // Update status to uploading
-    setFiles(prev => 
-      prev.map((f, i) => 
-        i === currentUploadIndex ? { ...f, status: 'uploading', progress: 0 } : f
-      )
-    );
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file.file);
-      formData.append('category', category);
-      formData.append('title', file.file.name.split('.')[0].replace(/_/g, ' '));
-      formData.append('description', `Image from ${category} at Ko Lake House`);
-      formData.append('tags', category);
-      formData.append('featured', isFeatured ? 'true' : 'false');
-      formData.append('mediaType', file.file.type.startsWith('video/') ? 'video' : 'image');
-
-      // Use XMLHttpRequest to track upload progress
-      const xhr = new XMLHttpRequest();
-      
-      xhr.open('POST', '/api/upload');
-      
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          
-          setFiles(prev => 
-            prev.map((f, i) => 
-              i === currentUploadIndex ? { ...f, progress } : f
-            )
-          );
-        }
-      };
-      
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          // Success
-          setFiles(prev => 
-            prev.map((f, i) => 
-              i === currentUploadIndex ? { ...f, status: 'success', progress: 100 } : f
-            )
-          );
-          
-          setTotalUploaded(prev => prev + 1);
-          setCurrentUploadIndex(prev => prev + 1);
-          
-          // Process next file
-          setTimeout(() => uploadNextFile(), 200);
-        } else {
-          // Error
-          const errorMsg = `Upload failed: ${xhr.statusText}`;
-          
-          setFiles(prev => 
-            prev.map((f, i) => 
-              i === currentUploadIndex ? { ...f, status: 'error', error: errorMsg } : f
-            )
-          );
-          
-          setCurrentUploadIndex(prev => prev + 1);
-          
-          // Continue with next file
-          setTimeout(() => uploadNextFile(), 200);
-        }
-      };
-      
-      xhr.onerror = () => {
-        const errorMsg = "Network error occurred during upload";
-        
-        setFiles(prev => 
-          prev.map((f, i) => 
-            i === currentUploadIndex ? { ...f, status: 'error', error: errorMsg } : f
-          )
-        );
-        
-        setCurrentUploadIndex(prev => prev + 1);
-        
-        // Continue with next file
-        setTimeout(() => uploadNextFile(), 200);
-      };
-      
-      xhr.send(formData);
-      
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      
-      const errorMsg = err instanceof Error ? err.message : "Unknown error occurred";
-      
-      setFiles(prev => 
-        prev.map((f, i) => 
-          i === currentUploadIndex ? { ...f, status: 'error', error: errorMsg } : f
-        )
-      );
-      
-      setCurrentUploadIndex(prev => prev + 1);
-      
-      // Continue with next file despite error
-      setTimeout(() => uploadNextFile(), 200);
-    }
+    setUploadStats(prev => ({
+      ...prev,
+      total: prev.total - 1
+    }));
   };
-
-  // If not an admin, show unauthorized message
-  if (!userLoading && (!user || !user.isAdmin)) {
+  
+  const updateImageCategory = (index: number, category: string) => {
+    setImagePreviews(prev => {
+      const newPreviews = [...prev];
+      newPreviews[index].category = category;
+      return newPreviews;
+    });
+  };
+  
+  const processUploads = async () => {
+    if (imagePreviews.length === 0) return;
+    
+    setUploading(true);
+    setOverallProgress(0);
+    
+    let successCount = 0;
+    let failedCount = 0;
+    
+    for (let i = 0; i < imagePreviews.length; i++) {
+      // Skip already uploaded images
+      if (imagePreviews[i].status === 'success') {
+        continue;
+      }
+      
+      // Update status to uploading
+      setImagePreviews(prev => {
+        const newPreviews = [...prev];
+        newPreviews[i].status = 'uploading';
+        return newPreviews;
+      });
+      
+      try {
+        const formData = new FormData();
+        formData.append('image', imagePreviews[i].file);
+        formData.append('category', imagePreviews[i].category);
+        formData.append('alt', imagePreviews[i].name.split('.')[0]); // Use filename as alt text
+        formData.append('description', `Ko Lake Villa ${imagePreviews[i].category}`);
+        formData.append('featured', 'false');
+        formData.append('sortOrder', '1');
+        
+        const response = await fetch('/api/gallery/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Upload failed: ${response.statusText}`);
+        }
+        
+        // Update status to success
+        setImagePreviews(prev => {
+          const newPreviews = [...prev];
+          newPreviews[i].status = 'success';
+          return newPreviews;
+        });
+        
+        successCount++;
+      } catch (error) {
+        console.error(`Error uploading ${imagePreviews[i].name}:`, error);
+        
+        // Update status to error
+        setImagePreviews(prev => {
+          const newPreviews = [...prev];
+          newPreviews[i].status = 'error';
+          newPreviews[i].error = error instanceof Error ? error.message : 'Unknown error';
+          return newPreviews;
+        });
+        
+        failedCount++;
+      }
+      
+      // Update progress
+      setOverallProgress(Math.round(((i + 1) / imagePreviews.length) * 100));
+    }
+    
+    setUploadStats(prev => ({
+      ...prev,
+      success: prev.success + successCount,
+      failed: prev.failed + failedCount
+    }));
+    
+    setUploading(false);
+  };
+  
+  const retryFailedUploads = () => {
+    const hasFailedUploads = imagePreviews.some(img => img.status === 'error');
+    if (!hasFailedUploads) return;
+    
+    processUploads();
+  };
+  
+  const clearSuccessfulUploads = () => {
+    setImagePreviews(prev => prev.filter(img => img.status !== 'success'));
+  };
+  
+  const getFilteredImages = () => {
+    if (activeCategory === 'all') {
+      return imagePreviews;
+    }
+    
+    if (activeCategory === 'pending') {
+      return imagePreviews.filter(img => img.status === 'pending');
+    }
+    
+    if (activeCategory === 'success') {
+      return imagePreviews.filter(img => img.status === 'success');
+    }
+    
+    if (activeCategory === 'error') {
+      return imagePreviews.filter(img => img.status === 'error');
+    }
+    
+    return imagePreviews.filter(img => img.category === activeCategory);
+  };
+  
+  // If still loading, show loading state
+  if (isLoading) {
     return (
-      <div className="min-h-screen pt-32 pb-20 bg-[#F8F6F2]">
-        <div className="container mx-auto px-4">
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircleIcon className="h-4 w-4" />
-            <AlertTitle>Unauthorized</AlertTitle>
-            <AlertDescription>
-              You must be an administrator to access this page.
-            </AlertDescription>
-          </Alert>
+      <div className="h-screen flex items-center justify-center bg-[#FDF6EE]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF914D]"></div>
+          <p className="mt-4 text-lg text-[#8B5E3C]">Loading...</p>
         </div>
       </div>
     );
   }
-
+  
+  // If not logged in, don't render anything (redirect will happen)
+  if (!currentUser || !isAdmin) {
+    return null;
+  }
+  
+  const filteredImages = getFilteredImages();
+  
   return (
-    <div className="min-h-screen pt-32 pb-20 bg-[#F8F6F2]">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center mb-10">
-          <Link href="/admin" className="mr-4">
-            <Button variant="outline" size="icon">
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-[#8B5E3C] mb-1">Bulk Image Uploader</h1>
-            <p className="text-[#333333]">
-              Upload multiple images or videos to your gallery at once
-            </p>
-          </div>
+    <div className="min-h-screen bg-[#FDF6EE]">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header with back button */}
+        <div className="mb-8 flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => navigate('/admin')}
+          >
+            <BackIcon className="h-4 w-4" />
+            Back to Admin
+          </Button>
+          <h1 className="text-3xl font-bold text-[#8B5E3C]">Bulk Image Uploader</h1>
         </div>
-
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircleIcon className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {uploadComplete && (
-          <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircleIcon className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800">Upload Complete</AlertTitle>
-            <AlertDescription className="text-green-700">
-              Successfully uploaded {totalUploaded} of {files.length} files to the gallery.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Settings</CardTitle>
-                <CardDescription>
-                  Configure settings for all uploaded files
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="font-medium">Category</Label>
-                  <Select value={category} onValueChange={setCategory} disabled={uploading}>
-                    <SelectTrigger id="category">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-sm text-gray-500">
-                    All files will be uploaded to this category
-                  </p>
+        
+        <div className="grid grid-cols-1 gap-8">
+          {/* Upload Controls */}
+          <Card className="bg-white border border-[#A0B985]/20">
+            <CardHeader>
+              <CardTitle className="text-[#8B5E3C]">1. Select Images</CardTitle>
+              <CardDescription>
+                Add images by clicking the button below. You can add multiple batches of images.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="file-upload">Select Images for Upload</Label>
+                    <Input 
+                      id="file-upload" 
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*" 
+                      multiple 
+                      onChange={handleFileChange}
+                      disabled={uploading}
+                      className="cursor-pointer mt-1"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="default-category">Default Category for New Images</Label>
+                    <Select
+                      value={defaultCategory}
+                      onValueChange={setDefaultCategory}
+                      disabled={uploading}
+                    >
+                      <SelectTrigger id="default-category" className="mt-1">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GALLERY_CATEGORIES.map((category) => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="featured" 
-                    checked={isFeatured}
-                    onCheckedChange={(checked) => setIsFeatured(checked === true)}
-                    disabled={uploading}
-                  />
-                  <Label htmlFor="featured" className="cursor-pointer">
-                    Mark as featured images
-                  </Label>
-                </div>
-
-                <div className="pt-4">
-                  <input
-                    type="file"
-                    id="file-input"
-                    className="hidden"
-                    multiple
-                    accept="image/*,video/*"
-                    onChange={handleFileSelect}
-                    ref={fileInputRef}
-                    disabled={uploading}
-                  />
-                  <Button 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full bg-[#FF914D] hover:bg-[#8B5E3C] text-white mb-3"
-                    disabled={uploading}
-                  >
-                    <UploadIcon className="mr-2 h-4 w-4" />
-                    Select Files
-                  </Button>
-                  <p className="text-xs text-center text-gray-500">
-                    Select up to 100 images or videos at once
-                  </p>
-                </div>
-
-                {files.length > 0 && (
-                  <div className="space-y-4 pt-4">
+                
+                {imagePreviews.length > 0 && (
+                  <div className="mt-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        {files.length} file(s) selected
-                      </span>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={clearFiles}
-                        disabled={uploading}
-                      >
-                        Clear All
-                      </Button>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Overall Progress</span>
-                        <span>{overallProgress}%</span>
-                      </div>
-                      <Progress value={overallProgress} className="h-2" />
-                    </div>
-
-                    {uploading ? (
-                      <div className="text-center text-sm text-gray-600">
-                        Uploading file {currentUploadIndex + 1} of {files.length}...
-                      </div>
-                    ) : (
-                      <Button 
-                        className="w-full bg-[#8B5E3C] hover:bg-[#62C3D2] text-white"
-                        onClick={processUpload}
-                        disabled={uploadDisabled || files.length === 0 || !category}
-                      >
-                        {uploadComplete ? (
-                          <>
-                            <RefreshCwIcon className="mr-2 h-4 w-4" />
-                            Upload More Files
-                          </>
-                        ) : (
-                          <>
-                            <UploadIcon className="mr-2 h-4 w-4" />
-                            Start Uploading {files.length} Files
-                          </>
+                      <div>
+                        <p className="text-sm font-medium text-[#8B5E3C]">
+                          {imagePreviews.length} image{imagePreviews.length !== 1 ? 's' : ''} ready for upload
+                        </p>
+                        {uploadStats.success > 0 && (
+                          <p className="text-xs text-green-600">
+                            {uploadStats.success} uploaded successfully
+                          </p>
                         )}
-                      </Button>
+                        {uploadStats.failed > 0 && (
+                          <p className="text-xs text-red-600">
+                            {uploadStats.failed} failed
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        {uploadStats.success > 0 && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={clearSuccessfulUploads}
+                            disabled={uploading}
+                          >
+                            Clear Successful
+                          </Button>
+                        )}
+                        
+                        {uploadStats.failed > 0 && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={retryFailedUploads}
+                            disabled={uploading}
+                          >
+                            Retry Failed
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Progress bar when uploading */}
+                    {uploading && (
+                      <div className="mt-2">
+                        <Progress value={overallProgress} className="h-2" />
+                        <p className="text-xs text-[#8B5E3C]/70 mt-1">
+                          Uploading images: {overallProgress}% complete
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="lg:col-span-3">
-            <Card>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between pt-2 border-t">
+              <div>
+                <p className="text-sm text-[#8B5E3C]/70">
+                  Supported formats: JPG, PNG, WebP
+                </p>
+              </div>
+              <Button 
+                className="bg-[#FF914D] hover:bg-[#FF914D]/90 text-white"
+                onClick={processUploads}
+                disabled={uploading || imagePreviews.length === 0 || imagePreviews.every(img => img.status === 'success')}
+              >
+                {uploading ? (
+                  <>
+                    <LoadingIcon className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="mr-2 h-4 w-4" />
+                    Upload All Images
+                  </>
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          {/* Image Preview Grid */}
+          {imagePreviews.length > 0 && (
+            <Card className="bg-white border border-[#A0B985]/20">
               <CardHeader>
-                <CardTitle>Files to Upload</CardTitle>
+                <CardTitle className="text-[#8B5E3C]">2. Manage &amp; Upload Images</CardTitle>
                 <CardDescription>
-                  {files.length > 0 
-                    ? `${files.length} files selected for upload to ${category || "gallery"}`
-                    : "No files selected yet"}
+                  Organize your images by category before uploading. Click on a category below to filter.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {files.length === 0 ? (
-                  <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
-                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No files selected</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Click the "Select Files" button to choose images or videos
-                    </p>
-                    <Button 
-                      className="mt-4 bg-[#FF914D] hover:bg-[#8B5E3C] text-white"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                    >
-                      <UploadIcon className="mr-2 h-4 w-4" />
-                      Select Files
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {files.map((file, index) => (
-                        <div 
-                          key={file.id} 
-                          className={`relative border rounded-lg overflow-hidden ${
-                            file.status === 'success' ? 'border-green-300 bg-green-50' :
-                            file.status === 'error' ? 'border-red-300 bg-red-50' :
-                            file.status === 'uploading' ? 'border-blue-300 bg-blue-50' :
-                            'border-gray-200'
-                          }`}
-                        >
-                          <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                            {file.preview ? (
-                              <img 
-                                src={file.preview}
-                                alt={file.file.name}
-                                className="max-w-full max-h-full object-contain"
-                              />
-                            ) : (
-                              <FolderIcon className="h-12 w-12 text-gray-400" />
-                            )}
+                {/* Category filters */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Button
+                    variant={activeCategory === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveCategory('all')}
+                    className={activeCategory === 'all' ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
+                  >
+                    All ({imagePreviews.length})
+                  </Button>
+                  
+                  <Button
+                    variant={activeCategory === 'pending' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveCategory('pending')}
+                    className={activeCategory === 'pending' ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
+                  >
+                    Pending ({imagePreviews.filter(img => img.status === 'pending').length})
+                  </Button>
+                  
+                  <Button
+                    variant={activeCategory === 'success' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveCategory('success')}
+                    className={activeCategory === 'success' ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
+                  >
+                    Uploaded ({imagePreviews.filter(img => img.status === 'success').length})
+                  </Button>
+                  
+                  <Button
+                    variant={activeCategory === 'error' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveCategory('error')}
+                    className={activeCategory === 'error' ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
+                  >
+                    Failed ({imagePreviews.filter(img => img.status === 'error').length})
+                  </Button>
+                  
+                  {GALLERY_CATEGORIES.map(category => {
+                    const count = imagePreviews.filter(img => img.category === category).length;
+                    if (count === 0) return null;
+                    
+                    return (
+                      <Button
+                        key={category}
+                        variant={activeCategory === category ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setActiveCategory(category)}
+                        className={activeCategory === category ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
+                      >
+                        {category} ({count})
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                {/* Image grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {filteredImages.map((image, index) => {
+                    const originalIndex = imagePreviews.findIndex(img => img.preview === image.preview);
+                    
+                    return (
+                      <div key={image.preview} className="relative">
+                        <div className={`
+                          relative rounded-md overflow-hidden border-2
+                          ${image.status === 'success' ? 'border-green-500' : 
+                            image.status === 'error' ? 'border-red-500' : 
+                            image.status === 'uploading' ? 'border-blue-500' : 
+                            'border-gray-200'}
+                        `}>
+                          {/* Status indicator */}
+                          <div className={`
+                            absolute top-2 right-2 rounded-full w-6 h-6 flex items-center justify-center z-10
+                            ${image.status === 'success' ? 'bg-green-500' : 
+                              image.status === 'error' ? 'bg-red-500' : 
+                              image.status === 'uploading' ? 'bg-blue-500' : 
+                              'bg-gray-200'}
+                          `}>
+                            {image.status === 'success' ? (
+                              <SuccessIcon className="h-4 w-4 text-white" />
+                            ) : image.status === 'error' ? (
+                              <ErrorIcon className="h-4 w-4 text-white" />
+                            ) : image.status === 'uploading' ? (
+                              <LoadingIcon className="h-4 w-4 text-white animate-spin" />
+                            ) : null}
                           </div>
                           
-                          <div className="p-3">
-                            <p className="text-sm font-medium truncate">{file.file.name}</p>
-                            <p className="text-xs text-gray-500">
-                              {(file.file.size / 1024 / 1024).toFixed(2)} MB
-                              {file.file.type.startsWith('video/') && ' (Video)'}
-                            </p>
-                            
-                            {file.status === 'uploading' && (
-                              <div className="mt-2">
-                                <div className="flex justify-between text-xs">
-                                  <span>Uploading...</span>
-                                  <span>{file.progress}%</span>
-                                </div>
-                                <Progress value={file.progress} className="h-1 mt-1" />
-                              </div>
-                            )}
-                            
-                            {file.status === 'error' && (
-                              <p className="mt-2 text-xs text-red-600 truncate">
-                                {file.error || 'Upload failed'}
-                              </p>
-                            )}
-                            
-                            {file.status === 'success' && (
-                              <p className="mt-2 text-xs text-green-600 flex items-center">
-                                <CheckCircleIcon className="h-3 w-3 mr-1" />
-                                Uploaded successfully
-                              </p>
-                            )}
-                          </div>
+                          <img 
+                            src={image.preview} 
+                            alt={image.name}
+                            className="h-32 w-full object-cover"
+                          />
                           
-                          {file.status !== 'uploading' && !uploading && (
-                            <button
-                              className="absolute top-2 right-2 bg-black bg-opacity-60 rounded-full p-1 text-white hover:bg-opacity-80 transition-all"
-                              onClick={() => removeFile(file.id)}
+                          <div className="p-2 bg-white">
+                            <p className="text-xs font-medium truncate" title={image.name}>{image.name}</p>
+                            <p className="text-xs text-gray-500">{image.size}</p>
+                            
+                            <Select
+                              value={image.category}
+                              onValueChange={(value) => updateImageCategory(originalIndex, value)}
+                              disabled={uploading || image.status === 'success'}
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          )}
+                              <SelectTrigger className="h-7 mt-1 text-xs">
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {GALLERY_CATEGORIES.map((category) => (
+                                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                        
+                        {/* Error message tooltip */}
+                        {image.status === 'error' && image.error && (
+                          <div className="absolute -bottom-2 left-0 right-0 bg-red-100 text-red-800 text-xs p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            {image.error}
+                          </div>
+                        )}
+                        
+                        {/* Remove button */}
+                        {image.status !== 'success' && image.status !== 'uploading' && (
+                          <button
+                            className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1 opacity-80 hover:opacity-100"
+                            onClick={() => removeImage(originalIndex)}
+                            disabled={uploading}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 6L6 18M6 6l12 12"></path>
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {filteredImages.length === 0 && (
+                  <div className="text-center py-10 text-gray-500">
+                    <ImageIcon className="mx-auto h-12 w-12 text-gray-300" />
+                    <p className="mt-2">No images matching the selected filter</p>
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="border-t pt-6 flex justify-between">
-                <div className="text-sm text-gray-500">
-                  {files.length > 0 && (
-                    <>
-                      {totalUploaded > 0 && (
-                        <span className="text-green-600 font-medium mr-2">
-                          {totalUploaded} uploaded successfully
-                        </span>
-                      )}
-                      
-                      {files.filter(f => f.status === 'error').length > 0 && (
-                        <span className="text-red-600 font-medium mr-2">
-                          {files.filter(f => f.status === 'error').length} failed
-                        </span>
-                      )}
-                      
-                      {files.filter(f => f.status === 'pending' || f.status === 'uploading').length > 0 && (
-                        <span className="text-gray-600 font-medium">
-                          {files.filter(f => f.status === 'pending' || f.status === 'uploading').length} pending
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-                
-                {uploadComplete && (
-                  <Link href="/gallery">
-                    <Button variant="outline">
-                      View in Gallery
-                    </Button>
-                  </Link>
-                )}
-              </CardFooter>
             </Card>
-          </div>
+          )}
+          
+          {/* Instructions */}
+          <Card className="bg-white border border-[#A0B985]/20">
+            <CardHeader>
+              <CardTitle className="text-[#8B5E3C]">How to Use the Bulk Uploader</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal pl-5 space-y-2">
+                <li>Select multiple images using the file browser at the top</li>
+                <li>Organize images by assigning each to the appropriate category</li>
+                <li>Click "Upload All Images" to begin the upload process</li>
+                <li>Wait for uploads to complete - you'll see green checkmarks next to successful uploads</li>
+                <li>If any uploads fail, click "Retry Failed" to attempt again</li>
+              </ol>
+              
+              <div className="mt-4 p-3 bg-amber-50 rounded-md border border-amber-200">
+                <p className="text-amber-800 text-sm">
+                  <strong>Tip:</strong> For best results, organize your images by category before uploading.
+                  This will make it easier to assign them to the correct gallery sections.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Footer */}
+        <div className="mt-12 pt-8 border-t border-[#A0B985]/20 text-center">
+          <p className="text-sm text-[#8B5E3C]/60">
+            &copy; {new Date().getFullYear()} Ko Lake Villa Admin Portal
+          </p>
         </div>
       </div>
     </div>
   );
-};
-
-export default BulkUploader;
+}
