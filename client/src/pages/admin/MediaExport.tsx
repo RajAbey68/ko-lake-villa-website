@@ -27,7 +27,11 @@ const MediaExport = () => {
   // Calculate total file sizes
   const totalImageCount = galleryImages?.length || 0;
   const totalVideoCount = galleryImages?.filter(img => img.mediaType === 'video').length || 0;
-  const totalSize = galleryImages?.reduce((acc, img) => acc + (img.fileSize || 0), 0) || 0;
+  // Default fileSize to 0 if not available
+  const totalSize = galleryImages?.reduce((acc, img) => {
+    const fileSize = typeof img.fileSize === 'number' ? img.fileSize : 0;
+    return acc + fileSize;
+  }, 0) || 0;
   const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
 
   // Function to download all media files
@@ -42,7 +46,9 @@ const MediaExport = () => {
       const zip = new JSZip();
       
       // Create folders for categories
-      const categories = [...new Set(galleryImages.map(img => img.category || 'Uncategorized'))];
+      const categorySet = new Set<string>();
+      galleryImages.forEach(img => categorySet.add(img.category || 'Uncategorized'));
+      const categories = Array.from(categorySet);
       categories.forEach(category => {
         zip.folder(category);
       });
