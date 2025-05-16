@@ -56,6 +56,7 @@ const upload = multer({
 });
 
 import { exportToGoogleDrive } from './googleDriveExport';
+import { checkDbHealth } from './db';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files

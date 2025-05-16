@@ -33,19 +33,24 @@ pool.on('error', (err) => {
 // Add connection monitoring to automatically scale based on demand
 let activeConnections = 0;
 const CONNECTION_HIGH_WATERMARK = 15; // 75% of max connections
+const MAX_CONNECTIONS = 20; // Match the max value set above
 
+// Track connection acquisitions
 pool.on('acquire', () => {
   activeConnections++;
   log(`Active DB connections: ${activeConnections}`, 'db');
   
   // If we're approaching connection limit, log a warning
   if (activeConnections >= CONNECTION_HIGH_WATERMARK) {
-    log(`WARNING: High database connection usage (${activeConnections}/${pool.options.max})`, 'db');
+    log(`WARNING: High database connection usage (${activeConnections}/${MAX_CONNECTIONS})`, 'db');
   }
 });
 
-pool.on('release', () => {
-  activeConnections--;
+// Listen for connection removal events
+pool.on('remove', () => {
+  if (activeConnections > 0) {
+    activeConnections--;
+  }
 });
 
 export const db = drizzle({ client: pool, schema });
