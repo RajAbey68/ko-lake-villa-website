@@ -61,13 +61,17 @@ export async function checkDbHealth() {
     const client = await pool.connect();
     try {
       const result = await client.query('SELECT 1 as health_check');
+      
+      // Get basic connection stats
+      const connectionStats = {
+        active: activeConnections,
+        max: MAX_CONNECTIONS
+      };
+      
       return {
         status: 'healthy',
-        connections: {
-          total: pool.totalCount,
-          idle: pool.idleCount,
-          active: activeConnections
-        }
+        connections: connectionStats,
+        timestamp: new Date().toISOString()
       };
     } finally {
       client.release();
@@ -75,7 +79,8 @@ export async function checkDbHealth() {
   } catch (error) {
     return {
       status: 'unhealthy',
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
+      timestamp: new Date().toISOString()
     };
   }
 }
