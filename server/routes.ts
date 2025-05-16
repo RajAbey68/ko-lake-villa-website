@@ -235,6 +235,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const diningOptions = await dataStorage.getDiningOptions();
     res.json(diningOptions);
   });
+  
+  // Database status endpoint for monitoring
+  app.get("/api/system/db-status", async (req, res) => {
+    try {
+      const healthStatus = await checkDbHealth();
+      res.json(healthStatus);
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Unknown database error'
+      });
+    }
+  });
 
   app.get("/api/dining-options/:id", async (req, res) => {
     const id = parseInt(req.params.id);
