@@ -10,6 +10,7 @@ import { useAnalytics } from "./hooks/use-analytics";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import Home from "@/pages/Home";
 import Accommodation from "@/pages/Accommodation";
 import Dining from "@/pages/Dining";
@@ -51,6 +52,8 @@ function Router() {
           </Switch>
         </main>
         <Footer />
+        {/* WhatsApp contact button - visible on all main pages */}
+        <WhatsAppButton phoneNumber="+940711730345" message="Hello, I'd like to inquire about staying at Ko Lake Villa..." />
       </div>
     );
   }
