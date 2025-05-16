@@ -138,13 +138,14 @@ const GoogleDriveExport = () => {
       setStatusMessage('Creating folder structure in Google Drive...');
 
       // Start the export process
-      const response = await apiRequest('/api/export/google-drive', {
-        method: 'POST',
-        body: JSON.stringify({
+      const response = await apiRequest(
+        'POST',
+        '/api/export/google-drive',
+        {
           categories: selectedCats,
           imageIds: imagesToExport.map(img => img.id)
-        })
-      });
+        }
+      );
 
       const result = await response.json();
 

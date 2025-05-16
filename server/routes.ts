@@ -217,6 +217,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     res.json(activity);
   });
+  
+  // Google Drive export endpoint
+  app.post("/api/export/google-drive", async (req, res) => {
+    try {
+      await exportToGoogleDrive(req, res);
+    } catch (error) {
+      console.error('Error exporting to Google Drive:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to export to Google Drive' 
+      });
+    }
+  });
 
   app.get("/api/dining-options", async (req, res) => {
     const diningOptions = await dataStorage.getDiningOptions();

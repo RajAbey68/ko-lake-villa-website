@@ -130,10 +130,13 @@ const getMimeType = (extension: string): string => {
 // Upload a gallery image to Google Drive from the uploads folder
 export const uploadGalleryImage = async (
   imageUrl: string, 
-  category: string, 
+  category: string | null | undefined, 
   folderId: string
 ) => {
   try {
+    // Use a default category if none provided
+    const categoryName = category || 'Uncategorized';
+    
     // Check if the URL is a local file in the uploads folder
     if (imageUrl.startsWith('/uploads/')) {
       const filePath = path.join(process.cwd(), imageUrl);
@@ -168,11 +171,17 @@ export const createGalleryFolderStructure = async (categories: string[]) => {
     
     // Create category subfolders
     const categoryFolders: Record<string, string> = {};
-    for (const category of categories) {
-      if (category) {  // Make sure category is not null or undefined
-        const folderId = await createDriveFolder(category, mainFolderId);
-        categoryFolders[category] = folderId;
-      }
+    
+    // Process each category
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+      
+      // Skip undefined or null categories
+      if (!category) continue;
+      
+      // Create folder for this category
+      const folderId = await createDriveFolder(category, mainFolderId);
+      categoryFolders[category] = folderId;
     }
     
     return { mainFolderId, categoryFolders };
