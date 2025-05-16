@@ -52,8 +52,6 @@ function Router() {
           </Switch>
         </main>
         <Footer />
-        {/* WhatsApp contact button - visible on all main pages */}
-        <WhatsAppButton phoneNumber="+940711730345" message="Hello, I'd like to inquire about staying at Ko Lake Villa..." />
       </div>
     );
   }
