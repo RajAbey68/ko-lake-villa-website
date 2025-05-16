@@ -159,9 +159,23 @@ const Gallery = () => {
       const url = category 
         ? `/api/gallery?category=${category}`
         : '/api/gallery';
+      console.log('Fetching gallery images from:', url);
       const response = await fetch(url, { credentials: 'include' });
       if (!response.ok) throw new Error('Failed to fetch gallery images');
-      return response.json();
+      const data = await response.json() as GalleryImage[];
+      console.log('Received gallery data:', data.length, 'images');
+      
+      // Check if we have image URLs from zyrosite
+      if (data && data.length > 0) {
+        const hasCORSIssue = data.some((img) => 
+          img.imageUrl && img.imageUrl.includes('zyrosite.com'));
+        
+        if (hasCORSIssue) {
+          console.warn('Detected potential CORS issue with zyrosite.com images');
+        }
+      }
+      
+      return data;
     }
   });
 
@@ -351,15 +365,32 @@ const Gallery = () => {
                       </div>
                     ) : (
                       <img 
-                        src={image.imageUrl} 
-                        alt={image.alt} 
+                        src={image.imageUrl}
+                        alt={image.alt}
                         className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                        style={{backgroundColor: '#e5e5e5'}}
                         onError={(e) => {
-                          console.log(`Gallery image failed to load: ${image.imageUrl}`);
-                          // Hide the image rather than showing a placeholder
+                          console.error(`Gallery image failed to load: ${image.imageUrl}`);
+                          // Show placeholder with error text
                           const target = e.target as HTMLImageElement;
-                          target.style.opacity = '0.2';
-                          target.style.filter = 'grayscale(100%)';
+                          target.style.display = 'none';
+                          // Add parent div with error message
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'w-full h-40 md:h-56 bg-gray-200 flex flex-col items-center justify-center';
+                            errorDiv.innerHTML = `
+                              <div class="w-12 h-12 mb-2 flex items-center justify-center rounded-full bg-gray-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                  <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                              </div>
+                              <p class="text-[#8B5E3C] text-center text-sm px-2">${image.alt}</p>
+                            `;
+                            parent.appendChild(errorDiv);
+                          }
                         }}
                       />
                     )}
