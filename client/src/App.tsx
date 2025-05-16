@@ -52,6 +52,8 @@ function Router() {
           </Switch>
         </main>
         <Footer />
+        {/* WhatsApp contact button */}
+        <WhatsAppButton phoneNumber="+940711730345" />
       </div>
     );
   }
