@@ -41,6 +41,11 @@ const Header = () => {
         
         {/* Mobile Menu Button */}
         <div className="flex items-center">
+          {/* Language Switcher placeholder */}
+          <div className="hidden md:block mr-2">
+            
+          </div>
+          
           <Link 
             href="/booking" 
             className="hidden md:block bg-[#FF914D] text-white px-6 py-2 rounded hover:bg-[#8B5E3C] transition-colors font-medium mr-2"
@@ -136,6 +141,11 @@ const Header = () => {
         )}
       >
         <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          {/* Language Switcher in Mobile Menu - disabled for now */}
+          <div className="flex flex-wrap gap-2 py-2 border-b border-gray-200 mb-2">
+            
+          </div>
+          
           <Link 
             href="/" 
             className={cn(
