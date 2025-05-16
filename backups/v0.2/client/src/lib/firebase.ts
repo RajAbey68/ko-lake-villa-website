@@ -36,7 +36,7 @@ const googleProvider = new GoogleAuthProvider();
 const AUTHORIZED_EMAILS: string[] = [
   // Ko Lake Villa admin emails
   "contact@KoLakeHouse.com",
-  "RajAbey68@google.com"
+  "RajAbey68@gmail.com"
 ];
 
 // Check if a user is an authorized admin
@@ -103,11 +103,11 @@ export const signInWithEmail = async (email: string, password: string) => {
       // Store the user in local storage
       storeAuthUser(mockUser as User);
       return mockUser as User;
-    } else if (email === "RajAbey68@google.com" && password === "rajabey2023") {
+    } else if (email === "RajAbey68@gmail.com" && password === "rajabey2023") {
       // Same mock implementation for the second admin
       const mockUser: Partial<User> = {
         uid: "rajabey68-mock-uid",
-        email: "RajAbey68@google.com",
+        email: "RajAbey68@gmail.com",
         displayName: "Raj Abey Admin",
       };
       // Store the user in local storage

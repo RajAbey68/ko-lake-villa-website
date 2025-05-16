@@ -55,6 +55,9 @@ const upload = multer({
   }
 });
 
+import { exportToGoogleDrive } from './googleDriveExport';
+import { checkDbHealth } from './db';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static(UPLOAD_DIR));
@@ -215,10 +218,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     res.json(activity);
   });
+  
+  // Google Drive export endpoint
+  app.post("/api/export/google-drive", async (req, res) => {
+    try {
+      await exportToGoogleDrive(req, res);
+    } catch (error) {
+      console.error('Error exporting to Google Drive:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to export to Google Drive' 
+      });
+    }
+  });
 
   app.get("/api/dining-options", async (req, res) => {
     const diningOptions = await dataStorage.getDiningOptions();
     res.json(diningOptions);
+  });
+  
+  // Database status endpoint for monitoring
+  app.get("/api/system/db-status", async (req, res) => {
+    try {
+      const healthStatus = await checkDbHealth();
+      res.json(healthStatus);
+    } catch (error) {
+      res.status(500).json({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Unknown database error'
+      });
+    }
   });
 
   app.get("/api/dining-options/:id", async (req, res) => {
