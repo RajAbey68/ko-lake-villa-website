@@ -36,7 +36,7 @@ const Header = () => {
       {/* Top section with logo and book now button */}
       <div className="container mx-auto px-4 flex items-center justify-between border-b border-[#A0B985] pb-2 mb-2">
         <Link href="/" className="flex items-center">
-          <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
+          <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake House</h1>
         </Link>
         
         {/* Mobile Menu Button */}
