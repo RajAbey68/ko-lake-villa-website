@@ -21,7 +21,7 @@ const Home = () => {
   });
 
   useEffect(() => {
-    document.title = "Ko Lake Villa - Boutique Stay by the Lake";
+    document.title = "Ko Lake House - Boutique Stay by the Lake";
   }, []);
 
   return (
@@ -36,7 +36,7 @@ const Home = () => {
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative z-10 text-center px-4 max-w-4xl">
-          <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow whitespace-nowrap">Ko Lake Villa</h1>
+          <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow whitespace-nowrap">Ko Lake House</h1>
           <p className="text-xl md:text-2xl text-white mb-8 text-shadow">A Boutique Stay by the Lake</p>
           <Link href="/booking" className="inline-block bg-[#FF914D] text-white px-8 py-4 rounded text-lg font-medium hover:bg-[#8B5E3C] transition-colors">
             Book Your Stay
@@ -50,7 +50,7 @@ const Home = () => {
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0 md:pr-10">
               <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-6">Welcome to Lakeside Luxury</h2>
-              <p className="text-[#8B5E3C] mb-6 leading-relaxed">Ko Lake Villa is a boutique accommodation nestled on the shores of a serene lake, offering a perfect blend of luxury, comfort, and natural beauty. Our villa provides an exclusive retreat for travelers seeking tranquility and elegance.</p>
+              <p className="text-[#8B5E3C] mb-6 leading-relaxed">Ko Lake House is a boutique accommodation nestled on the shores of a serene lake, offering a perfect blend of luxury, comfort, and natural beauty. Our villa provides an exclusive retreat for travelers seeking tranquility and elegance.</p>
               <p className="text-[#8B5E3C] mb-6 leading-relaxed">With spectacular views, personalized service, and attention to detail, we create memorable experiences for our guests - whether you're planning a family vacation, a romantic getaway, or a wellness retreat.</p>
               <div className="flex space-x-6 mt-8">
                 <div className="text-center">
@@ -196,7 +196,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">Guest Experiences</h2>
-            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Hear what our guests have to say about their stay at Ko Lake Villa.</p>
+            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Hear what our guests have to say about their stay at Ko Lake House.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -249,7 +249,7 @@ const Home = () => {
       {/* CTA Section */}
       <section className="py-16 bg-[#8B5E3C] text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Ready to Experience Ko Lake Villa?</h2>
+          <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Ready to Experience Ko Lake House?</h2>
           <p className="text-lg max-w-2xl mx-auto mb-8">Book your stay now and discover the perfect blend of lakeside tranquility and luxury.</p>
           <Link href="/booking" className="inline-block bg-[#FF914D] text-white px-8 py-4 rounded text-lg font-medium hover:bg-white hover:text-[#8B5E3C] transition-colors">
             Book Your Getaway
