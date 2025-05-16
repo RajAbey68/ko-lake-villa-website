@@ -31,7 +31,7 @@ const Home = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center" 
           style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80')" 
+            backgroundImage: "url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1224,h=424,fit=crop/AGB2Mlr1kBCLQG4w/9-min-AoPWZwGep1fZ84XJ.jpg')" 
           }}
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -69,8 +69,8 @@ const Home = () => {
             </div>
             <div className="md:w-1/2">
               <img 
-                src="https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80" 
-                alt="Ko Lake Villa interior" 
+                src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=503,h=464,fit=crop/AGB2Mlr1kBCLQG4w/4-3--min-AoPWZwGn9yH5QvLd.jpg" 
+                alt="Ko Lake House interior" 
                 className="rounded-lg shadow-lg w-full h-auto" 
               />
             </div>
