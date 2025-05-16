@@ -65,11 +65,6 @@ app.use((req, res, next) => {
   // Setup vite for development after other routes are set
   // This ensures the catch-all route doesn't interfere with API routes
   if (app.get("env") === "development") {
-    // Add a redirector from API routes to the home page for better navigation
-    app.get('/', (req, res) => {
-      res.redirect('/home');
-    });
-    
     await setupVite(app, server);
   } else {
     serveStatic(app);
