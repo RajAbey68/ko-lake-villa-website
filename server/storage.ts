@@ -189,7 +189,7 @@ export class MemStorage implements IStorage {
       {
         name: "Cultural Experiences",
         description: "Immerse yourself in local culture with village visits, traditional cooking classes, and artisan craft workshops.",
-        imageUrl: "https://images.pixabay.com/photo/2016/11/08/05/11/children-1807511_1280.jpg"
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=945,h=630,fit=crop/AGB2Mlr1kBCLQG4w/dsc01272-mVL9DDb1e2SaGRbV.jpg"
       }
     ];
 
@@ -217,20 +217,20 @@ export class MemStorage implements IStorage {
     const sampleGalleryImages: InsertGalleryImage[] = [
       // Family Suite
       {
-        imageUrl: "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai011-m8x6xQjkgDfEn2W3.jpg",
         alt: "Family Suite Master Bedroom",
         category: "family-suite",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1582582621959-48d27397dc69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai010-A2lXVP3M9WsLJWao.jpg",
         alt: "Family Suite Living Area",
         category: "family-suite",
         sortOrder: 2
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai012-Y9Pe5oDrPOf0ZB8P.jpg",
         alt: "Family Suite Bathroom",
         category: "family-suite",
         sortOrder: 3
@@ -238,14 +238,14 @@ export class MemStorage implements IStorage {
       
       // Group Room
       {
-        imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-group-room-dai009-mDV7ErkENRty01Qk.jpg",
         alt: "Group Room with Multiple Beds",
         category: "group-room",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-group-room-dai008-YBgXvLryaaCLDXz1.jpg",
         alt: "Group Room Seating Area",
         category: "group-room",
         sortOrder: 2
