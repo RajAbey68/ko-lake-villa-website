@@ -2,15 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {
   const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const { currentUser, isAdmin } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -27,19 +24,6 @@ const Header = () => {
   
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
-  };
-  
-  const toggleLanguageMenu = () => {
-    setLanguageMenuOpen(!languageMenuOpen);
-  };
-  
-  const closeLanguageMenu = () => {
-    setLanguageMenuOpen(false);
-  };
-  
-  const changeLanguage = (lang: 'en' | 'si' | 'ta' | 'zh' | 'ru') => {
-    setLanguage(lang);
-    closeLanguageMenu();
   };
   
   return (
