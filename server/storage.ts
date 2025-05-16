@@ -253,14 +253,14 @@ export class MemStorage implements IStorage {
       
       // Triple Room
       {
-        imageUrl: "https://images.unsplash.com/photo-1540518614846-7eded433c457?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-triple-room-dai007-mv1p7xJpK6Spv90E.jpg",
         alt: "Triple Room Overview",
         category: "triple-room",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1595526228415-4c7bea711c2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-triple-room-dai006-Y9Pe5xXQvkcOzBXO.jpg",
         alt: "Triple Room Writing Desk",
         category: "triple-room",
         sortOrder: 2
@@ -268,14 +268,14 @@ export class MemStorage implements IStorage {
       
       // Dining Area
       {
-        imageUrl: "https://images.unsplash.com/photo-1514516345957-556ca7d90a29?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1600,h=1066,fit=crop/AGB2Mlr1kBCLQG4w/g-dining-area-dai058-m1a6OOOGJVI1xlW7.jpg",
         alt: "Main Dining Area",
         category: "dining-area",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1586195830864-b87abacec993?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/kl-f-b-dsc00296-mgQWz7X80bTR8xgZ.jpg",
         alt: "Private Dining Nook",
         category: "dining-area",
         sortOrder: 2
@@ -283,14 +283,14 @@ export class MemStorage implements IStorage {
       
       // Pool Deck
       {
-        imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/10-min-YBgXvBnVyGh7vyP4.jpg",
         alt: "Pool Deck with Loungers",
         category: "pool-deck",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=720,fit=crop/AGB2Mlr1kBCLQG4w/11-min-YBgXvBJQ86f0DNRG.jpg",
         alt: "Pool Deck Sunset View",
         category: "pool-deck",
         sortOrder: 2
