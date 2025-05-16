@@ -351,15 +351,14 @@ const Gallery = () => {
                       </div>
                     ) : (
                       <img 
-                        src={image.imageUrl.startsWith('https://') ? image.imageUrl : `${window.location.origin}${image.imageUrl}`} 
+                        src={image.imageUrl} 
                         alt={image.alt} 
                         className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
-                          // Fallback to direct URL if the prefixed one fails
                           const target = e.target as HTMLImageElement;
-                          if (target.src !== image.imageUrl) {
-                            target.src = image.imageUrl;
-                          }
+                          // Use a generic placeholder if image fails to load
+                          target.src = 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
+                          console.log(`Gallery image failed to load: ${image.imageUrl}`);
                         }}
                       />
                     )}
