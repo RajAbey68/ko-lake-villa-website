@@ -63,7 +63,12 @@ const Experiences = () => {
                   <img 
                     src={activity.imageUrl} 
                     alt={activity.name} 
-                    className="w-full h-56 object-cover" 
+                    className="w-full h-56 object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
+                      console.log(`Experience image failed to load: ${activity.imageUrl}`);
+                    }}
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-display font-bold text-[#1E4E5F] mb-2">{activity.name}</h3>

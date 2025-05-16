@@ -29,9 +29,14 @@ if (!fs.existsSync(GALLERY_DIR)) {
 // Set up multer for file uploads
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Always use the default directory for simplicity
-    // This ensures consistency between uploads and serving
-    const destination = path.join(GALLERY_DIR, 'default');
+    // Get category from request body, default to 'default' if not provided
+    const category = req.body.category || 'default';
+    
+    // Sanitize the category name to prevent directory traversal
+    const safeCategory = category.replace(/[^a-zA-Z0-9 -]/g, '_');
+    
+    // Create path to category directory
+    const destination = path.join(GALLERY_DIR, safeCategory);
     
     // Create directory if it doesn't exist
     if (!fs.existsSync(destination)) {
