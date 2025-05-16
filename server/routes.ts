@@ -180,6 +180,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   });
+  
+  // Gallery image upload endpoint
+  app.post("/api/gallery/upload", (req, res) => {
+    console.log("Gallery upload endpoint called");
+    
+    upload.single('image')(req, res, async (err) => {
+      if (err) {
+        console.error("Gallery upload error:", err);
+        return res.status(500).json({ 
+          message: "Gallery image upload failed",
+          error: err.message
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No image uploaded" });
+      }
+      
+      try {
+        // Extract form data
+        const { category, alt, description, featured, sortOrder } = req.body;
+        
+        // Create relative path for database
+        const filePath = req.file.path;
+        const relativePath = '/' + path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+        
+        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}`);
+        
+        // Get file size
+        const stats = fs.statSync(filePath);
+        const fileSize = stats.size;
+        
+        // Create gallery image in database
+        const galleryImage = await dataStorage.createGalleryImage({
+          imageUrl: relativePath,
+          alt: alt || 'Ko Lake Villa Image',
+          description: description || null,
+          category: category,
+          featured: featured === 'true',
+          sortOrder: parseInt(sortOrder) || 1,
+          mediaType: 'image',
+          fileSize: fileSize,
+          tags: category
+        });
+        
+        res.json({ 
+          message: "Gallery image uploaded successfully",
+          data: galleryImage
+        });
+      } catch (error) {
+        console.error("Error creating gallery image entry:", error);
+        if (req.file && req.file.path) {
+          // Clean up the uploaded file if database operation failed
+          try {
+            fs.unlinkSync(req.file.path);
+          } catch (unlinkError) {
+            console.error("Failed to clean up uploaded file:", unlinkError);
+          }
+        }
+        res.status(500).json({ 
+          message: "Failed to create gallery image entry",
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    });
+  });
 
   // API Routes
   app.get("/api/rooms", async (req, res) => {
