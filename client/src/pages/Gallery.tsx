@@ -155,7 +155,9 @@ const Gallery = () => {
   const getProxiedImageUrl = (url: string) => {
     // Only proxy external URLs that might have CORS issues
     if (url.includes('zyrosite.com') || url.includes('assets.zyro')) {
-      return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+      console.log(`[Gallery] Proxying image URL: ${url} -> ${proxiedUrl}`);
+      return proxiedUrl;
     }
     return url;
   };
@@ -373,35 +375,38 @@ const Gallery = () => {
                         </div>
                       </div>
                     ) : (
-                      <img 
-                        src={image.imageUrl}
-                        alt={image.alt}
-                        className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                        style={{backgroundColor: '#e5e5e5'}}
-                        onError={(e) => {
-                          console.error(`Gallery image failed to load: ${image.imageUrl}`);
-                          // Show placeholder with error text
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          // Add parent div with error message
-                          const parent = target.parentElement;
-                          if (parent) {
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'w-full h-40 md:h-56 bg-gray-200 flex flex-col items-center justify-center';
-                            errorDiv.innerHTML = `
-                              <div class="w-12 h-12 mb-2 flex items-center justify-center rounded-full bg-gray-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                  <polyline points="21 15 16 10 5 21"></polyline>
-                                </svg>
-                              </div>
-                              <p class="text-[#8B5E3C] text-center text-sm px-2">${image.alt}</p>
-                            `;
-                            parent.appendChild(errorDiv);
-                          }
-                        }}
-                      />
+                      <div className="w-full h-40 md:h-56 bg-gray-100 flex flex-col items-center justify-center relative">
+                        {/* Show title and loading indicator while image is loading */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
+                          <div className="w-12 h-12 mb-2 flex items-center justify-center rounded-full bg-gray-200">
+                            <svg className="animate-pulse" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5E3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                              <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                          </div>
+                          <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
+                        </div>
+                        
+                        {/* The actual image */}
+                        <img 
+                          src={image.imageUrl}
+                          alt={image.alt}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10 relative"
+                          style={{backgroundColor: 'transparent'}}
+                          onLoad={(e) => {
+                            console.log(`Image loaded successfully: ${image.imageUrl}`);
+                            const target = e.target as HTMLImageElement;
+                            target.style.opacity = '1';
+                          }}
+                          onError={(e) => {
+                            console.error(`Gallery image failed to load: ${image.imageUrl}`);
+                            // Hide the image element but keep the parent with placeholder
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
                     )}
                     {image.featured && (
                       <span className="absolute top-2 right-2 bg-[#FF914D] text-white text-xs px-2 py-1 rounded-full">
