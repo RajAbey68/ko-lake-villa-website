@@ -350,7 +350,7 @@ export class MemStorage implements IStorage {
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/1-dsc00005-1-min-AoPWZwXByQhnVvBG.jpg",
         alt: "Koggala Lake Traditional Fishing Boats",
         category: "koggala-lake",
         sortOrder: 2
@@ -358,14 +358,14 @@ export class MemStorage implements IStorage {
       
       // Excursions
       {
-        imageUrl: "https://images.unsplash.com/photo-1586500036066-55435f49e071?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=945,h=630,fit=crop/AGB2Mlr1kBCLQG4w/dsc01272-mVL9DDb1e2SaGRbV.jpg",
         alt: "Local Temple Visit",
         category: "excursions",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1606165210513-5e3214da0029?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1000,h=667,fit=crop/AGB2Mlr1kBCLQG4w/tea-plantations-1-m2EKDDE4lRc4J17Z.jpg",
         alt: "Beach Excursion",
         category: "excursions",
         sortOrder: 2
