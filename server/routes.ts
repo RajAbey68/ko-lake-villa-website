@@ -55,6 +55,8 @@ const upload = multer({
   }
 });
 
+import { exportToGoogleDrive } from './googleDriveExport';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static(UPLOAD_DIR));
