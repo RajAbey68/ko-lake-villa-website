@@ -25,6 +25,7 @@ import AdminLanding from "@/pages/admin/AdminLanding";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminGallery from "@/pages/admin/Gallery";
 import Statistics from "@/pages/admin/Statistics";
+import MediaExport from "@/pages/admin/MediaExport";
 
 function Router() {
   const [location] = useLocation();
@@ -66,6 +67,7 @@ function Router() {
         <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/gallery" component={AdminGallery} />
         <Route path="/admin/statistics" component={Statistics} />
+        <Route path="/admin/export" component={MediaExport} />
         <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
