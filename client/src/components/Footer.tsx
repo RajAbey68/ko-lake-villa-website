@@ -54,6 +54,21 @@ const Footer = () => {
           <div>
             <h3 className="font-display text-2xl font-bold mb-4 whitespace-nowrap">Ko Lake House</h3>
             <p className="mb-6">A boutique lakeside retreat offering luxury accommodation and personalized experiences in a serene natural setting.</p>
+            <div className="mb-4">
+              <p className="font-medium mb-2">Our Websites:</p>
+              <ul className="space-y-1">
+                <li>
+                  <a href="https://www.KoLakeHouse.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors">
+                    www.KoLakeHouse.com
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.KoggalaNinePeaks.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors">
+                    www.KoggalaNinePeaks.com
+                  </a>
+                </li>
+              </ul>
+            </div>
             <div className="flex space-x-4">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors" aria-label="Facebook">
                 <i className="fab fa-facebook-f text-xl"></i>
