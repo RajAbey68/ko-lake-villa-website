@@ -65,9 +65,11 @@ const Experiences = () => {
                     alt={activity.name} 
                     className="w-full h-56 object-cover"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80';
                       console.log(`Experience image failed to load: ${activity.imageUrl}`);
+                      // Only fade the image rather than showing a placeholder
+                      const target = e.target as HTMLImageElement;
+                      target.style.opacity = '0.2';
+                      target.style.filter = 'grayscale(100%)';
                     }}
                   />
                   <div className="p-6">
