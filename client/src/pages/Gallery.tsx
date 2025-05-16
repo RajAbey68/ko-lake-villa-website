@@ -151,7 +151,16 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  // Fetch gallery images
+  // Function to get a proxied URL for external images
+  const getProxiedImageUrl = (url: string) => {
+    // Only proxy external URLs that might have CORS issues
+    if (url.includes('zyrosite.com') || url.includes('assets.zyro')) {
+      return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+  };
+
+  // Fetch gallery images and process URLs
   const { data: galleryImages, isLoading, error } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery', selectedCategory],
     queryFn: async ({ queryKey }) => {
@@ -159,23 +168,23 @@ const Gallery = () => {
       const url = category 
         ? `/api/gallery?category=${category}`
         : '/api/gallery';
+      
       console.log('Fetching gallery images from:', url);
       const response = await fetch(url, { credentials: 'include' });
+      
       if (!response.ok) throw new Error('Failed to fetch gallery images');
+      
       const data = await response.json() as GalleryImage[];
       console.log('Received gallery data:', data.length, 'images');
       
-      // Check if we have image URLs from zyrosite
-      if (data && data.length > 0) {
-        const hasCORSIssue = data.some((img) => 
-          img.imageUrl && img.imageUrl.includes('zyrosite.com'));
-        
-        if (hasCORSIssue) {
-          console.warn('Detected potential CORS issue with zyrosite.com images');
-        }
-      }
-      
-      return data;
+      // Process image URLs to use our proxy for external URLs
+      return data.map((image) => ({
+        ...image,
+        // Store the original URL for reference
+        originalImageUrl: image.imageUrl,
+        // Use proxied URL for display
+        imageUrl: getProxiedImageUrl(image.imageUrl)
+      }));
     }
   });
 

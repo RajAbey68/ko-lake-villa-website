@@ -486,6 +486,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Image proxy to bypass CORS restrictions
+  app.get("/api/image-proxy", async (req, res) => {
+    const imageUrl = req.query.url as string;
+    
+    if (!imageUrl) {
+      return res.status(400).json({ message: "No image URL provided" });
+    }
+    
+    try {
+      // Import axios here to avoid hoisting issues
+      const axios = require('axios');
+      
+      // Add default user agent and referer to appear like a browser request
+      const response = await axios.get(imageUrl, {
+        responseType: 'arraybuffer',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Referer': 'https://kolakehouse.com/'
+        }
+      });
+      
+      // Determine the content type from the response headers or default to image/jpeg
+      const contentType = response.headers['content-type'] || 'image/jpeg';
+      
+      // Set the content type header for the response
+      res.set('Content-Type', contentType);
+      
+      // Set cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      
+      // Send the image data
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('Image proxy error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ 
+        message: "Failed to retrieve image",
+        error: errorMessage
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
