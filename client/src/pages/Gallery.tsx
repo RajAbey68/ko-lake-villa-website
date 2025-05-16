@@ -351,7 +351,7 @@ const Gallery = () => {
                       </div>
                     ) : (
                       <img 
-                        src={image.imageUrl.startsWith('https://') ? image.imageUrl : `https://f3aa2058-8e59-40ef-905c-d3160b3e56f6-00-7q6tkzz2sb33.riker.replit.dev${image.imageUrl}`} 
+                        src={image.imageUrl.startsWith('https://') ? image.imageUrl : `${window.location.origin}${image.imageUrl}`} 
                         alt={image.alt} 
                         className="w-full h-40 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
