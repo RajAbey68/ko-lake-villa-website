@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {
   const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const { currentUser, isAdmin } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +29,19 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
   
+  const toggleLanguageMenu = () => {
+    setLanguageMenuOpen(!languageMenuOpen);
+  };
+  
+  const closeLanguageMenu = () => {
+    setLanguageMenuOpen(false);
+  };
+  
+  const changeLanguage = (lang: 'en' | 'si' | 'ta' | 'zh' | 'ru') => {
+    setLanguage(lang);
+    closeLanguageMenu();
+  };
+  
   return (
     <header 
       className={cn(
@@ -41,11 +57,67 @@ const Header = () => {
         
         {/* Mobile Menu Button */}
         <div className="flex items-center">
+          {/* Language Switcher */}
+          <div className="relative mr-2">
+            <button 
+              className="flex items-center text-[#8B5E3C] hover:text-[#FF914D] transition-colors focus:outline-none"
+              onClick={toggleLanguageMenu}
+              aria-label="Change language"
+            >
+              {/* Current language flag */}
+              <span className="mr-1 text-lg">
+                {language === 'en' && '🇬🇧'}
+                {language === 'si' && '🇱🇰'}
+                {language === 'ta' && '🇱🇰'}
+                {language === 'zh' && '🇨🇳'}
+                {language === 'ru' && '🇷🇺'}
+              </span>
+              <span className="hidden md:inline text-sm">{language.toUpperCase()}</span>
+              <i className="fas fa-chevron-down ml-1 text-xs"></i>
+            </button>
+            
+            {/* Language dropdown menu */}
+            {languageMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+                <button 
+                  className={`flex items-center w-full px-4 py-2 text-sm ${language === 'en' ? 'bg-gray-100 text-[#FF914D]' : 'text-[#8B5E3C]'} hover:bg-gray-100`}
+                  onClick={() => changeLanguage('en')}
+                >
+                  <span className="mr-2">🇬🇧</span> English
+                </button>
+                <button 
+                  className={`flex items-center w-full px-4 py-2 text-sm ${language === 'si' ? 'bg-gray-100 text-[#FF914D]' : 'text-[#8B5E3C]'} hover:bg-gray-100`}
+                  onClick={() => changeLanguage('si')}
+                >
+                  <span className="mr-2">🇱🇰</span> සිංහල
+                </button>
+                <button 
+                  className={`flex items-center w-full px-4 py-2 text-sm ${language === 'ta' ? 'bg-gray-100 text-[#FF914D]' : 'text-[#8B5E3C]'} hover:bg-gray-100`}
+                  onClick={() => changeLanguage('ta')}
+                >
+                  <span className="mr-2">🇱🇰</span> தமிழ்
+                </button>
+                <button 
+                  className={`flex items-center w-full px-4 py-2 text-sm ${language === 'zh' ? 'bg-gray-100 text-[#FF914D]' : 'text-[#8B5E3C]'} hover:bg-gray-100`}
+                  onClick={() => changeLanguage('zh')}
+                >
+                  <span className="mr-2">🇨🇳</span> 中文
+                </button>
+                <button 
+                  className={`flex items-center w-full px-4 py-2 text-sm ${language === 'ru' ? 'bg-gray-100 text-[#FF914D]' : 'text-[#8B5E3C]'} hover:bg-gray-100`}
+                  onClick={() => changeLanguage('ru')}
+                >
+                  <span className="mr-2">🇷🇺</span> Русский
+                </button>
+              </div>
+            )}
+          </div>
+          
           <Link 
             href="/booking" 
             className="hidden md:block bg-[#FF914D] text-white px-6 py-2 rounded hover:bg-[#8B5E3C] transition-colors font-medium mr-2"
           >
-            Book Now
+            {t('book_now')}
           </Link>
           
           {isAdmin && (
@@ -53,7 +125,7 @@ const Header = () => {
               href="/admin" 
               className="hidden md:block text-[#8B5E3C] text-xs border border-[#8B5E3C] px-3 py-1 rounded hover:bg-[#8B5E3C] hover:text-white transition-colors font-medium mr-2"
             >
-              Admin
+              {t('admin')}
             </Link>
           )}
           
@@ -78,7 +150,7 @@ const Header = () => {
               location === '/' && "text-[#FF914D]"
             )}
           >
-            Home
+            {t('home')}
           </Link>
           <Link 
             href="/accommodation" 
@@ -87,7 +159,7 @@ const Header = () => {
               location === '/accommodation' && "text-[#FF914D]"
             )}
           >
-            Accommodation
+            {t('accommodation')}
           </Link>
           <Link 
             href="/dining" 
@@ -96,7 +168,7 @@ const Header = () => {
               location === '/dining' && "text-[#FF914D]"
             )}
           >
-            Dining
+            {t('dining')}
           </Link>
           <Link 
             href="/experiences" 
@@ -105,7 +177,7 @@ const Header = () => {
               location === '/experiences' && "text-[#FF914D]"
             )}
           >
-            Experiences
+            {t('experiences')}
           </Link>
           <Link 
             href="/gallery" 
@@ -114,7 +186,7 @@ const Header = () => {
               location === '/gallery' && "text-[#FF914D]"
             )}
           >
-            Gallery
+            {t('gallery')}
           </Link>
           <Link 
             href="/contact" 
@@ -123,7 +195,7 @@ const Header = () => {
               location === '/contact' && "text-[#FF914D]"
             )}
           >
-            Contact
+            {t('contact')}
           </Link>
         </nav>
       </div>
@@ -136,6 +208,40 @@ const Header = () => {
         )}
       >
         <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          {/* Language Switcher in Mobile Menu */}
+          <div className="flex flex-wrap gap-2 py-2 border-b border-gray-200 mb-2">
+            <button 
+              onClick={() => changeLanguage('en')}
+              className={`flex items-center px-3 py-1 rounded text-sm ${language === 'en' ? 'bg-[#A0B985] text-white' : 'bg-gray-100 text-[#8B5E3C]'}`}
+            >
+              <span className="mr-1">🇬🇧</span> EN
+            </button>
+            <button 
+              onClick={() => changeLanguage('si')}
+              className={`flex items-center px-3 py-1 rounded text-sm ${language === 'si' ? 'bg-[#A0B985] text-white' : 'bg-gray-100 text-[#8B5E3C]'}`}
+            >
+              <span className="mr-1">🇱🇰</span> SI
+            </button>
+            <button 
+              onClick={() => changeLanguage('ta')}
+              className={`flex items-center px-3 py-1 rounded text-sm ${language === 'ta' ? 'bg-[#A0B985] text-white' : 'bg-gray-100 text-[#8B5E3C]'}`}
+            >
+              <span className="mr-1">🇱🇰</span> TA
+            </button>
+            <button 
+              onClick={() => changeLanguage('zh')}
+              className={`flex items-center px-3 py-1 rounded text-sm ${language === 'zh' ? 'bg-[#A0B985] text-white' : 'bg-gray-100 text-[#8B5E3C]'}`}
+            >
+              <span className="mr-1">🇨🇳</span> ZH
+            </button>
+            <button 
+              onClick={() => changeLanguage('ru')}
+              className={`flex items-center px-3 py-1 rounded text-sm ${language === 'ru' ? 'bg-[#A0B985] text-white' : 'bg-gray-100 text-[#8B5E3C]'}`}
+            >
+              <span className="mr-1">🇷🇺</span> RU
+            </button>
+          </div>
+          
           <Link 
             href="/" 
             className={cn(
@@ -144,7 +250,7 @@ const Header = () => {
             )}
             onClick={closeMobileMenu}
           >
-            Home
+            {t('home')}
           </Link>
           <Link 
             href="/accommodation" 
@@ -154,7 +260,7 @@ const Header = () => {
             )}
             onClick={closeMobileMenu}
           >
-            Accommodation
+            {t('accommodation')}
           </Link>
           <Link 
             href="/dining" 
@@ -164,7 +270,7 @@ const Header = () => {
             )}
             onClick={closeMobileMenu}
           >
-            Dining
+            {t('dining')}
           </Link>
           <Link 
             href="/experiences" 
@@ -174,7 +280,7 @@ const Header = () => {
             )}
             onClick={closeMobileMenu}
           >
-            Experiences
+            {t('experiences')}
           </Link>
           <Link 
             href="/gallery" 
@@ -184,7 +290,7 @@ const Header = () => {
             )}
             onClick={closeMobileMenu}
           >
-            Gallery
+            {t('gallery')}
           </Link>
           <Link 
             href="/contact" 
@@ -194,14 +300,14 @@ const Header = () => {
             )}
             onClick={closeMobileMenu}
           >
-            Contact
+            {t('contact')}
           </Link>
           <Link 
             href="/booking" 
             className="bg-[#FF914D] text-white px-6 py-3 rounded text-center hover:bg-[#8B5E3C] transition-colors font-medium"
             onClick={closeMobileMenu}
           >
-            Book Now
+            {t('book_now')}
           </Link>
           
           {isAdmin && (
@@ -210,7 +316,7 @@ const Header = () => {
               className="text-[#8B5E3C] text-sm border border-[#8B5E3C] px-4 py-2 rounded text-center hover:bg-[#8B5E3C] hover:text-white transition-colors mt-2"
               onClick={closeMobileMenu}
             >
-              Admin
+              {t('admin')}
             </Link>
           )}
         </div>
