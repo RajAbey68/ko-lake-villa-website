@@ -73,9 +73,11 @@ const Dining = () => {
                     alt={option.name} 
                     className="w-full h-64 object-cover rounded-lg mb-6"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80';
                       console.log(`Image failed to load: ${option.imageUrl}`);
+                      // Only fade the image rather than using a placeholder
+                      const target = e.target as HTMLImageElement;
+                      target.style.opacity = '0.2';
+                      target.style.filter = 'grayscale(100%)';
                     }}
                   />
                   <p className="text-[#333333] mb-6">{option.description}</p>
