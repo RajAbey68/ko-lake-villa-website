@@ -43,7 +43,25 @@ export const exportToGoogleDrive = async (req: Request, res: Response) => {
     const imagesToExport = await db
       .select()
       .from(galleryImages)
-      .where(db.inArray(galleryImages.id, imageIds));
+      .where(eq(galleryImages.id, imageIds[0]))
+      .then(async (results) => {
+        // If we need more than one image, get the rest
+        if (imageIds.length > 1) {
+          const restOfImages = [];
+          for (let i = 1; i < imageIds.length; i++) {
+            const images = await db
+              .select()
+              .from(galleryImages)
+              .where(eq(galleryImages.id, imageIds[i]));
+            
+            if (images.length > 0) {
+              restOfImages.push(images[0]);
+            }
+          }
+          return [...results, ...restOfImages];
+        }
+        return results;
+      });
     
     log(`Found ${imagesToExport.length} images to export`, 'drive-export');
     
@@ -67,6 +85,13 @@ export const exportToGoogleDrive = async (req: Request, res: Response) => {
         
         if (!folderId) {
           log(`No folder ID for category ${image.category}`, 'drive-export');
+          results.failed++;
+          continue;
+        }
+        
+        // Make sure we have valid image URL and folder ID
+        if (!image.imageUrl) {
+          log(`Image ${image.id} has no URL, skipping`, 'drive-export');
           results.failed++;
           continue;
         }

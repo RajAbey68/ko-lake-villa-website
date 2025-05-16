@@ -26,6 +26,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminGallery from "@/pages/admin/Gallery";
 import Statistics from "@/pages/admin/Statistics";
 import MediaExport from "@/pages/admin/MediaExport";
+import GoogleDriveExport from "@/pages/admin/GoogleDriveExport";
 
 function Router() {
   const [location] = useLocation();
@@ -68,6 +69,7 @@ function Router() {
         <Route path="/admin/gallery" component={AdminGallery} />
         <Route path="/admin/statistics" component={Statistics} />
         <Route path="/admin/export" component={MediaExport} />
+        <Route path="/admin/drive-export" component={GoogleDriveExport} />
         <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
