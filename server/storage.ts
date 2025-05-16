@@ -298,14 +298,14 @@ export class MemStorage implements IStorage {
       
       // Lake Garden
       {
-        imageUrl: "https://images.unsplash.com/photo-1558521558-037f1cb027c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-front-garden-dai034-AalZ87Xe9Pfr3xOl.jpg",
         alt: "Lake Garden Pathway",
         category: "lake-garden",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-lake-garden-dai028-mp10JLzNZRC7KWED.jpg",
         alt: "Lake Garden Seating Area",
         category: "lake-garden",
         sortOrder: 2
@@ -313,14 +313,14 @@ export class MemStorage implements IStorage {
       
       // Roof Garden
       {
-        imageUrl: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-roof-garden-dai039-dOVD8wLlv9sO90XG.jpg",
         alt: "Roof Garden Panoramic View",
         category: "roof-garden",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1620219655479-763fb8f8784a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-roof-garden-dai037-dOVD8w7z1VuLKeW8.jpg",
         alt: "Roof Garden Lounge Area",
         category: "roof-garden",
         sortOrder: 2
@@ -328,14 +328,14 @@ export class MemStorage implements IStorage {
       
       // Front Garden and Entrance
       {
-        imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1280,fit=crop/AGB2Mlr1kBCLQG4w/1-min-AoPWZwpbLZTW8Rr7.jpg",
         alt: "Villa Main Entrance",
         category: "front-garden",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1570737209810-87a8e7245f88?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-front-garden-dai027-dOVD8w6n9yt7GNB8.jpg",
         alt: "Front Garden Path",
         category: "front-garden",
         sortOrder: 2
@@ -343,7 +343,7 @@ export class MemStorage implements IStorage {
       
       // Koggala Lake Ahangama and Surrounding
       {
-        imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/koggala-lake-boat-ride-AvQ70njKxkUjwyPL.jpg",
         alt: "Koggala Lake Aerial View",
         category: "koggala-lake",
         featured: true,
