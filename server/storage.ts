@@ -122,7 +122,7 @@ export class MemStorage implements IStorage {
         price: 250,
         capacity: 2,
         size: 45,
-        imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1224,h=816,fit=crop/AGB2Mlr1kBCLQG4w/first-room-YBgXv53jwGFkD4xD.jpg",
         features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom"]
       },
       {
@@ -131,7 +131,7 @@ export class MemStorage implements IStorage {
         price: 180,
         capacity: 2,
         size: 32,
-        imageUrl: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1281,fit=crop/AGB2Mlr1kBCLQG4w/unnamed-1-YPqJJq3ZWphx96JN.jpg",
         features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning"]
       },
       {
@@ -140,7 +140,7 @@ export class MemStorage implements IStorage {
         price: 320,
         capacity: 4,
         size: 60,
-        imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai011-m8x6xQjkgDfEn2W3.jpg",
         features: ["Queen Bed", "Sofa Bed", "Lake View", "Dining Area"]
       }
     ];
@@ -179,12 +179,12 @@ export class MemStorage implements IStorage {
       {
         name: "Lake Activities",
         description: "Enjoy the serenity of the lake with activities like kayaking, paddleboarding, and fishing available right from our private dock.",
-        imageUrl: "https://images.unsplash.com/photo-1472745433479-4556f22e32c2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80"
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/koggala-lake-boat-ride-AvQ70njKxkUjwyPL.jpg"
       },
       {
         name: "Nature Trails",
         description: "Explore the surrounding natural beauty with guided or self-guided hikes on nearby trails suitable for all fitness levels.",
-        imageUrl: "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80"
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1000,h=667,fit=crop/AGB2Mlr1kBCLQG4w/tea-plantations-1-m2EKDDE4lRc4J17Z.jpg"
       },
       {
         name: "Cultural Experiences",
@@ -200,13 +200,13 @@ export class MemStorage implements IStorage {
       {
         name: "Private Chef Services",
         description: "Our private chef service brings the restaurant experience to your accommodation. Enjoy personalized menus featuring fresh local ingredients and international cuisine, tailored to your preferences and dietary requirements.",
-        imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/kl-f-b-dsc00296-mgQWz7X80bTR8xgZ.jpg",
         features: ["Customized menu planning", "Local and international cuisine options", "Dietary accommodations available", "Breakfast, lunch, dinner, and special occasion services"]
       },
       {
         name: "Dining Experiences",
         description: "Create unforgettable dining memories with our specialized dining experiences. From romantic lakeside dinners to family barbecues, we can arrange a variety of dining options to enhance your stay.",
-        imageUrl: "https://images.pixabay.com/photo/2020/02/02/17/00/travel-4813658_1280.jpg",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1600,h=1066,fit=crop/AGB2Mlr1kBCLQG4w/g-dining-area-dai058-m1a6OOOGJVI1xlW7.jpg",
         features: ["Lakeside romantic dinners", "Family barbecue setups", "Picnic baskets for outings", "Special celebration catering"]
       }
     ];
