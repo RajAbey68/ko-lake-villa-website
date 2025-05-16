@@ -490,7 +490,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/image-proxy", async (req, res) => {
     const imageUrl = req.query.url as string;
     
+    console.log(`[IMAGE PROXY] Received request for: ${imageUrl}`);
+    
     if (!imageUrl) {
+      console.log('[IMAGE PROXY] Error: No URL provided');
       return res.status(400).json({ message: "No image URL provided" });
     }
     
@@ -498,17 +501,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Import axios here to avoid hoisting issues
       const axios = require('axios');
       
+      console.log(`[IMAGE PROXY] Fetching from external source: ${imageUrl}`);
+      
       // Add default user agent and referer to appear like a browser request
       const response = await axios.get(imageUrl, {
         responseType: 'arraybuffer',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Referer': 'https://kolakehouse.com/'
-        }
+          'Referer': 'https://kolakehouse.com/',
+          'Origin': 'https://kolakehouse.com'
+        },
+        // Increase timeout for slow connections
+        timeout: 10000
       });
+      
+      // Log success
+      console.log(`[IMAGE PROXY] Successfully fetched image, size: ${response.data.length} bytes`);
       
       // Determine the content type from the response headers or default to image/jpeg
       const contentType = response.headers['content-type'] || 'image/jpeg';
+      console.log(`[IMAGE PROXY] Content type: ${contentType}`);
       
       // Set the content type header for the response
       res.set('Content-Type', contentType);
@@ -519,7 +531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send the image data
       res.send(response.data);
     } catch (error: any) {
-      console.error('Image proxy error:', error);
+      console.error('[IMAGE PROXY] Error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       res.status(500).json({ 
         message: "Failed to retrieve image",
