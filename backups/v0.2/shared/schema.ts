@@ -79,6 +79,7 @@ export const galleryImages = pgTable("gallery_images", {
   featured: boolean("featured").default(false).notNull(), // Flag for featured images
   sortOrder: integer("sort_order").default(0).notNull(), // For custom ordering within a category
   mediaType: text("media_type").default("image").notNull(), // "image" or "video"
+  fileSize: integer("file_size").default(0), // File size in bytes
 });
 
 export const insertGalleryImageSchema = createInsertSchema(galleryImages).extend({

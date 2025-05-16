@@ -10,6 +10,7 @@ import { useAnalytics } from "./hooks/use-analytics";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import Home from "@/pages/Home";
 import Accommodation from "@/pages/Accommodation";
 import Dining from "@/pages/Dining";
@@ -24,6 +25,8 @@ import AdminLanding from "@/pages/admin/AdminLanding";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminGallery from "@/pages/admin/Gallery";
 import Statistics from "@/pages/admin/Statistics";
+import MediaExport from "@/pages/admin/MediaExport";
+import GoogleDriveExport from "@/pages/admin/GoogleDriveExport";
 
 function Router() {
   const [location] = useLocation();
@@ -51,6 +54,8 @@ function Router() {
           </Switch>
         </main>
         <Footer />
+        {/* WhatsApp contact button */}
+        <WhatsAppButton phoneNumber="+940711730345" />
       </div>
     );
   }
@@ -63,6 +68,8 @@ function Router() {
         <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/gallery" component={AdminGallery} />
         <Route path="/admin/statistics" component={Statistics} />
+        <Route path="/admin/export" component={MediaExport} />
+        <Route path="/admin/drive-export" component={GoogleDriveExport} />
         <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>

@@ -60,7 +60,7 @@ const Contact = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 bg-[#1E4E5F]">
+      <section className="relative pt-32 pb-20 bg-[#8B5E3C]">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl text-white font-display font-bold mb-6">Contact Us</h1>
           <p className="text-lg text-white max-w-3xl mx-auto">
@@ -88,70 +88,107 @@ const Contact = () => {
               </div>
               
               <div className="flex items-start mb-6">
-                <div className="mr-4 text-[#E8B87D] text-2xl">
+                <div className="mr-4 text-[#FF914D] text-2xl">
                   <i className="fas fa-phone-alt"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#1E4E5F] mb-1">Phone</h4>
+                  <h4 className="font-bold text-[#8B5E3C] mb-1">Phone</h4>
                   <p className="text-[#333333]">+94 071 173 0345</p>
+                  <a 
+                    href="tel:+940711730345" 
+                    className="inline-block mt-2 bg-[#FF914D] hover:bg-[#8B5E3C] text-white px-4 py-2 rounded-full text-sm transition-colors"
+                  >
+                    <i className="fas fa-phone-alt mr-2"></i> Call Now
+                  </a>
                 </div>
               </div>
               
               <div className="flex items-start mb-6">
-                <div className="mr-4 text-[#E8B87D] text-2xl">
+                <div className="mr-4 text-[#FF914D] text-2xl">
                   <i className="fab fa-whatsapp"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#1E4E5F] mb-1">WhatsApp</h4>
+                  <h4 className="font-bold text-[#8B5E3C] mb-1">WhatsApp</h4>
                   <p className="text-[#333333]">+94 071 173 0345</p>
                   <a 
                     href="https://wa.me/940711730345" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-[#E8B87D] hover:text-[#1E4E5F] transition-colors"
+                    className="inline-block mt-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-2 rounded-full text-sm transition-colors"
                   >
-                    Message us on WhatsApp
+                    <i className="fab fa-whatsapp mr-2"></i> Chat on WhatsApp
                   </a>
                 </div>
               </div>
               
-              <div className="flex items-start">
-                <div className="mr-4 text-[#E8B87D] text-2xl">
+              <div className="flex items-start mb-6">
+                <div className="mr-4 text-[#FF914D] text-2xl">
                   <i className="fas fa-envelope"></i>
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#1E4E5F] mb-1">Email</h4>
+                  <h4 className="font-bold text-[#8B5E3C] mb-1">Email</h4>
                   <p className="text-[#333333]">contact@KoLakeHouse.com</p>
+                  <a 
+                    href="mailto:contact@KoLakeHouse.com" 
+                    className="inline-block mt-2 bg-[#62C3D2] hover:bg-[#8B5E3C] text-white px-4 py-2 rounded-full text-sm transition-colors"
+                  >
+                    <i className="fas fa-envelope mr-2"></i> Send Email
+                  </a>
                 </div>
               </div>
 
               <div className="mt-10 pt-6 border-t border-gray-200">
-                <h4 className="font-bold text-[#1E4E5F] mb-4">Follow Us</h4>
-                <div className="flex space-x-4">
+                <h4 className="font-bold text-[#8B5E3C] mb-4">Follow Us</h4>
+                <div className="flex flex-wrap gap-4">
                   <a 
                     href="https://facebook.com" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="bg-[#E6D9C7] text-[#1E4E5F] hover:bg-[#E8B87D] hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                    className="bg-[#1877F2] text-white hover:bg-[#166FE5] px-4 py-2 rounded-md flex items-center justify-center transition-colors"
                   >
-                    <i className="fab fa-facebook-f"></i>
+                    <i className="fab fa-facebook-f mr-2"></i>
+                    <span>Facebook</span>
                   </a>
                   <a 
                     href="https://instagram.com" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="bg-[#E6D9C7] text-[#1E4E5F] hover:bg-[#E8B87D] hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                    className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] text-white px-4 py-2 rounded-md flex items-center justify-center transition-colors"
                   >
-                    <i className="fab fa-instagram"></i>
+                    <i className="fab fa-instagram mr-2"></i>
+                    <span>Instagram</span>
                   </a>
                   <a 
                     href="https://tripadvisor.com" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="bg-[#E6D9C7] text-[#1E4E5F] hover:bg-[#E8B87D] hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                    className="bg-[#34E0A1] text-white hover:bg-[#00AF63] px-4 py-2 rounded-md flex items-center justify-center transition-colors"
                   >
-                    <i className="fab fa-tripadvisor"></i>
+                    <i className="fab fa-tripadvisor mr-2"></i>
+                    <span>TripAdvisor</span>
                   </a>
+                </div>
+                
+                <div className="mt-6 bg-[#FDF6EE] p-4 rounded-lg border border-[#A0B985] shadow-sm">
+                  <h4 className="font-bold text-[#8B5E3C] mb-2">Book Direct Benefits</h4>
+                  <ul className="text-[#333333] space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-[#FF914D] mr-2">✓</span>
+                      <span>Best rates guaranteed</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-[#FF914D] mr-2">✓</span>
+                      <span>Flexible cancellation policy</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-[#FF914D] mr-2">✓</span>
+                      <span>Personalized attention</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-[#FF914D] mr-2">✓</span>
+                      <span>Special requests accommodated</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
