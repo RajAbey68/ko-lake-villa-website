@@ -12,7 +12,8 @@ import {
   MessageSquareIcon, 
   MailIcon,
   LogOutIcon,
-  DownloadIcon
+  DownloadIcon,
+  CloudUploadIcon
 } from 'lucide-react';
 
 export default function AdminLanding() {
@@ -178,7 +179,25 @@ export default function AdminLanding() {
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-[#8B5E3C]">Media Export</h3>
-                      <p className="text-[#8B5E3C]/70">Download media files for migration</p>
+                      <p className="text-[#8B5E3C]/70">Download media as ZIP archive</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+          
+          <Link href="/admin/drive-export">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                      <CloudUploadIcon className="h-8 w-8 text-[#FF914D]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Google Drive Export</h3>
+                      <p className="text-[#8B5E3C]/70">Upload media to Google Drive</p>
                     </div>
                   </div>
                 </CardContent>
