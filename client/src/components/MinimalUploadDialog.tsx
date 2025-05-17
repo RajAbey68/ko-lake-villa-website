@@ -7,6 +7,7 @@ import { useToast } from '../hooks/use-toast';
 import { uploadFile } from '../lib/firebaseStorage';
 
 const galleryCategories = [
+  { value: "all-villa", label: "All Villa" },
   { value: "family-suite", label: "Family Suite" },
   { value: "group-room", label: "Group Room" },
   { value: "triple-room", label: "Triple Room" },
