@@ -433,7 +433,7 @@ const Gallery = () => {
                         
                         {/* The actual image */}
                         <img 
-                          src={image.imageUrl}
+                          src={`/api/image-proxy?url=${encodeURIComponent(image.imageUrl)}`}
                           alt={image.alt}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10 relative"
                           style={{backgroundColor: 'transparent'}}
