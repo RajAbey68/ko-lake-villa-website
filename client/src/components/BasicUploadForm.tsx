@@ -14,7 +14,7 @@ export default function BasicUploadForm({ open, onClose, onSuccess }: BasicUploa
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [alt, setAlt] = useState('');
-  const [category, setCategory] = useState('family-suite');
+  const [category, setCategory] = useState('all-villa');
   const [uploadType, setUploadType] = useState('file');
   const [mediaType, setMediaType] = useState('image');
   
