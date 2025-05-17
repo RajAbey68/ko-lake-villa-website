@@ -350,17 +350,17 @@ export default function VideoUploader() {
                   <Button 
                     type="submit" 
                     className="w-full bg-[#FF914D] hover:bg-[#FF914D]/90 text-white"
-                    disabled={uploading || !selectedFile}
+                    disabled={uploading || !selectedFiles || fileNames.length === 0}
                   >
                     {uploading ? (
                       <>
                         <LoadingIcon className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading Video...
+                        Uploading {fileNames.length > 1 ? `${fileNames.length} Videos...` : 'Video...'}
                       </>
                     ) : (
                       <>
                         <UploadIcon className="mr-2 h-4 w-4" />
-                        Upload Video
+                        {fileNames.length > 1 ? `Upload ${fileNames.length} Videos` : 'Upload Video'}
                       </>
                     )}
                   </Button>
@@ -407,6 +407,34 @@ export default function VideoUploader() {
                 </CardContent>
               </Card>
               
+              {/* Recently Uploaded (if any) */}
+              {uploadedVideos.length > 0 && (
+                <Card className="bg-white border border-[#A0B985]/20 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-[#8B5E3C]">Recently Uploaded</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {uploadedVideos.map((video, index) => (
+                        <div 
+                          key={index} 
+                          className={`p-2 text-sm rounded flex items-center gap-2 ${
+                            video.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                          }`}
+                        >
+                          {video.success ? (
+                            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                          )}
+                          <span className="truncate">{video.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
               {/* Upload Tips */}
               <Card className="bg-white border border-[#A0B985]/20">
                 <CardHeader>
@@ -414,9 +442,15 @@ export default function VideoUploader() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-1">
+                    <h3 className="font-medium text-[#8B5E3C]">Multiple Video Upload</h3>
+                    <p className="text-sm text-[#8B5E3C]/70">
+                      You can now select multiple videos at once for batch upload. Each video will be processed individually.
+                    </p>
+                  </div>
+                  <div className="space-y-1">
                     <h3 className="font-medium text-[#8B5E3C]">File Size</h3>
                     <p className="text-sm text-[#8B5E3C]/70">
-                      Videos should be under 500MB for direct upload. For larger videos, consider using YouTube and embedding.
+                      Videos should be under 500MB each for direct upload. For larger videos, consider using YouTube and embedding.
                     </p>
                   </div>
                   <div className="space-y-1">
