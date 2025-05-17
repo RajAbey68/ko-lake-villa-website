@@ -122,7 +122,7 @@ export class MemStorage implements IStorage {
         price: 250,
         capacity: 2,
         size: 45,
-        imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1224,h=816,fit=crop/AGB2Mlr1kBCLQG4w/first-room-YBgXv53jwGFkD4xD.jpg",
         features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom"]
       },
       {
@@ -131,7 +131,7 @@ export class MemStorage implements IStorage {
         price: 180,
         capacity: 2,
         size: 32,
-        imageUrl: "https://images.unsplash.com/photo-1598928636135-d146006ff4be?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1281,fit=crop/AGB2Mlr1kBCLQG4w/unnamed-1-YPqJJq3ZWphx96JN.jpg",
         features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning"]
       },
       {
@@ -140,7 +140,7 @@ export class MemStorage implements IStorage {
         price: 320,
         capacity: 4,
         size: 60,
-        imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai011-m8x6xQjkgDfEn2W3.jpg",
         features: ["Queen Bed", "Sofa Bed", "Lake View", "Dining Area"]
       }
     ];
@@ -179,17 +179,17 @@ export class MemStorage implements IStorage {
       {
         name: "Lake Activities",
         description: "Enjoy the serenity of the lake with activities like kayaking, paddleboarding, and fishing available right from our private dock.",
-        imageUrl: "https://images.unsplash.com/photo-1472745433479-4556f22e32c2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80"
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/koggala-lake-boat-ride-AvQ70njKxkUjwyPL.jpg"
       },
       {
         name: "Nature Trails",
         description: "Explore the surrounding natural beauty with guided or self-guided hikes on nearby trails suitable for all fitness levels.",
-        imageUrl: "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80"
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1000,h=667,fit=crop/AGB2Mlr1kBCLQG4w/tea-plantations-1-m2EKDDE4lRc4J17Z.jpg"
       },
       {
         name: "Cultural Experiences",
         description: "Immerse yourself in local culture with village visits, traditional cooking classes, and artisan craft workshops.",
-        imageUrl: "https://images.pixabay.com/photo/2016/11/08/05/11/children-1807511_1280.jpg"
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=945,h=630,fit=crop/AGB2Mlr1kBCLQG4w/dsc01272-mVL9DDb1e2SaGRbV.jpg"
       }
     ];
 
@@ -200,13 +200,13 @@ export class MemStorage implements IStorage {
       {
         name: "Private Chef Services",
         description: "Our private chef service brings the restaurant experience to your accommodation. Enjoy personalized menus featuring fresh local ingredients and international cuisine, tailored to your preferences and dietary requirements.",
-        imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        imageUrl: "/uploads/gallery/dining-area/KoggalaNinePeaks_dining-area_0.jpg",
         features: ["Customized menu planning", "Local and international cuisine options", "Dietary accommodations available", "Breakfast, lunch, dinner, and special occasion services"]
       },
       {
         name: "Dining Experiences",
         description: "Create unforgettable dining memories with our specialized dining experiences. From romantic lakeside dinners to family barbecues, we can arrange a variety of dining options to enhance your stay.",
-        imageUrl: "https://images.pixabay.com/photo/2020/02/02/17/00/travel-4813658_1280.jpg",
+        imageUrl: "/uploads/gallery/dining-area/KoggalaNinePeaks_dining-area_1.jpg",
         features: ["Lakeside romantic dinners", "Family barbecue setups", "Picnic baskets for outings", "Special celebration catering"]
       }
     ];
@@ -217,20 +217,20 @@ export class MemStorage implements IStorage {
     const sampleGalleryImages: InsertGalleryImage[] = [
       // Family Suite
       {
-        imageUrl: "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai011-m8x6xQjkgDfEn2W3.jpg",
         alt: "Family Suite Master Bedroom",
         category: "family-suite",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1582582621959-48d27397dc69?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai010-A2lXVP3M9WsLJWao.jpg",
         alt: "Family Suite Living Area",
         category: "family-suite",
         sortOrder: 2
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai012-Y9Pe5oDrPOf0ZB8P.jpg",
         alt: "Family Suite Bathroom",
         category: "family-suite",
         sortOrder: 3
@@ -238,14 +238,14 @@ export class MemStorage implements IStorage {
       
       // Group Room
       {
-        imageUrl: "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-group-room-dai009-mDV7ErkENRty01Qk.jpg",
         alt: "Group Room with Multiple Beds",
         category: "group-room",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-group-room-dai008-YBgXvLryaaCLDXz1.jpg",
         alt: "Group Room Seating Area",
         category: "group-room",
         sortOrder: 2
@@ -253,14 +253,14 @@ export class MemStorage implements IStorage {
       
       // Triple Room
       {
-        imageUrl: "https://images.unsplash.com/photo-1540518614846-7eded433c457?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-triple-room-dai007-mv1p7xJpK6Spv90E.jpg",
         alt: "Triple Room Overview",
         category: "triple-room",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1595526228415-4c7bea711c2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-triple-room-dai006-Y9Pe5xXQvkcOzBXO.jpg",
         alt: "Triple Room Writing Desk",
         category: "triple-room",
         sortOrder: 2
@@ -268,14 +268,14 @@ export class MemStorage implements IStorage {
       
       // Dining Area
       {
-        imageUrl: "https://images.unsplash.com/photo-1514516345957-556ca7d90a29?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1600,h=1066,fit=crop/AGB2Mlr1kBCLQG4w/g-dining-area-dai058-m1a6OOOGJVI1xlW7.jpg",
         alt: "Main Dining Area",
         category: "dining-area",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1586195830864-b87abacec993?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/kl-f-b-dsc00296-mgQWz7X80bTR8xgZ.jpg",
         alt: "Private Dining Nook",
         category: "dining-area",
         sortOrder: 2
@@ -283,14 +283,14 @@ export class MemStorage implements IStorage {
       
       // Pool Deck
       {
-        imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/10-min-YBgXvBnVyGh7vyP4.jpg",
         alt: "Pool Deck with Loungers",
         category: "pool-deck",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=720,fit=crop/AGB2Mlr1kBCLQG4w/11-min-YBgXvBJQ86f0DNRG.jpg",
         alt: "Pool Deck Sunset View",
         category: "pool-deck",
         sortOrder: 2
@@ -298,14 +298,14 @@ export class MemStorage implements IStorage {
       
       // Lake Garden
       {
-        imageUrl: "https://images.unsplash.com/photo-1558521558-037f1cb027c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-front-garden-dai034-AalZ87Xe9Pfr3xOl.jpg",
         alt: "Lake Garden Pathway",
         category: "lake-garden",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-lake-garden-dai028-mp10JLzNZRC7KWED.jpg",
         alt: "Lake Garden Seating Area",
         category: "lake-garden",
         sortOrder: 2
@@ -313,14 +313,14 @@ export class MemStorage implements IStorage {
       
       // Roof Garden
       {
-        imageUrl: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-roof-garden-dai039-dOVD8wLlv9sO90XG.jpg",
         alt: "Roof Garden Panoramic View",
         category: "roof-garden",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1620219655479-763fb8f8784a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-roof-garden-dai037-dOVD8w7z1VuLKeW8.jpg",
         alt: "Roof Garden Lounge Area",
         category: "roof-garden",
         sortOrder: 2
@@ -328,14 +328,14 @@ export class MemStorage implements IStorage {
       
       // Front Garden and Entrance
       {
-        imageUrl: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1280,fit=crop/AGB2Mlr1kBCLQG4w/1-min-AoPWZwpbLZTW8Rr7.jpg",
         alt: "Villa Main Entrance",
         category: "front-garden",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1570737209810-87a8e7245f88?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-front-garden-dai027-dOVD8w6n9yt7GNB8.jpg",
         alt: "Front Garden Path",
         category: "front-garden",
         sortOrder: 2
@@ -343,14 +343,14 @@ export class MemStorage implements IStorage {
       
       // Koggala Lake Ahangama and Surrounding
       {
-        imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/koggala-lake-boat-ride-AvQ70njKxkUjwyPL.jpg",
         alt: "Koggala Lake Aerial View",
         category: "koggala-lake",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1631679706909-1844bbd07221?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/1-dsc00005-1-min-AoPWZwXByQhnVvBG.jpg",
         alt: "Koggala Lake Traditional Fishing Boats",
         category: "koggala-lake",
         sortOrder: 2
@@ -358,14 +358,14 @@ export class MemStorage implements IStorage {
       
       // Excursions
       {
-        imageUrl: "https://images.unsplash.com/photo-1586500036066-55435f49e071?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=945,h=630,fit=crop/AGB2Mlr1kBCLQG4w/dsc01272-mVL9DDb1e2SaGRbV.jpg",
         alt: "Local Temple Visit",
         category: "excursions",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://images.unsplash.com/photo-1606165210513-5e3214da0029?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1000,h=667,fit=crop/AGB2Mlr1kBCLQG4w/tea-plantations-1-m2EKDDE4lRc4J17Z.jpg",
         alt: "Beach Excursion",
         category: "excursions",
         sortOrder: 2

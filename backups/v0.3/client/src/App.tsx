@@ -28,6 +28,9 @@ import Statistics from "@/pages/admin/Statistics";
 import MediaExport from "@/pages/admin/MediaExport";
 import GoogleDriveExport from "@/pages/admin/GoogleDriveExport";
 import ImageUploader from "@/pages/admin/ImageUploader";
+import UploadImages from "@/pages/admin/UploadImages";
+import BulkUploader from "@/pages/admin/BulkUploader";
+import GalleryUploader from "@/pages/admin/GalleryUploader";
 
 function Router() {
   const [location] = useLocation();
@@ -71,7 +74,10 @@ function Router() {
         <Route path="/admin/statistics" component={Statistics} />
         <Route path="/admin/export" component={MediaExport} />
         <Route path="/admin/drive-export" component={GoogleDriveExport} />
-        <Route path="/admin/upload-images" component={ImageUploader} />
+        <Route path="/admin/upload-images" component={UploadImages} />
+        <Route path="/admin/image-uploader" component={ImageUploader} />
+        <Route path="/admin/bulk-uploader" component={BulkUploader} />
+        <Route path="/admin/gallery-uploader" component={GalleryUploader} />
         <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>

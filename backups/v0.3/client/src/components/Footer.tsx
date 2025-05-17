@@ -52,8 +52,23 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-display text-2xl font-bold mb-4 whitespace-nowrap">Ko Lake Villa</h3>
+            <h3 className="font-display text-2xl font-bold mb-4 whitespace-nowrap">Ko Lake House</h3>
             <p className="mb-6">A boutique lakeside retreat offering luxury accommodation and personalized experiences in a serene natural setting.</p>
+            <div className="mb-4">
+              <p className="font-medium mb-2">Our Websites:</p>
+              <ul className="space-y-1">
+                <li>
+                  <a href="https://www.KoLakeHouse.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors">
+                    www.KoLakeHouse.com
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.KoggalaNinePeaks.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors">
+                    www.KoggalaNinePeaks.com
+                  </a>
+                </li>
+              </ul>
+            </div>
             <div className="flex space-x-4">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-[#FDF6EE] hover:text-[#FF914D] transition-colors" aria-label="Facebook">
                 <i className="fab fa-facebook-f text-xl"></i>
@@ -84,11 +99,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <i className="fas fa-map-marker-alt mt-1 mr-3"></i>
-                <span>Ko Lake Villa, Lake Road, Koggala Lake, Sri Lanka</span>
+                <span>Ko Lake House, Lake Road, Koggala Lake, Sri Lanka</span>
               </li>
               <li className="flex items-start">
                 <i className="fas fa-phone-alt mt-1 mr-3"></i>
-                <span>+94 071 173 0345</span>
+                <span>+94 711730345</span>
               </li>
               <li className="flex items-start">
                 <i className="fas fa-envelope mt-1 mr-3"></i>
@@ -131,7 +146,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-[#FDF6EE] border-opacity-20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p>&copy; {new Date().getFullYear()} Ko Lake Villa. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Ko Lake House. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <Link href="/privacy-policy" className="hover:text-[#FF914D] transition-colors">Privacy Policy</Link>
             <Link href="/terms-of-service" className="hover:text-[#FF914D] transition-colors">Terms of Service</Link>
