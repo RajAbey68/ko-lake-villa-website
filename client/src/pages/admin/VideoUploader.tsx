@@ -44,14 +44,15 @@ export default function VideoUploader() {
   const { currentUser, isLoading, isAdmin } = useAuth();
   const [, navigate] = useLocation();
   
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [fileNames, setFileNames] = useState<string[]>([]);
   const [title, setTitle] = useState<string>("");
   const [category, setCategory] = useState<string>(GALLERY_CATEGORIES[0]);
   const [description, setDescription] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
+  const [uploadedVideos, setUploadedVideos] = useState<{name: string; success: boolean}[]>([]);
   
   // Authentication check
   useEffect(() => {
@@ -67,13 +68,22 @@ export default function VideoUploader() {
   // Handle file input change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      setFileName(file.name);
+      setSelectedFiles(e.target.files);
       
-      // Auto-fill title from filename (without extension)
-      const nameWithoutExt = file.name.split('.').slice(0, -1).join('.');
-      setTitle(nameWithoutExt.replace(/_/g, ' '));
+      // Get all file names
+      const names: string[] = [];
+      for (let i = 0; i < e.target.files.length; i++) {
+        names.push(e.target.files[i].name);
+      }
+      setFileNames(names);
+      
+      // Auto-fill title from the first filename (without extension) if multiple files
+      if (e.target.files.length === 1) {
+        const nameWithoutExt = e.target.files[0].name.split('.').slice(0, -1).join('.');
+        setTitle(nameWithoutExt.replace(/_/g, ' '));
+      } else {
+        setTitle(`${e.target.files.length} videos for ${category}`);
+      }
       
       // Reset any previous messages
       setMessage(null);
@@ -82,8 +92,10 @@ export default function VideoUploader() {
 
   // Handle direct file selection (for when file is selected from outside input)
   const handleDirectFileSelection = (file: File) => {
-    setSelectedFile(file);
-    setFileName(file.name);
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    setSelectedFiles(dataTransfer.files);
+    setFileNames([file.name]);
     
     // Auto-fill title from filename (without extension)
     const nameWithoutExt = file.name.split('.').slice(0, -1).join('.');
@@ -101,54 +113,80 @@ export default function VideoUploader() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedFile) {
-      setMessage({ type: 'error', text: 'Please select a video file to upload.' });
+    if (!selectedFiles || selectedFiles.length === 0) {
+      setMessage({ type: 'error', text: 'Please select at least one video file to upload.' });
       return;
     }
     
     setUploading(true);
     setMessage(null);
     setUploadProgress(0);
+    setUploadedVideos([]);
     
     try {
-      const formData = new FormData();
+      const totalFiles = selectedFiles.length;
+      const results: {name: string; success: boolean}[] = [];
       
-      formData.append('file', selectedFile);
-      formData.append('title', title);
-      formData.append('category', category);
-      formData.append('description', description);
-      formData.append('mediaType', 'video');
-      
-      // Use upload endpoint
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload video');
+      for (let i = 0; i < totalFiles; i++) {
+        const file = selectedFiles[i];
+        const formData = new FormData();
+        
+        // For multiple files, use filename as title
+        const videoTitle = totalFiles === 1 ? title : file.name.split('.').slice(0, -1).join('.');
+        
+        formData.append('file', file);
+        formData.append('title', videoTitle);
+        formData.append('category', category);
+        formData.append('description', description);
+        formData.append('mediaType', 'video');
+        
+        try {
+          // Use upload endpoint
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to upload video');
+          }
+          
+          await response.json();
+          results.push({ name: file.name, success: true });
+        } catch (error) {
+          console.error(`Upload error for ${file.name}:`, error);
+          results.push({ name: file.name, success: false });
+        }
+        
+        // Update progress
+        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
       }
       
-      const data = await response.json();
+      // Count successful uploads
+      const successCount = results.filter(r => r.success).length;
       
       setMessage({ 
         type: 'success', 
-        text: `Successfully uploaded "${title}" to the ${category} category.` 
+        text: `Successfully uploaded ${successCount} of ${totalFiles} videos to the ${category} category.` 
       });
       
-      // Reset form
-      setSelectedFile(null);
-      setFileName("");
-      setTitle("");
-      setDescription('');
+      setUploadedVideos(results);
       
-      // Reset file input value
-      const fileInput = document.getElementById('video-upload') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+      // Reset form if all uploads were successful
+      if (successCount === totalFiles) {
+        setSelectedFiles(null);
+        setFileNames([]);
+        setTitle("");
+        setDescription('');
+        
+        // Reset file input value
+        const fileInput = document.getElementById('video-upload') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      }
       
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Upload process error:', error);
       setMessage({ 
         type: 'error', 
         text: error instanceof Error ? error.message : 'An unknown error occurred during upload.' 
@@ -205,22 +243,32 @@ export default function VideoUploader() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* File Selection */}
                   <div className="space-y-2">
-                    <Label htmlFor="video-upload">Select Video File</Label>
+                    <Label htmlFor="video-upload">Select Video Files</Label>
                     <Input 
                       id="video-upload" 
                       type="file" 
                       accept="video/*" 
+                      multiple
                       onChange={handleFileChange}
                       disabled={uploading}
                       className="cursor-pointer"
                     />
                     <p className="text-sm text-gray-500">
-                      Supported formats: MP4, MOV, AVI. Maximum size: 500MB.
+                      You can select multiple videos. Supported formats: MP4, MOV, AVI. Maximum size: 500MB per video.
                     </p>
-                    {fileName && (
-                      <p className="text-sm font-medium text-[#FF914D]">
-                        Selected: {fileName}
-                      </p>
+                    {fileNames.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-sm font-medium text-[#FF914D] mb-1">
+                          {fileNames.length} video{fileNames.length > 1 ? 's' : ''} selected:
+                        </p>
+                        <div className="max-h-24 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
+                          {fileNames.map((name, index) => (
+                            <p key={index} className="text-xs text-gray-600 truncate mb-1">
+                              {index + 1}. {name}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                   
