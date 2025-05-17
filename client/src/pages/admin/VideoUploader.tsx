@@ -27,6 +27,7 @@ import { Progress } from "../../components/ui/progress";
 
 // Define the gallery categories to match your requirements
 const GALLERY_CATEGORIES = [
+  "All Villa",
   "Family Suite",
   "Group Room", 
   "Triple Room", 
