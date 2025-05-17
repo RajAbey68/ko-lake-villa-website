@@ -235,6 +235,16 @@ const Gallery = () => {
                 All
               </button>
               <button
+                onClick={() => handleCategoryChange('All Villa')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'All Villa'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                All Villa
+              </button>
+              <button
                 onClick={() => handleCategoryChange('Family Suite')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
                   selectedCategory === 'Family Suite'
