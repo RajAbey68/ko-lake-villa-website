@@ -63,7 +63,14 @@ const Experiences = () => {
                   <img 
                     src={activity.imageUrl} 
                     alt={activity.name} 
-                    className="w-full h-56 object-cover" 
+                    className="w-full h-56 object-cover"
+                    onError={(e) => {
+                      console.log(`Experience image failed to load: ${activity.imageUrl}`);
+                      // Only fade the image rather than showing a placeholder
+                      const target = e.target as HTMLImageElement;
+                      target.style.opacity = '0.2';
+                      target.style.filter = 'grayscale(100%)';
+                    }}
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-display font-bold text-[#1E4E5F] mb-2">{activity.name}</h3>

@@ -29,9 +29,14 @@ if (!fs.existsSync(GALLERY_DIR)) {
 // Set up multer for file uploads
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Always use the default directory for simplicity
-    // This ensures consistency between uploads and serving
-    const destination = path.join(GALLERY_DIR, 'default');
+    // Get category from request body, default to 'default' if not provided
+    const category = req.body.category || 'default';
+    
+    // Sanitize the category name to prevent directory traversal
+    const safeCategory = category.replace(/[^a-zA-Z0-9 -]/g, '_');
+    
+    // Create path to category directory
+    const destination = path.join(GALLERY_DIR, safeCategory);
     
     // Create directory if it doesn't exist
     if (!fs.existsSync(destination)) {
@@ -57,6 +62,7 @@ const upload = multer({
 
 import { exportToGoogleDrive } from './googleDriveExport';
 import { checkDbHealth } from './db';
+import { scrapeWebsiteHandler, scrapeMultipleWebsites } from './scraper';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
@@ -170,6 +176,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ 
           message: "Failed to process uploaded file",
           error: error?.message || 'Unknown error'
+        });
+      }
+    });
+  });
+  
+  // Gallery image upload endpoint
+  app.post("/api/gallery/upload", (req, res) => {
+    console.log("Gallery upload endpoint called");
+    
+    upload.single('image')(req, res, async (err) => {
+      if (err) {
+        console.error("Gallery upload error:", err);
+        return res.status(500).json({ 
+          message: "Gallery image upload failed",
+          error: err.message
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No image uploaded" });
+      }
+      
+      try {
+        // Extract form data
+        const { category, alt, description, featured, sortOrder } = req.body;
+        
+        // Create relative path for database
+        const filePath = req.file.path;
+        const relativePath = '/' + path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+        
+        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}`);
+        
+        // Get file size
+        const stats = fs.statSync(filePath);
+        const fileSize = stats.size;
+        
+        // Create gallery image in database
+        const galleryImage = await dataStorage.createGalleryImage({
+          imageUrl: relativePath,
+          alt: alt || 'Ko Lake Villa Image',
+          description: description || null,
+          category: category,
+          featured: featured === 'true',
+          sortOrder: parseInt(sortOrder) || 1,
+          mediaType: 'image',
+          fileSize: fileSize,
+          tags: category
+        });
+        
+        res.json({ 
+          message: "Gallery image uploaded successfully",
+          data: galleryImage
+        });
+      } catch (error) {
+        console.error("Error creating gallery image entry:", error);
+        if (req.file && req.file.path) {
+          // Clean up the uploaded file if database operation failed
+          try {
+            fs.unlinkSync(req.file.path);
+          } catch (unlinkError) {
+            console.error("Failed to clean up uploaded file:", unlinkError);
+          }
+        }
+        res.status(500).json({ 
+          message: "Failed to create gallery image entry",
+          error: error instanceof Error ? error.message : "Unknown error" 
         });
       }
     });
@@ -477,6 +549,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
+  // Image proxy to bypass CORS restrictions
+  app.get("/api/image-proxy", async (req, res) => {
+    const imageUrl = req.query.url as string;
+    
+    console.log(`[IMAGE PROXY] Received request for: ${imageUrl}`);
+    
+    if (!imageUrl) {
+      console.log('[IMAGE PROXY] Error: No URL provided');
+      return res.status(400).json({ message: "No image URL provided" });
+    }
+    
+    try {
+      // Import axios here to avoid hoisting issues
+      const axios = require('axios');
+      
+      console.log(`[IMAGE PROXY] Fetching from external source: ${imageUrl}`);
+      
+      // Add default user agent and referer to appear like a browser request
+      const response = await axios.get(imageUrl, {
+        responseType: 'arraybuffer',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Referer': 'https://kolakehouse.com/',
+          'Origin': 'https://kolakehouse.com'
+        },
+        // Increase timeout for slow connections
+        timeout: 10000
+      });
+      
+      // Log success
+      console.log(`[IMAGE PROXY] Successfully fetched image, size: ${response.data.length} bytes`);
+      
+      // Determine the content type from the response headers or default to image/jpeg
+      const contentType = response.headers['content-type'] || 'image/jpeg';
+      console.log(`[IMAGE PROXY] Content type: ${contentType}`);
+      
+      // Set the content type header for the response
+      res.set('Content-Type', contentType);
+      
+      // Set cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      
+      // Send the image data
+      res.send(response.data);
+    } catch (error: any) {
+      console.error('[IMAGE PROXY] Error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ 
+        message: "Failed to retrieve image",
+        error: errorMessage
+      });
     }
   });
 

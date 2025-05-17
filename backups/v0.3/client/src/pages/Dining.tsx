@@ -72,6 +72,13 @@ const Dining = () => {
                     src={option.imageUrl} 
                     alt={option.name} 
                     className="w-full h-64 object-cover rounded-lg mb-6"
+                    onError={(e) => {
+                      console.log(`Image failed to load: ${option.imageUrl}`);
+                      // Only fade the image rather than using a placeholder
+                      const target = e.target as HTMLImageElement;
+                      target.style.opacity = '0.2';
+                      target.style.filter = 'grayscale(100%)';
+                    }}
                   />
                   <p className="text-[#333333] mb-6">{option.description}</p>
                   <ul className="text-[#333333] mb-6">

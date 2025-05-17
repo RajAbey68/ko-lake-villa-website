@@ -76,7 +76,16 @@ const Accommodation = () => {
                 <div key={room.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover-scale">
                   <div className="md:flex">
                     <div className="md:w-2/5">
-                      <img src={room.imageUrl} alt={room.name} className="w-full h-64 md:h-full object-cover" />
+                      <img 
+                        src={room.imageUrl} 
+                        alt={room.name} 
+                        className="w-full h-64 md:h-full object-cover" 
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80';
+                          console.log(`Image failed to load: ${room.imageUrl}`);
+                        }}
+                      />
                     </div>
                     <div className="md:w-3/5 p-6">
                       <h3 className="text-2xl font-display font-bold text-[#1E4E5F] mb-3">{room.name}</h3>
