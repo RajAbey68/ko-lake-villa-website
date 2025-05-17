@@ -423,9 +423,9 @@ export default function VideoUploader() {
                           }`}
                         >
                           {video.success ? (
-                            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                            <SuccessIcon className="h-4 w-4 flex-shrink-0" />
                           ) : (
-                            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                            <ErrorIcon className="h-4 w-4 flex-shrink-0" />
                           )}
                           <span className="truncate">{video.name}</span>
                         </div>

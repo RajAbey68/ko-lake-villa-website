@@ -151,24 +151,47 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  // Function to get a proxied URL for external images
+  // Function to handle image URLs properly
   const getProxiedImageUrl = (url: string) => {
-    // Check if it's already an absolute URL
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      // External URL - needs proxying
-      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-      console.log(`[Gallery] Proxying external URL: ${url} -> ${proxiedUrl}`);
-      return proxiedUrl;
-    } else if (url.startsWith('/uploads/')) {
-      // Internal URL - use as is
-      console.log(`[Gallery] Using local URL: ${url}`);
-      return url;
-    } else {
-      // Assume it's a relative URL missing the protocol
-      const fullUrl = `https://${url}`;
-      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(fullUrl)}`;
-      console.log(`[Gallery] Adding protocol and proxying: ${url} -> ${proxiedUrl}`);
-      return proxiedUrl;
+    // If the URL is empty or undefined, return a placeholder image
+    if (!url) {
+      console.error('[Gallery] Empty image URL');
+      return '/placeholder-image.jpg';
+    }
+
+    try {
+      // Check if it's already an absolute URL
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        // For zyrosite.com URLs, always proxy them
+        if (url.includes('zyrosite.com') || url.includes('assets.zyro')) {
+          const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+          console.log(`[Gallery] Proxying zyrosite URL: ${url}`);
+          return proxiedUrl;
+        }
+        
+        // Other external URLs can be used directly
+        console.log(`[Gallery] Using external URL directly: ${url}`);
+        return url;
+      } else if (url.startsWith('/uploads/')) {
+        // Internal URL - use as is
+        console.log(`[Gallery] Using local URL: ${url}`);
+        return url;
+      } else {
+        // Try to construct a proper URL
+        try {
+          new URL(url); // This will throw if invalid
+          console.log(`[Gallery] Valid URL format: ${url}`);
+          return url;
+        } catch (e) {
+          // Assume it's a relative URL missing the protocol
+          const fullUrl = `https://${url}`;
+          console.log(`[Gallery] Adding https to URL: ${fullUrl}`);
+          return fullUrl;
+        }
+      }
+    } catch (error) {
+      console.error(`[Gallery] Error processing URL: ${url}`, error);
+      return url; // Return original URL as fallback
     }
   };
 
