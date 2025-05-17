@@ -235,9 +235,9 @@ const Gallery = () => {
                 All
               </button>
               <button
-                onClick={() => handleCategoryChange('family-suite')}
+                onClick={() => handleCategoryChange('Family Suite')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'family-suite'
+                  selectedCategory === 'Family Suite'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -245,9 +245,9 @@ const Gallery = () => {
                 Family Suite
               </button>
               <button
-                onClick={() => handleCategoryChange('group-room')}
+                onClick={() => handleCategoryChange('Group Room')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'group-room'
+                  selectedCategory === 'Group Room'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -255,9 +255,9 @@ const Gallery = () => {
                 Group Room
               </button>
               <button
-                onClick={() => handleCategoryChange('triple-room')}
+                onClick={() => handleCategoryChange('Triple Room')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'triple-room'
+                  selectedCategory === 'Triple Room'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -265,9 +265,9 @@ const Gallery = () => {
                 Triple Room
               </button>
               <button
-                onClick={() => handleCategoryChange('dining-area')}
+                onClick={() => handleCategoryChange('Dining Area')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'dining-area'
+                  selectedCategory === 'Dining Area'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -275,9 +275,9 @@ const Gallery = () => {
                 Dining Area
               </button>
               <button
-                onClick={() => handleCategoryChange('pool-deck')}
+                onClick={() => handleCategoryChange('Pool Deck')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'pool-deck'
+                  selectedCategory === 'Pool Deck'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -285,9 +285,9 @@ const Gallery = () => {
                 Pool Deck
               </button>
               <button
-                onClick={() => handleCategoryChange('lake-garden')}
+                onClick={() => handleCategoryChange('Lake Garden')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'lake-garden'
+                  selectedCategory === 'Lake Garden'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -295,9 +295,9 @@ const Gallery = () => {
                 Lake Garden
               </button>
               <button
-                onClick={() => handleCategoryChange('roof-garden')}
+                onClick={() => handleCategoryChange('Roof Garden')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'roof-garden'
+                  selectedCategory === 'Roof Garden'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -305,9 +305,9 @@ const Gallery = () => {
                 Roof Garden
               </button>
               <button
-                onClick={() => handleCategoryChange('front-garden')}
+                onClick={() => handleCategoryChange('Front Garden and Entrance')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'front-garden'
+                  selectedCategory === 'Front Garden and Entrance'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -315,9 +315,9 @@ const Gallery = () => {
                 Front Garden & Entrance
               </button>
               <button
-                onClick={() => handleCategoryChange('koggala-lake')}
+                onClick={() => handleCategoryChange('Koggala Lake Ahangama and Surrounding')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'koggala-lake'
+                  selectedCategory === 'Koggala Lake Ahangama and Surrounding'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -325,9 +325,9 @@ const Gallery = () => {
                 Koggala Lake & Surrounding
               </button>
               <button
-                onClick={() => handleCategoryChange('excursions')}
+                onClick={() => handleCategoryChange('Excursions')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'excursions'
+                  selectedCategory === 'Excursions'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
