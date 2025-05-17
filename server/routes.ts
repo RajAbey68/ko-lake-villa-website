@@ -13,6 +13,7 @@ import { ZodError } from "zod-validation-error";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import axios from "axios";
 
 // Create upload directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');

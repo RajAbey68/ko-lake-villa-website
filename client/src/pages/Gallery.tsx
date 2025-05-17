@@ -153,13 +153,23 @@ const Gallery = () => {
 
   // Function to get a proxied URL for external images
   const getProxiedImageUrl = (url: string) => {
-    // Only proxy external URLs that might have CORS issues
-    if (url.includes('zyrosite.com') || url.includes('assets.zyro')) {
+    // Check if it's already an absolute URL
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      // External URL - needs proxying
       const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-      console.log(`[Gallery] Proxying image URL: ${url} -> ${proxiedUrl}`);
+      console.log(`[Gallery] Proxying external URL: ${url} -> ${proxiedUrl}`);
+      return proxiedUrl;
+    } else if (url.startsWith('/uploads/')) {
+      // Internal URL - use as is
+      console.log(`[Gallery] Using local URL: ${url}`);
+      return url;
+    } else {
+      // Assume it's a relative URL missing the protocol
+      const fullUrl = `https://${url}`;
+      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(fullUrl)}`;
+      console.log(`[Gallery] Adding protocol and proxying: ${url} -> ${proxiedUrl}`);
       return proxiedUrl;
     }
-    return url;
   };
 
   // Fetch gallery images and process URLs
