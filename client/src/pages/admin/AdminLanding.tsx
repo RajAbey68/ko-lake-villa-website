@@ -14,7 +14,8 @@ import {
   LogOutIcon,
   DownloadIcon,
   CloudUploadIcon,
-  Upload as UploadIcon
+  Upload as UploadIcon,
+  Video as VideoIcon
 } from 'lucide-react';
 
 export default function AdminLanding() {
@@ -254,6 +255,25 @@ export default function AdminLanding() {
                       <h3 className="text-xl font-semibold text-[#8B5E3C]">Gallery Uploader</h3>
                       <p className="text-[#8B5E3C]/70">Upload images by category</p>
                       <span className="inline-block px-2 py-1 mt-2 text-xs bg-[#FF914D]/20 text-[#FF914D] rounded">Recommended</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+          
+          <Link href="/admin/video-uploader">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985] bg-gradient-to-br from-[#FEF5ED] to-white">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                      <VideoIcon className="h-8 w-8 text-[#FF914D]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Video Uploader</h3>
+                      <p className="text-[#8B5E3C]/70">Upload large video files</p>
+                      <span className="inline-block px-2 py-1 mt-2 text-xs bg-[#FF914D]/20 text-[#FF914D] rounded">New!</span>
                     </div>
                   </div>
                 </CardContent>

@@ -31,6 +31,7 @@ import ImageUploader from "@/pages/admin/ImageUploader";
 import UploadImages from "@/pages/admin/UploadImages";
 import BulkUploader from "@/pages/admin/BulkUploader";
 import GalleryUploader from "@/pages/admin/GalleryUploader";
+import VideoUploader from "@/pages/admin/VideoUploader";
 
 function Router() {
   const [location] = useLocation();
@@ -78,6 +79,7 @@ function Router() {
         <Route path="/admin/image-uploader" component={ImageUploader} />
         <Route path="/admin/bulk-uploader" component={BulkUploader} />
         <Route path="/admin/gallery-uploader" component={GalleryUploader} />
+        <Route path="/admin/video-uploader" component={VideoUploader} />
         <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
