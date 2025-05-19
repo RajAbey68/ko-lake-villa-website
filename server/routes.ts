@@ -201,13 +201,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       try {
         // Extract form data
-        const { category, alt, description, featured, sortOrder } = req.body;
+        const { category, alt, description, featured, sortOrder, displaySize } = req.body;
         
         // Create relative path for database
         const filePath = req.file.path;
         const relativePath = '/' + path.relative(process.cwd(), filePath).replace(/\\/g, '/');
         
-        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}`);
+        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}, display size: ${displaySize || 'medium'}`);
         
         // Get file size
         const stats = fs.statSync(filePath);
@@ -222,6 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           featured: featured === 'true',
           sortOrder: parseInt(sortOrder) || 1,
           mediaType: 'image',
+          displaySize: displaySize || 'medium',
           fileSize: fileSize,
           tags: category
         });

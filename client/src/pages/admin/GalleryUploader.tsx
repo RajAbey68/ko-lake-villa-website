@@ -114,6 +114,7 @@ export default function GalleryUploader() {
         formData.append('description', description);
         formData.append('alt', file.name.split('.')[0]); // Use filename as alt text
         formData.append('featured', isFeatured.toString());
+        formData.append('displaySize', displaySize);
         formData.append('sortOrder', (i + 1).toString()); // Use index as sort order
         
         const response = await fetch('/api/gallery/upload', {
