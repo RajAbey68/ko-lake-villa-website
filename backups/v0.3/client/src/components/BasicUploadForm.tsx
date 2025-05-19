@@ -14,7 +14,7 @@ export default function BasicUploadForm({ open, onClose, onSuccess }: BasicUploa
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [alt, setAlt] = useState('');
-  const [category, setCategory] = useState('family-suite');
+  const [category, setCategory] = useState('all-villa');
   const [uploadType, setUploadType] = useState('file');
   const [mediaType, setMediaType] = useState('image');
   
@@ -220,6 +220,7 @@ export default function BasicUploadForm({ open, onClose, onSuccess }: BasicUploa
               onChange={(e) => setCategory(e.target.value)}
               style={{ width: '100%', padding: '8px', marginTop: '5px' }}
             >
+              <option value="all-villa">All Villa</option>
               <option value="family-suite">Family Suite</option>
               <option value="group-room">Group Room</option>
               <option value="triple-room">Triple Room</option>
