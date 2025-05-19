@@ -79,6 +79,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Image proxy endpoint to handle CORS and external images
+  app.get('/api/image-proxy', async (req, res) => {
+    const imageUrl = req.query.url as string;
+    
+    if (!imageUrl) {
+      return res.status(400).send('Missing URL parameter');
+    }
+    
+    try {
+      // Check if this is a local path starting with /uploads
+      if (imageUrl.startsWith('/uploads/')) {
+        // This is a local image, serve it directly from the filesystem
+        const localPath = path.join(process.cwd(), imageUrl);
+        
+        if (fs.existsSync(localPath)) {
+          // Get the file's mime type
+          const mimeType = imageUrl.endsWith('.jpg') || imageUrl.endsWith('.jpeg') ? 
+            'image/jpeg' : 
+            imageUrl.endsWith('.png') ? 
+              'image/png' : 
+              imageUrl.endsWith('.gif') ? 
+                'image/gif' : 
+                'application/octet-stream';
+                
+          res.setHeader('Content-Type', mimeType);
+          return fs.createReadStream(localPath).pipe(res);
+        } else {
+          console.error(`Local image not found: ${localPath}`);
+          return res.status(404).send('Image not found on server');
+        }
+      }
+      
+      // Otherwise, handle it as an external URL
+      const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+      const contentType = response.headers['content-type'];
+      
+      res.setHeader('Content-Type', contentType);
+      return res.send(response.data);
+    } catch (error) {
+      console.error(`Error proxying image: ${error}`);
+      return res.status(500).send('Error loading image');
+    }
+  });
+  
   // Helper function to list all files in a directory (recursive)
   function listAllFiles(dir: string): string[] {
     let results: string[] = [];
@@ -664,6 +708,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to retrieve image",
         error: errorMessage,
         url: imageUrl
+      });
+    }
+  });
+  
+  // Get gallery image details for debugging
+  app.get('/api/gallery/debug', async (req, res) => {
+    try {
+      // Get all gallery images
+      const images = await dataStorage.getGalleryImages();
+      
+      // Add file existence status
+      const imagesWithStatus = await Promise.all(images.map(async (image) => {
+        let fileExists = false;
+        let absolutePath = '';
+        
+        try {
+          if (image.imageUrl) {
+            // Handle paths
+            if (image.imageUrl.startsWith('/uploads/')) {
+              absolutePath = path.join(process.cwd(), image.imageUrl);
+              fileExists = fs.existsSync(absolutePath);
+            } else if (image.imageUrl.startsWith('/')) {
+              absolutePath = path.join(process.cwd(), image.imageUrl);
+              fileExists = fs.existsSync(absolutePath);
+            } else {
+              // Assume external URL
+              fileExists = true;
+            }
+          }
+        } catch (error) {
+          console.error(`Error checking file: ${image.imageUrl}`, error);
+        }
+        
+        return {
+          ...image,
+          debug: {
+            fileExists,
+            absolutePath,
+            relativePath: image.imageUrl
+          }
+        };
+      }));
+      
+      res.json({ 
+        count: images.length,
+        images: imagesWithStatus
+      });
+    } catch (error) {
+      console.error("Error getting gallery debug info:", error);
+      res.status(500).json({ 
+        message: "Failed to get gallery debug info", 
+        error: error instanceof Error ? error.message : "Unknown error" 
       });
     }
   });
