@@ -14,6 +14,8 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
   
   useEffect(() => {
     // Reset states when source changes
@@ -26,39 +28,67 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
       return;
     }
     
-    // Log information about this image URL for debugging
-    console.log(`Processing image URL: ${src}`);
+    // Function to generate proper image URL with cache-busting
+    const generateImageUrl = () => {
+      if (src.includes('zyrosite.com') || src.includes('assets.zyro')) {
+        // Use an image proxy service to bypass CORS
+        return `https://images.weserv.nl/?url=${encodeURIComponent(src)}`;
+      } else if (src.startsWith('/uploads/')) {
+        // For local uploaded files, ensure we use proper cache prevention
+        const timestamp = new Date().getTime();
+        return `${src}?nocache=${timestamp}`;
+      } else {
+        // Direct use for other URLs
+        return src;
+      }
+    };
     
-    // Convert to a working image URL through an image proxy service
-    if (src.includes('zyrosite.com') || src.includes('assets.zyro')) {
-      // Use an image proxy service to bypass CORS
-      setImgSrc(`https://images.weserv.nl/?url=${encodeURIComponent(src)}`);
-    } else if (src.startsWith('/uploads/')) {
-      // For local uploaded files, try direct access first with cache-busting
-      // Add a random query parameter to avoid browser caching
-      const cacheBuster = Math.random().toString(36).substring(2, 15);
-      setImgSrc(`${src}?nocache=${cacheBuster}`);
-    } else {
-      // Direct use for other URLs
-      setImgSrc(src);
+    // Set initial image source
+    setImgSrc(generateImageUrl());
+    
+    // Setup automatic retry mechanism for uploaded images
+    let retryTimer: number | undefined;
+    
+    if (src.startsWith('/uploads/')) {
+      retryTimer = window.setTimeout(() => {
+        if (retryCount < maxRetries) {
+          console.log(`Auto-refreshing image (attempt ${retryCount + 1}): ${src}`);
+          setRetryCount(c => c + 1);
+          setImgSrc(generateImageUrl());
+        }
+      }, 2000); // Try again after 2 seconds
     }
-  }, [src]);
+    
+    return () => {
+      if (retryTimer) window.clearTimeout(retryTimer);
+    };
+  }, [src, retryCount]);
   
   const handleImageLoad = () => {
     setLoading(false);
   };
   
   const handleImageError = () => {
-    // For local uploads, try using a direct path instead of proxy
+    // For local uploads, implement a robust fallback strategy
     if (imgSrc && imgSrc.startsWith('/uploads/')) {
+      // Extract the base path without any query parameters
+      const basePath = imgSrc.split('?')[0];
+      
       if (!imgSrc.includes('direct=true')) {
+        // First fallback: Try with direct mode
         console.log(`Local image failed to load: ${imgSrc}, trying with direct mode`);
-        const cacheBuster = Math.random().toString(36).substring(2, 15);
-        setImgSrc(`${imgSrc}?direct=true&nocache=${cacheBuster}`);
+        const timestamp = new Date().getTime();
+        setImgSrc(`${basePath}?direct=true&t=${timestamp}`);
         return;
       } else if (!imgSrc.includes('image-proxy')) {
+        // Second fallback: Try with image proxy API endpoint
         console.log(`Direct mode failed, trying with image proxy`);
-        setImgSrc(`/api/image-proxy?url=${encodeURIComponent(imgSrc.split('?')[0])}&t=${Date.now()}`);
+        setImgSrc(`/api/image-proxy?url=${encodeURIComponent(basePath)}&t=${Date.now()}`);
+        return;
+      } else if (retryCount < 3) {
+        // Third fallback: Try again with increased retry count (triggers useEffect)
+        console.log(`Image proxy failed, trying again automatically`);
+        setRetryCount(count => count + 1);
         return;
       }
     }
