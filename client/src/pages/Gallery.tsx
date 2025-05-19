@@ -460,7 +460,12 @@ const handleCategoryChange = (category: string | null) => {
           )}
 
           {/* Image Modal */}
-          <Dialog open={!!selectedImage} onOpenChange={() => closeImageModal()}>
+          <Dialog 
+            open={!!selectedImage} 
+            onOpenChange={(open) => {
+              if (!open) closeImageModal();
+            }}
+          >
             <DialogContent className="max-w-6xl bg-[#FDF6EE] p-6 rounded-lg border-2 border-[#A0B985] shadow-xl">
               {selectedImage && (
                 <div className="flex flex-col items-center">
