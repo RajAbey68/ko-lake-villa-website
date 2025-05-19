@@ -63,6 +63,7 @@ export default function GalleryUploader() {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [category, setCategory] = useState<string>(GALLERY_CATEGORIES[0]);
   const [description, setDescription] = useState<string>('');
+  const [displaySize, setDisplaySize] = useState<string>("medium");
   const [isFeatured, setIsFeatured] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -259,6 +260,28 @@ export default function GalleryUploader() {
                       disabled={uploading}
                       className="resize-none"
                     />
+                  </div>
+                  
+                  {/* Image Display Size */}
+                  <div className="space-y-2">
+                    <Label htmlFor="displaySize">Image Display Size</Label>
+                    <Select 
+                      value={displaySize || "medium"} 
+                      onValueChange={setDisplaySize}
+                      disabled={uploading}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select image size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="big">Big (Full Page Width)</SelectItem>
+                        <SelectItem value="medium">Medium (1/3 of Page)</SelectItem>
+                        <SelectItem value="small">Small (Thumbnail)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-gray-500">
+                      Choose how large this image should appear in the gallery.
+                    </p>
                   </div>
                   
                   {/* Featured Image */}
