@@ -34,8 +34,10 @@ app.use('/uploads', (req, res, next) => {
       else if (filePath.endsWith('.gif')) contentType = 'image/gif';
       else if (filePath.endsWith('.mp4')) contentType = 'video/mp4';
       
-      // Set strong cache control headers to prevent repeated reloading
-      res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+      // Set no-cache headers to ensure fresh content is always loaded
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.setHeader('Content-Type', contentType);
       
       // Stream the file
