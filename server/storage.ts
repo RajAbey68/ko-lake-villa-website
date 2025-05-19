@@ -510,6 +510,12 @@ export class MemStorage implements IStorage {
     
     return this.galleryImages.delete(id);
   }
+  
+  async deleteAllGalleryImages(): Promise<number> {
+    const count = this.galleryImages.size;
+    this.galleryImages.clear();
+    return count;
+  }
 
   // Booking methods
   async createBookingInquiry(insertBookingInquiry: InsertBookingInquiry): Promise<BookingInquiry> {

@@ -10,7 +10,8 @@ import {
   AlertCircle as ErrorIcon,
   Loader as LoadingIcon,
   Home as HomeIcon,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Trash2 as TrashIcon
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
@@ -67,6 +68,7 @@ export default function GalleryUploader() {
   const [isFeatured, setIsFeatured] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [clearing, setClearing] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [uploadedImages, setUploadedImages] = useState<{url: string; name: string}[]>([]);
   
@@ -86,6 +88,40 @@ export default function GalleryUploader() {
       setSelectedFiles(e.target.files);
       // Reset any previous messages
       setMessage(null);
+    }
+  };
+  
+  const handleClearGallery = async () => {
+    if (!confirm("Are you sure you want to clear ALL images from the gallery? This action cannot be undone.")) {
+      return;
+    }
+    
+    setClearing(true);
+    setMessage(null);
+    
+    try {
+      const response = await fetch('/api/gallery/clear-all', {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to clear gallery');
+      }
+      
+      const data = await response.json();
+      setMessage({ 
+        type: 'success', 
+        text: `Successfully cleared gallery. Removed ${data.count} images.` 
+      });
+      
+    } catch (error) {
+      console.error('Gallery clearing error:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'An unknown error occurred while clearing the gallery.' 
+      });
+    } finally {
+      setClearing(false);
     }
   };
   
