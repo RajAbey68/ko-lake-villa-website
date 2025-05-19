@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ZyrositeImageProps {
   src: string;
@@ -8,13 +8,42 @@ interface ZyrositeImageProps {
 
 /**
  * Special component for handling zyrosite.com images which have CORS issues
+ * Uses the weserv.nl image proxy service to bypass CORS restrictions
  */
 const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
   
-  // Convert zyrosite URL to image data URL with a simple base64 encoding 
-  // since these images have CORS issues
-  const imageUrl = src;
+  useEffect(() => {
+    // Reset states when source changes
+    setLoading(true);
+    setError(false);
+    
+    if (!src) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+    
+    // Convert to a working image URL through an image proxy service
+    if (src.includes('zyrosite.com') || src.includes('assets.zyro')) {
+      // Use an image proxy service to bypass CORS
+      setImgSrc(`https://images.weserv.nl/?url=${encodeURIComponent(src)}`);
+    } else {
+      // Direct use for other URLs
+      setImgSrc(src);
+    }
+  }, [src]);
+  
+  const handleImageLoad = () => {
+    setLoading(false);
+  };
+  
+  const handleImageError = () => {
+    setError(true);
+    setLoading(false);
+  };
   
   if (error) {
     return (
@@ -29,15 +58,35 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
     );
   }
 
-  // For improved loading display
   return (
     <div className={`${className} relative`}>
-      <img
-        src={`https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`}
-        alt={alt}
-        className="w-full h-full object-cover"
-        onError={() => setError(true)}
-      />
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="animate-pulse w-8 h-8 text-[#8B5E3C]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="2" x2="12" y2="6"></line>
+              <line x1="12" y1="18" x2="12" y2="22"></line>
+              <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+              <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+              <line x1="2" y1="12" x2="6" y2="12"></line>
+              <line x1="18" y1="12" x2="22" y2="12"></line>
+              <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+              <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+            </svg>
+          </div>
+        </div>
+      )}
+      
+      {imgSrc && (
+        <img
+          src={imgSrc}
+          alt={alt}
+          className="w-full h-full object-cover"
+          style={{ opacity: loading ? 0 : 1 }}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+        />
+      )}
     </div>
   );
 };
