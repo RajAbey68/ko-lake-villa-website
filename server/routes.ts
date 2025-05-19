@@ -458,13 +458,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/gallery", async (req, res) => {
     const category = req.query.category as string | undefined;
     
-    if (category) {
-      const images = await dataStorage.getGalleryImagesByCategory(category);
-      return res.json(images);
+    let images;
+    if (category && category !== 'all') {
+      images = await dataStorage.getGalleryImagesByCategory(category);
+    } else {
+      images = await dataStorage.getGalleryImages();
     }
     
-    const allImages = await dataStorage.getGalleryImages();
-    res.json(allImages);
+    // Add timestamp to image URLs to prevent browser caching issues
+    const processedImages = images.map(image => {
+      if (image.imageUrl && image.imageUrl.startsWith('/uploads/')) {
+        const timestamp = Date.now();
+        return {
+          ...image,
+          // Add a timestamp to force browser to load a fresh version
+          imageUrl: `${image.imageUrl}?t=${timestamp}`
+        };
+      }
+      return image;
+    });
+    
+    res.json(processedImages);
   });
   
   // Delete all gallery images (admin only)
