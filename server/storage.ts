@@ -308,78 +308,88 @@ export class MemStorage implements IStorage {
         sortOrder: 2
       },
       
-      // Lake Garden
+      // Lake Garden - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-front-garden-dai034-AalZ87Xe9Pfr3xOl.jpg",
-        alt: "Lake Garden Pathway",
+        imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
+        alt: "Lake Garden View",
         category: "lake-garden",
+        mediaType: "image",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-lake-garden-dai028-mp10JLzNZRC7KWED.jpg",
-        alt: "Lake Garden Seating Area",
+        imageUrl: "/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg",
+        alt: "Lake Garden Area",
         category: "lake-garden",
+        mediaType: "image",
         sortOrder: 2
       },
       
-      // Roof Garden
+      // Roof Garden - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-roof-garden-dai039-dOVD8wLlv9sO90XG.jpg",
-        alt: "Roof Garden Panoramic View",
+        imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
+        alt: "Roof Garden View",
         category: "roof-garden",
+        mediaType: "image",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-roof-garden-dai037-dOVD8w7z1VuLKeW8.jpg",
-        alt: "Roof Garden Lounge Area",
+        imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
+        alt: "Roof Garden Lounge",
         category: "roof-garden",
+        mediaType: "image",
         sortOrder: 2
       },
       
-      // Front Garden and Entrance
+      // Front Garden and Entrance - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1280,fit=crop/AGB2Mlr1kBCLQG4w/1-min-AoPWZwpbLZTW8Rr7.jpg",
-        alt: "Villa Main Entrance",
+        imageUrl: "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
+        alt: "Villa Entrance Tour",
         category: "front-garden",
+        mediaType: "video",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-front-garden-dai027-dOVD8w6n9yt7GNB8.jpg",
-        alt: "Front Garden Path",
+        imageUrl: "/uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4",
+        alt: "Front Garden Walk",
         category: "front-garden",
+        mediaType: "video",
         sortOrder: 2
       },
       
-      // Koggala Lake Ahangama and Surrounding
+      // Koggala Lake Ahangama and Surrounding - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/koggala-lake-boat-ride-AvQ70njKxkUjwyPL.jpg",
-        alt: "Koggala Lake Aerial View",
+        imageUrl: "/uploads/gallery/default/1747347253299-598773798-20250420_170648.mp4",
+        alt: "Koggala Lake Tour",
         category: "koggala-lake",
+        mediaType: "video",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/1-dsc00005-1-min-AoPWZwXByQhnVvBG.jpg",
-        alt: "Koggala Lake Traditional Fishing Boats",
+        imageUrl: "/uploads/gallery/default/1747348711121-217846602-20250420_170654.mp4",
+        alt: "Lake Activities Video",
         category: "koggala-lake",
+        mediaType: "video",
         sortOrder: 2
       },
       
-      // Excursions
+      // Excursions - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=945,h=630,fit=crop/AGB2Mlr1kBCLQG4w/dsc01272-mVL9DDb1e2SaGRbV.jpg",
-        alt: "Local Temple Visit",
+        imageUrl: "/uploads/gallery/default/1747359245374-177273305-20250420_170815.mp4",
+        alt: "Local Excursion Video",
         category: "excursions",
+        mediaType: "video",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1000,h=667,fit=crop/AGB2Mlr1kBCLQG4w/tea-plantations-1-m2EKDDE4lRc4J17Z.jpg",
-        alt: "Beach Excursion",
+        imageUrl: "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
+        alt: "Beach Tour",
         category: "excursions",
+        mediaType: "video",
         sortOrder: 2
       }
     ];
