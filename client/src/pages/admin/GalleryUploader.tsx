@@ -243,14 +243,21 @@ export default function GalleryUploader() {
         // Process results from this batch
         for (const result of batchResults) {
           if (result && typeof result === 'object' && 'success' in result) {
-            if (result.success) {
+            const typedResult = result as { 
+              success: boolean; 
+              url?: string; 
+              name?: string;
+              error?: string;
+            };
+            
+            if (typedResult.success && typedResult.url && typedResult.name) {
               uploadedFiles.push({
-                url: result.url as string,
-                name: result.name as string
+                url: typedResult.url,
+                name: typedResult.name
               });
             } else {
               // Report failed uploads to the user
-              console.error(`Failed to upload ${result.name}: ${result.error}`);
+              console.error(`Failed to upload ${typedResult.name || 'file'}: ${typedResult.error || 'Unknown error'}`);
               setMessage({
                 type: 'warning',
                 text: `Some files failed to upload. Check the browser console for details.`
