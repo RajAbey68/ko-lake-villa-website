@@ -21,8 +21,11 @@ const GalleryImage = ({ src, alt, className = '' }: GalleryImageProps) => {
   const handleError = () => {
     if (currentSrc === src) {
       // Try with proxy if direct URL fails
-      console.log(`Image failed to load directly, trying proxy: ${src}`);
-      setCurrentSrc(`/api/image-proxy?url=${encodeURIComponent(src)}`);
+      console.log(`Image failed to load directly: ${src}, trying proxy`);
+      
+      // Add cache-busting parameter to avoid browser caching issues
+      const timestamp = new Date().getTime();
+      setCurrentSrc(`/api/image-proxy?url=${encodeURIComponent(src)}&t=${timestamp}`);
     } else {
       // Both direct and proxy URLs failed
       console.error(`Image failed to load even with proxy: ${src}`);
