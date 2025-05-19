@@ -26,13 +26,17 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
       return;
     }
     
+    // Log information about this image URL for debugging
+    console.log(`Processing image URL: ${src}`);
+    
     // Convert to a working image URL through an image proxy service
     if (src.includes('zyrosite.com') || src.includes('assets.zyro')) {
       // Use an image proxy service to bypass CORS
       setImgSrc(`https://images.weserv.nl/?url=${encodeURIComponent(src)}`);
     } else if (src.startsWith('/uploads/')) {
       // For local uploaded files, try direct access first
-      setImgSrc(src);
+      // Add a cache-busting parameter to prevent browser caching issues
+      setImgSrc(`${src}?t=${Date.now()}`);
     } else {
       // Direct use for other URLs
       setImgSrc(src);

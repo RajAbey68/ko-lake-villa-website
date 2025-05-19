@@ -278,10 +278,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Create relative path for database
         const filePath = req.file.path;
+        
+        // Check if the file was properly written and has content
+        const fileStats = fs.statSync(filePath);
+        if (fileStats.size === 0) {
+          // File is empty, this is an error
+          throw new Error(`File uploaded as empty (0 bytes): ${filePath}`);
+        }
+        
         // Use an absolute URL path that will work with the express.static middleware
         const relativePath = '/uploads/' + path.relative(UPLOAD_DIR, filePath).replace(/\\/g, '/');
         
-        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}, display size: ${displaySize || 'medium'}`);
+        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}, size: ${fileStats.size} bytes`);
         console.log(`File saved at physical path: ${filePath}`);
         
         // Get file size
