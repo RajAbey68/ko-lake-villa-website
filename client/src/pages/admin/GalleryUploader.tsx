@@ -147,10 +147,9 @@ export default function GalleryUploader() {
       
       // Show initial status message for large uploads
       if (totalFiles > 5) {
-        toast({
-          title: "Large Upload Started",
-          description: `Processing ${totalFiles} files. This may take a few minutes. Please don't close this window.`,
-          duration: 5000,
+        setMessage({
+          type: 'info',
+          text: `Processing ${totalFiles} files. This may take a few minutes. Please don't close this window.`
         });
       }
       
@@ -223,6 +222,11 @@ export default function GalleryUploader() {
         // Update progress based on completed batches
         const completedFiles = batchEnd;
         setUploadProgress(Math.round((completedFiles / totalFiles) * 100));
+        
+        // Add a small delay between batches to prevent server overload
+        if (batchIndex < totalBatches - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
       
       setUploadedImages(uploadedFiles);
