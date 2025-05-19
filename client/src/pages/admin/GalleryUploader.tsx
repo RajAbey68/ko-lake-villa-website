@@ -167,8 +167,18 @@ export default function GalleryUploader() {
           
           // Create a promise for each file upload
           const uploadPromise = (async () => {
-            const formData = new FormData();
+            // Check file size first
+            if (file.size === 0) {
+              console.error(`File ${file.name} has 0 bytes size, skipping`);
+              return {
+                name: file.name,
+                success: false,
+                error: "File has 0 bytes size - invalid image file"
+              };
+            }
             
+            // Create FormData with file
+            const formData = new FormData();
             formData.append('image', file);
             formData.append('category', category);
             formData.append('description', description);
@@ -177,22 +187,43 @@ export default function GalleryUploader() {
             formData.append('displaySize', displaySize);
             formData.append('sortOrder', (fileIndex + 1).toString());
             
+            console.log(`Uploading file: ${file.name}, size: ${(file.size / 1024).toFixed(2)} KB`);
+            
             try {
-              const response = await fetch('/api/gallery/upload', {
-                method: 'POST',
-                body: formData,
+              // Use XMLHttpRequest for better control over upload progress
+              return new Promise((resolve) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/gallery/upload', true);
+                
+                xhr.onload = function() {
+                  if (xhr.status >= 200 && xhr.status < 300) {
+                    const data = JSON.parse(xhr.responseText);
+                    resolve({
+                      url: data.data.imageUrl,
+                      name: file.name,
+                      success: true
+                    });
+                  } else {
+                    console.error(`Upload failed for ${file.name} with status ${xhr.status}`);
+                    resolve({
+                      name: file.name,
+                      success: false,
+                      error: `Server returned ${xhr.status}: ${xhr.statusText}`
+                    });
+                  }
+                };
+                
+                xhr.onerror = function() {
+                  console.error(`Network error during upload of ${file.name}`);
+                  resolve({
+                    name: file.name,
+                    success: false,
+                    error: "Network error during upload"
+                  });
+                };
+                
+                xhr.send(formData);
               });
-              
-              if (!response.ok) {
-                throw new Error(`Failed to upload ${file.name}`);
-              }
-              
-              const data = await response.json();
-              return {
-                url: data.data.imageUrl,
-                name: file.name,
-                success: true
-              };
             } catch (error) {
               console.error(`Error uploading ${file.name}:`, error);
               return {
@@ -211,11 +242,20 @@ export default function GalleryUploader() {
         
         // Process results from this batch
         for (const result of batchResults) {
-          if (result.success) {
-            uploadedFiles.push({
-              url: result.url,
-              name: result.name
-            });
+          if (result && typeof result === 'object' && 'success' in result) {
+            if (result.success) {
+              uploadedFiles.push({
+                url: result.url as string,
+                name: result.name as string
+              });
+            } else {
+              // Report failed uploads to the user
+              console.error(`Failed to upload ${result.name}: ${result.error}`);
+              setMessage({
+                type: 'warning',
+                text: `Some files failed to upload. Check the browser console for details.`
+              });
+            }
           }
         }
         

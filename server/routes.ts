@@ -282,8 +282,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if the file was properly written and has content
         const fileStats = fs.statSync(filePath);
         if (fileStats.size === 0) {
-          // File is empty, this is an error
-          throw new Error(`File uploaded as empty (0 bytes): ${filePath}`);
+          // Delete the empty file since it's useless
+          fs.unlinkSync(filePath);
+          // Report the error
+          throw new Error(`File uploaded as empty (0 bytes): ${filePath}. File was deleted.`);
+        }
+        
+        // Double check that file exists
+        if (!fs.existsSync(filePath)) {
+          throw new Error(`The uploaded file doesn't exist at ${filePath} after saving`);
         }
         
         // Use an absolute URL path that will work with the express.static middleware
