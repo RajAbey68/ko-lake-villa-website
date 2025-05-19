@@ -9,20 +9,26 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { z } from 'zod';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 
 export default function AdminLogin() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authDomainError, setAuthDomainError] = useState<boolean>(false);
   const { currentUser, isAdmin, setCurrentUser } = useAuth();
   const [location] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("google");
+  const [activeTab, setActiveTab] = useState<string>("email"); // Default to email login
 
-  // No need to check for redirect result with popup authentication
+  // Check if we're on a Replit domain
   useEffect(() => {
-    // This effect can be used for initialization if needed
-    // The auth state will update through the onAuthStateChanged listener
+    const hostname = window.location.hostname;
+    if (hostname.includes('replit') || hostname.includes('riker.repl')) {
+      setAuthDomainError(true);
+      // Force email login method as Google won't work on unauthorized domains
+      setActiveTab('email');
+    }
   }, []);
 
   // Handle Google Sign-in with popup
@@ -97,15 +103,22 @@ export default function AdminLogin() {
           <CardDescription>Sign in to access the Ko Lake Villa admin dashboard</CardDescription>
         </CardHeader>
         <CardContent>
+          {authDomainError && (
+            <div className="bg-amber-100 border border-amber-400 text-amber-800 px-4 py-3 rounded mb-4">
+              <p className="font-medium">Authentication domain not authorized</p>
+              <p className="text-sm">Please use Email login with your admin credentials.</p>
+            </div>
+          )}
+          
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
           
-          <Tabs defaultValue="google" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <Tabs defaultValue="email" value={activeTab} onValueChange={setActiveTab} className="mt-4">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="google">Sign in with Google</TabsTrigger>
+              <TabsTrigger value="google" disabled={authDomainError}>Sign in with Google</TabsTrigger>
               <TabsTrigger value="email">Sign in with Email</TabsTrigger>
             </TabsList>
             
