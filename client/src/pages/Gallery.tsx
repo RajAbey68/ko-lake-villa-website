@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { GalleryImage as GalleryImageType } from '@shared/schema';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import GalleryImage from '@/components/GalleryImage';
+import ZyrositeImage from '@/components/ZyrositeImage';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -377,12 +377,16 @@ const handleCategoryChange = (category: string | null) => {
               <p>Please try again later or contact us directly.</p>
             </div>
           ) : (
-            // Gallery grid
+            // Gallery grid with dynamic sizing based on image displaySize
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {galleryImages?.map((image) => (
                 <div 
                   key={image.id} 
-                  className="group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] hover:shadow-lg transition-all duration-300"
+                  className={`group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] hover:shadow-lg transition-all duration-300
+                    ${image.displaySize === 'big' ? 'col-span-2 row-span-2 md:col-span-3 lg:col-span-4' : ''} 
+                    ${image.displaySize === 'medium' ? 'col-span-1 md:col-span-1 lg:col-span-1' : ''}
+                    ${image.displaySize === 'small' ? 'col-span-1' : ''}`
+                  }
                   onClick={() => openImageModal(image)}
                 >
                   <div className="relative overflow-hidden rounded-md">
@@ -414,9 +418,9 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* Using our new GalleryImage component for better display */}
+                        {/* Using special ZyrositeImage component for better compatibility */}
                         <div className="w-full h-full relative z-10">
-                          <GalleryImage 
+                          <ZyrositeImage 
                             src={image.imageUrl}
                             alt={image.alt || "Ko Lake Villa Image"}
                             className="w-full h-full group-hover:scale-105 transition-transform duration-500"
