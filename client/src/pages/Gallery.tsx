@@ -150,7 +150,7 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
 
   // Simple direct image URL proxy - forces all external images through our proxy
   const getProxiedImageUrl = (url: string) => {
@@ -164,7 +164,7 @@ const Gallery = () => {
   };
 
   // Fetch gallery images and process URLs
-  const { data: galleryImages, isLoading, error } = useQuery<GalleryImage[]>({
+  const { data: galleryImages, isLoading, error } = useQuery<GalleryImageType[]>({
     queryKey: ['/api/gallery', selectedCategory],
     queryFn: async ({ queryKey }) => {
       const category = queryKey[1] as string | null;
@@ -177,7 +177,7 @@ const Gallery = () => {
       
       if (!response.ok) throw new Error('Failed to fetch gallery images');
       
-      const data = await response.json() as GalleryImage[];
+      const data = await response.json() as GalleryImageType[];
       console.log('Received gallery data:', data.length, 'images');
       
       // Process image URLs to use our proxy for external URLs
@@ -185,8 +185,8 @@ const Gallery = () => {
         ...image,
         // Store the original URL for reference
         originalImageUrl: image.imageUrl,
-        // Use proxied URL for display
-        imageUrl: getProxiedImageUrl(image.imageUrl)
+        // Use proxied URL for display only if needed
+        imageUrl: image.imageUrl
       }));
     }
   });
@@ -214,7 +214,7 @@ const handleCategoryChange = (category: string | null) => {
   setSelectedCategory(category);
 };
 
-  const openImageModal = (image: GalleryImage) => {
+  const openImageModal = (image: GalleryImageType) => {
     setSelectedImage(image);
   };
 
@@ -414,13 +414,12 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* Using our enhanced ExternalImage component for better loading */}
+                        {/* Using our new GalleryImage component for better display */}
                         <div className="w-full h-full relative z-10">
-                          <ExternalImage 
+                          <GalleryImage 
                             src={image.imageUrl}
-                            alt={image.alt}
+                            alt={image.alt || "Ko Lake Villa Image"}
                             className="w-full h-full group-hover:scale-105 transition-transform duration-500"
-                            fallbackText={image.alt || "Ko Lake Villa Image"}
                           />
                         </div>
                       </div>
