@@ -489,20 +489,30 @@ const handleCategoryChange = (category: string | null) => {
                           </div>
                         </div>
                       ) : (
-                        // Other video
+                        // Other video with cache-busting
                         <video 
-                          src={selectedImage.imageUrl} 
+                          src={`${selectedImage.imageUrl}?nocache=${Date.now()}-${Math.random()}`}
                           className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
                           controls
                           autoPlay
+                          onError={(e) => {
+                            console.error(`Failed to load video: ${selectedImage.imageUrl}`);
+                            const videoElement = e.target as HTMLVideoElement;
+                            videoElement.onerror = null;
+                          }}
                         />
                       )}
                     </div>
                   ) : (
                     <img 
-                      src={selectedImage.imageUrl} 
+                      src={`${selectedImage.imageUrl}?nocache=${Date.now()}-${Math.random()}`}
                       alt={selectedImage.alt} 
                       className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
+                      onError={(e) => {
+                        console.error(`Failed to load modal image: ${selectedImage.imageUrl}`);
+                        (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                        (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                      }}
                     />
                   )}
                   <div className="mt-4 flex items-center gap-3">
