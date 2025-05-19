@@ -151,48 +151,15 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  // Function to handle image URLs properly
+  // Simple direct image URL proxy - forces all external images through our proxy
   const getProxiedImageUrl = (url: string) => {
-    // If the URL is empty or undefined, return a placeholder image
     if (!url) {
       console.error('[Gallery] Empty image URL');
       return '/placeholder-image.jpg';
     }
 
-    try {
-      // Check if it's already an absolute URL
-      if (url.startsWith('http://') || url.startsWith('https://')) {
-        // For zyrosite.com URLs, always proxy them
-        if (url.includes('zyrosite.com') || url.includes('assets.zyro')) {
-          const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-          console.log(`[Gallery] Proxying zyrosite URL: ${url}`);
-          return proxiedUrl;
-        }
-        
-        // Other external URLs can be used directly
-        console.log(`[Gallery] Using external URL directly: ${url}`);
-        return url;
-      } else if (url.startsWith('/uploads/')) {
-        // Internal URL - use as is
-        console.log(`[Gallery] Using local URL: ${url}`);
-        return url;
-      } else {
-        // Try to construct a proper URL
-        try {
-          new URL(url); // This will throw if invalid
-          console.log(`[Gallery] Valid URL format: ${url}`);
-          return url;
-        } catch (e) {
-          // Assume it's a relative URL missing the protocol
-          const fullUrl = `https://${url}`;
-          console.log(`[Gallery] Adding https to URL: ${fullUrl}`);
-          return fullUrl;
-        }
-      }
-    } catch (error) {
-      console.error(`[Gallery] Error processing URL: ${url}`, error);
-      return url; // Return original URL as fallback
-    }
+    // Always use the proxy for external URLs to avoid CORS issues
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   };
 
   // Fetch gallery images and process URLs
@@ -227,9 +194,24 @@ const Gallery = () => {
     document.title = "Photo Gallery - Ko Lake Villa";
   }, []);
 
-  const handleCategoryChange = (category: string | null) => {
-    setSelectedCategory(category);
-  };
+  // Category value mapping to match database values
+const CATEGORY_MAPPING: Record<string, string> = {
+  "All Villa": "all-villa",
+  "Family Suite": "family-suite",
+  "Group Room": "group-room", 
+  "Triple Room": "triple-room", 
+  "Dining Area": "dining-area", 
+  "Pool Deck": "pool-deck", 
+  "Lake Garden": "lake-garden", 
+  "Roof Garden": "roof-garden", 
+  "Front Garden and Entrance": "front-garden", 
+  "Koggala Lake Ahangama and Surrounding": "koggala-lake", 
+  "Excursions": "excursions"
+};
+
+const handleCategoryChange = (category: string | null) => {
+  setSelectedCategory(category);
+};
 
   const openImageModal = (image: GalleryImage) => {
     setSelectedImage(image);
@@ -431,9 +413,9 @@ const Gallery = () => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* The actual image */}
+                        {/* The actual image - using direct image URL for better results */}
                         <img 
-                          src={`/api/image-proxy?url=${encodeURIComponent(image.imageUrl)}`}
+                          src={image.imageUrl}
                           alt={image.alt}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10 relative"
                           style={{backgroundColor: 'transparent'}}
@@ -444,9 +426,9 @@ const Gallery = () => {
                           }}
                           onError={(e) => {
                             console.error(`Gallery image failed to load: ${image.imageUrl}`);
-                            // Hide the image element but keep the parent with placeholder
+                            // Try through a direct proxy as a fallback
                             const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
+                            target.src = `/api/image-proxy?url=${encodeURIComponent(image.imageUrl)}`;
                           }}
                         />
                       </div>
