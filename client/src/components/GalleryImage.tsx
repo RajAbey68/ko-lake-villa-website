@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface GalleryImageProps {
   src: string;
@@ -9,6 +9,26 @@ interface GalleryImageProps {
 const GalleryImage = ({ src, alt, className = '' }: GalleryImageProps) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  useEffect(() => {
+    // Reset states when the src changes
+    setLoaded(false);
+    setError(false);
+    setCurrentSrc(src);
+  }, [src]);
+
+  const handleError = () => {
+    if (currentSrc === src) {
+      // Try with proxy if direct URL fails
+      console.log(`Image failed to load directly, trying proxy: ${src}`);
+      setCurrentSrc(`/api/image-proxy?url=${encodeURIComponent(src)}`);
+    } else {
+      // Both direct and proxy URLs failed
+      console.error(`Image failed to load even with proxy: ${src}`);
+      setError(true);
+    }
+  };
 
   return (
     <div className={`${className} relative overflow-hidden`}>
@@ -44,11 +64,12 @@ const GalleryImage = ({ src, alt, className = '' }: GalleryImageProps) => {
 
       {/* The image */}
       <img
-        src={src}
+        src={currentSrc}
         alt={alt}
         className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
+        onError={handleError}
+        crossOrigin="anonymous"
       />
     </div>
   );
