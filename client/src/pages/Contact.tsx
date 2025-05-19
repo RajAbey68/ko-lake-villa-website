@@ -83,7 +83,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-[#1E4E5F] mb-1">Location</h4>
-                  <p className="text-[#333333]">Ko Lake Villa, Lake Road, Koggala Lake, Sri Lanka</p>
+                  <p className="text-[#333333]">Ko Lake House<br />Mirissane Ovita, Madolduwa Road<br />Kathaluwa West<br />Ahangama, 80650<br />Sri Lanka</p>
                 </div>
               </div>
               
@@ -141,7 +141,7 @@ const Contact = () => {
                 <h4 className="font-bold text-[#8B5E3C] mb-4">Follow Us</h4>
                 <div className="flex flex-wrap gap-4">
                   <a 
-                    href="https://facebook.com" 
+                    href="https://www.facebook.com/KoLaClubSriLanka/" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="bg-[#1877F2] text-white hover:bg-[#166FE5] px-4 py-2 rounded-md flex items-center justify-center transition-colors"
@@ -291,14 +291,14 @@ const Contact = () => {
         <div className="container mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[450px]">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15871.901510053566!2d80.31662!3d5.9834!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae138f67ca93103%3A0x8f84b3dfe2f0b192!2sKoggala%20Lake!5e0!3m2!1sen!2sus!4v1667915125020!5m2!1sen!2sus" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15871.7866139131!2d80.32870271945636!3d5.991118726432507!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae138d6811fe84b%3A0x1f97c4cc01fbac01!2sKo%20Lake%20House!5e0!3m2!1sen!2sus!4v1716319984086!5m2!1sen!2sus"
               width="100%" 
               height="100%" 
               style={{ border: 0 }} 
               allowFullScreen 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
-              title="Ko Lake Villa Location on Map"
+              title="Ko Lake House Location on Map"
             ></iframe>
           </div>
         </div>
