@@ -216,84 +216,95 @@ export class MemStorage implements IStorage {
 
     // Sample gallery images - organized by categories as requested
     const sampleGalleryImages: InsertGalleryImage[] = [
-      // Family Suite
+      // Family Suite - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai011-m8x6xQjkgDfEn2W3.jpg",
+        imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
         alt: "Family Suite Master Bedroom",
         category: "family-suite",
+        mediaType: "image",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai010-A2lXVP3M9WsLJWao.jpg",
+        imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
         alt: "Family Suite Living Area",
         category: "family-suite",
+        mediaType: "image",
         sortOrder: 2
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai012-Y9Pe5oDrPOf0ZB8P.jpg",
+        imageUrl: "/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg",
         alt: "Family Suite Bathroom",
         category: "family-suite",
+        mediaType: "image",
         sortOrder: 3
       },
       
-      // Group Room
+      // Group Room - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-group-room-dai009-mDV7ErkENRty01Qk.jpg",
+        imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
         alt: "Group Room with Multiple Beds",
         category: "group-room",
+        mediaType: "image",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-group-room-dai008-YBgXvLryaaCLDXz1.jpg",
-        alt: "Group Room Seating Area",
+        imageUrl: "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
+        alt: "Group Room Tour",
         category: "group-room",
+        mediaType: "video",
         sortOrder: 2
       },
       
-      // Triple Room
+      // Triple Room - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-triple-room-dai007-mv1p7xJpK6Spv90E.jpg",
+        imageUrl: "/uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4",
+        alt: "Triple Room Tour",
+        category: "triple-room",
+        mediaType: "video",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "/uploads/gallery/default/1747347253299-598773798-20250420_170648.mp4",
         alt: "Triple Room Overview",
         category: "triple-room",
-        featured: true,
-        sortOrder: 1
-      },
-      {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=854,fit=crop/AGB2Mlr1kBCLQG4w/g-triple-room-dai006-Y9Pe5xXQvkcOzBXO.jpg",
-        alt: "Triple Room Writing Desk",
-        category: "triple-room",
+        mediaType: "video",
         sortOrder: 2
       },
       
-      // Dining Area
+      // Dining Area - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1600,h=1066,fit=crop/AGB2Mlr1kBCLQG4w/g-dining-area-dai058-m1a6OOOGJVI1xlW7.jpg",
-        alt: "Main Dining Area",
+        imageUrl: "/uploads/gallery/default/1747348711121-217846602-20250420_170654.mp4",
+        alt: "Dining Experience",
         category: "dining-area",
+        mediaType: "video",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/kl-f-b-dsc00296-mgQWz7X80bTR8xgZ.jpg",
-        alt: "Private Dining Nook",
+        imageUrl: "/uploads/gallery/default/1747359245374-177273305-20250420_170815.mp4",
+        alt: "Dining Area Tour",
         category: "dining-area",
+        mediaType: "video",
         sortOrder: 2
       },
       
-      // Pool Deck
+      // Pool Deck - Using actual uploaded images
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/10-min-YBgXvBnVyGh7vyP4.jpg",
-        alt: "Pool Deck with Loungers",
+        imageUrl: "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
+        alt: "Pool Deck Tour",
         category: "pool-deck",
+        mediaType: "video",
         featured: true,
         sortOrder: 1
       },
       {
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1280,h=720,fit=crop/AGB2Mlr1kBCLQG4w/11-min-YBgXvBJQ86f0DNRG.jpg",
-        alt: "Pool Deck Sunset View",
+        imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
+        alt: "Pool Deck View",
         category: "pool-deck",
+        mediaType: "image",
         sortOrder: 2
       },
       
