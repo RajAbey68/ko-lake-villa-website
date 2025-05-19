@@ -4,6 +4,7 @@ import { GalleryImage as GalleryImageType } from '@shared/schema';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ZyrositeImage from '@/components/ZyrositeImage';
 import GalleryImageLoader from '@/components/GalleryImageLoader';
+import DirectImageDisplay from '@/components/DirectImageDisplay';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -419,16 +420,12 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* Direct image loading with strong cache busting */}
+                        {/* Using our simplified direct image component */}
                         <div className="w-full h-full relative z-10">
-                          <img 
-                            src={`${image.imageUrl}?forceRefresh=${Date.now()}-${Math.floor(Math.random() * 10000000)}`}
+                          <DirectImageDisplay 
+                            imageUrl={image.imageUrl}
                             alt={image.alt || "Ko Lake Villa Image"}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            onError={(e) => {
-                              console.error(`Failed to load image: ${image.imageUrl}`);
-                              (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                            }}
                           />
                         </div>
                       </div>
