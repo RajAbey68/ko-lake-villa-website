@@ -49,15 +49,22 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
   };
   
   const handleImageError = () => {
-    // For local uploads, try using the image proxy as a fallback
-    if (imgSrc && imgSrc.startsWith('/uploads/') && !imgSrc.includes('image-proxy')) {
-      console.log(`Local image failed to load directly: ${imgSrc}, trying with proxy`);
-      setImgSrc(`/api/image-proxy?url=${encodeURIComponent(imgSrc)}&t=${Date.now()}`);
-      return;
+    // For local uploads, try using a direct path instead of proxy
+    if (imgSrc && imgSrc.startsWith('/uploads/')) {
+      if (!imgSrc.includes('direct=true')) {
+        console.log(`Local image failed to load: ${imgSrc}, trying with direct mode`);
+        const cacheBuster = Math.random().toString(36).substring(2, 15);
+        setImgSrc(`${imgSrc}?direct=true&nocache=${cacheBuster}`);
+        return;
+      } else if (!imgSrc.includes('image-proxy')) {
+        console.log(`Direct mode failed, trying with image proxy`);
+        setImgSrc(`/api/image-proxy?url=${encodeURIComponent(imgSrc.split('?')[0])}&t=${Date.now()}`);
+        return;
+      }
     }
     
-    // If we're already using the proxy or for other URLs, show the error state
-    console.error(`Image failed to load: ${imgSrc}`);
+    // If all attempts failed, show the error state
+    console.error(`All image loading attempts failed for: ${imgSrc}`);
     setError(true);
     setLoading(false);
   };
