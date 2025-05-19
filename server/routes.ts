@@ -104,8 +104,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (imageUrl.startsWith('/uploads/')) {
         // This is a local image, serve it directly from the filesystem
         const localPath = path.join(process.cwd(), imageUrl);
+        console.log(`Proxying local image: ${localPath}, exists: ${fs.existsSync(localPath)}`);
         
         if (fs.existsSync(localPath)) {
+          // Get the file's size
+          const stats = fs.statSync(localPath);
+          console.log(`File size: ${stats.size} bytes`);
+          
+          if (stats.size === 0) {
+            console.error(`Zero-byte file detected: ${localPath}`);
+            return res.status(404).send('Empty image file');
+          }
+          
           // Get the file's mime type
           const mimeType = imageUrl.endsWith('.jpg') || imageUrl.endsWith('.jpeg') ? 
             'image/jpeg' : 
@@ -114,8 +124,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               imageUrl.endsWith('.gif') ? 
                 'image/gif' : 
                 'application/octet-stream';
-                
+          
+          // Set cache-control headers to prevent caching
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
           res.setHeader('Content-Type', mimeType);
+          
           return fs.createReadStream(localPath).pipe(res);
         } else {
           console.error(`Local image not found: ${localPath}`);
