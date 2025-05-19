@@ -86,6 +86,7 @@ export default function AdminGallery() {
 function SimpleGalleryManager() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [addingImage, setAddingImage] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
@@ -410,6 +411,56 @@ function SimpleGalleryManager() {
       setLoading(false);
     }
   };
+  
+  // Clear all gallery images
+  const clearAllGalleryImages = async () => {
+    try {
+      setClearing(true);
+      setLoading(true);
+      setError(null);
+      
+      // Show immediate feedback
+      toast({
+        title: "Clearing gallery...",
+        description: "Please wait while we remove all images from your gallery.",
+      });
+      
+      // Send API request to clear all images
+      const response = await fetch('/api/gallery/clear-all', {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to clear gallery: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Show success message
+      toast({
+        title: "Gallery Cleared Successfully!",
+        description: `Successfully removed all ${data.count} images from your gallery.`,
+        duration: 5000,
+      });
+      
+      // Clear the images array
+      setImages([]);
+      
+    } catch (err: any) {
+      console.error("Error clearing gallery:", err);
+      setError(`Failed to clear gallery: ${err?.message || 'Unknown error'}`);
+      
+      toast({
+        title: "Error Clearing Gallery",
+        description: err?.message || "An unknown error occurred while clearing the gallery.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      setLoading(false);
+      setClearing(false);
+    }
+  };
 
   return (
     <Card>
@@ -456,7 +507,18 @@ function SimpleGalleryManager() {
                 Add Video
               </Button>
 
-
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (confirm("Are you sure you want to clear ALL images from the gallery? This action cannot be undone.")) {
+                    clearAllGalleryImages();
+                  }
+                }}
+                disabled={loading}
+              >
+                <TrashIcon className="h-4 w-4 mr-2" />
+                Clear Gallery
+              </Button>
             </div>
           </div>
         </div>
