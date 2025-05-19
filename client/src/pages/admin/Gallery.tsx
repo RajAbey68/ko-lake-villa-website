@@ -546,13 +546,75 @@ function SimpleGalleryManager() {
           </div>
         )}
         
-        {/* Debug section to show image URLs for troubleshooting */}
+        {/* Enhanced debug section for image troubleshooting */}
         {!loading && !error && images.length > 0 && (
           <div className="bg-gray-100 p-4 mb-6 rounded-md">
-            <h3 className="text-sm font-semibold mb-2">Debug: Latest Image</h3>
-            <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-32">
-              {JSON.stringify(images[images.length - 1], null, 2)}
-            </pre>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold">Image Troubleshooting</h3>
+              <button 
+                onClick={() => window.open('/api/gallery/debug', '_blank')}
+                className="text-xs bg-[#A0B985] text-white px-3 py-1 rounded hover:bg-[#8B5E3C] transition-colors"
+              >
+                View Full Debug Info
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <h4 className="text-xs font-medium mb-1">Latest Image</h4>
+              <pre className="text-xs bg-white p-2 rounded overflow-auto max-h-32">
+                {JSON.stringify(images[images.length - 1], null, 2)}
+              </pre>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-xs font-medium mb-1">Image Test</h4>
+                <div className="bg-white p-2 rounded">
+                  <p className="text-xs mb-2">Direct Image Test:</p>
+                  {images.length > 0 && (
+                    <img 
+                      src={images[images.length - 1].imageUrl}
+                      alt="Direct test"
+                      className="h-32 w-full object-cover mb-2 border border-gray-200"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        document.getElementById('direct-image-error')!.style.display = 'block';
+                      }}
+                    />
+                  )}
+                  <div id="direct-image-error" style={{display: 'none'}} className="text-xs text-red-500 mb-2">
+                    Direct image failed to load
+                  </div>
+                  
+                  <p className="text-xs mb-2">Proxy Image Test:</p>
+                  {images.length > 0 && (
+                    <img 
+                      src={`/api/image-proxy?url=${encodeURIComponent(images[images.length - 1].imageUrl)}&t=${Date.now()}`}
+                      alt="Proxy test"
+                      className="h-32 w-full object-cover border border-gray-200"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        document.getElementById('proxy-image-error')!.style.display = 'block';
+                      }}
+                    />
+                  )}
+                  <div id="proxy-image-error" style={{display: 'none'}} className="text-xs text-red-500">
+                    Proxy image failed to load
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-xs font-medium mb-1">Troubleshooting Steps</h4>
+                <div className="bg-white p-2 rounded text-xs space-y-2">
+                  <p>1. Check if image path is correct</p>
+                  <p>2. Verify image exists on server</p>
+                  <p>3. Try uploading a new test image</p>
+                  <p>4. Check server logs for errors</p>
+                  <p className="text-gray-500 italic">Path format should be: /uploads/category/filename.jpg</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
         
