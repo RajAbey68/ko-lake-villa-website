@@ -424,6 +424,24 @@ export default function GalleryUploader() {
                       <ImageIcon className="mr-2 h-4 w-4" />
                       View Public Gallery
                     </Button>
+                    <Button 
+                      variant="destructive" 
+                      className="w-full justify-start mt-4"
+                      onClick={handleClearGallery}
+                      disabled={clearing}
+                    >
+                      {clearing ? (
+                        <>
+                          <LoadingIcon className="mr-2 h-4 w-4 animate-spin" />
+                          Clearing Gallery...
+                        </>
+                      ) : (
+                        <>
+                          <TrashIcon className="mr-2 h-4 w-4" />
+                          Clear All Gallery Images
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
