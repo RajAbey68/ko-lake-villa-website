@@ -154,15 +154,19 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
 
-  // Simple direct image URL proxy - forces all external images through our proxy
-  const getProxiedImageUrl = (url: string) => {
+  // Helper function to clean and format image URLs
+  const getCleanImageUrl = (url: string) => {
     if (!url) {
       console.error('[Gallery] Empty image URL');
       return '/placeholder-image.jpg';
     }
 
-    // Always use the proxy for external URLs to avoid CORS issues
-    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+    // Strip any existing query parameters
+    if (url.includes('?')) {
+      return url.split('?')[0];
+    }
+
+    return url;
   };
 
   // Fetch gallery images and process URLs
