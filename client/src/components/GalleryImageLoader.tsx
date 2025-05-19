@@ -120,14 +120,25 @@ const GalleryImageLoader = ({ src, alt, className = '' }: GalleryImageLoaderProp
       )}
       
       {/* Actual image (only shown when loaded) */}
-      {displaySrc && (
-        <img
-          src={displaySrc}
-          alt={alt}
-          className="w-full h-full object-cover"
-          style={{ display: isLoaded ? 'block' : 'none' }}
-        />
-      )}
+      {/* Direct image approach with forced no-cache */}
+      <img
+        src={`${src}?nocache=${Date.now()}-${Math.random()}`}
+        alt={alt}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          console.log(`Error loading image: ${src}`);
+          const target = e.target as HTMLImageElement;
+          target.onerror = null; // Prevent infinite loop
+          
+          // Try a direct path if this is a local file
+          if (src.startsWith('/uploads/')) {
+            const directPath = src.replace('/uploads/', '/uploads/gallery/default/');
+            target.src = `${directPath}?retry=true&t=${Date.now()}`;
+          } else {
+            target.src = '/placeholder-image.jpg';
+          }
+        }}
+      />
     </div>
   );
 };
