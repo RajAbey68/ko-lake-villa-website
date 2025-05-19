@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage as dataStorage } from "./storage";
@@ -348,6 +348,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     const allImages = await dataStorage.getGalleryImages();
     res.json(allImages);
+  });
+  
+  // Delete all gallery images (admin only)
+  app.delete("/api/gallery/clear-all", async (req, res) => {
+    try {
+      const count = await dataStorage.deleteAllGalleryImages();
+      console.log(`Successfully deleted all ${count} gallery images`);
+      res.status(200).json({ 
+        message: "Gallery successfully cleared", 
+        count 
+      });
+    } catch (error) {
+      console.error("Failed to clear gallery:", error);
+      res.status(500).json({ 
+        message: "Failed to clear gallery", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
   });
 
   // Booking inquiry
