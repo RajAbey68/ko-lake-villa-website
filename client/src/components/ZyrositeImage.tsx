@@ -34,9 +34,10 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
       // Use an image proxy service to bypass CORS
       setImgSrc(`https://images.weserv.nl/?url=${encodeURIComponent(src)}`);
     } else if (src.startsWith('/uploads/')) {
-      // For local uploaded files, try direct access first
-      // Add a cache-busting parameter to prevent browser caching issues
-      setImgSrc(`${src}?t=${Date.now()}`);
+      // For local uploaded files, try direct access first with cache-busting
+      // Add a random query parameter to avoid browser caching
+      const cacheBuster = Math.random().toString(36).substring(2, 15);
+      setImgSrc(`${src}?nocache=${cacheBuster}`);
     } else {
       // Direct use for other URLs
       setImgSrc(src);

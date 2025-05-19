@@ -66,8 +66,20 @@ import { checkDbHealth } from './db';
 import { scrapeWebsiteHandler, scrapeMultipleWebsites } from './scraper';
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve uploaded files
-  app.use('/uploads', express.static(UPLOAD_DIR));
+  // Serve uploaded files with proper caching disabled
+  app.use('/uploads', express.static(UPLOAD_DIR, {
+    etag: false,
+    lastModified: false,
+    maxAge: 0,
+    setHeaders: (res) => {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }));
+  
+  // Log upload directory for easier debugging
+  console.log(`Serving uploads from: ${UPLOAD_DIR}`);
   
   // Debug route to list all uploaded files
   app.get('/api/debug/uploads', (req, res) => {
