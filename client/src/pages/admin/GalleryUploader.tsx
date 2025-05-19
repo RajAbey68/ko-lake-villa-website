@@ -141,35 +141,88 @@ export default function GalleryUploader() {
       const totalFiles = selectedFiles.length;
       const uploadedFiles = [];
       
-      for (let i = 0; i < totalFiles; i++) {
-        const file = selectedFiles[i];
-        const formData = new FormData();
-        
-        formData.append('image', file);
-        formData.append('category', category);
-        formData.append('description', description);
-        formData.append('alt', file.name.split('.')[0]); // Use filename as alt text
-        formData.append('featured', isFeatured.toString());
-        formData.append('displaySize', displaySize);
-        formData.append('sortOrder', (i + 1).toString()); // Use index as sort order
-        
-        const response = await fetch('/api/gallery/upload', {
-          method: 'POST',
-          body: formData,
+      // Process files in smaller batches to avoid timeouts
+      const batchSize = 3; // Process 3 files at a time
+      const totalBatches = Math.ceil(totalFiles / batchSize);
+      
+      // Show initial status message for large uploads
+      if (totalFiles > 5) {
+        toast({
+          title: "Large Upload Started",
+          description: `Processing ${totalFiles} files. This may take a few minutes. Please don't close this window.`,
+          duration: 5000,
         });
+      }
+      
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        const batchStart = batchIndex * batchSize;
+        const batchEnd = Math.min(batchStart + batchSize, totalFiles);
+        const currentBatchSize = batchEnd - batchStart;
         
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`);
+        // Process this batch in parallel
+        const batchPromises = [];
+        
+        for (let j = 0; j < currentBatchSize; j++) {
+          const fileIndex = batchStart + j;
+          const file = selectedFiles[fileIndex];
+          
+          // Create a promise for each file upload
+          const uploadPromise = (async () => {
+            const formData = new FormData();
+            
+            formData.append('image', file);
+            formData.append('category', category);
+            formData.append('description', description);
+            formData.append('alt', file.name.split('.')[0]); // Use filename as alt text
+            formData.append('featured', isFeatured.toString());
+            formData.append('displaySize', displaySize);
+            formData.append('sortOrder', (fileIndex + 1).toString());
+            
+            try {
+              const response = await fetch('/api/gallery/upload', {
+                method: 'POST',
+                body: formData,
+              });
+              
+              if (!response.ok) {
+                throw new Error(`Failed to upload ${file.name}`);
+              }
+              
+              const data = await response.json();
+              return {
+                url: data.data.imageUrl,
+                name: file.name,
+                success: true
+              };
+            } catch (error) {
+              console.error(`Error uploading ${file.name}:`, error);
+              return {
+                name: file.name,
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              };
+            }
+          })();
+          
+          batchPromises.push(uploadPromise);
         }
         
-        const data = await response.json();
-        uploadedFiles.push({
-          url: data.data.imageUrl,
-          name: file.name
-        });
+        // Wait for this batch to complete
+        const batchResults = await Promise.all(batchPromises);
         
-        // Update progress
-        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+        // Process results from this batch
+        for (const result of batchResults) {
+          if (result.success) {
+            uploadedFiles.push({
+              url: result.url,
+              name: result.name
+            });
+          }
+        }
+        
+        // Update progress based on completed batches
+        const completedFiles = batchEnd;
+        setUploadProgress(Math.round((completedFiles / totalFiles) * 100));
       }
       
       setUploadedImages(uploadedFiles);
