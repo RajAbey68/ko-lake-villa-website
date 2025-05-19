@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GalleryImage } from '@shared/schema';
+import { GalleryImage as GalleryImageType } from '@shared/schema';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import GalleryImage from '@/components/GalleryImage';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -413,24 +414,15 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* The actual image - using direct image URL for better results */}
-                        <img 
-                          src={image.imageUrl}
-                          alt={image.alt}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10 relative"
-                          style={{backgroundColor: 'transparent'}}
-                          onLoad={(e) => {
-                            console.log(`Image loaded successfully: ${image.imageUrl}`);
-                            const target = e.target as HTMLImageElement;
-                            target.style.opacity = '1';
-                          }}
-                          onError={(e) => {
-                            console.error(`Gallery image failed to load: ${image.imageUrl}`);
-                            // Try through a direct proxy as a fallback
-                            const target = e.target as HTMLImageElement;
-                            target.src = `/api/image-proxy?url=${encodeURIComponent(image.imageUrl)}`;
-                          }}
-                        />
+                        {/* Using our enhanced ExternalImage component for better loading */}
+                        <div className="w-full h-full relative z-10">
+                          <ExternalImage 
+                            src={image.imageUrl}
+                            alt={image.alt}
+                            className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                            fallbackText={image.alt || "Ko Lake Villa Image"}
+                          />
+                        </div>
                       </div>
                     )}
                     {image.featured && (
