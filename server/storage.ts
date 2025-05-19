@@ -49,6 +49,7 @@ export interface IStorage {
   createGalleryImage(galleryImage: InsertGalleryImage): Promise<GalleryImage>;
   updateGalleryImage(galleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage>;
   deleteGalleryImage(id: number): Promise<boolean>;
+  deleteAllGalleryImages(): Promise<number>; // Returns count of deleted images
 
   // Booking operations
   createBookingInquiry(bookingInquiry: InsertBookingInquiry): Promise<BookingInquiry>;

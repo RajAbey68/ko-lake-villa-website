@@ -7,6 +7,7 @@ import { useToast } from '../hooks/use-toast';
 import { uploadFile } from '../lib/firebaseStorage';
 
 const galleryCategories = [
+  { value: "all-villa", label: "All Villa" },
   { value: "family-suite", label: "Family Suite" },
   { value: "group-room", label: "Group Room" },
   { value: "triple-room", label: "Triple Room" },
@@ -36,7 +37,7 @@ export default function MinimalUploadDialog({ open, onClose, onSuccess }: Minima
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [alt, setAlt] = useState("");
-  const [category, setCategory] = useState("family-suite");
+  const [category, setCategory] = useState("all-villa");
   
   // Handle file input change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

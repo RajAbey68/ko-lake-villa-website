@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GalleryImage } from '@shared/schema';
+import { GalleryImage as GalleryImageType } from '@shared/schema';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ZyrositeImage from '@/components/ZyrositeImage';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -149,21 +150,21 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
 
-  // Function to get a proxied URL for external images
+  // Simple direct image URL proxy - forces all external images through our proxy
   const getProxiedImageUrl = (url: string) => {
-    // Only proxy external URLs that might have CORS issues
-    if (url.includes('zyrosite.com') || url.includes('assets.zyro')) {
-      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-      console.log(`[Gallery] Proxying image URL: ${url} -> ${proxiedUrl}`);
-      return proxiedUrl;
+    if (!url) {
+      console.error('[Gallery] Empty image URL');
+      return '/placeholder-image.jpg';
     }
-    return url;
+
+    // Always use the proxy for external URLs to avoid CORS issues
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
   };
 
   // Fetch gallery images and process URLs
-  const { data: galleryImages, isLoading, error } = useQuery<GalleryImage[]>({
+  const { data: galleryImages, isLoading, error } = useQuery<GalleryImageType[]>({
     queryKey: ['/api/gallery', selectedCategory],
     queryFn: async ({ queryKey }) => {
       const category = queryKey[1] as string | null;
@@ -176,7 +177,7 @@ const Gallery = () => {
       
       if (!response.ok) throw new Error('Failed to fetch gallery images');
       
-      const data = await response.json() as GalleryImage[];
+      const data = await response.json() as GalleryImageType[];
       console.log('Received gallery data:', data.length, 'images');
       
       // Process image URLs to use our proxy for external URLs
@@ -184,8 +185,8 @@ const Gallery = () => {
         ...image,
         // Store the original URL for reference
         originalImageUrl: image.imageUrl,
-        // Use proxied URL for display
-        imageUrl: getProxiedImageUrl(image.imageUrl)
+        // Use proxied URL for display only if needed
+        imageUrl: image.imageUrl
       }));
     }
   });
@@ -194,11 +195,26 @@ const Gallery = () => {
     document.title = "Photo Gallery - Ko Lake Villa";
   }, []);
 
-  const handleCategoryChange = (category: string | null) => {
-    setSelectedCategory(category);
-  };
+  // Category value mapping to match database values
+const CATEGORY_MAPPING: Record<string, string> = {
+  "All Villa": "all-villa",
+  "Family Suite": "family-suite",
+  "Group Room": "group-room", 
+  "Triple Room": "triple-room", 
+  "Dining Area": "dining-area", 
+  "Pool Deck": "pool-deck", 
+  "Lake Garden": "lake-garden", 
+  "Roof Garden": "roof-garden", 
+  "Front Garden and Entrance": "front-garden", 
+  "Koggala Lake Ahangama and Surrounding": "koggala-lake", 
+  "Excursions": "excursions"
+};
 
-  const openImageModal = (image: GalleryImage) => {
+const handleCategoryChange = (category: string | null) => {
+  setSelectedCategory(category);
+};
+
+  const openImageModal = (image: GalleryImageType) => {
     setSelectedImage(image);
   };
 
@@ -235,9 +251,19 @@ const Gallery = () => {
                 All
               </button>
               <button
-                onClick={() => handleCategoryChange('family-suite')}
+                onClick={() => handleCategoryChange('All Villa')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'family-suite'
+                  selectedCategory === 'All Villa'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                All Villa
+              </button>
+              <button
+                onClick={() => handleCategoryChange('Family Suite')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'Family Suite'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -245,9 +271,9 @@ const Gallery = () => {
                 Family Suite
               </button>
               <button
-                onClick={() => handleCategoryChange('group-room')}
+                onClick={() => handleCategoryChange('Group Room')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'group-room'
+                  selectedCategory === 'Group Room'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -255,9 +281,9 @@ const Gallery = () => {
                 Group Room
               </button>
               <button
-                onClick={() => handleCategoryChange('triple-room')}
+                onClick={() => handleCategoryChange('Triple Room')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'triple-room'
+                  selectedCategory === 'Triple Room'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -265,9 +291,9 @@ const Gallery = () => {
                 Triple Room
               </button>
               <button
-                onClick={() => handleCategoryChange('dining-area')}
+                onClick={() => handleCategoryChange('Dining Area')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'dining-area'
+                  selectedCategory === 'Dining Area'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -275,9 +301,9 @@ const Gallery = () => {
                 Dining Area
               </button>
               <button
-                onClick={() => handleCategoryChange('pool-deck')}
+                onClick={() => handleCategoryChange('Pool Deck')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'pool-deck'
+                  selectedCategory === 'Pool Deck'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -285,9 +311,9 @@ const Gallery = () => {
                 Pool Deck
               </button>
               <button
-                onClick={() => handleCategoryChange('lake-garden')}
+                onClick={() => handleCategoryChange('Lake Garden')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'lake-garden'
+                  selectedCategory === 'Lake Garden'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -295,9 +321,9 @@ const Gallery = () => {
                 Lake Garden
               </button>
               <button
-                onClick={() => handleCategoryChange('roof-garden')}
+                onClick={() => handleCategoryChange('Roof Garden')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'roof-garden'
+                  selectedCategory === 'Roof Garden'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -305,9 +331,9 @@ const Gallery = () => {
                 Roof Garden
               </button>
               <button
-                onClick={() => handleCategoryChange('front-garden')}
+                onClick={() => handleCategoryChange('Front Garden and Entrance')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'front-garden'
+                  selectedCategory === 'Front Garden and Entrance'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -315,9 +341,9 @@ const Gallery = () => {
                 Front Garden & Entrance
               </button>
               <button
-                onClick={() => handleCategoryChange('koggala-lake')}
+                onClick={() => handleCategoryChange('Koggala Lake Ahangama and Surrounding')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'koggala-lake'
+                  selectedCategory === 'Koggala Lake Ahangama and Surrounding'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -325,9 +351,9 @@ const Gallery = () => {
                 Koggala Lake & Surrounding
               </button>
               <button
-                onClick={() => handleCategoryChange('excursions')}
+                onClick={() => handleCategoryChange('Excursions')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'excursions'
+                  selectedCategory === 'Excursions'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -351,12 +377,16 @@ const Gallery = () => {
               <p>Please try again later or contact us directly.</p>
             </div>
           ) : (
-            // Gallery grid
+            // Gallery grid with dynamic sizing based on image displaySize
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {galleryImages?.map((image) => (
                 <div 
                   key={image.id} 
-                  className="group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] hover:shadow-lg transition-all duration-300"
+                  className={`group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] hover:shadow-lg transition-all duration-300
+                    ${image.displaySize === 'big' ? 'col-span-2 row-span-2 md:col-span-3 lg:col-span-4' : ''} 
+                    ${image.displaySize === 'medium' ? 'col-span-1 md:col-span-1 lg:col-span-1' : ''}
+                    ${image.displaySize === 'small' ? 'col-span-1' : ''}`
+                  }
                   onClick={() => openImageModal(image)}
                 >
                   <div className="relative overflow-hidden rounded-md">
@@ -388,24 +418,14 @@ const Gallery = () => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* The actual image */}
-                        <img 
-                          src={image.imageUrl}
-                          alt={image.alt}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10 relative"
-                          style={{backgroundColor: 'transparent'}}
-                          onLoad={(e) => {
-                            console.log(`Image loaded successfully: ${image.imageUrl}`);
-                            const target = e.target as HTMLImageElement;
-                            target.style.opacity = '1';
-                          }}
-                          onError={(e) => {
-                            console.error(`Gallery image failed to load: ${image.imageUrl}`);
-                            // Hide the image element but keep the parent with placeholder
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
+                        {/* Using special ZyrositeImage component for better compatibility */}
+                        <div className="w-full h-full relative z-10">
+                          <ZyrositeImage 
+                            src={image.imageUrl}
+                            alt={image.alt || "Ko Lake Villa Image"}
+                            className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
                       </div>
                     )}
                     {image.featured && (

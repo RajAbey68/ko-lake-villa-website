@@ -13,6 +13,7 @@ import { ZodError } from "zod-validation-error";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import axios from "axios";
 
 // Create upload directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -56,7 +57,7 @@ const fileStorage = multer.diskStorage({
 const upload = multer({ 
   storage: fileStorage,
   limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB max file size for videos
+    fileSize: 500 * 1024 * 1024, // 500MB max file size for videos
   }
 });
 
@@ -200,13 +201,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       try {
         // Extract form data
-        const { category, alt, description, featured, sortOrder } = req.body;
+        const { category, alt, description, featured, sortOrder, displaySize } = req.body;
         
         // Create relative path for database
         const filePath = req.file.path;
         const relativePath = '/' + path.relative(process.cwd(), filePath).replace(/\\/g, '/');
         
-        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}`);
+        console.log(`Gallery image uploaded: ${relativePath}, category: ${category}, display size: ${displaySize || 'medium'}`);
         
         // Get file size
         const stats = fs.statSync(filePath);
@@ -221,6 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           featured: featured === 'true',
           sortOrder: parseInt(sortOrder) || 1,
           mediaType: 'image',
+          displaySize: displaySize || 'medium',
           fileSize: fileSize,
           tags: category
         });
@@ -564,13 +566,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      // Import axios here to avoid hoisting issues
-      const axios = require('axios');
+      // Ensure the URL has a protocol
+      let fetchUrl = imageUrl;
+      if (!fetchUrl.startsWith('http://') && !fetchUrl.startsWith('https://')) {
+        fetchUrl = 'https://' + fetchUrl;
+        console.log(`[IMAGE PROXY] Added https protocol: ${fetchUrl}`);
+      }
       
-      console.log(`[IMAGE PROXY] Fetching from external source: ${imageUrl}`);
+      console.log(`[IMAGE PROXY] Fetching from external source: ${fetchUrl}`);
       
       // Add default user agent and referer to appear like a browser request
-      const response = await axios.get(imageUrl, {
+      const response = await axios({
+        method: 'get',
+        url: fetchUrl,
         responseType: 'arraybuffer',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -578,7 +586,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Origin': 'https://kolakehouse.com'
         },
         // Increase timeout for slow connections
-        timeout: 10000
+        timeout: 15000,
+        // Don't reject unauthorized SSL certificates
+        httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false })
       });
       
       // Log success
@@ -596,12 +606,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Send the image data
       res.send(response.data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('[IMAGE PROXY] Error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Try to return a fallback image or an error message with more details
       res.status(500).json({ 
         message: "Failed to retrieve image",
-        error: errorMessage
+        error: errorMessage,
+        url: imageUrl
       });
     }
   });
