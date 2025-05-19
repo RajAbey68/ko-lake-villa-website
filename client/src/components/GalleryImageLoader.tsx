@@ -18,22 +18,28 @@ const GalleryImageLoader = ({ src, alt, className = '' }: GalleryImageLoaderProp
   
   // This function handles all the image loading strategies
   const loadImage = () => {
-    // Create a cache-busting parameter
+    // Create a stronger cache-busting parameter with random component
     const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000000);
     let imageUrl = '';
     
-    // Determine the best approach based on retry count
-    if (retryCount.current === 0) {
+    // Check if it's a local uploaded file
+    const isLocalFile = src.startsWith('/uploads/');
+    
+    if (isLocalFile) {
+      // For local files, use a strong cache buster
+      imageUrl = `${src}?nocache=${timestamp}-${random}`;
+    } else if (retryCount.current === 0) {
       // First try: Direct approach with cache busting
-      imageUrl = `${src}?nocache=${timestamp}`;
+      imageUrl = `${src}?nocache=${timestamp}-${random}`;
     } else if (retryCount.current === 1) {
       // Second try: Use our image proxy endpoint
-      imageUrl = `/api/image-proxy?url=${encodeURIComponent(src)}&t=${timestamp}`;
+      imageUrl = `/api/image-proxy?url=${encodeURIComponent(src)}&t=${timestamp}-${random}`;
     } else {
       // Subsequent retries: Alternate between approaches with different timestamps
       imageUrl = retryCount.current % 2 === 0
-        ? `${src}?attempt=${retryCount.current}&t=${timestamp}`
-        : `/api/image-proxy?url=${encodeURIComponent(src)}&attempt=${retryCount.current}&t=${timestamp}`;
+        ? `${src}?attempt=${retryCount.current}&t=${timestamp}-${random}`
+        : `/api/image-proxy?url=${encodeURIComponent(src)}&attempt=${retryCount.current}&t=${timestamp}-${random}`;
     }
     
     // Create a new image object to test loading
