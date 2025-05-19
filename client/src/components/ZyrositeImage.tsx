@@ -30,6 +30,9 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
     if (src.includes('zyrosite.com') || src.includes('assets.zyro')) {
       // Use an image proxy service to bypass CORS
       setImgSrc(`https://images.weserv.nl/?url=${encodeURIComponent(src)}`);
+    } else if (src.startsWith('/uploads/')) {
+      // For local uploaded files, try direct access first
+      setImgSrc(src);
     } else {
       // Direct use for other URLs
       setImgSrc(src);
@@ -41,6 +44,15 @@ const ZyrositeImage = ({ src, alt, className = '' }: ZyrositeImageProps) => {
   };
   
   const handleImageError = () => {
+    // For local uploads, try using the image proxy as a fallback
+    if (imgSrc && imgSrc.startsWith('/uploads/') && !imgSrc.includes('image-proxy')) {
+      console.log(`Local image failed to load directly: ${imgSrc}, trying with proxy`);
+      setImgSrc(`/api/image-proxy?url=${encodeURIComponent(imgSrc)}&t=${Date.now()}`);
+      return;
+    }
+    
+    // If we're already using the proxy or for other URLs, show the error state
+    console.error(`Image failed to load: ${imgSrc}`);
     setError(true);
     setLoading(false);
   };
