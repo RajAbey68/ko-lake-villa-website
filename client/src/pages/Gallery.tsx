@@ -419,12 +419,16 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* Using our new GalleryImageLoader component for more reliable image loading */}
+                        {/* Direct image loading with strong cache busting */}
                         <div className="w-full h-full relative z-10">
-                          <GalleryImageLoader 
-                            src={image.imageUrl}
+                          <img 
+                            src={`${image.imageUrl}?forceRefresh=${Date.now()}-${Math.floor(Math.random() * 10000000)}`}
                             alt={image.alt || "Ko Lake Villa Image"}
-                            className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              console.error(`Failed to load image: ${image.imageUrl}`);
+                              (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                            }}
                           />
                         </div>
                       </div>
