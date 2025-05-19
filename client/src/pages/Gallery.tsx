@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { GalleryImage as GalleryImageType } from '@shared/schema';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ZyrositeImage from '@/components/ZyrositeImage';
+import GalleryImageLoader from '@/components/GalleryImageLoader';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -418,9 +419,9 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* Using special ZyrositeImage component for better compatibility */}
+                        {/* Using our new GalleryImageLoader component for more reliable image loading */}
                         <div className="w-full h-full relative z-10">
-                          <ZyrositeImage 
+                          <GalleryImageLoader 
                             src={image.imageUrl}
                             alt={image.alt || "Ko Lake Villa Image"}
                             className="w-full h-full group-hover:scale-105 transition-transform duration-500"
