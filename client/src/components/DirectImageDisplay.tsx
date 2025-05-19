@@ -19,9 +19,15 @@ const DirectImageDisplay = ({ imageUrl, alt, className = '' }: DirectImageDispla
       return;
     }
 
+    // Strip any existing cache parameters to avoid multiple params
+    let cleanUrl = imageUrl;
+    if (cleanUrl.includes('?')) {
+      cleanUrl = cleanUrl.split('?')[0];
+    }
+
     // Add cache-busting timestamp to URL
     const bustCache = Math.floor(Math.random() * 1000000);
-    setImgSrc(`${imageUrl}?cache=${Date.now()}-${bustCache}`);
+    setImgSrc(`${cleanUrl}?cache=${Date.now()}-${bustCache}`);
   }, [imageUrl]);
 
   const handleError = () => {
