@@ -41,6 +41,21 @@ const GALLERY_CATEGORIES = [
   "Excursions"
 ];
 
+// Define category value mappings for URL slugs
+export const CATEGORY_VALUES = {
+  "All Villa": "all-villa",
+  "Family Suite": "family-suite",
+  "Group Room": "group-room", 
+  "Triple Room": "triple-room", 
+  "Dining Area": "dining-area", 
+  "Pool Deck": "pool-deck", 
+  "Lake Garden": "lake-garden", 
+  "Roof Garden": "roof-garden", 
+  "Front Garden and Entrance": "front-garden", 
+  "Koggala Lake Ahangama and Surrounding": "koggala-lake", 
+  "Excursions": "excursions"
+};
+
 export default function GalleryUploader() {
   const { currentUser, isLoading, isAdmin } = useAuth();
   const [, navigate] = useLocation();
