@@ -69,6 +69,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static(UPLOAD_DIR));
   
+  // Debug route to list all uploaded files
+  app.get('/api/debug/uploads', (req, res) => {
+    try {
+      const files = listAllFiles(UPLOAD_DIR);
+      res.json({ files });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to list uploaded files' });
+    }
+  });
+  
+  // Helper function to list all files in a directory (recursive)
+  function listAllFiles(dir: string): string[] {
+    let results: string[] = [];
+    const list = fs.readdirSync(dir);
+    
+    list.forEach((file) => {
+      const fullPath = path.join(dir, file);
+      const stat = fs.statSync(fullPath);
+      
+      if (stat && stat.isDirectory()) {
+        results = results.concat(listAllFiles(fullPath));
+      } else {
+        results.push(fullPath);
+      }
+    });
+    
+    return results;
+  }
+  
   // File upload endpoint
   app.post("/api/upload", (req, res) => {
     console.log("Upload endpoint called");
@@ -205,9 +234,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Create relative path for database
         const filePath = req.file.path;
-        const relativePath = '/' + path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+        // Use an absolute URL path that will work with the express.static middleware
+        const relativePath = '/uploads/' + path.relative(UPLOAD_DIR, filePath).replace(/\\/g, '/');
         
         console.log(`Gallery image uploaded: ${relativePath}, category: ${category}, display size: ${displaySize || 'medium'}`);
+        console.log(`File saved at physical path: ${filePath}`);
         
         // Get file size
         const stats = fs.statSync(filePath);
