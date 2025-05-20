@@ -24,7 +24,11 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
     if (!url) return '';
     // Strip existing query params
     const baseUrl = url.includes('?') ? url.split('?')[0] : url;
-    return `${baseUrl}?nocache=${Date.now()}-${Math.random()}`;
+    // Generate unique timestamp with microseconds for true uniqueness
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000000);
+    console.log(`Opening modal for image: ${baseUrl} with timestamp ${timestamp}-${random}`);
+    return `${baseUrl}?t=${timestamp}-${random}`;
   };
 
   if (!image) return null;
