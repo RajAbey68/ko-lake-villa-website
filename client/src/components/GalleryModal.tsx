@@ -45,18 +45,29 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
           {image.mediaType === 'video' ? (
             <div className="relative w-full max-w-3xl">
               {image.imageUrl.startsWith('/uploads') ? (
-                // Local video file
-                <video 
-                  src={getImageUrl(image.imageUrl)}
-                  className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
-                  controls
-                  autoPlay
-                  onError={(e) => {
-                    console.error(`Failed to load video: ${image.imageUrl}`);
-                    const videoElement = e.target as HTMLVideoElement;
-                    videoElement.onerror = null;
-                  }}
-                />
+                // Local video file with improved error handling and debug info
+                <>
+                  <video 
+                    key={`video-${Date.now()}`} // Force re-render with new key
+                    src={getImageUrl(image.imageUrl)}
+                    className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                    controls
+                    autoPlay
+                    preload="auto"
+                    playsInline
+                    onLoadStart={() => console.log(`Video loading started: ${image.imageUrl}`)}
+                    onCanPlay={() => console.log(`Video can play now: ${image.imageUrl}`)}
+                    onError={(e) => {
+                      console.error(`Failed to load video: ${image.imageUrl}`, e);
+                      const videoElement = e.target as HTMLVideoElement;
+                      console.error(`Video error code: ${videoElement.error?.code}, message: ${videoElement.error?.message}`);
+                      videoElement.onerror = null;
+                    }}
+                  >
+                    <source src={getImageUrl(image.imageUrl)} type="video/mp4" />
+                    <p>Your browser doesn't support HTML5 video. Here is a <a href={getImageUrl(image.imageUrl)}>link to the video</a> instead.</p>
+                  </video>
+                </>
               ) : image.imageUrl.includes('youtube.com') || image.imageUrl.includes('youtu.be') ? (
                 // YouTube embed
                 <div className="aspect-video w-full border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
@@ -76,18 +87,29 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
                   </div>
                 </div>
               ) : (
-                // Other video with cache-busting
-                <video 
-                  src={getImageUrl(image.imageUrl)}
-                  className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
-                  controls
-                  autoPlay
-                  onError={(e) => {
-                    console.error(`Failed to load video: ${image.imageUrl}`);
-                    const videoElement = e.target as HTMLVideoElement;
-                    videoElement.onerror = null;
-                  }}
-                />
+                // Other video with enhanced attributes for better playback
+                <>
+                  <video 
+                    key={`video-${Date.now()}`} // Force re-render with new key
+                    src={getImageUrl(image.imageUrl)}
+                    className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                    controls
+                    autoPlay
+                    preload="auto"
+                    playsInline
+                    onLoadStart={() => console.log(`Video loading started: ${image.imageUrl}`)}
+                    onCanPlay={() => console.log(`Video can play now: ${image.imageUrl}`)}
+                    onError={(e) => {
+                      console.error(`Failed to load video: ${image.imageUrl}`, e);
+                      const videoElement = e.target as HTMLVideoElement;
+                      console.error(`Video error code: ${videoElement.error?.code}, message: ${videoElement.error?.message}`);
+                      videoElement.onerror = null;
+                    }}
+                  >
+                    <source src={getImageUrl(image.imageUrl)} type="video/mp4" />
+                    <p>Your browser doesn't support HTML5 video. Here is a <a href={getImageUrl(image.imageUrl)}>link to the video</a> instead.</p>
+                  </video>
+                </>
               )}
             </div>
           ) : (
