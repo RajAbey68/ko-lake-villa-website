@@ -9,26 +9,32 @@ interface GalleryModalProps {
 
 const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [imageSrc, setImageSrc] = useState('');
+  const [videoSrc, setVideoSrc] = useState('');
 
   useEffect(() => {
     setIsOpen(!!image);
+    
+    if (image) {
+      // Add timestamp to URL for cache busting
+      const timestamp = Date.now();
+      const baseUrl = image.imageUrl.includes('?') ? image.imageUrl.split('?')[0] : image.imageUrl;
+      
+      if (image.mediaType === 'video') {
+        // For videos, we'll use a direct URL with timestamp
+        setVideoSrc(`${baseUrl}?t=${timestamp}`);
+        console.log(`Opening video modal: ${baseUrl}?t=${timestamp}`);
+      } else {
+        // For images, we'll use a direct URL with timestamp
+        setImageSrc(`${baseUrl}?t=${timestamp}`);
+        console.log(`Opening image modal: ${baseUrl}?t=${timestamp}`);
+      }
+    }
   }, [image]);
 
   const handleClose = () => {
     setIsOpen(false);
     onClose();
-  };
-
-  // Format image URL with cache busting
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    // Strip existing query params
-    const baseUrl = url.includes('?') ? url.split('?')[0] : url;
-    // Generate unique timestamp with microseconds for true uniqueness
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 1000000);
-    console.log(`Opening modal for image: ${baseUrl} with timestamp ${timestamp}-${random}`);
-    return `${baseUrl}?t=${timestamp}-${random}`;
   };
 
   if (!image) return null;
@@ -44,31 +50,7 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
         <div className="flex flex-col items-center">
           {image.mediaType === 'video' ? (
             <div className="relative w-full max-w-3xl">
-              {image.imageUrl.startsWith('/uploads') ? (
-                // Local video file with improved error handling and debug info
-                <>
-                  <video 
-                    key={`video-${Date.now()}`} // Force re-render with new key
-                    src={getImageUrl(image.imageUrl)}
-                    className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
-                    controls
-                    autoPlay
-                    preload="auto"
-                    playsInline
-                    onLoadStart={() => console.log(`Video loading started: ${image.imageUrl}`)}
-                    onCanPlay={() => console.log(`Video can play now: ${image.imageUrl}`)}
-                    onError={(e) => {
-                      console.error(`Failed to load video: ${image.imageUrl}`, e);
-                      const videoElement = e.target as HTMLVideoElement;
-                      console.error(`Video error code: ${videoElement.error?.code}, message: ${videoElement.error?.message}`);
-                      videoElement.onerror = null;
-                    }}
-                  >
-                    <source src={getImageUrl(image.imageUrl)} type="video/mp4" />
-                    <p>Your browser doesn't support HTML5 video. Here is a <a href={getImageUrl(image.imageUrl)}>link to the video</a> instead.</p>
-                  </video>
-                </>
-              ) : image.imageUrl.includes('youtube.com') || image.imageUrl.includes('youtu.be') ? (
+              {image.imageUrl.includes('youtube.com') || image.imageUrl.includes('youtu.be') ? (
                 // YouTube embed
                 <div className="aspect-video w-full border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
                   <div className="text-center">
@@ -87,41 +69,33 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
                   </div>
                 </div>
               ) : (
-                // Other video with enhanced attributes for better playback
-                <>
+                // Standard video player with simpler implementation
+                <div className="video-container w-full flex justify-center">
                   <video 
-                    key={`video-${Date.now()}`} // Force re-render with new key
-                    src={getImageUrl(image.imageUrl)}
-                    className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                    key={`video-${Date.now()}`}
+                    src={videoSrc}
                     controls
                     autoPlay
                     preload="auto"
-                    playsInline
-                    onLoadStart={() => console.log(`Video loading started: ${image.imageUrl}`)}
-                    onCanPlay={() => console.log(`Video can play now: ${image.imageUrl}`)}
+                    className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
                     onError={(e) => {
-                      console.error(`Failed to load video: ${image.imageUrl}`, e);
-                      const videoElement = e.target as HTMLVideoElement;
-                      console.error(`Video error code: ${videoElement.error?.code}, message: ${videoElement.error?.message}`);
-                      videoElement.onerror = null;
+                      console.error("Video error:", e);
                     }}
                   >
-                    <source src={getImageUrl(image.imageUrl)} type="video/mp4" />
-                    <p>Your browser doesn't support HTML5 video. Here is a <a href={getImageUrl(image.imageUrl)}>link to the video</a> instead.</p>
+                    Your browser does not support the video tag.
                   </video>
-                </>
+                </div>
               )}
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative flex justify-center">
               <img 
-                src={`${image.imageUrl}?t=${Date.now()}`}
-                alt={image.alt} 
+                src={imageSrc}
+                alt={image.alt || "Gallery image"} 
                 className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
                 onError={(e) => {
                   console.error(`Failed to load modal image: ${image.imageUrl}`);
                   (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
                 }}
               />
             </div>
