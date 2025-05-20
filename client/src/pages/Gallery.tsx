@@ -393,7 +393,10 @@ const handleCategoryChange = (category: string | null) => {
                     ${image.displaySize === 'medium' ? 'col-span-1 md:col-span-1 lg:col-span-1' : ''}
                     ${image.displaySize === 'small' ? 'col-span-1' : ''}`
                   }
-                  onClick={() => openImageModal(image)}
+                  onClick={() => {
+                    console.log('Opening image modal for:', image);
+                    openImageModal(image);
+                  }}
                 >
                   <div className="relative overflow-hidden rounded-md">
                     {image.mediaType === 'video' ? (
