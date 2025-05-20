@@ -221,7 +221,13 @@ const handleCategoryChange = (category: string | null) => {
 };
 
   const openImageModal = (image: GalleryImageType) => {
-    setSelectedImage(image);
+    console.log('Opening modal for image:', image);
+    // Create a clean copy of the image with fresh timestamps
+    const imageWithTimestamp = {
+      ...image,
+      imageUrl: `${image.imageUrl.split('?')[0]}?t=${Date.now()}`
+    };
+    setSelectedImage(imageWithTimestamp);
   };
 
   const closeImageModal = () => {
@@ -427,12 +433,16 @@ const handleCategoryChange = (category: string | null) => {
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
                         
-                        {/* Using our simplified direct image component */}
+                        {/* Using a simple img tag with direct URL for maximum compatibility */}
                         <div className="w-full h-full relative z-10">
-                          <DirectImageDisplay 
-                            imageUrl={image.imageUrl}
+                          <img 
+                            src={`${image.imageUrl}?t=${Date.now()}`}
                             alt={image.alt || "Ko Lake Villa Image"}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              console.error(`Error loading image: ${image.imageUrl}`);
+                              (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                            }}
                           />
                         </div>
                       </div>

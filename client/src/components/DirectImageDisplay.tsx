@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface DirectImageDisplayProps {
   imageUrl: string;
@@ -7,28 +7,13 @@ interface DirectImageDisplayProps {
 }
 
 /**
- * A simplified component that directly displays images with cache busting
+ * A simplified component that directly displays images
  */
 const DirectImageDisplay = ({ imageUrl, alt, className = '' }: DirectImageDisplayProps) => {
-  const [imgSrc, setImgSrc] = useState<string>('');
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (!imageUrl) {
-      setError(true);
-      return;
-    }
-
-    // Strip any existing cache parameters to avoid multiple params
-    let cleanUrl = imageUrl;
-    if (cleanUrl.includes('?')) {
-      cleanUrl = cleanUrl.split('?')[0];
-    }
-
-    // Add cache-busting timestamp to URL
-    const bustCache = Math.floor(Math.random() * 1000000);
-    setImgSrc(`${cleanUrl}?cache=${Date.now()}-${bustCache}`);
-  }, [imageUrl]);
+  // Generate a working image URL with proper cache busting
+  const processedUrl = imageUrl + (imageUrl.includes('?') ? '&' : '?') + `t=${Date.now()}`;
 
   const handleError = () => {
     console.error(`Failed to load image: ${imageUrl}`);
@@ -52,7 +37,7 @@ const DirectImageDisplay = ({ imageUrl, alt, className = '' }: DirectImageDispla
 
   return (
     <img 
-      src={imgSrc} 
+      src={processedUrl} 
       alt={alt}
       className={className} 
       onError={handleError}
