@@ -91,16 +91,19 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
               )}
             </div>
           ) : (
-            <img 
-              src={getImageUrl(image.imageUrl)}
-              alt={image.alt} 
-              className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
-              onError={(e) => {
-                console.error(`Failed to load modal image: ${image.imageUrl}`);
-                (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-              }}
-            />
+            <div className="relative">
+              <img 
+                src={getImageUrl(image.imageUrl)}
+                alt={image.alt} 
+                className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
+                onError={(e) => {
+                  console.error(`Failed to load modal image: ${image.imageUrl}`);
+                  (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
+                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                }}
+              />
+              {/* Fallback content will appear through the onError handler if needed */}
+            </div>
           )}
           <div className="mt-4 flex items-center gap-3">
             {image.mediaType === 'video' && (
