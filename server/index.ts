@@ -34,14 +34,53 @@ app.use('/uploads', (req, res, next) => {
       else if (filePath.endsWith('.gif')) contentType = 'image/gif';
       else if (filePath.endsWith('.mp4')) contentType = 'video/mp4';
       
-      // Set no-cache headers to ensure fresh content is always loaded
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.setHeader('Content-Type', contentType);
-      
-      // Stream the file
-      return fs.createReadStream(filePath).pipe(res);
+      // Set appropriate headers based on content type
+      if (contentType.startsWith('video/')) {
+        // For video files, set headers that support range requests and streaming
+        res.setHeader('Accept-Ranges', 'bytes');
+        
+        // Get the range header from the request
+        const range = req.headers.range;
+        
+        if (range) {
+          // Range request handling for video streaming
+          const fileSize = stats.size;
+          const parts = range.replace(/bytes=/, '').split('-');
+          const start = parseInt(parts[0], 10);
+          const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+          const chunkSize = (end - start) + 1;
+          
+          console.log(`Video streaming request: Range: ${range}, Size: ${fileSize}, Start: ${start}, End: ${end}`);
+          
+          const fileStream = fs.createReadStream(filePath, { start, end });
+          
+          // Set appropriate headers for the range request
+          res.writeHead(206, {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunkSize,
+            'Content-Type': contentType
+          });
+          
+          return fileStream.pipe(res);
+        } 
+        else {
+          // If no range header, serve the whole video but with headers that enable browser to make range requests
+          res.setHeader('Content-Length', stats.size);
+          res.setHeader('Content-Type', contentType);
+          return fs.createReadStream(filePath).pipe(res);
+        }
+      } 
+      else {
+        // For images and other content, set no-cache headers
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Content-Type', contentType);
+        
+        // Stream the file
+        return fs.createReadStream(filePath).pipe(res);
+      }
     }
   } catch (error) {
     console.error(`Error serving upload: ${req.path}`, error);
