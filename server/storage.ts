@@ -121,16 +121,16 @@ export class MemStorage implements IStorage {
 
   // Initialize some sample data
   private initializeData() {
-    // Ko Lake Villa - Authentic Airbnb Accommodation Structure
+    // Ko Lake Villa - Official Room Definitions with Dynamic Pricing
     const sampleRooms: InsertRoom[] = [
       {
         name: "Entire Villa Exclusive (KNP)",
-        description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Perfect for corporate retreats, family reunions, or group celebrations. Sleeps 16+ guests.",
+        description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Sleeps 16+ guests (up to 25). Perfect for corporate retreats, family reunions, or group celebrations.",
         price: 1800,
-        capacity: 16,
+        capacity: 25,
         size: 500,
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        features: ["Entire Villa", "7 Rooms", "60-ft Pool", "Rooftop Terrace", "Lakefront", "High-Speed WiFi", "Book on Airbnb: airbnb.co.uk/h/knp"]
+        features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view", "Up to 25 guests", "https://airbnb.co.uk/h/knp"]
       },
       {
         name: "Master Family Suite (KNP1)",
@@ -139,16 +139,16 @@ export class MemStorage implements IStorage {
         capacity: 6,
         size: 60,
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
-        features: ["Sleeps 6", "Lake Views", "Pool Access", "Master Suite", "A/C", "WiFi", "Book on Airbnb: airbnb.co.uk/h/knp1"]
+        features: ["Lake views", "Master suite", "Pool access", "Sleeps 6", "A/C", "https://airbnb.co.uk/h/knp1"]
       },
       {
         name: "Triple/Twin Rooms (KNP3)",
-        description: "Four flexible rooms, each sleeping up to 3 guests. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
+        description: "Four flexible rooms, each sleeping up to 3 guests per room. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
         price: 180,
         capacity: 3,
         size: 35,
         imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
-        features: ["4 Rooms Available", "Sleeps 3 Each", "Flexible Bedding", "A/C", "WiFi", "Garden Views", "Book on Airbnb: airbnb.co.uk/h/knp3"]
+        features: ["Flexible bedding", "Garden views", "Shared amenities", "4 rooms available", "3 guests per room", "https://airbnb.co.uk/h/knp3"]
       },
       {
         name: "Group Room (KNP6)",
@@ -157,7 +157,7 @@ export class MemStorage implements IStorage {
         capacity: 4,
         size: 40,
         imageUrl: "/uploads/gallery/default/1747446102756-742973380-20250329_154102.jpg",
-        features: ["Group Layout", "Shared Spaces", "Team Friendly", "A/C", "High-Speed WiFi", "Coming Soon on Airbnb: knp6"]
+        features: ["Team layout", "Communal space", "Shared access", "4 guests", "A/C", "Coming Soon"]
       }
     ];
 
