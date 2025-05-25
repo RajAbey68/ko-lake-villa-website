@@ -78,7 +78,7 @@ const Accommodation = () => {
                     <div className="md:w-2/5">
                       <img 
                         src={room.imageUrl} 
-                        alt={room.name} 
+                        alt={`${room.name} - ${room.capacity} guests, ${room.size}m² with ${room.features.join(', ')} at Ko Lake Villa Ahangama`} 
                         className="w-full h-64 md:h-full object-cover" 
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
