@@ -1432,6 +1432,72 @@ function AdminDashboardContent() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Pricing Manager Section */}
+                <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-green-800">
+                      💰 Pricing Manager
+                      <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-full">Live Rates</span>
+                    </CardTitle>
+                    <CardDescription>Update Airbnb rates and manage direct booking pricing</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-gray-800">Current Airbnb Rates:</h4>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span>KNP (Entire Villa):</span>
+                            <span className="font-medium">$431</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>KNP1 (Master Suite):</span>
+                            <span className="font-medium">$119</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>KNP3 (Triple Rooms):</span>
+                            <span className="font-medium">$70</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-gray-800">Your Direct Rates:</h4>
+                        <div className="space-y-1 text-sm text-green-700">
+                          <div className="flex justify-between">
+                            <span>KNP Direct:</span>
+                            <span className="font-medium">$388 (Save $43)</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>KNP1 Direct:</span>
+                            <span className="font-medium">$107 (Save $12)</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>KNP3 Direct:</span>
+                            <span className="font-medium">$63 (Save $7)</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Link href="/admin/calendar" className="flex-1">
+                        <Button className="w-full bg-[#E8B87D] hover:bg-[#1E4E5F] text-white">
+                          📅 Open Pricing Calendar
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+                        onClick={() => window.open('/accommodation', '_blank')}
+                      >
+                        👁️ Preview Live Rates
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 gap-6">
+                </div>
                 
                 <Card>
                   <CardHeader>
