@@ -1489,36 +1489,82 @@ function AdminDashboardContent() {
                   <p style={{ fontStyle: 'italic', marginBottom: '0.5rem' }}>
                     Last updated: {new Date(pricing.updated).toLocaleString()}
                   </p>
-                  <table width="100%" style={{ marginBottom: '1rem' }}>
-                    <thead>
-                      <tr>
-                        <th align="left">Room</th>
-                        <th>Airbnb Rate</th>
-                        <th>Your Rate</th>
-                        <th>Guest Savings</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.entries(pricing.rates).map(([id, roomData]) => {
-                        const airbnbRate = roomData.sun;
-                        const direct = +(airbnbRate * 0.9).toFixed(2);
-                        const saving = (airbnbRate - direct).toFixed(2);
-                        const roomNames = { knp: "Entire Villa (KNP)", knp1: "Family Suite (KNP1)", knp3: "Twin/Triple Room (KNP3)", knp6: "Group Room (KNP6)" };
-                        return (
-                          <tr key={id}>
-                            <td>{roomNames[id]}</td>
-                            <td>${airbnbRate}</td>
-                            <td style={{ color: "green" }}>${direct}</td>
-                            <td>${saving}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <a href="/admin/calendar">
-                      <button style={{ background: "#469458", color: "white", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>🔁 Open Pricing Calendar</button>
-                    </a>
+                  {/* Full Pricing Management Interface - Same as Console */}
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f5f5f5' }}>
+                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Room</th>
+                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Sunday</th>
+                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Monday</th>
+                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Tuesday</th>
+                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Your Direct Rate</th>
+                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(pricing.rates).map(([roomId, days]) => {
+                          const avgRate = Math.round((days.sun + days.mon + days.tue) / 3);
+                          const autoDirectRate = Math.round(avgRate * 0.9);
+                          const override = pricing.overrides?.[roomId];
+                          const displayRate = override ? override.customPrice : autoDirectRate;
+                          const isCustom = !!override;
+                          const roomNames = { knp: "KNP", knp1: "KNP1", knp3: "KNP3", knp6: "KNP6" };
+                          
+                          return (
+                            <tr key={roomId} style={{ backgroundColor: '#fff' }}>
+                              <td style={{ border: '1px solid #ddd', padding: '12px', fontWeight: 'bold' }}>
+                                {roomNames[roomId]}
+                              </td>
+                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                ${days.sun}
+                              </td>
+                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                ${days.mon}
+                              </td>
+                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                ${days.tue}
+                              </td>
+                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                  <span style={{ fontWeight: 'bold', color: isCustom ? '#2563eb' : '#16a34a' }}>
+                                    ${displayRate}
+                                  </span>
+                                  {isCustom && (
+                                    <span style={{ fontSize: '12px', backgroundColor: '#dbeafe', color: '#2563eb', padding: '2px 8px', borderRadius: '4px' }}>
+                                      Custom
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                                <a href="/admin/calendar" style={{ textDecoration: 'none' }}>
+                                  <button style={{ 
+                                    color: '#2563eb', 
+                                    backgroundColor: 'transparent',
+                                    border: '1px solid #2563eb', 
+                                    padding: '6px 12px', 
+                                    borderRadius: '4px', 
+                                    fontSize: '14px',
+                                    cursor: 'pointer'
+                                  }}>
+                                    ✏️ Edit
+                                  </button>
+                                </a>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <button 
+                      onClick={() => window.location.reload()}
+                      style={{ background: "#469458", color: "white", padding: "0.75rem 1.5rem", borderRadius: "5px", border: "none", cursor: "pointer" }}
+                    >
+                      🔁 Refresh Pricing
+                    </button>
                     <a href="/accommodation" target="_blank">
                       <button style={{ background: "#ccc", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>👁 Preview Live Rates</button>
                     </a>
