@@ -66,6 +66,44 @@ import { checkDbHealth } from './db';
 import { scrapeWebsiteHandler, scrapeMultipleWebsites } from './scraper';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Admin pricing management routes
+  app.get('/api/admin/pricing', (req, res) => {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const pricingPath = path.join(__dirname, '../shared/pricing.json');
+      const pricingData = JSON.parse(fs.readFileSync(pricingPath, 'utf8'));
+      res.json(pricingData);
+    } catch (error) {
+      res.status(500).json({ error: 'Could not read pricing data' });
+    }
+  });
+
+  app.post('/api/admin/refresh-pricing', (req, res) => {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      // Updated pricing with your real Airbnb rates
+      const latestPricing = {
+        updated: new Date().toISOString(),
+        rates: {
+          knp: { sun: 431, mon: 431, tue: 431 },
+          knp1: { sun: 119, mon: 119, tue: 119 },
+          knp3: { sun: 70, mon: 70, tue: 70 },
+          knp6: { sun: 250, mon: 250, tue: 250 }
+        }
+      };
+
+      const pricingPath = path.join(__dirname, '../shared/pricing.json');
+      fs.writeFileSync(pricingPath, JSON.stringify(latestPricing, null, 2));
+      
+      res.json({ success: true, message: 'Pricing updated successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Could not update pricing data' });
+    }
+  });
   // Serve uploaded files with proper caching disabled
   app.use('/uploads', express.static(UPLOAD_DIR, {
     etag: false,
