@@ -11,6 +11,7 @@ import NotFound from "@/pages/not-found";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import BackToTop from "@/components/BackToTop";
 import Home from "@/pages/Home";
 import Accommodation from "@/pages/Accommodation";
 import Dining from "@/pages/Dining";
@@ -18,6 +19,7 @@ import Experiences from "@/pages/Experiences";
 import Gallery from "@/pages/Gallery";
 import Contact from "@/pages/Contact";
 import Booking from "@/pages/Booking";
+import FAQ from "@/pages/FAQ";
 
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
@@ -55,6 +57,7 @@ function Router() {
             <Route path="/gallery" component={Gallery} />
             <Route path="/contact" component={Contact} />
             <Route path="/booking" component={Booking} />
+            <Route path="/faq" component={FAQ} />
             <Route path="/admin/*" component={() => null} /> {/* Catch and ignore admin routes here */}
             <Route component={NotFound} />
           </Switch>
@@ -62,6 +65,8 @@ function Router() {
         <Footer />
         {/* WhatsApp contact button */}
         <WhatsAppButton phoneNumber="+940711730345" />
+        {/* Back to top button */}
+        <BackToTop />
       </div>
     );
   }
