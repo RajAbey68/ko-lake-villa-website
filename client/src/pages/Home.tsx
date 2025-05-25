@@ -31,7 +31,7 @@ const Home = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/uploads/gallery/koggala-lake/KoggalaNinePeaks_koggala-lake_0.jpg')"
+            backgroundImage: "url('/uploads/gallery/default/hero-background.jpeg')"
           }}
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
