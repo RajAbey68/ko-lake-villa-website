@@ -124,11 +124,11 @@ export class MemStorage implements IStorage {
     // Clear existing rooms first
     this.rooms.clear();
     
-    // Ko Lake Villa - Authentic Airbnb Room Structure with Smart Pricing
+    // Ko Lake Villa - Real Airbnb Rates (extracted from live data)
     const BASE_RATES = {
-      knp: 539,    // Entire Villa – actual Airbnb rate for early week
-      knp1: 431,   // Family Suite – from your screenshot
-      knp3: 180,   // Triple/Twin per room
+      knp: 431,    // Entire Villa – real Airbnb rate with discounts applied
+      knp1: 119,   // Family Suite – actual current rate
+      knp3: 70,    // Triple/Twin per room – actual current rate
       knp6: 250,   // Group Room (planned)
     };
 
