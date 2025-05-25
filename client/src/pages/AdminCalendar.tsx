@@ -12,26 +12,84 @@ interface PricingData {
       tue: number;
     };
   };
+  overrides?: {
+    [roomId: string]: {
+      customPrice: number;
+      setDate: string;
+      autoPrice: number;
+    };
+  };
 }
 
 export default function AdminCalendar() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [editingRoom, setEditingRoom] = useState<string | null>(null);
+  const [editPrice, setEditPrice] = useState<string>('');
 
   // Fetch current pricing data
   const { data: pricing, isLoading } = useQuery<PricingData>({
     queryKey: ['/api/admin/pricing'],
   });
 
+  // Handle saving custom price
+  const handleSavePrice = (roomId: string, autoDirectRate: number) => {
+    const customPrice = parseFloat(editPrice);
+    if (!customPrice || customPrice <= 0) {
+      toast({
+        title: "Invalid Price",
+        description: "Please enter a valid price greater than $0.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Store locally for now (in production this would go to your database)
+    const currentOverrides = pricing?.overrides || {};
+    const newOverrides = {
+      ...currentOverrides,
+      [roomId]: {
+        customPrice: customPrice,
+        setDate: new Date().toISOString(),
+        autoPrice: autoDirectRate
+      }
+    };
+
+    // Update the query cache with new override
+    queryClient.setQueryData(['/api/admin/pricing'], (oldData: PricingData | undefined) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        overrides: newOverrides
+      };
+    });
+
+    setEditingRoom(null);
+    setEditPrice('');
+    
+    toast({
+      title: "Price Updated",
+      description: `Custom price set for ${roomId.toUpperCase()}: $${customPrice}. Will revert to pre-agreed rate ($${autoDirectRate}) next Sunday.`,
+    });
+  };
+
   // Refresh pricing mutation
   const refreshMutation = useMutation({
     mutationFn: () => apiRequest('POST', '/api/admin/refresh-pricing'),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/pricing'] });
-      toast({
-        title: "Pricing Refreshed",
-        description: "Airbnb rates have been updated successfully!",
-      });
+      
+      if (data?.autoReverted) {
+        toast({
+          title: "Sunday Auto-Revert",
+          description: "All custom prices have been reset to pre-agreed rates as scheduled.",
+        });
+      } else {
+        toast({
+          title: "Pricing Refreshed",
+          description: `Next auto-revert: ${data?.nextRevertDate || 'Next Sunday'}`,
+        });
+      }
     },
     onError: () => {
       toast({
@@ -90,12 +148,18 @@ export default function AdminCalendar() {
                     <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Monday</th>
                     <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Tuesday</th>
                     <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Your Direct Rate</th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pricing && Object.entries(pricing.rates).map(([roomId, days]) => {
                     const avgRate = Math.round((days.sun + days.mon + days.tue) / 3);
-                    const directRate = Math.round(avgRate * 0.9); // 10% discount
+                    const autoDirectRate = Math.round(avgRate * 0.9); // 10% discount
+                    
+                    // Check if there's a custom override
+                    const override = pricing.overrides?.[roomId];
+                    const displayRate = override ? override.customPrice : autoDirectRate;
+                    const isCustom = !!override;
                     
                     return (
                       <tr key={roomId} className="hover:bg-gray-50">
@@ -111,8 +175,62 @@ export default function AdminCalendar() {
                         <td className="border border-gray-300 px-4 py-3 text-center">
                           ${days.tue}
                         </td>
-                        <td className="border border-gray-300 px-4 py-3 text-center font-bold text-green-600">
-                          ${directRate}
+                        <td className="border border-gray-300 px-4 py-3 text-center">
+                          {editingRoom === roomId ? (
+                            <div className="flex items-center justify-center gap-2">
+                              <input
+                                type="number"
+                                value={editPrice}
+                                onChange={(e) => setEditPrice(e.target.value)}
+                                className="w-20 px-2 py-1 border rounded text-center"
+                                placeholder={displayRate.toString()}
+                                min="1"
+                                max={Math.round(avgRate * 0.95)}
+                              />
+                              <button
+                                onClick={() => handleSavePrice(roomId, autoDirectRate)}
+                                className="text-green-600 hover:text-green-800 px-2 py-1"
+                                title="Save"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingRoom(null);
+                                  setEditPrice('');
+                                }}
+                                className="text-red-600 hover:text-red-800 px-2 py-1"
+                                title="Cancel"
+                              >
+                                ✗
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-2">
+                              <span className={`font-bold ${isCustom ? 'text-blue-600' : 'text-green-600'}`}>
+                                ${displayRate}
+                              </span>
+                              {isCustom && (
+                                <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                                  Custom
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-3 text-center">
+                          {editingRoom === roomId ? null : (
+                            <button
+                              onClick={() => {
+                                setEditingRoom(roomId);
+                                setEditPrice(displayRate.toString());
+                              }}
+                              className="text-blue-600 hover:text-blue-800 px-3 py-1 border border-blue-600 rounded hover:bg-blue-50 text-sm"
+                              title="Edit price"
+                            >
+                              ✏️ Edit
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );

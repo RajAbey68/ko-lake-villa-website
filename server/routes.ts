@@ -125,20 +125,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/admin/refresh-pricing', (req, res) => {
-    // Clear overrides older than 7 days for Sunday review
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const today = new Date();
+    const isSunday = today.getDay() === 0; // Sunday = 0
     
-    const reviewNeeded = Object.entries(priceOverrides).filter(([roomId, override]) => 
-      new Date(override.setDate) < oneWeekAgo
-    );
-
-    res.json({ 
-      success: true, 
-      message: 'Pricing refreshed successfully',
-      reviewNeeded: reviewNeeded.length > 0 ? reviewNeeded : null
-    });
+    if (isSunday) {
+      // On Sundays, revert all custom overrides to pre-agreed pricing
+      const revertedRooms = Object.keys(priceOverrides);
+      priceOverrides = {}; // Clear all overrides
+      
+      res.json({ 
+        success: true, 
+        message: 'Sunday auto-revert completed - all prices reset to pre-agreed rates',
+        revertedRooms: revertedRooms,
+        autoReverted: true
+      });
+    } else {
+      res.json({ 
+        success: true, 
+        message: 'Pricing refreshed successfully',
+        autoReverted: false,
+        nextRevertDate: getNextSunday()
+      });
+    }
   });
+
+  // Helper function to get next Sunday date
+  function getNextSunday() {
+    const today = new Date();
+    const daysUntilSunday = 7 - today.getDay();
+    const nextSunday = new Date(today);
+    nextSunday.setDate(today.getDate() + daysUntilSunday);
+    return nextSunday.toDateString();
+  }
   // Serve uploaded files with proper caching disabled
   app.use('/uploads', express.static(UPLOAD_DIR, {
     etag: false,
