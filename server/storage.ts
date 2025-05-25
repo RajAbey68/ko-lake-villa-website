@@ -119,47 +119,112 @@ export class MemStorage implements IStorage {
     this.initializeData();
   }
 
-  // Initialize some sample data
+  // Initialize data with authentic Airbnb structure and smart pricing
   private initializeData() {
-    // Ko Lake Villa - Official Room Definitions with Dynamic Pricing
-    const sampleRooms: InsertRoom[] = [
+    // Clear existing rooms first
+    this.rooms.clear();
+    
+    // Ko Lake Villa - Authentic Airbnb Room Structure with Smart Pricing
+    const BASE_RATES = {
+      knp: 539,    // Entire Villa – actual Airbnb rate for early week
+      knp1: 431,   // Family Suite – from your screenshot
+      knp3: 180,   // Triple/Twin per room
+      knp6: 250,   // Group Room (planned)
+    };
+
+    const ROOM_CONFIG = [
       {
+        id: "knp",
         name: "Entire Villa Exclusive (KNP)",
-        description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Sleeps 16+ guests (up to 25). Perfect for corporate retreats, family reunions, or group celebrations.",
-        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
+        description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Perfect for corporate retreats, family reunions, or group celebrations.",
+        airbnb: "https://airbnb.co.uk/h/knp",
+        guests: "16+ guests (up to 25)",
         capacity: 25,
         size: 500,
+        features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront"],
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view", "Up to 25 guests", "airbnb.co.uk/h/knp"]
+        checkinDate: "2025-06-05",
       },
       {
+        id: "knp1",
         name: "Master Family Suite (KNP1)",
         description: "Premium lakefront family suite sleeping up to 6 guests. Master bedroom plus additional sleeping areas with stunning Koggala Lake views and direct pool access.",
-        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
+        airbnb: "https://airbnb.co.uk/h/knp1",
+        guests: "6 guests",
         capacity: 6,
         size: 60,
+        features: ["Lake views", "Master suite", "Pool access"],
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
-        features: ["Lake views", "Master suite", "Pool access", "Sleeps 6", "A/C", "airbnb.co.uk/h/knp1"]
+        checkinDate: "2025-06-05",
       },
       {
+        id: "knp3",
         name: "Triple/Twin Rooms (KNP3)",
         description: "Four flexible rooms, each sleeping up to 3 guests per room. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
-        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
+        airbnb: "https://airbnb.co.uk/h/knp3",
+        guests: "3 guests per room",
         capacity: 3,
         size: 35,
+        features: ["4 rooms", "Flexible bedding", "Garden views"],
         imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
-        features: ["Flexible bedding", "Garden views", "Shared amenities", "4 rooms available", "3 guests per room", "airbnb.co.uk/h/knp3"]
+        checkinDate: "2025-06-05",
       },
       {
+        id: "knp6",
         name: "Group Room (KNP6)",
         description: "Spacious group accommodation perfect for team retreats, wellness groups, or extended families. Designed for collaborative stays with shared spaces and modern amenities.",
-        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
+        airbnb: "https://airbnb.co.uk/h/knp6",
+        guests: "4 guests",
         capacity: 4,
         size: 40,
+        features: ["Shared spaces", "Team layout"],
         imageUrl: "/uploads/gallery/default/1747446102756-742973380-20250329_154102.jpg",
-        features: ["Team layout", "Communal space", "Shared access", "4 guests", "A/C", "Coming Soon"]
-      }
+        checkinDate: "2025-06-05",
+      },
     ];
+
+    // Smart pricing function
+    const getSmartRate = (baseRate: number, checkinDate: string): { directPrice: number, label: string } => {
+      const today = new Date();
+      const checkin = new Date(checkinDate);
+      const daysToCheckin = Math.ceil((checkin.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const discount = daysToCheckin <= 3 ? 0.15 : 0.10;
+      const directPrice = +(baseRate * (1 - discount)).toFixed(2);
+      const label = daysToCheckin <= 3 ? "15% Off – Last Minute!" : "10% Off – Book Direct";
+      return { directPrice, label };
+    };
+
+    // Create rooms with smart pricing
+    const sampleRooms: InsertRoom[] = ROOM_CONFIG.map(room => {
+      const baseRate = BASE_RATES[room.id as keyof typeof BASE_RATES];
+      const { directPrice, label } = getSmartRate(baseRate, room.checkinDate);
+      
+      return {
+        name: room.name,
+        description: room.description,
+        price: directPrice,
+        capacity: room.capacity,
+        size: room.size,
+        imageUrl: room.imageUrl,
+        features: [...room.features, room.airbnb]
+      };
+    });
+
+    // Validation function
+    const validateRoomNames = (ROOM_CONFIG: any[]) => {
+      const expected = [
+        "Entire Villa Exclusive (KNP)",
+        "Master Family Suite (KNP1)",
+        "Triple/Twin Rooms (KNP3)",
+        "Group Room (KNP6)"
+      ];
+      const match = ROOM_CONFIG.every((room, index) => room.name === expected[index]);
+      console.log(match ? "✅ Room names match Airbnb structure." : "❌ Room name mismatch found.");
+      return match;
+    };
+
+    // Validate room structure
+    validateRoomNames(ROOM_CONFIG);
 
     sampleRooms.forEach(room => this.createRoom(room));
 
