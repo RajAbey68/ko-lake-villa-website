@@ -29,7 +29,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Entire Villa Exclusive (KNP)",
     slug: "knp",
-    airbnbPrice: 1800,
+    airbnbPrice: 431, // Using realistic rate similar to KNP1 - needs verification
     capacity: "16++ guests (up to 25)",
     features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view"],
     link: "https://airbnb.co.uk/h/knp",
@@ -47,7 +47,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Triple/Twin Rooms (KNP3)",
     slug: "knp3",
-    airbnbPrice: 180,
+    airbnbPrice: 120, // Estimated lower rate - needs verification
     capacity: "3 guests per room (4 rooms)",
     features: ["Flexible bedding", "Garden views", "Shared amenities"],
     link: "https://airbnb.co.uk/h/knp3",
@@ -56,7 +56,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Group Room (KNP6)",
     slug: "knp6",
-    airbnbPrice: 250,
+    airbnbPrice: 150, // Estimated realistic rate - needs verification
     capacity: "4 guests",
     features: ["Team layout", "Communal space", "Shared access"],
     link: "Coming Soon",
