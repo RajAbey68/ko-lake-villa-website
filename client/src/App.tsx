@@ -19,7 +19,7 @@ import Experiences from "@/pages/Experiences";
 import Gallery from "@/pages/Gallery";
 import Contact from "@/pages/Contact";
 import Booking from "@/pages/Booking";
-import FAQ from "@/pages/FAQ";
+// import FAQ from "@/pages/FAQ";
 
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
@@ -57,7 +57,7 @@ function Router() {
             <Route path="/gallery" component={Gallery} />
             <Route path="/contact" component={Contact} />
             <Route path="/booking" component={Booking} />
-            <Route path="/faq" component={FAQ} />
+            <Route path="/faq" component={() => <div>FAQ page coming soon</div>} />
             <Route path="/admin/*" component={() => null} /> {/* Catch and ignore admin routes here */}
             <Route component={NotFound} />
           </Switch>
