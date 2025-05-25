@@ -78,66 +78,89 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Accommodation Section Preview */}
+      {/* Our Property Section */}
       <section className="py-20 bg-[#FDF6EE]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">Our Accommodation</h2>
-            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Choose from our selection of elegantly appointed rooms and suites, each offering stunning views and premium amenities for a comfortable and luxurious stay.</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">Our Property</h2>
+            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Discover Ko Lake Villa - an exclusive lakefront retreat with stunning infinity pool, rooftop terraces, and panoramic views of Koggala Lake and Madol Duwa Island.</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {roomsLoading ? (
-              // Loading skeleton
-              Array(3).fill(0).map((_, i) => (
-                <div key={i} className="bg-white rounded-lg overflow-hidden shadow-lg animate-pulse">
-                  <div className="w-full h-64 bg-gray-300"></div>
-                  <div className="p-6">
-                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-full mb-4"></div>
-                    <div className="flex flex-wrap mb-4">
-                      {Array(4).fill(0).map((_, j) => (
-                        <div key={j} className="bg-gray-300 h-6 w-16 rounded-full mr-2 mb-2"></div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="h-6 bg-gray-300 rounded w-1/4"></div>
-                      <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-                    </div>
+          {/* Property Showcase Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {/* Photo Gallery Preview */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
+              <img 
+                src="/uploads/gallery/default/1747314605513.jpeg"
+                alt="Ko Lake Villa Infinity Pool"
+                className="w-full h-64 object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/uploads/gallery/default/1747314605525.jpeg';
+                }}
+              />
+              <div className="p-6">
+                <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">60-ft Infinity Pool</h3>
+                <p className="text-[#8B5E3C] mb-4">Stunning lakefront infinity pool with panoramic views of Koggala Lake</p>
+                <Link href="/gallery" className="text-[#8B5E3C] font-medium hover:underline">
+                  View Photo Gallery →
+                </Link>
+              </div>
+            </div>
+
+            {/* Property Highlights */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
+              <img 
+                src="/uploads/gallery/default/1747314605525.jpeg"
+                alt="Ko Lake Villa Rooftop Terrace"
+                className="w-full h-64 object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/uploads/gallery/default/1747314605513.jpeg';
+                }}
+              />
+              <div className="p-6">
+                <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">Rooftop Terrace</h3>
+                <p className="text-[#8B5E3C] mb-4">360° views of lake, paddy fields, and Madol Duwa Island</p>
+                <div className="flex flex-wrap">
+                  <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">8 A/C Rooms</span>
+                  <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">Lakefront</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Late Booking Offers */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg overflow-hidden shadow-lg border-2 border-green-200">
+              <div className="p-6">
+                <div className="text-center mb-4">
+                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">SPECIAL OFFER</span>
+                </div>
+                <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2 text-center">Late Booking Deals</h3>
+                <p className="text-[#8B5E3C] mb-4 text-center">Book within 3 days of check-in</p>
+                <div className="text-center mb-4">
+                  <span className="text-2xl font-bold text-green-600">15% OFF</span>
+                  <p className="text-sm text-[#8B5E3C]">Instead of regular 10% discount</p>
+                </div>
+                <div className="space-y-2 text-sm text-[#8B5E3C]">
+                  <div className="flex justify-between">
+                    <span>Entire Villa:</span>
+                    <span className="font-bold text-green-600">From $366</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Family Suite:</span>
+                    <span className="font-bold text-green-600">From $101</span>
                   </div>
                 </div>
-              ))
-            ) : (
-              rooms?.slice(0, 3).map((room) => (
-                <div key={room.id} className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
-                  <img 
-                    src={room.imageUrl} 
-                    alt={room.name} 
-                    className="w-full h-64 object-cover" 
-                  />
-                  <div className="p-6">
-                    <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">{room.name}</h3>
-                    <p className="text-[#8B5E3C] mb-4">{room.description}</p>
-                    <div className="flex flex-wrap mb-4">
-                      {room.features.map((feature, index) => (
-                        <span key={index} className="bg-[#A0B985] text-[#8B5E3C] px-3 py-1 rounded-full text-sm mr-2 mb-2">{feature}</span>
-                      ))}
-                      <span className="bg-[#A0B985] text-[#8B5E3C] px-3 py-1 rounded-full text-sm mr-2 mb-2">{room.size}m²</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-[#8B5E3C] font-bold text-lg">${room.price} / night</p>
-                      <Link href="/booking" className="bg-[#FF914D] text-white px-4 py-2 rounded hover:bg-[#8B5E3C] transition-colors text-sm font-medium">Book Now</Link>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+              </div>
+            </div>
           </div>
-          
-          <div className="text-center mt-12">
-            <Link href="/accommodation" className="inline-block border-2 border-[#8B5E3C] text-[#8B5E3C] px-6 py-3 rounded font-medium hover:bg-[#8B5E3C] hover:text-white transition-colors">
-              View All Accommodation Options
+
+          {/* Book Now CTA */}
+          <div className="text-center">
+            <Link href="/accommodation" className="inline-block bg-[#8B5E3C] text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-[#7A5232] transition-colors shadow-lg">
+              Book Now - Direct Booking Saves 10%
             </Link>
+            <p className="text-[#8B5E3C] mt-4">No booking fees • Best rate guarantee • Direct support</p>
           </div>
         </div>
       </section>
