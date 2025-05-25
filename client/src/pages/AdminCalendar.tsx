@@ -189,20 +189,20 @@ export default function AdminCalendar() {
                               />
                               <button
                                 onClick={() => handleSavePrice(roomId, autoDirectRate)}
-                                className="text-green-600 hover:text-green-800 px-2 py-1"
+                                className="bg-green-600 text-white hover:bg-green-800 px-3 py-1 rounded text-sm font-bold"
                                 title="Save"
                               >
-                                ✓
+                                Save
                               </button>
                               <button
                                 onClick={() => {
                                   setEditingRoom(null);
                                   setEditPrice('');
                                 }}
-                                className="text-red-600 hover:text-red-800 px-2 py-1"
+                                className="bg-red-600 text-white hover:bg-red-800 px-3 py-1 rounded text-sm font-bold"
                                 title="Cancel"
                               >
-                                ✗
+                                Cancel
                               </button>
                             </div>
                           ) : (
