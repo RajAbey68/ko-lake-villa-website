@@ -38,7 +38,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Master Family Suite (KNP1)",
     slug: "knp1", 
-    airbnbPrice: 450,
+    airbnbPrice: 431, // Real rate from Airbnb booking screenshot
     capacity: "6 guests",
     features: ["Lake views", "Master suite", "Pool access"],
     link: "https://airbnb.co.uk/h/knp1",
