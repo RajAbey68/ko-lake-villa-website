@@ -4,11 +4,67 @@ import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
 import { Separator } from '@/components/ui/separator';
 
+interface PricingData {
+  updated: string;
+  rates: {
+    [roomId: string]: {
+      sun: number;
+      mon: number;
+      tue: number;
+    };
+  };
+  overrides?: {
+    [roomId: string]: {
+      customPrice: number;
+      setDate: string;
+      autoPrice: number;
+    };
+  };
+}
+
 const Accommodation = () => {
   // Fetch all rooms
   const { data: rooms, isLoading, error } = useQuery<Room[]>({
     queryKey: ['/api/rooms'],
   });
+
+  // Fetch current pricing data (including your custom overrides)
+  const { data: pricing } = useQuery<PricingData>({
+    queryKey: ['/api/admin/pricing'],
+  });
+
+  // Helper function to get current price for a room
+  const getCurrentPrice = (roomName: string) => {
+    let roomId = '';
+    if (roomName.includes('KNP1')) roomId = 'knp1';
+    else if (roomName.includes('KNP3')) roomId = 'knp3';
+    else if (roomName.includes('KNP6')) roomId = 'knp6';
+    else roomId = 'knp';
+
+    // Check if there's a custom override
+    const override = pricing?.overrides?.[roomId];
+    if (override) {
+      return override.customPrice;
+    }
+
+    // Otherwise use the pre-agreed rate (Airbnb avg × 0.9)
+    if (pricing?.rates?.[roomId]) {
+      const rate = pricing.rates[roomId];
+      const avgRate = Math.round((rate.sun + rate.mon + rate.tue) / 3);
+      return Math.round(avgRate * 0.9);
+    }
+
+    // Fallback to static pricing
+    return roomName.includes('KNP1') ? 107 : 
+           roomName.includes('KNP3') ? 63 :
+           roomName.includes('KNP6') ? 225 : 388;
+  };
+
+  const getAirbnbRate = (roomName: string) => {
+    return roomName.includes('KNP1') ? 119 : 
+           roomName.includes('KNP3') ? 70 :
+           roomName.includes('KNP6') ? 250 : 431;
+  };
 
   useEffect(() => {
     document.title = "Accommodation - Ko Lake Villa";
@@ -97,27 +153,22 @@ const Accommodation = () => {
                         <span className="bg-[#E6D9C7] text-[#333333] px-3 py-1 rounded-full text-sm mr-2 mb-2">{room.size}m²</span>
                       </div>
                       <div className="mt-6">
-                        {/* Dynamic Pricing Comparison */}
+                        {/* Dynamic Pricing Comparison - Now connected to your admin pricing! */}
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                           <div className="flex justify-between items-center mb-2">
                             <span className="text-gray-600 line-through">
-                              Airbnb Rate: $
-                              {room.name.includes('KNP1') ? '119' : 
-                               room.name.includes('KNP3') ? '70' :
-                               room.name.includes('KNP6') ? '250' : '431'}
+                              Airbnb Rate: ${getAirbnbRate(room.name)}
                             </span>
                             <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">
-                              10% Off – Book Direct
+                              Book Direct & Save
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-[#1E4E5F] font-bold text-xl">Direct Rate: ${room.price}</span>
+                            <span className="text-[#1E4E5F] font-bold text-xl">
+                              Direct Rate: ${getCurrentPrice(room.name)}
+                            </span>
                             <span className="text-green-600 font-bold">
-                              Save $
-                              {room.name.includes('KNP1') ? (119 - room.price).toFixed(2) : 
-                               room.name.includes('KNP3') ? (70 - room.price).toFixed(2) :
-                               room.name.includes('KNP6') ? (250 - room.price).toFixed(2) : 
-                               (431 - room.price).toFixed(2)}
+                              Save ${(getAirbnbRate(room.name) - getCurrentPrice(room.name)).toFixed(2)}
                             </span>
                           </div>
                         </div>
