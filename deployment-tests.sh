@@ -4,7 +4,7 @@
 echo "🧪 Ko Lake Villa Website - Pre-Deployment Tests"
 echo "================================================"
 
-BASE_URL="http://localhost:5000"
+BASE_URL="https://skill-bridge-rajabey68.replit.app"
 PASSED=0
 FAILED=0
 
