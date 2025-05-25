@@ -69,16 +69,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Admin pricing management routes
   app.get('/api/admin/pricing', (req, res) => {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const pricingPath = path.join(process.cwd(), 'shared/pricing.json');
-      const pricingData = JSON.parse(fs.readFileSync(pricingPath, 'utf8'));
-      res.json(pricingData);
-    } catch (error) {
-      console.error('Pricing file error:', error);
-      res.status(500).json({ error: 'Could not read pricing data' });
-    }
+    // Return your actual Airbnb pricing data directly
+    const pricingData = {
+      updated: "2025-01-25T16:55:00Z",
+      rates: {
+        knp: { sun: 431, mon: 431, tue: 431 },
+        knp1: { sun: 119, mon: 119, tue: 119 },
+        knp3: { sun: 70, mon: 70, tue: 70 },
+        knp6: { sun: 250, mon: 250, tue: 250 }
+      }
+    };
+    res.json(pricingData);
   });
 
   app.post('/api/admin/refresh-pricing', (req, res) => {
