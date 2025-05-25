@@ -48,6 +48,7 @@ export interface IStorage {
   getGalleryImageById(id: number): Promise<GalleryImage | undefined>;
   createGalleryImage(galleryImage: InsertGalleryImage): Promise<GalleryImage>;
   updateGalleryImage(galleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage>;
+  updateGalleryImageCategory(id: number, category: string): Promise<GalleryImage>;
   deleteGalleryImage(id: number): Promise<boolean>;
   deleteAllGalleryImages(): Promise<number>; // Returns count of deleted images
 
