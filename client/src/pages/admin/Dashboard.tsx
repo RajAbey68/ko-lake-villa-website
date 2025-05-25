@@ -1507,6 +1507,9 @@ function AdminDashboardContent() {
                 </div>
 
                 {/* Pricing Manager Section */}
+                <div style={{ background: 'red', padding: '10px', margin: '10px' }}>
+                  <h2>TEST - Can you see this red box?</h2>
+                </div>
                 <PricingManagerCard />
                 
                 <Card>
