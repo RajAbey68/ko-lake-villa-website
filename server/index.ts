@@ -27,6 +27,14 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Add cache-busting headers to force browser refresh
+app.use((req, res, next) => {
+  res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.header('Pragma', 'no-cache');
+  res.header('Expires', '0');
+  next();
+});
+
 // Enhanced static file serving for uploads to prevent disappearing images
 app.use('/uploads', (req, res, next) => {
   const filePath = path.join(UPLOADS_DIR, req.path);
