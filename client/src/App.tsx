@@ -28,6 +28,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminGallery from "@/pages/admin/Gallery";
 import Statistics from "@/pages/admin/Statistics";
 import MediaExport from "@/pages/admin/MediaExport";
+import AdminCalendar from "@/pages/AdminCalendar";
 import GoogleDriveExport from "@/pages/admin/GoogleDriveExport";
 import ImageUploader from "@/pages/admin/ImageUploader";
 import UploadImages from "@/pages/admin/UploadImages";
@@ -87,6 +88,7 @@ function Router() {
         <Route path="/admin/gallery-uploader" component={GalleryUploader} />
         <Route path="/admin/video-uploader" component={VideoUploader} />
         <Route path="/admin/page-images" component={PageImageManager} />
+        <Route path="/admin/calendar" component={AdminCalendar} />
         <Route path="/admin" component={AdminLanding} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
