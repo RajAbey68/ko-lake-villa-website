@@ -72,10 +72,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const fs = require('fs');
       const path = require('path');
-      const pricingPath = path.join(__dirname, '../shared/pricing.json');
+      const pricingPath = path.join(process.cwd(), 'shared/pricing.json');
       const pricingData = JSON.parse(fs.readFileSync(pricingPath, 'utf8'));
       res.json(pricingData);
     } catch (error) {
+      console.error('Pricing file error:', error);
       res.status(500).json({ error: 'Could not read pricing data' });
     }
   });
@@ -96,11 +97,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      const pricingPath = path.join(__dirname, '../shared/pricing.json');
+      const pricingPath = path.join(process.cwd(), 'shared/pricing.json');
       fs.writeFileSync(pricingPath, JSON.stringify(latestPricing, null, 2));
       
       res.json({ success: true, message: 'Pricing updated successfully' });
     } catch (error) {
+      console.error('Pricing update error:', error);
       res.status(500).json({ error: 'Could not update pricing data' });
     }
   });
