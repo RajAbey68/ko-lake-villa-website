@@ -1,0 +1,57 @@
+// Ko Lake Villa – Direct Pricing Calculator
+
+// Sample input: Airbnb price and guest's check-in date
+const airbnbPrice = 200; // you can replace this with DB value or dynamic input
+const checkinDateStr = '2025-06-05'; // ISO format: YYYY-MM-DD
+
+function getDirectBookingPrice(airbnbPrice, checkinDateStr) {
+  const basePrice = parseFloat(airbnbPrice);
+  const checkinDate = new Date(checkinDateStr);
+  const today = new Date();
+
+  // Normalize time values for date comparison
+  checkinDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  const daysUntilCheckin = Math.ceil((checkinDate - today) / millisecondsPerDay);
+
+  // Determine discount rate
+  const discountRate = daysUntilCheckin <= 3 ? 0.15 : 0.10;
+  const discountLabel = daysUntilCheckin <= 3 ? "Last-Minute Deal (15% off)" : "Direct Booking Discount (10% off)";
+  const directPrice = (basePrice * (1 - discountRate)).toFixed(2);
+
+  return {
+    airbnb_price: basePrice.toFixed(2),
+    direct_price: directPrice,
+    discount_percent: discountRate * 100,
+    discount_label: discountLabel,
+    days_until_checkin: daysUntilCheckin
+  };
+}
+
+// 🔧 Example usage
+const result = getDirectBookingPrice(airbnbPrice, checkinDateStr);
+
+// 📢 Output to console or render to webpage
+console.log(`
+🏡 Ko Lake Villa Pricing:
+-------------------------
+Airbnb Price: $${result.airbnb_price}
+Direct Booking Price: $${result.direct_price}
+Discount: ${result.discount_percent}% (${result.discount_label})
+Check-in in ${result.days_until_checkin} day(s)
+`);
+
+// 🖼️ Sample HTML rendering (for your frontend)
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("pricing-info");
+  if (container) {
+    container.innerHTML = `
+      <h3>Book Direct and Save</h3>
+      <p><strong>Airbnb Price:</strong> $${result.airbnb_price}</p>
+      <p><strong>Your Direct Price:</strong> <span style="color: green;">$${result.direct_price}</span></p>
+      <p><em>${result.discount_label}</em></p>
+    `;
+  }
+});
