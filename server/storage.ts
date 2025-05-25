@@ -126,34 +126,34 @@ export class MemStorage implements IStorage {
       {
         name: "Entire Villa Exclusive (KNP)",
         description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Sleeps 16+ guests (up to 25). Perfect for corporate retreats, family reunions, or group celebrations.",
-        price: 1800,
+        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
         capacity: 25,
         size: 500,
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view", "Up to 25 guests", "https://airbnb.co.uk/h/knp"]
+        features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view", "Up to 25 guests", "airbnb.co.uk/h/knp"]
       },
       {
         name: "Master Family Suite (KNP1)",
         description: "Premium lakefront family suite sleeping up to 6 guests. Master bedroom plus additional sleeping areas with stunning Koggala Lake views and direct pool access.",
-        price: 450,
+        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
         capacity: 6,
         size: 60,
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
-        features: ["Lake views", "Master suite", "Pool access", "Sleeps 6", "A/C", "https://airbnb.co.uk/h/knp1"]
+        features: ["Lake views", "Master suite", "Pool access", "Sleeps 6", "A/C", "airbnb.co.uk/h/knp1"]
       },
       {
         name: "Triple/Twin Rooms (KNP3)",
         description: "Four flexible rooms, each sleeping up to 3 guests per room. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
-        price: 180,
+        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
         capacity: 3,
         size: 35,
         imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
-        features: ["Flexible bedding", "Garden views", "Shared amenities", "4 rooms available", "3 guests per room", "https://airbnb.co.uk/h/knp3"]
+        features: ["Flexible bedding", "Garden views", "Shared amenities", "4 rooms available", "3 guests per room", "airbnb.co.uk/h/knp3"]
       },
       {
         name: "Group Room (KNP6)",
         description: "Spacious group accommodation perfect for team retreats, wellness groups, or extended families. Designed for collaborative stays with shared spaces and modern amenities.",
-        price: 250,
+        price: 485, // Smart pricing: $539 baseline - 10% = $485.10
         capacity: 4,
         size: 40,
         imageUrl: "/uploads/gallery/default/1747446102756-742973380-20250329_154102.jpg",
