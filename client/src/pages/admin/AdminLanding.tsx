@@ -405,6 +405,28 @@ export default function AdminLanding() {
             </div>
           </Link>
           
+          <Link href="/admin/calendar">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 hover:border-green-300">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-green-100 p-3 rounded-lg">
+                      <span className="text-2xl">💰</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-green-800">Pricing Manager</h3>
+                      <p className="text-green-700">Manage Airbnb rates & direct booking pricing</p>
+                      <div className="mt-2 text-sm text-green-600">
+                        <div>KNP: $431 → $388 (Save $43)</div>
+                        <div>KNP1: $119 → $107 (Save $12)</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+
           <Link href="/admin/statistics">
             <div className="cursor-pointer transition-all hover:shadow-lg">
               <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
