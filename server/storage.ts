@@ -124,31 +124,31 @@ export class MemStorage implements IStorage {
     // Sample rooms
     const sampleRooms: InsertRoom[] = [
       {
-        name: "Lakeside Suite",
-        description: "Our premium suite with panoramic lake views, a king-sized bed, and a private balcony.",
+        name: "Lakeside Master Suite",
+        description: "Our premium suite with panoramic lake views, king-sized bed, and private balcony overlooking Koggala Lake in Ahangama, Galle.",
         price: 250,
         capacity: 2,
         size: 45,
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1224,h=816,fit=crop/AGB2Mlr1kBCLQG4w/first-room-YBgXv53jwGFkD4xD.jpg",
-        features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom"]
+        imageUrl: "/uploads/gallery/family-suite/g-family-suite-dai001-YBgXvBKk0LFLlp26.jpg",
+        features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom", "Air Conditioning"]
       },
       {
         name: "Garden Twin Room",
-        description: "Comfortable room with twin beds, garden views, and modern amenities.",
+        description: "Comfortable room with twin beds, lush garden views, and modern amenities in our Sri Lankan villa.",
         price: 180,
         capacity: 2,
         size: 32,
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1281,fit=crop/AGB2Mlr1kBCLQG4w/unnamed-1-YPqJJq3ZWphx96JN.jpg",
-        features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning"]
+        imageUrl: "/uploads/gallery/group-room/g-group-room-dai012-mp10JL0DZ5S7zNaP.jpg",
+        features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning", "WiFi"]
       },
       {
-        name: "Family Suite",
-        description: "Spacious suite with a master bedroom, additional sleeping area, and lake views.",
+        name: "Family Villa Suite",
+        description: "Spacious suite with master bedroom, additional sleeping area, and stunning lake views perfect for families visiting Galle.",
         price: 320,
         capacity: 4,
         size: 60,
-        imageUrl: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1920,h=1080,fit=crop/AGB2Mlr1kBCLQG4w/g-family-room-dai011-m8x6xQjkgDfEn2W3.jpg",
-        features: ["Queen Bed", "Sofa Bed", "Lake View", "Dining Area"]
+        imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
+        features: ["Queen Bed", "Sofa Bed", "Lake View", "Dining Area", "Kitchenette"]
       }
     ];
 
