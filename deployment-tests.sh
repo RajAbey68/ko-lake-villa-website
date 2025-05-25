@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Ko Lake Villa - Pre-Deployment Test Script
-echo "🧪 Ko Lake Villa Website - Pre-Deployment Tests"
+echo "🧪 Ko Lake Villa Website - Post-Deployment Tests"
 echo "================================================"
 
 BASE_URL="https://skill-bridge-rajabey68.replit.app"
