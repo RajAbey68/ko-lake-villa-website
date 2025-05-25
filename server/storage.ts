@@ -133,13 +133,22 @@ export class MemStorage implements IStorage {
         features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom", "Air Conditioning"]
       },
       {
-        name: "Garden Twin Room",
-        description: "Comfortable room with twin beds, lush garden views, and modern amenities in our Sri Lankan villa.",
+        name: "Double Room (knp3)",
+        description: "Comfortable double room at Ko Lake Villa with garden and partial lake views. Part of our flexible accommodation options for couples or solo travelers.",
         price: 180,
         capacity: 2,
         size: 32,
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
-        features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning", "WiFi"]
+        features: ["Double Bed", "Garden/Lake Views", "En-suite", "A/C", "High-Speed WiFi", "Pool Access"]
+      },
+      {
+        name: "Triple Room (knp3)",
+        description: "Spacious triple room perfect for friends, small families, or colleagues traveling together. Features flexible bedding and modern amenities.",
+        price: 220,
+        capacity: 3,
+        size: 38,
+        imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
+        features: ["Triple Bedding", "Flexible Layout", "Garden View", "A/C", "WiFi", "Shared Terrace Access"]
       },
       {
         name: "Family Villa Suite (knp1)",
