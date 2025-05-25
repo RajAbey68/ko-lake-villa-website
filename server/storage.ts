@@ -129,7 +129,7 @@ export class MemStorage implements IStorage {
         price: 250,
         capacity: 2,
         size: 45,
-        imageUrl: "/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg",
+        imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
         features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom", "Air Conditioning"]
       },
       {
@@ -138,7 +138,7 @@ export class MemStorage implements IStorage {
         price: 180,
         capacity: 2,
         size: 32,
-        imageUrl: "/uploads/gallery/dining-area/KoggalaNinePeaks_dining-area_0.jpg",
+        imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
         features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning", "WiFi"]
       },
       {
