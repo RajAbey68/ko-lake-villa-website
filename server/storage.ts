@@ -129,7 +129,7 @@ export class MemStorage implements IStorage {
         price: 250,
         capacity: 2,
         size: 45,
-        imageUrl: "/uploads/gallery/family-suite/g-family-suite-dai001-YBgXvBKk0LFLlp26.jpg",
+        imageUrl: "/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg",
         features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom", "Air Conditioning"]
       },
       {
@@ -138,7 +138,7 @@ export class MemStorage implements IStorage {
         price: 180,
         capacity: 2,
         size: 32,
-        imageUrl: "/uploads/gallery/group-room/g-group-room-dai012-mp10JL0DZ5S7zNaP.jpg",
+        imageUrl: "/uploads/gallery/dining-area/KoggalaNinePeaks_dining-area_0.jpg",
         features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning", "WiFi"]
       },
       {
