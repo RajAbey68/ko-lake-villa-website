@@ -1,35 +1,24 @@
-// Ko Lake Villa – Official Room Definitions & Pricing Logic
+// Ko Lake Villa – Official Room Definitions with Smart Baseline Pricing
+
+import { koLakeSmartPricing } from './smartPricing';
 
 interface RoomDefinition {
   name: string;
   slug: string;
-  airbnbPrice: number;
   capacity: string;
   features: string[];
   link: string;
   checkinDate: string;
   directPrice?: string;
   discountLabel?: string;
+  airbnbPrice?: number;
+  savings?: string;
 }
-
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const getDirectPrice = (airbnbPrice: number, checkinDateStr: string) => {
-  const checkinDate = new Date(checkinDateStr);
-  checkinDate.setHours(0, 0, 0, 0);
-  const diffInDays = Math.ceil((checkinDate - today) / (1000 * 60 * 60 * 24));
-  const discount = diffInDays <= 3 ? 0.15 : 0.10;
-  const directPrice = (airbnbPrice * (1 - discount)).toFixed(2);
-  const label = diffInDays <= 3 ? "Last-Minute Deal (15% Off)" : "Direct Booking (10% Off)";
-  return { directPrice, label };
-};
 
 export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Entire Villa Exclusive (KNP)",
     slug: "knp",
-    airbnbPrice: 431, // Using realistic rate similar to KNP1 - needs verification
     capacity: "16++ guests (up to 25)",
     features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view"],
     link: "https://airbnb.co.uk/h/knp",
@@ -38,7 +27,6 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Master Family Suite (KNP1)",
     slug: "knp1", 
-    airbnbPrice: 431, // Real rate from Airbnb booking screenshot
     capacity: "6 guests",
     features: ["Lake views", "Master suite", "Pool access"],
     link: "https://airbnb.co.uk/h/knp1",
@@ -47,7 +35,6 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Triple/Twin Rooms (KNP3)",
     slug: "knp3",
-    airbnbPrice: 120, // Estimated lower rate - needs verification
     capacity: "3 guests per room (4 rooms)",
     features: ["Flexible bedding", "Garden views", "Shared amenities"],
     link: "https://airbnb.co.uk/h/knp3",
@@ -56,7 +43,6 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   {
     name: "Group Room (KNP6)",
     slug: "knp6",
-    airbnbPrice: 150, // Estimated realistic rate - needs verification
     capacity: "4 guests",
     features: ["Team layout", "Communal space", "Shared access"],
     link: "Coming Soon",
@@ -64,11 +50,13 @@ export const koLakeVillaRooms: RoomDefinition[] = [
   }
 ];
 
-// Add dynamic pricing to each room
+// Apply smart baseline pricing to each room
 koLakeVillaRooms.forEach(room => {
-  const { directPrice, label } = getDirectPrice(room.airbnbPrice, room.checkinDate);
-  room.directPrice = directPrice;
-  room.discountLabel = label;
+  const pricing = koLakeSmartPricing.getDirectBookingRate(room.checkinDate);
+  room.airbnbPrice = pricing.airbnbBase;
+  room.directPrice = pricing.directPrice;
+  room.discountLabel = pricing.label;
+  room.savings = pricing.savings;
 });
 
 // Debug checker for room name integrity
