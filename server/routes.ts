@@ -859,6 +859,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Update image category
+  app.put('/api/admin/gallery/:id/category', async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const { category } = req.body;
+      
+      if (!category) {
+        return res.status(400).json({ message: "Category is required" });
+      }
+      
+      // Update the image category in storage
+      await dataStorage.updateGalleryImageCategory(imageId, category);
+      
+      res.json({ message: "Category updated successfully" });
+    } catch (error) {
+      console.error("Error updating image category:", error);
+      res.status(500).json({ 
+        message: "Failed to update category", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Get gallery image details for debugging
   app.get('/api/gallery/debug', async (req, res) => {
     try {

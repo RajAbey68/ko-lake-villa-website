@@ -17,8 +17,16 @@ import {
   RefreshCwIcon,
   AlertCircleIcon,
   CheckCircleIcon,
-  PlayCircleIcon
+  PlayCircleIcon,
+  EditIcon
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 
 // Helper function to extract YouTube video ID from URL
 function getYouTubeVideoId(url: string): string {
@@ -62,6 +70,20 @@ type GalleryImage = {
   tags?: string;
   sortOrder?: number;
 };
+
+// Category options for the gallery
+const CATEGORIES = [
+  { value: "family-suite", label: "Family Suite" },
+  { value: "group-room", label: "Group Room" },
+  { value: "triple-room", label: "Triple Room" },
+  { value: "dining-area", label: "Dining Area" },
+  { value: "pool-deck", label: "Pool Deck" },
+  { value: "lake-garden", label: "Lake Garden" },
+  { value: "roof-garden", label: "Roof Garden" },
+  { value: "front-garden", label: "Front Garden and Entrance" },
+  { value: "koggala-lake", label: "Koggala Lake and Surrounding" },
+  { value: "excursions", label: "Excursions" },
+];
 
 export default function AdminGallery() {
   return (
@@ -411,6 +433,43 @@ function SimpleGalleryManager() {
       setLoading(false);
     }
   };
+
+  // Update image category
+  const updateCategory = async (id: number, newCategory: string) => {
+    try {
+      setLoading(true);
+      
+      // Send API request
+      const response = await fetch(`/api/admin/gallery/${id}/category`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: newCategory }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update category: ${response.status}`);
+      }
+      
+      // Show success message
+      toast({
+        title: "Category Updated!",
+        description: `Image moved to ${CATEGORIES.find(c => c.value === newCategory)?.label || newCategory}`,
+      });
+      
+      // Refresh the image list
+      fetchImages();
+      
+    } catch (err) {
+      console.error("Error updating category:", err);
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // Clear all gallery images
   const clearAllGalleryImages = async () => {
@@ -694,7 +753,26 @@ function SimpleGalleryManager() {
                     )}
                     <h3 className="font-medium truncate">{image.alt}</h3>
                   </div>
-                  <p className="text-sm text-gray-500 truncate">{image.category}</p>
+                  {/* Category selector */}
+                  <div className="mt-2">
+                    <Select 
+                      value={image.category} 
+                      onValueChange={(newCategory) => updateCategory(image.id, newCategory)}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue>
+                          {CATEGORIES.find(c => c.value === image.category)?.label || image.category}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((category) => (
+                          <SelectItem key={category.value} value={category.value}>
+                            {category.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   
                   {/* Tags display */}
                   {image.tags && typeof image.tags === 'string' && image.tags.length > 0 && (
