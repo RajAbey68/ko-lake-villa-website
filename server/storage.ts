@@ -604,6 +604,23 @@ export class MemStorage implements IStorage {
     this.galleryImages.set(id, updatedImage);
     return updatedImage;
   }
+
+  async updateGalleryImageCategory(id: number, category: string): Promise<GalleryImage> {
+    const existingImage = this.galleryImages.get(id);
+    
+    if (!existingImage) {
+      throw new Error(`Gallery image with ID ${id} not found`);
+    }
+    
+    // Update the image category
+    const updatedImage: GalleryImage = {
+      ...existingImage,
+      category
+    };
+    
+    this.galleryImages.set(id, updatedImage);
+    return updatedImage;
+  }
   
   async deleteGalleryImage(id: number): Promise<boolean> {
     if (!this.galleryImages.has(id)) {
