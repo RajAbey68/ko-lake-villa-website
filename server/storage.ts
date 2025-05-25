@@ -121,43 +121,43 @@ export class MemStorage implements IStorage {
 
   // Initialize some sample data
   private initializeData() {
-    // Sample rooms
+    // Ko Lake Villa - Authentic Airbnb Accommodation Structure
     const sampleRooms: InsertRoom[] = [
       {
-        name: "Lakeside Master Suite",
-        description: "Our premium suite with panoramic lake views, king-sized bed, and private balcony overlooking Koggala Lake in Ahangama, Galle.",
-        price: 250,
-        capacity: 2,
-        size: 45,
+        name: "Entire Villa Exclusive (KNP)",
+        description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Perfect for corporate retreats, family reunions, or group celebrations. Sleeps 16+ guests.",
+        price: 1800,
+        capacity: 16,
+        size: 500,
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        features: ["King Bed", "Lake View", "Private Balcony", "En-suite Bathroom", "Air Conditioning"]
+        features: ["Entire Villa", "7 Rooms", "60-ft Pool", "Rooftop Terrace", "Lakefront", "High-Speed WiFi", "Book on Airbnb: airbnb.co.uk/h/knp"]
       },
       {
-        name: "Double Room (knp3)",
-        description: "Comfortable double room at Ko Lake Villa with garden and partial lake views. Part of our flexible accommodation options for couples or solo travelers.",
-        price: 180,
-        capacity: 2,
-        size: 32,
-        imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
-        features: ["Double Bed", "Garden/Lake Views", "En-suite", "A/C", "High-Speed WiFi", "Pool Access"]
-      },
-      {
-        name: "Triple Room (knp3)",
-        description: "Spacious triple room perfect for friends, small families, or colleagues traveling together. Features flexible bedding and modern amenities.",
-        price: 220,
-        capacity: 3,
-        size: 38,
-        imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
-        features: ["Triple Bedding", "Flexible Layout", "Garden View", "A/C", "WiFi", "Shared Terrace Access"]
-      },
-      {
-        name: "Family Villa Suite (knp1)",
-        description: "Spacious lakefront family suite at Ko Lake Villa with master bedroom, additional sleeping area, and direct access to 60-ft infinity pool. Stunning Koggala Lake views with Madol Duwa island backdrop.",
-        price: 320,
-        capacity: 4,
+        name: "Master Family Suite (KNP1)",
+        description: "Premium lakefront family suite sleeping up to 6 guests. Master bedroom plus additional sleeping areas with stunning Koggala Lake views and direct pool access.",
+        price: 450,
+        capacity: 6,
         size: 60,
-        imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        features: ["Queen Bed", "Sofa Bed", "Koggala Lake View", "Pool Access", "A/C", "High-Speed WiFi", "Rooftop Terrace Access"]
+        imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
+        features: ["Sleeps 6", "Lake Views", "Pool Access", "Master Suite", "A/C", "WiFi", "Book on Airbnb: airbnb.co.uk/h/knp1"]
+      },
+      {
+        name: "Triple/Twin Rooms (KNP3)",
+        description: "Four flexible rooms, each sleeping up to 3 guests. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
+        price: 180,
+        capacity: 3,
+        size: 35,
+        imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
+        features: ["4 Rooms Available", "Sleeps 3 Each", "Flexible Bedding", "A/C", "WiFi", "Garden Views", "Book on Airbnb: airbnb.co.uk/h/knp3"]
+      },
+      {
+        name: "Group Room (KNP6)",
+        description: "Spacious group accommodation perfect for team retreats, wellness groups, or extended families. Designed for collaborative stays with shared spaces and modern amenities.",
+        price: 250,
+        capacity: 4,
+        size: 40,
+        imageUrl: "/uploads/gallery/default/1747446102756-742973380-20250329_154102.jpg",
+        features: ["Group Layout", "Shared Spaces", "Team Friendly", "A/C", "High-Speed WiFi", "Coming Soon on Airbnb: knp6"]
       }
     ];
 
