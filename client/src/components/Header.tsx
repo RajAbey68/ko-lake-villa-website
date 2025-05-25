@@ -36,7 +36,7 @@ const Header = () => {
       {/* Top section with logo and book now button */}
       <div className="container mx-auto px-4 flex items-center justify-between border-b border-[#A0B985] pb-2 mb-2">
         <Link href="/" className="flex items-center">
-          <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake House</h1>
+          <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
         </Link>
         
         {/* Mobile Menu Button */}
@@ -117,6 +117,15 @@ const Header = () => {
             Gallery
           </Link>
           <Link 
+            href="/faq" 
+            className={cn(
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/faq' && "text-[#FF914D]"
+            )}
+          >
+            FAQ
+          </Link>
+          <Link 
             href="/contact" 
             className={cn(
               "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
@@ -185,6 +194,16 @@ const Header = () => {
             onClick={closeMobileMenu}
           >
             Gallery
+          </Link>
+          <Link 
+            href="/faq" 
+            className={cn(
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/faq' && "text-[#FF914D]"
+            )}
+            onClick={closeMobileMenu}
+          >
+            FAQ
           </Link>
           <Link 
             href="/contact" 
