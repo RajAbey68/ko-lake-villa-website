@@ -68,44 +68,76 @@ import { scrapeWebsiteHandler, scrapeMultipleWebsites } from './scraper';
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Admin pricing management routes
+  // Store custom price overrides in memory (in production, this would be in database)
+  let priceOverrides: { [roomId: string]: { customPrice: number; setDate: string; autoPrice: number } } = {};
+
   app.get('/api/admin/pricing', (req, res) => {
-    // Return your actual Airbnb pricing data directly
+    // Return your actual Airbnb pricing data with custom overrides
+    const baseRates = {
+      knp: { sun: 431, mon: 431, tue: 431 },
+      knp1: { sun: 119, mon: 119, tue: 119 },
+      knp3: { sun: 70, mon: 70, tue: 70 },
+      knp6: { sun: 250, mon: 250, tue: 250 }
+    };
+
+    // Apply custom overrides if they exist
     const pricingData = {
-      updated: "2025-01-25T16:55:00Z",
-      rates: {
-        knp: { sun: 431, mon: 431, tue: 431 },
-        knp1: { sun: 119, mon: 119, tue: 119 },
-        knp3: { sun: 70, mon: 70, tue: 70 },
-        knp6: { sun: 250, mon: 250, tue: 250 }
-      }
+      updated: new Date().toISOString(),
+      rates: baseRates,
+      overrides: priceOverrides
     };
     res.json(pricingData);
   });
 
-  app.post('/api/admin/refresh-pricing', (req, res) => {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      
-      // Updated pricing with your real Airbnb rates
-      const latestPricing = {
-        updated: new Date().toISOString(),
-        rates: {
-          knp: { sun: 431, mon: 431, tue: 431 },
-          knp1: { sun: 119, mon: 119, tue: 119 },
-          knp3: { sun: 70, mon: 70, tue: 70 },
-          knp6: { sun: 250, mon: 250, tue: 250 }
-        }
-      };
-
-      const pricingPath = path.join(process.cwd(), 'shared/pricing.json');
-      fs.writeFileSync(pricingPath, JSON.stringify(latestPricing, null, 2));
-      
-      res.json({ success: true, message: 'Pricing updated successfully' });
-    } catch (error) {
-      console.error('Pricing update error:', error);
-      res.status(500).json({ error: 'Could not update pricing data' });
+  // Set custom price override
+  app.patch('/api/admin/pricing/override', (req, res) => {
+    const { roomId, customPrice } = req.body;
+    
+    // Validate input
+    if (!roomId || !customPrice || customPrice <= 0) {
+      return res.status(400).json({ error: 'Invalid room ID or price' });
     }
+
+    // Get the auto-calculated price (10% off Airbnb rate)
+    const airbnbRates = { knp: 431, knp1: 119, knp3: 70, knp6: 250 };
+    const autoPrice = Math.round(airbnbRates[roomId as keyof typeof airbnbRates] * 0.9);
+    
+    // Ensure custom price doesn't exceed Airbnb rate (maintain some discount)
+    const maxPrice = airbnbRates[roomId as keyof typeof airbnbRates] * 0.95; // Max 5% discount
+    if (customPrice > maxPrice) {
+      return res.status(400).json({ 
+        error: `Price too high. Maximum allowed: $${Math.round(maxPrice)}` 
+      });
+    }
+
+    // Store the override
+    priceOverrides[roomId] = {
+      customPrice: Number(customPrice),
+      setDate: new Date().toISOString(),
+      autoPrice: autoPrice
+    };
+
+    res.json({ 
+      success: true, 
+      message: `Custom price set for ${roomId}: $${customPrice}`,
+      override: priceOverrides[roomId]
+    });
+  });
+
+  app.post('/api/admin/refresh-pricing', (req, res) => {
+    // Clear overrides older than 7 days for Sunday review
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const reviewNeeded = Object.entries(priceOverrides).filter(([roomId, override]) => 
+      new Date(override.setDate) < oneWeekAgo
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Pricing refreshed successfully',
+      reviewNeeded: reviewNeeded.length > 0 ? reviewNeeded : null
+    });
   });
   // Serve uploaded files with proper caching disabled
   app.use('/uploads', express.static(UPLOAD_DIR, {
