@@ -174,3 +174,23 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export type UpsertUser = typeof users.$inferInsert;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Page hero images table for admin-managed page backgrounds
+export const pageHeroImages = pgTable("page_hero_images", {
+  id: serial("id").primaryKey(),
+  pageName: text("page_name").notNull().unique(), // 'home', 'accommodation', 'gallery', etc.
+  imageUrl: text("image_url").notNull(),
+  altText: text("alt_text"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPageHeroImageSchema = createInsertSchema(pageHeroImages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPageHeroImage = z.infer<typeof insertPageHeroImageSchema>;
+export type PageHeroImage = typeof pageHeroImages.$inferSelect;

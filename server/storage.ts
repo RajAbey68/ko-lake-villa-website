@@ -65,6 +65,11 @@ export interface IStorage {
   subscribeToNewsletter(subscriber: InsertNewsletterSubscriber): Promise<NewsletterSubscriber>;
   unsubscribeFromNewsletter(email: string): Promise<boolean>;
   getNewsletterSubscribers(): Promise<NewsletterSubscriber[]>;
+
+  // Page hero image operations
+  getPageHeroImage(pageName: string): Promise<PageHeroImage | undefined>;
+  setPageHeroImage(pageHeroImage: InsertPageHeroImage): Promise<PageHeroImage>;
+  getAllPageHeroImages(): Promise<PageHeroImage[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -77,6 +82,7 @@ export class MemStorage implements IStorage {
   private bookingInquiries: Map<number, BookingInquiry>;
   private contactMessages: Map<number, ContactMessage>;
   private newsletterSubscribers: Map<number, NewsletterSubscriber>;
+  private pageHeroImages: Map<string, PageHeroImage>;
   
   private nextUserId: number;
   private nextRoomId: number;
