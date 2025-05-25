@@ -142,13 +142,13 @@ export class MemStorage implements IStorage {
         features: ["Twin Beds", "Garden View", "En-suite", "Air Conditioning", "WiFi"]
       },
       {
-        name: "Family Villa Suite",
-        description: "Spacious suite with master bedroom, additional sleeping area, and stunning lake views perfect for families visiting Galle.",
+        name: "Family Villa Suite (knp1)",
+        description: "Spacious lakefront family suite at Ko Lake Villa with master bedroom, additional sleeping area, and direct access to 60-ft infinity pool. Stunning Koggala Lake views with Madol Duwa island backdrop.",
         price: 320,
         capacity: 4,
         size: 60,
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        features: ["Queen Bed", "Sofa Bed", "Lake View", "Dining Area", "Kitchenette"]
+        features: ["Queen Bed", "Sofa Bed", "Koggala Lake View", "Pool Access", "A/C", "High-Speed WiFi", "Rooftop Terrace Access"]
       }
     ];
 
