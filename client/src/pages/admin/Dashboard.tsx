@@ -1474,6 +1474,48 @@ function AdminDashboardContent() {
               <TabsContent value="overview" className="space-y-6">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C]">Welcome back, {currentUser?.displayName?.split(' ')[0] || 'Admin'}</h2>
                 
+                {/* TESTING - Pricing Manager placed here */}
+                <div style={{ background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)', padding: '1rem', borderRadius: '10px', boxShadow: '0 1px 6px rgba(0,0,0,0.1)', marginBottom: '1.5rem' }}>
+                  <h3>💸 Pricing Manager</h3>
+                  <p style={{ fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                    Last updated: {new Date(pricing.updated).toLocaleString()}
+                  </p>
+                  <table width="100%" style={{ marginBottom: '1rem' }}>
+                    <thead>
+                      <tr>
+                        <th align="left">Room</th>
+                        <th>Airbnb Rate</th>
+                        <th>Your Rate</th>
+                        <th>Guest Savings</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(pricing.rates).map(([id, roomData]) => {
+                        const airbnbRate = roomData.sun;
+                        const direct = +(airbnbRate * 0.9).toFixed(2);
+                        const saving = (airbnbRate - direct).toFixed(2);
+                        const roomNames = { knp: "Entire Villa (KNP)", knp1: "Family Suite (KNP1)", knp3: "Twin/Triple Room (KNP3)", knp6: "Group Room (KNP6)" };
+                        return (
+                          <tr key={id}>
+                            <td>{roomNames[id]}</td>
+                            <td>${airbnbRate}</td>
+                            <td style={{ color: "green" }}>${direct}</td>
+                            <td>${saving}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <a href="/admin/calendar">
+                      <button style={{ background: "#469458", color: "white", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>🔁 Open Pricing Calendar</button>
+                    </a>
+                    <a href="/accommodation" target="_blank">
+                      <button style={{ background: "#ccc", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>👁 Preview Live Rates</button>
+                    </a>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Card>
                     <CardHeader className="pb-2">
@@ -1506,11 +1548,7 @@ function AdminDashboardContent() {
                   </Card>
                 </div>
 
-                {/* Pricing Manager Section */}
-                <div style={{ background: 'red', padding: '10px', margin: '10px' }}>
-                  <h2>TEST - Can you see this red box?</h2>
-                </div>
-                <PricingManagerCard />
+
                 
                 <Card>
                   <CardHeader>
