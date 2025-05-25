@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import pricing from '../../../static/pricing.json';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Input } from '../../components/ui/input';
@@ -34,6 +35,69 @@ type GalleryImage = {
   sortOrder: number;
   mediaType: string;
 };
+
+// Room definitions and pricing logic
+const rooms = {
+  knp: "Entire Villa (KNP)",
+  knp1: "Family Suite (KNP1)", 
+  knp3: "Twin/Triple Room (KNP3)",
+  knp6: "Group Room (KNP6)",
+};
+
+function calculateDirectRate(rate: number) {
+  return +(rate * 0.9).toFixed(2); // 10% discount
+}
+
+function PricingManagerCard() {
+  const updated = new Date(pricing.updated).toLocaleString();
+
+  return (
+    <div style={{
+      background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)',
+      padding: '1rem',
+      borderRadius: '10px',
+      boxShadow: '0 1px 6px rgba(0,0,0,0.1)',
+      marginBottom: '1.5rem'
+    }}>
+      <h3>💸 Pricing Manager</h3>
+      <p style={{ fontStyle: 'italic', marginBottom: '0.5rem' }}>
+        Last updated: {updated}
+      </p>
+      <table width="100%" style={{ marginBottom: '1rem' }}>
+        <thead>
+          <tr>
+            <th align="left">Room</th>
+            <th>Airbnb Rate</th>
+            <th>Your Rate</th>
+            <th>Guest Savings</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(pricing.rates).map(([id, { sun }]) => {
+            const direct = calculateDirectRate(sun);
+            const saving = (sun - direct).toFixed(2);
+            return (
+              <tr key={id}>
+                <td>{rooms[id as keyof typeof rooms]}</td>
+                <td>${sun}</td>
+                <td style={{ color: "green" }}>${direct}</td>
+                <td>${saving}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <a href="/admin/calendar">
+          <button style={{ background: "#469458", color: "white", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>🔁 Open Pricing Calendar</button>
+        </a>
+        <a href="/accommodation" target="_blank">
+          <button style={{ background: "#ccc", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>👁 Preview Live Rates</button>
+        </a>
+      </div>
+    </div>
+  );
+}
 import { 
   HomeIcon, 
   LayoutDashboardIcon, 
@@ -1434,69 +1498,7 @@ function AdminDashboardContent() {
                 </div>
 
                 {/* Pricing Manager Section */}
-                <div className="mt-6">
-                  <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-green-800">
-                        💰 Pricing Manager
-                        <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-full">Live Rates</span>
-                      </CardTitle>
-                      <CardDescription>Update Airbnb rates and manage direct booking pricing</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800">Current Airbnb Rates:</h4>
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span>KNP (Entire Villa):</span>
-                              <span className="font-medium">$431</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>KNP1 (Master Suite):</span>
-                              <span className="font-medium">$119</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>KNP3 (Triple Rooms):</span>
-                              <span className="font-medium">$70</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-gray-800">Your Direct Rates:</h4>
-                          <div className="space-y-1 text-sm text-green-700">
-                            <div className="flex justify-between">
-                              <span>KNP Direct:</span>
-                              <span className="font-medium">$388 (Save $43)</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>KNP1 Direct:</span>
-                              <span className="font-medium">$107 (Save $12)</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>KNP3 Direct:</span>
-                              <span className="font-medium">$63 (Save $7)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-3">
-                        <Link href="/admin/calendar" className="flex-1">
-                          <Button className="w-full bg-[#E8B87D] hover:bg-[#1E4E5F] text-white">
-                            📅 Open Pricing Calendar
-                          </Button>
-                        </Link>
-                        <Button 
-                          variant="outline" 
-                          className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
-                          onClick={() => window.open('/accommodation', '_blank')}
-                        >
-                          👁️ Preview Live Rates
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <PricingManagerCard />
                 
                 <Card>
                   <CardHeader>
