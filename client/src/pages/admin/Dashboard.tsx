@@ -7,7 +7,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import pricing from '../../data/pricing.json';
+// Pricing data - your JSON structure as TypeScript constant
+const pricing = {
+  "updated": "2025-05-25T15:55:00Z",
+  "rates": {
+    "knp": { "sun": 431 },
+    "knp1": { "sun": 119 },
+    "knp3": { "sun": 70 },
+    "knp6": { "sun": 250 }
+  }
+};
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Input } from '../../components/ui/input';
