@@ -97,15 +97,28 @@ const Accommodation = () => {
                         <span className="bg-[#E6D9C7] text-[#333333] px-3 py-1 rounded-full text-sm mr-2 mb-2">{room.size}m²</span>
                       </div>
                       <div className="mt-6">
-                        {/* Pricing Comparison */}
+                        {/* Dynamic Pricing Comparison */}
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-600 line-through">Airbnb Rate: $539</span>
-                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">Book Direct (10% off)</span>
+                            <span className="text-gray-600 line-through">
+                              Airbnb Rate: $
+                              {room.name.includes('KNP1') ? '431' : 
+                               room.name.includes('KNP3') ? '180' :
+                               room.name.includes('KNP6') ? '250' : '539'}
+                            </span>
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">
+                              10% Off – Book Direct
+                            </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-[#1E4E5F] font-bold text-xl">Direct Rate: ${room.price}</span>
-                            <span className="text-green-600 font-bold">Save $53.90</span>
+                            <span className="text-green-600 font-bold">
+                              Save $
+                              {room.name.includes('KNP1') ? (431 - room.price).toFixed(2) : 
+                               room.name.includes('KNP3') ? (180 - room.price).toFixed(2) :
+                               room.name.includes('KNP6') ? (250 - room.price).toFixed(2) : 
+                               (539 - room.price).toFixed(2)}
+                            </span>
                           </div>
                         </div>
                         
