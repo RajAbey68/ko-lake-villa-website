@@ -755,23 +755,18 @@ function SimpleGalleryManager() {
                   </div>
                   {/* Category selector */}
                   <div className="mt-2">
-                    <Select 
+                    <label className="text-xs text-gray-600 block mb-1">Category:</label>
+                    <select 
                       value={image.category} 
-                      onValueChange={(newCategory) => updateCategory(image.id, newCategory)}
+                      onChange={(e) => updateCategory(image.id, e.target.value)}
+                      className="w-full h-8 text-xs border border-gray-300 rounded px-2 bg-white focus:border-[#8B5E3C] focus:ring-1 focus:ring-[#8B5E3C]"
                     >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue>
-                          {CATEGORIES.find(c => c.value === image.category)?.label || image.category}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((category) => (
-                          <SelectItem key={category.value} value={category.value}>
-                            {category.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      {CATEGORIES.map((category) => (
+                        <option key={category.value} value={category.value}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   
                   {/* Tags display */}
