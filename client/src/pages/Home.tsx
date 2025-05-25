@@ -28,7 +28,13 @@ const Home = () => {
     <>
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-[#8B5E3C] to-[#A0B985]">
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')"
+          }}
+        ></div>
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative z-10 text-center px-4 max-w-4xl">
           <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow whitespace-nowrap">Ko Lake Villa</h1>
           <p className="text-xl md:text-2xl text-white mb-8 text-shadow">Luxury Lakeside Villa in Ahangama, Galle</p>
