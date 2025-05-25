@@ -27,14 +27,8 @@ const Home = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center">
-        <div 
-          className="absolute inset-0 bg-cover bg-center" 
-          style={{ 
-            backgroundImage: "url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1224,h=424,fit=crop/AGB2Mlr1kBCLQG4w/9-min-AoPWZwGep1fZ84XJ.jpg')" 
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-[#8B5E3C] to-[#A0B985]">
+        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         <div className="relative z-10 text-center px-4 max-w-4xl">
           <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow whitespace-nowrap">Ko Lake House</h1>
           <p className="text-xl md:text-2xl text-white mb-8 text-shadow">A Boutique Stay by the Lake</p>
