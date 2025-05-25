@@ -1474,9 +1474,9 @@ function AdminDashboardContent() {
               <TabsContent value="overview" className="space-y-6">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C]">Welcome back, {currentUser?.displayName?.split(' ')[0] || 'Admin'}</h2>
                 
-                {/* TESTING - Pricing Manager placed here */}
-                <div style={{ background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)', padding: '1rem', borderRadius: '10px', boxShadow: '0 1px 6px rgba(0,0,0,0.1)', marginBottom: '1.5rem' }}>
-                  <h3>💸 Pricing Manager</h3>
+                {/* PRICING MANAGER - Now Working! */}
+                <div style={{ background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', marginBottom: '2rem', border: '2px solid #4CAF50' }}>
+                  <h3 style={{ color: '#2E7D32', fontSize: '1.5rem', marginBottom: '0.5rem' }}>💸 Pricing Manager - LIVE</h3>
                   <p style={{ fontStyle: 'italic', marginBottom: '0.5rem' }}>
                     Last updated: {new Date(pricing.updated).toLocaleString()}
                   </p>
