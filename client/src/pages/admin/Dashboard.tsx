@@ -11,11 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 const pricing = {
   "updated": "2025-05-25T15:55:00Z",
   "rates": {
-    "knp": { "sun": 431 },
-    "knp1": { "sun": 119 },
-    "knp3": { "sun": 70 },
-    "knp6": { "sun": 250 }
-  }
+    "knp": { "sun": 431, "mon": 431, "tue": 431 },
+    "knp1": { "sun": 119, "mon": 119, "tue": 119 },
+    "knp3": { "sun": 70, "mon": 70, "tue": 70 },
+    "knp6": { "sun": 250, "mon": 250, "tue": 250 }
+  },
+  "overrides": {}
 };
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
@@ -1504,12 +1505,17 @@ function AdminDashboardContent() {
                       </thead>
                       <tbody>
                         {Object.entries(pricing.rates).map(([roomId, days]) => {
-                          const avgRate = Math.round((days.sun + days.mon + days.tue) / 3);
+                          // Ensure we have valid numbers
+                          const sunRate = days.sun || 0;
+                          const monRate = days.mon || days.sun || 0;
+                          const tueRate = days.tue || days.sun || 0;
+                          
+                          const avgRate = Math.round((sunRate + monRate + tueRate) / 3);
                           const autoDirectRate = Math.round(avgRate * 0.9);
-                          const override = pricing.overrides?.[roomId];
+                          const override = pricing.overrides?.[roomId as keyof typeof pricing.overrides];
                           const displayRate = override ? override.customPrice : autoDirectRate;
                           const isCustom = !!override;
-                          const roomNames = { knp: "KNP", knp1: "KNP1", knp3: "KNP3", knp6: "KNP6" };
+                          const roomNames: Record<string, string> = { knp: "KNP", knp1: "KNP1", knp3: "KNP3", knp6: "KNP6" };
                           
                           return (
                             <tr key={roomId} style={{ backgroundColor: '#fff' }}>
@@ -1517,13 +1523,13 @@ function AdminDashboardContent() {
                                 {roomNames[roomId]}
                               </td>
                               <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                ${days.sun}
+                                ${sunRate}
                               </td>
                               <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                ${days.mon}
+                                ${monRate}
                               </td>
                               <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                ${days.tue}
+                                ${tueRate}
                               </td>
                               <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -1571,6 +1577,47 @@ function AdminDashboardContent() {
                   </div>
                 </div>
                 
+                {/* Management Blocks */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  <Link href="/admin/gallery">
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#8B5E3C]/20">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-medium flex items-center gap-2">
+                          📷 Gallery Manager
+                        </CardTitle>
+                        <CardDescription>Upload and organize images & videos</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600">Manage your Ko Lake Villa gallery with category dropdowns</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#FF914D]/20">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-medium flex items-center gap-2">
+                        🎥 Video Manager
+                      </CardTitle>
+                      <CardDescription>Add YouTube videos and tours</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600">Upload property tour videos and room showcases</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#A0B985]/20">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-medium flex items-center gap-2">
+                        📤 Bulk Upload
+                      </CardTitle>
+                      <CardDescription>Upload multiple images at once</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600">Batch upload images with automatic categorization</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Card>
                     <CardHeader className="pb-2">
