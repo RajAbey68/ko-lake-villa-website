@@ -14,6 +14,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
+import { imageCompressor } from "./imageCompression";
 
 // Create upload directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -929,6 +930,200 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error getting gallery debug info:", error);
       res.status(500).json({ 
         message: "Failed to get gallery debug info", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Image Compression API Endpoints
+  
+  // Compress a single uploaded image
+  app.post("/api/admin/compress-image", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      const inputPath = req.file.path;
+      const quality = parseInt(req.body.quality) || 80;
+      const format = req.body.format || 'webp';
+      
+      const result = await imageCompressor.compressImage(inputPath, {
+        quality,
+        format: format as 'jpeg' | 'webp' | 'png'
+      });
+
+      // Clean up original file
+      fs.unlinkSync(inputPath);
+
+      res.json({
+        success: true,
+        result: {
+          ...result,
+          originalSizeFormatted: imageCompressor.formatFileSize(result.originalSize),
+          compressedSizeFormatted: imageCompressor.formatFileSize(result.compressedSize),
+          spaceSaved: imageCompressor.formatFileSize(result.originalSize - result.compressedSize)
+        }
+      });
+
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      res.status(500).json({ 
+        message: "Image compression failed", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Batch compress gallery images
+  app.post("/api/admin/compress-gallery", async (req, res) => {
+    try {
+      const { imageIds } = req.body;
+      
+      if (!imageIds || !Array.isArray(imageIds)) {
+        return res.status(400).json({ message: "No image IDs provided" });
+      }
+
+      const images = await dataStorage.getGalleryImages();
+      const imagesToCompress = images.filter(img => imageIds.includes(img.id));
+      
+      const imagePaths = imagesToCompress
+        .map(img => path.join(process.cwd(), img.imageUrl))
+        .filter(imagePath => fs.existsSync(imagePath));
+
+      if (imagePaths.length === 0) {
+        return res.status(400).json({ message: "No valid images found to compress" });
+      }
+
+      const results = await imageCompressor.compressBatch(imagePaths, {
+        quality: 80,
+        format: 'webp'
+      });
+
+      const stats = await imageCompressor.getCompressionStats(results);
+
+      res.json({
+        success: true,
+        compressedCount: results.length,
+        results: results.map(result => ({
+          ...result,
+          originalSizeFormatted: imageCompressor.formatFileSize(result.originalSize),
+          compressedSizeFormatted: imageCompressor.formatFileSize(result.compressedSize),
+          spaceSaved: imageCompressor.formatFileSize(result.originalSize - result.compressedSize)
+        })),
+        stats: {
+          ...stats,
+          totalOriginalSizeFormatted: imageCompressor.formatFileSize(stats.totalOriginalSize),
+          totalCompressedSizeFormatted: imageCompressor.formatFileSize(stats.totalCompressedSize),
+          totalSpaceSavedFormatted: imageCompressor.formatFileSize(stats.totalSpaceSaved)
+        }
+      });
+
+    } catch (error) {
+      console.error("Error batch compressing images:", error);
+      res.status(500).json({ 
+        message: "Batch compression failed", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Create responsive versions of an image
+  app.post("/api/admin/create-responsive", async (req, res) => {
+    try {
+      const { imagePath } = req.body;
+      
+      if (!imagePath) {
+        return res.status(400).json({ message: "No image path provided" });
+      }
+
+      const fullPath = path.join(process.cwd(), imagePath);
+      
+      if (!fs.existsSync(fullPath)) {
+        return res.status(404).json({ message: "Image file not found" });
+      }
+
+      const versions = await imageCompressor.createResponsiveVersions(fullPath);
+
+      res.json({
+        success: true,
+        versions: {
+          thumbnail: {
+            ...versions.thumbnail,
+            originalSizeFormatted: imageCompressor.formatFileSize(versions.thumbnail.originalSize),
+            compressedSizeFormatted: imageCompressor.formatFileSize(versions.thumbnail.compressedSize)
+          },
+          medium: {
+            ...versions.medium,
+            originalSizeFormatted: imageCompressor.formatFileSize(versions.medium.originalSize),
+            compressedSizeFormatted: imageCompressor.formatFileSize(versions.medium.compressedSize)
+          },
+          large: {
+            ...versions.large,
+            originalSizeFormatted: imageCompressor.formatFileSize(versions.large.originalSize),
+            compressedSizeFormatted: imageCompressor.formatFileSize(versions.large.compressedSize)
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error("Error creating responsive versions:", error);
+      res.status(500).json({ 
+        message: "Failed to create responsive versions", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Get compression analytics
+  app.get("/api/admin/compression-stats", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      const compressedDir = path.join(process.cwd(), 'uploads/compressed');
+      
+      let totalOriginalSize = 0;
+      let totalCompressedSize = 0;
+      let compressedCount = 0;
+
+      for (const image of images) {
+        const originalPath = path.join(process.cwd(), image.imageUrl);
+        if (fs.existsSync(originalPath)) {
+          const originalStats = fs.statSync(originalPath);
+          totalOriginalSize += originalStats.size;
+
+          // Check if compressed version exists
+          const filename = path.parse(image.imageUrl).name;
+          const compressedPath = path.join(compressedDir, `${filename}-compressed.webp`);
+          
+          if (fs.existsSync(compressedPath)) {
+            const compressedStats = fs.statSync(compressedPath);
+            totalCompressedSize += compressedStats.size;
+            compressedCount++;
+          }
+        }
+      }
+
+      const averageCompressionRatio = totalOriginalSize > 0 
+        ? Math.round((1 - totalCompressedSize / totalOriginalSize) * 100)
+        : 0;
+
+      res.json({
+        totalImages: images.length,
+        compressedImages: compressedCount,
+        uncompressedImages: images.length - compressedCount,
+        totalOriginalSize,
+        totalCompressedSize,
+        totalSpaceSaved: totalOriginalSize - totalCompressedSize,
+        averageCompressionRatio,
+        totalOriginalSizeFormatted: imageCompressor.formatFileSize(totalOriginalSize),
+        totalCompressedSizeFormatted: imageCompressor.formatFileSize(totalCompressedSize),
+        totalSpaceSavedFormatted: imageCompressor.formatFileSize(totalOriginalSize - totalCompressedSize)
+      });
+
+    } catch (error) {
+      console.error("Error getting compression stats:", error);
+      res.status(500).json({ 
+        message: "Failed to get compression stats", 
         error: error instanceof Error ? error.message : "Unknown error" 
       });
     }
