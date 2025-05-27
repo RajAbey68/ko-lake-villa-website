@@ -1616,6 +1616,20 @@ function AdminDashboardContent() {
                       <p className="text-sm text-gray-600">Batch upload images with automatic categorization</p>
                     </CardContent>
                   </Card>
+                  
+                  <Link href="/admin/image-compression">
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#FF914D]/20">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-medium flex items-center gap-2">
+                          ⚡ Smart Compression
+                        </CardTitle>
+                        <CardDescription>Optimize images for faster loading</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600">Reduce file sizes while maintaining quality</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
