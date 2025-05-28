@@ -1605,17 +1605,19 @@ function AdminDashboardContent() {
                     </CardContent>
                   </Card>
                   
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#A0B985]/20">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-medium flex items-center gap-2">
-                        📤 Bulk Upload
-                      </CardTitle>
-                      <CardDescription>Upload multiple images at once</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600">Batch upload images with automatic categorization</p>
-                    </CardContent>
-                  </Card>
+                  <Link href="/admin/gallery">
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#A0B985]/20">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-medium flex items-center gap-2">
+                          📤 Enhanced Bulk Upload
+                        </CardTitle>
+                        <CardDescription>Upload multiple images with category control</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600">Upload multiple images and set individual categories</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
                   
                   <Link href="/admin/image-compression">
                     <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#FF914D]/20">
