@@ -632,7 +632,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate guest capacity
       const maxCapacity = {
-        'Entire Villa (KLV)': 25,
+        'Entire Villa (KLV)': 25, // Allow up to 25 but with special handling for 19+
         'Master Family Suite (KLV1)': 8,
         'Triple/Twin Rooms (KLV3)': 4,
         'Group Room (KLV6)': 8
@@ -643,6 +643,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ 
           message: `${validatedData.roomType} can accommodate maximum ${roomCapacity} guests` 
         });
+      }
+
+      // Special handling for Villa bookings with 19+ guests
+      if (validatedData.roomType === 'Entire Villa (KLV)' && validatedData.guests >= 19) {
+        const ageBreakdownMessage = `\n\n--- IMPORTANT: 19+ GUESTS BOOKING ---\nExtra charges apply for groups over 18 guests.\nPlease contact us with the following information:\n- Total guests over 14 years: ___\n- Total guests under 14 years: ___\n- Special requirements: ___\n\nWe will contact you within 24 hours to confirm pricing and arrangements.`;
+        
+        // Append age breakdown request to special requests
+        validatedData.specialRequests = (validatedData.specialRequests || '') + ageBreakdownMessage;
       }
 
       const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);

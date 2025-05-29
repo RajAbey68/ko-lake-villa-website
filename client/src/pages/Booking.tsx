@@ -102,6 +102,11 @@ const Booking = () => {
   // Calculate min checkout date whenever check-in date changes
   const checkInDate = form.watch('checkInDate');
   const checkOutMinDate = getCheckOutMinDate(checkInDate);
+  
+  // Watch guest count for 19+ handling
+  const guestCount = form.watch('guests');
+  const roomType = form.watch('roomType');
+  const showAgeBreakdownNotice = roomType === 'Entire Villa (KLV)' && parseInt(guestCount) >= 19;
 
   return (
     <>
@@ -194,8 +199,13 @@ const Booking = () => {
                             <SelectItem value="12">12 Guests</SelectItem>
                             <SelectItem value="15">15 Guests</SelectItem>
                             <SelectItem value="18">18 Guests</SelectItem>
-                            <SelectItem value="20">20 Guests</SelectItem>
-                            <SelectItem value="25+">25+ Guests</SelectItem>
+                            <SelectItem value="19">19 Guests (extra charges apply)</SelectItem>
+                            <SelectItem value="20">20 Guests (extra charges apply)</SelectItem>
+                            <SelectItem value="21">21 Guests (extra charges apply)</SelectItem>
+                            <SelectItem value="22">22 Guests (extra charges apply)</SelectItem>
+                            <SelectItem value="23">23 Guests (extra charges apply)</SelectItem>
+                            <SelectItem value="24">24 Guests (extra charges apply)</SelectItem>
+                            <SelectItem value="25">25 Guests (extra charges apply)</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -204,6 +214,23 @@ const Booking = () => {
                   />
 
 
+
+                  {/* Age Breakdown Notice for 19+ Guests */}
+                  {showAgeBreakdownNotice && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-orange-800 mb-2">Extra Charges Apply (19+ Guests)</h4>
+                      <div className="text-sm text-orange-700 space-y-2">
+                        <p>For groups over 18 guests, additional charges apply.</p>
+                        <p className="font-medium">Please provide in the special requests section:</p>
+                        <ul className="list-disc list-inside ml-2 space-y-1">
+                          <li>Total guests over 14 years</li>
+                          <li>Total guests under 14 years</li>
+                          <li>Any special requirements</li>
+                        </ul>
+                        <p className="text-xs text-orange-600 mt-2">We will contact you within 24 hours to confirm pricing and arrangements.</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Room Type */}
                   <FormField
