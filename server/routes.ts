@@ -601,10 +601,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Booking inquiry
+  // Booking inquiry with validation
   app.post("/api/booking", async (req, res) => {
     try {
+      // Convert guests to number if it's a string
+      if (req.body.guests && typeof req.body.guests === 'string') {
+        req.body.guests = parseInt(req.body.guests);
+      }
+
       const validatedData = insertBookingInquirySchema.parse(req.body);
+      
+      // Additional validation
+      const checkIn = new Date(validatedData.checkInDate);
+      const checkOut = new Date(validatedData.checkOutDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Validate dates
+      if (checkIn <= today) {
+        return res.status(400).json({ 
+          message: "Check-in date must be in the future" 
+        });
+      }
+
+      if (checkOut <= checkIn) {
+        return res.status(400).json({ 
+          message: "Check-out date must be after check-in date" 
+        });
+      }
+
+      // Validate guest capacity
+      const maxCapacity = {
+        'Entire Villa (KLV)': 25,
+        'Master Family Suite (KLV1)': 8,
+        'Triple/Twin Rooms (KLV3)': 4,
+        'Group Room (KLV6)': 8
+      };
+
+      const roomCapacity = maxCapacity[validatedData.roomType as keyof typeof maxCapacity];
+      if (roomCapacity && validatedData.guests > roomCapacity) {
+        return res.status(400).json({ 
+          message: `${validatedData.roomType} can accommodate maximum ${roomCapacity} guests` 
+        });
+      }
+
       const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
       res.status(201).json({
         message: "Booking inquiry submitted successfully!",
