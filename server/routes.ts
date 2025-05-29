@@ -979,6 +979,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Endpoint for SirVoy to import bookings FROM your website
+  app.get("/api/sirvoy/export-bookings", async (req, res) => {
+    try {
+      // This endpoint provides booking data TO SirVoy in the format they expect
+      // For now, we'll return a basic structure - you can customize based on your needs
+      const bookings = [
+        // Sample booking structure - replace with your actual booking data
+        {
+          id: "KLV001",
+          guest_name: "Sample Guest",
+          check_in: "2025-06-01",
+          check_out: "2025-06-05", 
+          room_type: "Deluxe Family Suite",
+          total_amount: 500,
+          status: "confirmed",
+          email: "guest@example.com"
+        }
+      ];
+
+      res.json({
+        success: true,
+        bookings,
+        total: bookings.length
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to export bookings: " + error.message 
+      });
+    }
+  });
+
   // Stripe payment endpoints
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
