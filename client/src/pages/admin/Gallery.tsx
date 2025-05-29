@@ -828,7 +828,7 @@ function SimpleGalleryManager() {
                       setEditingImage(image);
                       setTaggingDialogOpen(true);
                     }}
-                    title="Edit tags and details"
+                    title="Edit photo tags and details"
                   >
                     <EditIcon className="h-4 w-4" />
                   </Button>
