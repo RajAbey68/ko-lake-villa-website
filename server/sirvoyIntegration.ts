@@ -1,4 +1,5 @@
 import axios from 'axios';
+import * as ical from 'node-ical';
 
 interface SirVoyBooking {
   id: string;
@@ -117,41 +118,105 @@ class SirVoyConnector {
   }
 
   /**
-   * Alternative: Use iCal feed if API is not available
-   * Many booking systems provide iCal URLs for calendar integration
+   * Fetch and parse iCal feed from SirVoy
    */
-  async getICalFeed(icalUrl: string): Promise<any[]> {
+  async getICalBookings(icalUrl: string): Promise<SirVoyBooking[]> {
     try {
       const response = await axios.get(icalUrl);
-      // Parse iCal data (would need an iCal parsing library)
-      return this.parseICalData(response.data);
+      return this.parseICalToBookings(response.data);
     } catch (error: any) {
       console.error('iCal Feed Error:', error.message);
-      throw new Error('Failed to fetch iCal feed');
+      throw new Error('Failed to fetch iCal feed from SirVoy');
     }
   }
 
-  private parseICalData(icalData: string): any[] {
-    // Simple iCal parser (would need proper library like 'ical.js')
-    const events: any[] = [];
-    const lines = icalData.split('\n');
-    let currentEvent: any = {};
-
-    for (const line of lines) {
-      if (line.startsWith('BEGIN:VEVENT')) {
-        currentEvent = {};
-      } else if (line.startsWith('END:VEVENT')) {
-        events.push(currentEvent);
-      } else if (line.startsWith('DTSTART:')) {
-        currentEvent.start = line.split(':')[1];
-      } else if (line.startsWith('DTEND:')) {
-        currentEvent.end = line.split(':')[1];
-      } else if (line.startsWith('SUMMARY:')) {
-        currentEvent.summary = line.split(':')[1];
+  /**
+   * Parse iCal data into booking objects
+   */
+  private parseICalToBookings(icalData: string): SirVoyBooking[] {
+    const bookings: SirVoyBooking[] = [];
+    
+    try {
+      const events = ical.parseICS(icalData);
+      
+      for (const key in events) {
+        const event = events[key];
+        
+        if (event.type === 'VEVENT' && event.start && event.end) {
+          // Extract guest name from summary (usually in format "Guest Name - Room Type" or similar)
+          const summary = event.summary || 'Unknown Guest';
+          const guestName = this.extractGuestName(summary);
+          const roomType = this.extractRoomType(summary);
+          
+          bookings.push({
+            id: event.uid || key,
+            guestName,
+            checkIn: this.formatDate(event.start),
+            checkOut: this.formatDate(event.end),
+            roomType,
+            status: 'confirmed',
+            totalAmount: 0 // Not available in iCal typically
+          });
+        }
       }
+    } catch (error) {
+      console.error('Error parsing iCal data:', error);
     }
+    
+    return bookings;
+  }
 
-    return events;
+  /**
+   * Extract guest name from iCal summary
+   */
+  private extractGuestName(summary: string): string {
+    // Common patterns: "John Doe", "John Doe - Villa", "Booking: John Doe"
+    const cleanSummary = summary.replace(/^(Booking:|Reserved:)\s*/i, '');
+    const parts = cleanSummary.split(/\s*[-–—]\s*/);
+    return parts[0].trim() || 'Guest';
+  }
+
+  /**
+   * Extract room type from iCal summary
+   */
+  private extractRoomType(summary: string): string {
+    const klvPattern = /\b(KLV\d*|Villa|Suite|Room|Triple|Group)\b/i;
+    const match = summary.match(klvPattern);
+    return match ? match[0] : 'Standard Room';
+  }
+
+  /**
+   * Format date for consistent output
+   */
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  /**
+   * Check if dates are available based on iCal bookings
+   */
+  async checkICalAvailability(icalUrl: string, checkIn: string, checkOut: string): Promise<boolean> {
+    try {
+      const bookings = await this.getICalBookings(icalUrl);
+      const checkInDate = new Date(checkIn);
+      const checkOutDate = new Date(checkOut);
+      
+      // Check if requested dates overlap with any existing bookings
+      for (const booking of bookings) {
+        const bookingStart = new Date(booking.checkIn);
+        const bookingEnd = new Date(booking.checkOut);
+        
+        // Check for date overlap
+        if (checkInDate < bookingEnd && checkOutDate > bookingStart) {
+          return false; // Dates are not available
+        }
+      }
+      
+      return true; // Dates are available
+    } catch (error) {
+      console.error('Error checking iCal availability:', error);
+      return false; // Default to unavailable on error
+    }
   }
 }
 
