@@ -171,7 +171,7 @@ main() {
     echo "2. Google Cloud: Use 'gcloud app deploy' in deployment-package/"
     echo "3. Manual: Use files in deployment-package/ for any provider"
     echo ""
-    echo "Domain configuration: www.KoLakeHouse.com"
+    echo "Domain configuration: www.KoLakeVilla.com"
     echo "All security checks passed ✅"
 }
 
