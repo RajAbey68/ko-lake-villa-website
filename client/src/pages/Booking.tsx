@@ -100,8 +100,9 @@ const Booking = () => {
 
   return (
     <>
+      <a href="#main-content" className="skip-nav">Skip to main content</a>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 bg-[#1E4E5F]">
+      <section className="relative pt-32 pb-20 bg-[#1E4E5F]" role="banner">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl text-white font-display font-bold mb-6">Book Your Stay</h1>
           <p className="text-lg text-white max-w-3xl mx-auto">
@@ -208,12 +209,9 @@ const Booking = () => {
                             {roomsLoading ? (
                               <SelectItem value="loading">Loading rooms...</SelectItem>
                             ) : (
-                              <>
-                                {rooms?.map((room) => (
-                                  <SelectItem key={room.id} value={room.name}>{room.name}</SelectItem>
-                                ))}
-                                <SelectItem value="whole-villa">Entire Villa</SelectItem>
-                              </>
+                              rooms?.map((room) => (
+                                <SelectItem key={room.id} value={room.name}>{room.name}</SelectItem>
+                              ))
                             )}
                           </SelectContent>
                         </Select>
