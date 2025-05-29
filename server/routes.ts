@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage as dataStorage } from "./storage";
-import { sirvoyConnector, shouldUseSampleData, getIntegrationStatus } from "./sirvoyIntegration";
+
 import { 
   insertBookingInquirySchema, 
   insertContactMessageSchema,
@@ -986,133 +986,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // SirVoy iCal Integration Endpoints
-  app.get("/api/sirvoy/bookings", async (req, res) => {
+  // Booking Management API - Ready for Beds24 or Questy integration
+  app.get("/api/booking/availability", async (req, res) => {
     try {
-      const icalUrl = req.query.icalUrl as string;
-      
-      if (!icalUrl) {
-        return res.status(400).json({ 
-          message: "iCal URL is required",
-          status: getIntegrationStatus()
-        });
-      }
-      
-      const bookings = await sirvoyConnector.getICalBookings(icalUrl);
-      res.json({
-        bookings,
-        count: bookings.length,
-        status: "Connected to SirVoy via iCal"
-      });
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: "Failed to fetch bookings from SirVoy: " + error.message,
-        status: getIntegrationStatus()
-      });
-    }
-  });
-
-  // Get real availability for all rooms from SirVoy
-  app.get('/api/sirvoy/availability', async (req, res) => {
-    try {
-      const icalUrls = {
-        klv: '',
-        klv1: 'https://secured.sirvoy.com/ical/ba9904a2-aa48-4a1b-a3c4-26d65bf93790',
-        klv3: '',
-        klv6: ''
+      // Placeholder for future Beds24 or Questy integration
+      const availability = {
+        klv: { available: true, bookings: [] },
+        klv1: { available: true, bookings: [] },
+        klv3: { available: true, bookings: [] },
+        klv6: { available: true, bookings: [] }
       };
-
-      const availability: any = {};
-
-      for (const [roomCode, icalUrl] of Object.entries(icalUrls)) {
-        if (icalUrl) {
-          const result = await sirvoyConnector.getICalBookings(icalUrl);
-          availability[roomCode] = {
-            bookings: result,
-            unavailableDates: result.map((booking: any) => ({
-              start: booking.checkIn,
-              end: booking.checkOut
-            }))
-          };
-        } else {
-          availability[roomCode] = {
-            bookings: [],
-            unavailableDates: []
-          };
-        }
-      }
-
-      res.json(availability);
-    } catch (error: any) {
-      console.error('Error fetching availability:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  app.post("/api/sirvoy/check-availability", async (req, res) => {
-    try {
-      const { icalUrl, checkIn, checkOut } = req.body;
-      
-      if (!icalUrl || !checkIn || !checkOut) {
-        return res.status(400).json({ 
-          message: "iCal URL, check-in, and check-out dates are required" 
-        });
-      }
-      
-      const available = await sirvoyConnector.checkICalAvailability(icalUrl, checkIn, checkOut);
-      res.json({
-        available,
-        checkIn,
-        checkOut,
-        message: available ? "Dates are available" : "Dates are not available"
-      });
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: "Failed to check availability: " + error.message 
-      });
-    }
-  });
-
-  app.get("/api/sirvoy/status", async (req, res) => {
-    res.json({
-      status: getIntegrationStatus(),
-      configured: !shouldUseSampleData(),
-      message: shouldUseSampleData() 
-        ? "Add your SirVoy iCal URLs to connect with live booking data"
-        : "Connected to SirVoy - Real booking data available"
-    });
-  });
-
-  // Endpoint for SirVoy to import bookings FROM your website
-  app.get("/api/sirvoy/export-bookings", async (req, res) => {
-    try {
-      // This endpoint provides booking data TO SirVoy in the format they expect
-      // For now, we'll return a basic structure - you can customize based on your needs
-      const bookings = [
-        // Sample booking structure - replace with your actual booking data
-        {
-          id: "KLV001",
-          guest_name: "Sample Guest",
-          check_in: "2025-06-01",
-          check_out: "2025-06-05", 
-          room_type: "Deluxe Family Suite",
-          total_amount: 500,
-          status: "confirmed",
-          email: "guest@example.com"
-        }
-      ];
 
       res.json({
         success: true,
-        bookings,
-        total: bookings.length
+        availability,
+        message: "Ready for Beds24 or Questy integration"
       });
     } catch (error: any) {
       res.status(500).json({ 
         success: false,
-        message: "Failed to export bookings: " + error.message 
+        message: "Failed to fetch availability: " + error.message 
       });
     }
+  });
+
+  app.get("/api/booking/status", async (req, res) => {
+    res.json({
+      status: "Ready for integration",
+      configured: false,
+      message: "Ready to integrate with Beds24 or Questy booking system",
+      supportedSystems: ["Beds24", "Questy"]
+    });
   });
 
   // Stripe payment endpoints
