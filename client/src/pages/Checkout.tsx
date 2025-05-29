@@ -187,30 +187,40 @@ export default function Checkout() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get booking details from URL params or local storage
-    const params = new URLSearchParams(window.location.search);
-    const roomName = params.get('room') || 'Entire Villa Exclusive (KNP)';
-    const checkIn = params.get('checkin') || new Date().toISOString().split('T')[0];
-    const checkOut = params.get('checkout') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
-    const guests = parseInt(params.get('guests') || '2');
-    const amount = parseInt(params.get('amount') || '350');
+    // First check session storage for booking data from "Book Direct" buttons
+    const stored = sessionStorage.getItem('bookingData');
+    let details;
     
-    const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
-    
-    const details = {
-      roomName,
-      checkIn,
-      checkOut,
-      guests,
-      amount,
-      nights
-    };
+    if (stored) {
+      details = JSON.parse(stored);
+      // Clear session storage after retrieving
+      sessionStorage.removeItem('bookingData');
+    } else {
+      // Fallback to URL params
+      const params = new URLSearchParams(window.location.search);
+      const roomName = params.get('room') || 'Entire Villa Exclusive (KNP)';
+      const checkIn = params.get('checkin') || new Date().toISOString().split('T')[0];
+      const checkOut = params.get('checkout') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const guests = parseInt(params.get('guests') || '2');
+      const amount = parseInt(params.get('amount') || '350');
+      
+      const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
+      
+      details = {
+        roomName,
+        checkIn,
+        checkOut,
+        guests,
+        amount,
+        nights
+      };
+    }
     
     setBookingDetails(details);
 
     // Create payment intent
     apiRequest("POST", "/api/create-payment-intent", { 
-      amount: amount,
+      amount: details.amount,
       booking: details 
     })
       .then((res) => res.json())

@@ -177,7 +177,25 @@ const Accommodation = () => {
                           <div className="text-sm text-gray-600">
                             <span>Better rates • Direct support • No booking fees</span>
                           </div>
-                          <Link href="/booking" className="bg-[#E8B87D] text-white px-6 py-3 rounded hover:bg-[#1E4E5F] transition-colors font-medium">Book Direct</Link>
+                          <button 
+                            onClick={() => {
+                              const bookingData = {
+                                roomName: room.name,
+                                checkIn: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Tomorrow
+                                checkOut: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Day after
+                                guests: 2,
+                                amount: getCurrentPrice(room.name),
+                                nights: 1
+                              };
+                              
+                              // Store booking data and navigate to checkout
+                              sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+                              window.location.href = '/checkout';
+                            }}
+                            className="bg-[#E8B87D] text-white px-6 py-3 rounded hover:bg-[#1E4E5F] transition-colors font-medium"
+                          >
+                            Book Direct
+                          </button>
                         </div>
                       </div>
                     </div>
