@@ -33,7 +33,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { apiRequest } from '../../lib/queryClient';
 import { z } from 'zod';
-import SirVoyTab from './SirVoyTab';
+
 // Import GalleryImage type directly to fix the import error
 type GalleryImage = {
   id: number;
@@ -1440,15 +1440,15 @@ function AdminDashboardContent() {
               </button>
               
               <button 
-                onClick={() => setActiveTab('sirvoy')}
+                onClick={() => setActiveTab('booking-integration')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left ${
-                  activeTab === 'sirvoy' 
+                  activeTab === 'booking-integration' 
                     ? 'bg-[#FDF6EE] text-[#FF914D]' 
                     : 'text-[#8B5E3C] hover:bg-[#FDF6EE]'
                 }`}
               >
                 <CalendarRangeIcon className="w-5 h-5" />
-                <span>SirVoy Integration</span>
+                <span>Booking Integration</span>
               </button>
               
               <Link href="/admin/calendar">
