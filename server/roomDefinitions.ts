@@ -20,7 +20,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
     name: "Entire Villa (KLV)",
     slug: "klv",
     capacity: "18+ guests (up to 25)",
-    features: ["All 8 A/C rooms", "60-ft infinity pool", "Rooftop terrace", "Lakefront views"],
+    features: ["5 Triple Rooms + 2 Suites", "60-ft infinity pool", "Rooftop terrace", "Lakefront views"],
     link: "https://airbnb.co.uk/h/klv",
     checkinDate: "2025-06-05"
   },
