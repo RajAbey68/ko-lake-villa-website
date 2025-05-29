@@ -10,7 +10,7 @@ import { apiRequest } from '@/lib/queryClient';
 export default function SirVoyTab() {
   const { toast } = useToast();
   const [icalUrls, setIcalUrls] = useState({
-    deluxeFamilySuite: 'https://secured.sirvoy.com/ical/ba9904a2-aa48-4afb-a3c4-26d65bf93790',
+    deluxeFamilySuite: 'https://secured.sirvoy.com/ical/ba9904a2-aa48-4a1b-a3c4-26d65bf93790',
     room002: '',
     room003: '',
     room004: ''
