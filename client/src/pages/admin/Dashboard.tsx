@@ -1490,6 +1490,7 @@ function AdminDashboardContent() {
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="bookings">Bookings</TabsTrigger>
                 <TabsTrigger value="messages">Messages</TabsTrigger>
+                <TabsTrigger value="sirvoy">SirVoy Integration</TabsTrigger>
                 <TabsTrigger value="gallery">Gallery</TabsTrigger>
                 <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
               </TabsList>
