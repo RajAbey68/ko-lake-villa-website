@@ -12,6 +12,23 @@ import { apiRequest } from '@/lib/queryClient';
 import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
 
+// Helper function to check date conflicts with real bookings
+const isDateRangeAvailable = (checkIn: string, checkOut: string, bookings: any[] = []) => {
+  const requestedCheckIn = new Date(checkIn);
+  const requestedCheckOut = new Date(checkOut);
+  
+  for (const booking of bookings) {
+    const bookingCheckIn = new Date(booking.checkIn);
+    const bookingCheckOut = new Date(booking.checkOut);
+    
+    // Check if dates overlap
+    if (requestedCheckIn < bookingCheckOut && requestedCheckOut > bookingCheckIn) {
+      return false;
+    }
+  }
+  return true;
+};
+
 // Schema for booking form validation
 const bookingFormSchema = z.object({
   checkInDate: z.string().min(1, { message: "Check-in date is required" }),
@@ -41,11 +58,11 @@ const Booking = () => {
     queryKey: ['/api/rooms'],
   });
 
-  // Fetch real booking availability from SirVoy
-  const { data: availability, isLoading: availabilityLoading } = useQuery({
-    queryKey: ['/api/sirvoy/availability'],
+  // Fetch real booking data from SirVoy for KLV1 (Master Family Suite)
+  const { data: klv1Bookings, isLoading: bookingsLoading } = useQuery({
+    queryKey: ['/api/sirvoy/bookings'],
     queryFn: async () => {
-      const response = await fetch('/api/sirvoy/availability');
+      const response = await fetch('/api/sirvoy/bookings?icalUrl=https%3A//secured.sirvoy.com/ical/ba9904a2-aa48-4a1b-a3c4-26d65bf93790');
       return response.json();
     }
   });
@@ -86,6 +103,25 @@ const Booking = () => {
   const onSubmit = async (values: BookingFormValues) => {
     setSubmitting(true);
     try {
+      // Check availability against real SirVoy data for KLV1
+      if (values.roomType === 'klv1' && klv1Bookings?.bookings) {
+        const isAvailable = isDateRangeAvailable(
+          values.checkInDate, 
+          values.checkOutDate, 
+          klv1Bookings.bookings
+        );
+        
+        if (!isAvailable) {
+          toast({
+            title: "Dates Not Available",
+            description: "The Master Family Suite is already booked for these dates. Please select different dates.",
+            variant: "destructive"
+          });
+          setSubmitting(false);
+          return;
+        }
+      }
+
       await apiRequest('POST', '/api/booking', values);
       toast({
         title: "Booking request submitted!",
@@ -197,6 +233,21 @@ const Booking = () => {
                       </FormItem>
                     )}
                   />
+
+                  {/* Real-time Availability Status */}
+                  {klv1Bookings?.bookings && klv1Bookings.bookings.length > 0 && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-amber-800 mb-2">Current Bookings - Master Family Suite</h4>
+                      <div className="space-y-1 text-sm text-amber-700">
+                        {klv1Bookings.bookings.map((booking: any, index: number) => (
+                          <div key={index}>
+                            {new Date(booking.checkIn).toLocaleDateString()} - {new Date(booking.checkOut).toLocaleDateString()} (Unavailable)
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-amber-600 mt-2">These dates are not available for the Master Family Suite</p>
+                    </div>
+                  )}
 
                   {/* Room Type */}
                   <FormField
