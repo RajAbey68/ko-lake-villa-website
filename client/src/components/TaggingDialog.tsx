@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,6 +52,17 @@ export default function TaggingDialog({
   const [category, setCategory] = useState(initialData.category || GALLERY_CATEGORIES[0]);
   const [tags, setTags] = useState(initialData.tags || '');
   const [featured, setFeatured] = useState(initialData.featured || false);
+
+  // Update state when initialData changes (for editing existing images)
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setTitle(initialData.title || '');
+      setDescription(initialData.description || '');
+      setCategory(initialData.category || GALLERY_CATEGORIES[0]);
+      setTags(initialData.tags || '');
+      setFeatured(initialData.featured || false);
+    }
+  }, [isOpen, initialData]);
 
   const handleSave = () => {
     onSave({
