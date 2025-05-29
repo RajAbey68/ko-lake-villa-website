@@ -1,0 +1,58 @@
+Great — since your ShortLetting website is already live at https://skill-bridge-rajabey68.replit.app/, I’ll generate a Replit Agent prompt to help you integrate it with your SirVoy account using their API or iCal (depending on what level of control you need).
+
+Before I finalize the prompt, I’ll make a few reasonable assumptions based on standard use cases — but please feel free to correct or update any of these:
+
+⸻
+
+🧠 Assumptions (Please confirm or modify):
+	•	Project Name: ShortLetting SirVoy Integration
+	•	Project Description: Connect my live ShortLetting web app to SirVoy to fetch real-time booking data and availability.
+	•	Target Platform: Web
+	•	Operating Environment: Online-only
+	•	Hosting Platform: Replit (already hosted there)
+	•	Interface Style: Minimalist and user-friendly
+	•	Example Applications: Airbnb, Booking.com
+	•	Expected Outputs:
+	•	Display of available rooms and calendar
+	•	Display of recent or upcoming bookings
+	•	Optionally initiate or confirm bookings via API
+	•	Additional Features: Email alerts for new bookings, live availability update on frontend
+	•	Preferred Interaction Language (Replit Agent): English
+	•	Application Interface Language: English
+
+⸻
+
+✅ Replit Agent Prompt (Copy & Paste Ready):
+
+Prompt for Replit Agent
+
+Build an integration for my existing live website https://skill-bridge-rajabey68.replit.app/, which is a ShortLetting web app, to connect it with the SirVoy booking platform using their API or iCal.
+
+Key Requirements:
+	•	Use the SirVoy API (preferred) or iCal integration if API is not available.
+	•	Authenticate using my SirVoy API Key (this will be manually added to .env).
+	•	Fetch and display:
+	•	Current room availability
+	•	Upcoming bookings
+	•	Booking details (e.g., guest name, check-in/out dates)
+	•	Optionally support creating or confirming bookings from the website.
+	•	Use Replit’s online hosting (already deployed).
+	•	Style the interface in a minimalist and user-friendly way.
+	•	Add optional feature: send email alerts when a new booking is created.
+
+Preferences:
+	•	Platform: Web
+	•	Hosting: Replit
+	•	Operating Mode: Online
+	•	Language (Agent Interaction): English
+	•	Language (App Interface): English
+
+Refer to official SirVoy documentation for API or iCal setup:
+	•	API: https://support.sirvoy.com/blog/topic/integration/api/
+	•	iCal: https://support.sirvoy.com/blog/topic/integration/ical-export-import/
+
+Ensure the integration is secure, efficient, and responsive.
+
+⸻
+
+Would you like me to help you generate the .env config for your SirVoy API key or build example code snippets to get you started on Replit?
