@@ -26,18 +26,30 @@ export default function ContentManager() {
   const [saving, setSaving] = useState(false);
   const [content, setContent] = useState<PageContent[]>([]);
 
-  // Initialize with current website content
+  // Load content from backend
   useEffect(() => {
-    const initialContent: PageContent[] = [
-      // Homepage Content
-      {
-        id: 'home-hero-title',
-        page: 'home',
-        section: 'hero',
-        title: 'Hero Title',
-        content: 'Welcome to Lakeside Luxury',
-        lastUpdated: new Date().toISOString()
-      },
+    loadContent();
+  }, []);
+
+  const loadContent = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/content');
+      if (response.ok) {
+        const data = await response.json();
+        setContent(data);
+      } else {
+        // Initialize with default content if backend fails
+        const initialContent: PageContent[] = [
+          // Homepage Content
+          {
+            id: 'home-hero-title',
+            page: 'home',
+            section: 'hero',
+            title: 'Hero Title',
+            content: 'Welcome to Lakeside Luxury',
+            lastUpdated: new Date().toISOString()
+          },
       {
         id: 'home-hero-subtitle',
         page: 'home',

@@ -71,6 +71,10 @@ export interface IStorage {
   getPageHeroImage(pageName: string): Promise<PageHeroImage | undefined>;
   setPageHeroImage(pageHeroImage: InsertPageHeroImage): Promise<PageHeroImage>;
   getAllPageHeroImages(): Promise<PageHeroImage[]>;
+
+  // Content management operations
+  getAllContent(): Promise<any[]>;
+  saveContent(content: any[]): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -84,6 +88,7 @@ export class MemStorage implements IStorage {
   private contactMessages: Map<number, ContactMessage>;
   private newsletterSubscribers: Map<number, NewsletterSubscriber>;
   private pageHeroImages: Map<string, PageHeroImage>;
+  private websiteContent: Map<string, any>;
   
   private nextUserId: number;
   private nextRoomId: number;
@@ -105,6 +110,8 @@ export class MemStorage implements IStorage {
     this.bookingInquiries = new Map();
     this.contactMessages = new Map();
     this.newsletterSubscribers = new Map();
+    this.pageHeroImages = new Map();
+    this.websiteContent = new Map();
     
     this.nextUserId = 1;
     this.nextRoomId = 1;
@@ -752,6 +759,66 @@ export class MemStorage implements IStorage {
     return Array.from(this.newsletterSubscribers.values()).filter(
       (subscriber) => subscriber.active
     );
+  }
+
+  // Content management operations
+  async getAllContent(): Promise<any[]> {
+    // Initialize with default content if none exists
+    if (this.websiteContent.size === 0) {
+      const defaultContent = [
+        {
+          id: 'home-hero-title',
+          page: 'home',
+          section: 'hero',
+          title: 'Hero Title',
+          content: 'Welcome to Lakeside Luxury',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'home-hero-subtitle',
+          page: 'home',
+          section: 'hero',
+          title: 'Hero Subtitle',
+          content: 'Ko Lake Villa is a boutique accommodation nestled on the shores of a serene lake in Ahangama, Galle, offering a perfect blend of luxury, comfort, and natural beauty. Our villa provides an exclusive retreat for travelers seeking tranquility and authentic Sri Lankan experience.',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'accommodation-title',
+          page: 'accommodation',
+          section: 'hero',
+          title: 'Page Title',
+          content: 'Luxury Accommodations',
+          lastUpdated: new Date().toISOString()
+        }
+      ];
+      
+      defaultContent.forEach(item => {
+        this.websiteContent.set(item.id, item);
+      });
+    }
+    
+    return Array.from(this.websiteContent.values());
+  }
+
+  async saveContent(content: any[]): Promise<void> {
+    content.forEach(item => {
+      item.lastUpdated = new Date().toISOString();
+      this.websiteContent.set(item.id, item);
+    });
+  }
+
+  // Page hero image operations (placeholder methods)
+  async getPageHeroImage(pageName: string): Promise<any | undefined> {
+    return this.pageHeroImages.get(pageName);
+  }
+
+  async setPageHeroImage(pageHeroImage: any): Promise<any> {
+    this.pageHeroImages.set(pageHeroImage.pageName, pageHeroImage);
+    return pageHeroImage;
+  }
+
+  async getAllPageHeroImages(): Promise<any[]> {
+    return Array.from(this.pageHeroImages.values());
   }
 }
 
