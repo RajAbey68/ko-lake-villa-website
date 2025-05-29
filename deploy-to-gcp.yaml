@@ -1,0 +1,55 @@
+# Google Cloud Platform App Engine deployment configuration
+# For Ko Lake Villa - www.KoLakeHouse.com
+
+runtime: nodejs20
+
+# Environment variables for production
+env_variables:
+  NODE_ENV: production
+  DOMAIN: www.KoLakeHouse.com
+  
+# Automatic scaling configuration
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.6
+
+# Static file handling
+handlers:
+  # Serve static assets with caching
+  - url: /static
+    static_dir: static
+    secure: always
+    expiration: 7d
+    
+  # Serve uploads with caching
+  - url: /uploads
+    static_dir: uploads
+    secure: always
+    expiration: 1d
+    
+  # Serve robots.txt and sitemap.xml
+  - url: /(robots\.txt|sitemap\.xml)
+    static_files: static/\1
+    upload: static/(robots\.txt|sitemap\.xml)
+    secure: always
+    
+  # All other requests go to the app
+  - url: /.*
+    script: auto
+    secure: always
+
+# Network settings
+network:
+  session_affinity: true
+  
+# Health checks
+readiness_check:
+  path: "/api/health"
+  check_interval_sec: 5
+  timeout_sec: 4
+  
+liveness_check:
+  path: "/api/health"
+  check_interval_sec: 30
+  timeout_sec: 4
