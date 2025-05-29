@@ -186,7 +186,16 @@ const Booking = () => {
                             <SelectItem value="3">3 Guests</SelectItem>
                             <SelectItem value="4">4 Guests</SelectItem>
                             <SelectItem value="5">5 Guests</SelectItem>
-                            <SelectItem value="6+">6+ Guests</SelectItem>
+                            <SelectItem value="6">6 Guests</SelectItem>
+                            <SelectItem value="7">7 Guests</SelectItem>
+                            <SelectItem value="8">8 Guests</SelectItem>
+                            <SelectItem value="9">9 Guests</SelectItem>
+                            <SelectItem value="10">10 Guests</SelectItem>
+                            <SelectItem value="12">12 Guests</SelectItem>
+                            <SelectItem value="15">15 Guests</SelectItem>
+                            <SelectItem value="18">18 Guests</SelectItem>
+                            <SelectItem value="20">20 Guests</SelectItem>
+                            <SelectItem value="25+">25+ Guests</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
