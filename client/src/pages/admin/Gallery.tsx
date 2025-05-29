@@ -865,7 +865,7 @@ function SimpleGalleryManager() {
           if (editingImage) {
             try {
               const response = await fetch(`/api/admin/gallery/${editingImage.id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   alt: data.title,
