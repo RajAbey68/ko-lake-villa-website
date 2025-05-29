@@ -48,10 +48,10 @@ type GalleryImage = {
 
 // Room definitions and pricing logic
 const rooms = {
-  knp: "Entire Villa (KNP)",
-  knp1: "Family Suite (KNP1)", 
-  knp3: "Twin/Triple Room (KNP3)",
-  knp6: "Group Room (KNP6)",
+  klv: "Entire Villa KLV",
+  klv1: "Family Suite (KLV1)", 
+  klv3: "Twin/Triple Room (KLV3)",
+  klv6: "Group Room (KLV6)",
 };
 
 function calculateDirectRate(rate: number) {

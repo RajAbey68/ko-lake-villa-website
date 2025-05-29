@@ -65,9 +65,9 @@ const Accommodation = () => {
   };
 
   const getAirbnbRate = (roomName: string) => {
-    return roomName.includes('KNP1') ? 119 : 
-           roomName.includes('KNP3') ? 70 :
-           roomName.includes('KNP6') ? 250 : 431;
+    return roomName.includes('KLV1') ? 119 : 
+           roomName.includes('KLV3') ? 70 :
+           roomName.includes('KLV6') ? 250 : 431;
   };
 
   useEffect(() => {
