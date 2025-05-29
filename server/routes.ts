@@ -884,6 +884,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Content management endpoints
+  app.get('/api/content', async (req, res) => {
+    try {
+      const content = await dataStorage.getAllContent();
+      res.json(content);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch content" });
+    }
+  });
+
+  app.post('/api/content', async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!Array.isArray(content)) {
+        return res.status(400).json({ message: "Content must be an array" });
+      }
+      
+      await dataStorage.saveContent(content);
+      res.json({ message: "Content saved successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to save content" });
+    }
+  });
+
   // Update image category
   app.put('/api/admin/gallery/:id/category', async (req, res) => {
     try {
