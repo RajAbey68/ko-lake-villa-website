@@ -41,6 +41,15 @@ const Booking = () => {
     queryKey: ['/api/rooms'],
   });
 
+  // Fetch real booking availability from SirVoy
+  const { data: availability, isLoading: availabilityLoading } = useQuery({
+    queryKey: ['/api/sirvoy/availability'],
+    queryFn: async () => {
+      const response = await fetch('/api/sirvoy/availability');
+      return response.json();
+    }
+  });
+
   useEffect(() => {
     document.title = "Book Your Stay - Ko Lake Villa";
   }, []);
