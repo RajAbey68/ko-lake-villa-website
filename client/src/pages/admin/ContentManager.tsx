@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -39,59 +38,34 @@ export default function ContentManager() {
         const data = await response.json();
         setContent(data);
       } else {
-        // Initialize with default content if backend fails
-        const initialContent: PageContent[] = [
-          // Homepage Content
-          {
-            id: 'home-hero-title',
-            page: 'home',
-            section: 'hero',
-            title: 'Hero Title',
-            content: 'Welcome to Lakeside Luxury',
-            lastUpdated: new Date().toISOString()
-          },
+        initializeDefaultContent();
+      }
+    } catch (error) {
+      console.error('Error loading content:', error);
+      initializeDefaultContent();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initializeDefaultContent = () => {
+    const initialContent: PageContent[] = [
+      {
+        id: 'home-hero-title',
+        page: 'home',
+        section: 'hero',
+        title: 'Hero Title',
+        content: 'Welcome to Lakeside Luxury',
+        lastUpdated: new Date().toISOString()
+      },
       {
         id: 'home-hero-subtitle',
         page: 'home',
         section: 'hero',
         title: 'Hero Subtitle',
-        content: 'Ko Lake Villa is a boutique accommodation nestled on the shores of a serene lake in Ahangama, Galle, offering a perfect blend of luxury, comfort, and natural beauty. Our villa provides an exclusive retreat for travelers seeking tranquility and authentic Sri Lankan experience.',
+        content: 'Ko Lake Villa is a boutique accommodation nestled on the shores of a serene lake in Ahangama, Galle, offering a perfect blend of luxury, comfort, and natural beauty.',
         lastUpdated: new Date().toISOString()
       },
-      {
-        id: 'home-hero-description',
-        page: 'home',
-        section: 'hero',
-        title: 'Hero Description',
-        content: 'With spectacular views, personalized service, and attention to detail, we create memorable experiences for our guests - whether you\'re planning a family vacation, a romantic getaway, or a wellness retreat.',
-        lastUpdated: new Date().toISOString()
-      },
-      {
-        id: 'home-features-rooms',
-        page: 'home',
-        section: 'features',
-        title: 'Luxurious Rooms Feature',
-        content: 'Luxurious Rooms',
-        lastUpdated: new Date().toISOString()
-      },
-      {
-        id: 'home-features-dining',
-        page: 'home',
-        section: 'features',
-        title: 'Gourmet Dining Feature',
-        content: 'Gourmet Dining',
-        lastUpdated: new Date().toISOString()
-      },
-      {
-        id: 'home-features-lake',
-        page: 'home',
-        section: 'features',
-        title: 'Lake Access Feature',
-        content: 'Lake Access',
-        lastUpdated: new Date().toISOString()
-      },
-
-      // Accommodation Page
       {
         id: 'accommodation-title',
         page: 'accommodation',
@@ -101,16 +75,6 @@ export default function ContentManager() {
         lastUpdated: new Date().toISOString()
       },
       {
-        id: 'accommodation-subtitle',
-        page: 'accommodation',
-        section: 'hero',
-        title: 'Page Subtitle',
-        content: 'Choose from our carefully designed rooms and suites, each offering unique amenities and stunning views of Koggala Lake.',
-        lastUpdated: new Date().toISOString()
-      },
-
-      // Dining Page
-      {
         id: 'dining-title',
         page: 'dining',
         section: 'hero',
@@ -118,16 +82,6 @@ export default function ContentManager() {
         content: 'Culinary Excellence',
         lastUpdated: new Date().toISOString()
       },
-      {
-        id: 'dining-subtitle',
-        page: 'dining',
-        section: 'hero',
-        title: 'Page Subtitle',
-        content: 'Savor exceptional cuisine crafted from the finest local ingredients, served in the comfort of your private villa or our scenic dining areas.',
-        lastUpdated: new Date().toISOString()
-      },
-
-      // Experiences Page
       {
         id: 'experiences-title',
         page: 'experiences',
@@ -137,16 +91,6 @@ export default function ContentManager() {
         lastUpdated: new Date().toISOString()
       },
       {
-        id: 'experiences-subtitle',
-        page: 'experiences',
-        section: 'hero',
-        title: 'Page Subtitle',
-        content: 'Discover the magic of Sri Lanka through curated experiences that showcase the natural beauty, rich culture, and warm hospitality of our island paradise.',
-        lastUpdated: new Date().toISOString()
-      },
-
-      // Contact Page
-      {
         id: 'contact-title',
         page: 'contact',
         section: 'hero',
@@ -155,35 +99,17 @@ export default function ContentManager() {
         lastUpdated: new Date().toISOString()
       },
       {
-        id: 'contact-subtitle',
-        page: 'contact',
-        section: 'hero',
-        title: 'Page Subtitle',
-        content: 'We\'re here to help you plan your perfect getaway. Contact us for reservations, inquiries, or any special requests.',
-        lastUpdated: new Date().toISOString()
-      },
-
-      // Gallery Page
-      {
         id: 'gallery-title',
         page: 'gallery',
         section: 'hero',
         title: 'Page Title',
         content: 'Photo Gallery',
         lastUpdated: new Date().toISOString()
-      },
-      {
-        id: 'gallery-subtitle',
-        page: 'gallery',
-        section: 'hero',
-        title: 'Page Subtitle',
-        content: 'Explore our beautiful property through stunning photography showcasing the villa, amenities, and breathtaking surroundings.',
-        lastUpdated: new Date().toISOString()
       }
     ];
-
+    
     setContent(initialContent);
-  }, []);
+  };
 
   const handleContentChange = (id: string, newContent: string) => {
     setContent(prev => prev.map(item => 
@@ -195,20 +121,28 @@ export default function ContentManager() {
 
   const saveContent = async (pageId?: string) => {
     setSaving(true);
-    setLoading(true);
 
     try {
-      // Simulate API call - in real implementation, this would save to your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      toast({
-        title: "Content Saved Successfully!",
-        description: pageId 
-          ? `${pageId.charAt(0).toUpperCase() + pageId.slice(1)} page content updated`
-          : "All page content has been saved",
-        variant: "default",
-        duration: 3000,
+      const response = await fetch('/api/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
       });
+
+      if (response.ok) {
+        toast({
+          title: "Content Saved Successfully!",
+          description: pageId 
+            ? `${pageId.charAt(0).toUpperCase() + pageId.slice(1)} page content updated on live website`
+            : "All page content has been saved and is now live on your website",
+          variant: "default",
+          duration: 3000,
+        });
+      } else {
+        throw new Error('Failed to save content');
+      }
 
     } catch (error) {
       toast({
@@ -218,7 +152,6 @@ export default function ContentManager() {
       });
     } finally {
       setSaving(false);
-      setLoading(false);
     }
   };
 
@@ -228,7 +161,7 @@ export default function ContentManager() {
     return content.filter(item => item.page === page);
   };
 
-  const ContentEditor = ({ pageContent, pageIcon: Icon }: { pageContent: PageContent[], pageIcon: any }) => (
+  const ContentEditor = ({ pageContent }: { pageContent: PageContent[] }) => (
     <div className="space-y-6">
       {pageContent.map((item) => (
         <Card key={item.id}>
@@ -279,6 +212,19 @@ export default function ContentManager() {
       ))}
     </div>
   );
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+            <p>Loading content...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
@@ -358,7 +304,7 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('home')} pageIcon={Home} />
+                <ContentEditor pageContent={getContentByPage('home')} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -375,7 +321,7 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('accommodation')} pageIcon={Bed} />
+                <ContentEditor pageContent={getContentByPage('accommodation')} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -392,7 +338,7 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('dining')} pageIcon={Utensils} />
+                <ContentEditor pageContent={getContentByPage('dining')} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -409,7 +355,7 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('experiences')} pageIcon={FileText} />
+                <ContentEditor pageContent={getContentByPage('experiences')} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -426,7 +372,7 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('gallery')} pageIcon={Camera} />
+                <ContentEditor pageContent={getContentByPage('gallery')} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -443,7 +389,7 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('contact')} pageIcon={Phone} />
+                <ContentEditor pageContent={getContentByPage('contact')} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -452,7 +398,7 @@ export default function ContentManager() {
         {/* Preview Notice */}
         <Card className="mt-8 border-[#FF914D]/20 bg-[#FF914D]/5">
           <CardHeader>
-            <CardTitle className="text-[#8B5E3C]">Content Preview</CardTitle>
+            <CardTitle className="text-[#8B5E3C]">Live Website Updates</CardTitle>
             <CardDescription>
               Changes will be reflected on your live website immediately after saving. You can preview changes by visiting your website pages.
             </CardDescription>
