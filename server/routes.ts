@@ -686,6 +686,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update gallery image category
+  app.put("/api/admin/gallery/:id/category", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+    
+    try {
+      const { category } = req.body;
+      if (!category) {
+        return res.status(400).json({ message: "Category is required" });
+      }
+      
+      const success = await dataStorage.updateGalleryImageCategory(id, category);
+      if (success) {
+        return res.json({ message: "Gallery image category updated successfully!" });
+      }
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      console.error("Error updating gallery image category:", error);
+      res.status(500).json({ message: "Failed to update gallery image category" });
+    }
+  });
+
   // Delete a gallery image
   app.delete("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
