@@ -7,6 +7,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { useEffect } from "react";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
+import { AccessibilityProvider } from "@/components/AccessibilityProvider";
+import AccessibilityToggle from "@/components/AccessibilityToggle";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

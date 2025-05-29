@@ -2,6 +2,253 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ko Lake Villa Accessibility Styles */
+
+/* High Contrast Mode */
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #333333;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #ffffff;
+  --accent: #ffffff;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --destructive-foreground: #ffffff;
+  --border: #ffffff;
+  --input: #1a1a1a;
+  --ring: #ffffff;
+}
+
+.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .bg-\[#1E4E5F\] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast .bg-\[#E8B87D\] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .text-\[#1E4E5F\] {
+  color: #ffffff !important;
+}
+
+.high-contrast .text-\[#E8B87D\] {
+  color: #ffffff !important;
+}
+
+.high-contrast .text-\[#333333\] {
+  color: #ffffff !important;
+}
+
+.high-contrast .text-gray-600 {
+  color: #cccccc !important;
+}
+
+.high-contrast .bg-white {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+}
+
+.high-contrast .bg-green-50 {
+  background-color: #003300 !important;
+  color: #ffffff !important;
+  border: 1px solid #00ff00 !important;
+}
+
+.high-contrast .border-green-200 {
+  border-color: #00ff00 !important;
+}
+
+.high-contrast .text-green-800 {
+  color: #00ff00 !important;
+}
+
+.high-contrast .text-green-600 {
+  color: #00ff00 !important;
+}
+
+.high-contrast img {
+  filter: contrast(150%) brightness(120%);
+}
+
+/* Large Text Mode */
+.large-text {
+  font-size: 125% !important;
+}
+
+.large-text h1 {
+  font-size: 3.5rem !important;
+}
+
+.large-text h2 {
+  font-size: 2.5rem !important;
+}
+
+.large-text h3 {
+  font-size: 2rem !important;
+}
+
+.large-text h4 {
+  font-size: 1.5rem !important;
+}
+
+.large-text p, .large-text span, .large-text div {
+  font-size: 1.25rem !important;
+  line-height: 1.6 !important;
+}
+
+.large-text .text-sm {
+  font-size: 1rem !important;
+}
+
+.large-text .text-xs {
+  font-size: 0.875rem !important;
+}
+
+.large-text button {
+  font-size: 1.25rem !important;
+  padding: 0.75rem 1.5rem !important;
+}
+
+/* Reduced Motion Mode */
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .animate-spin {
+  animation: none !important;
+}
+
+.reduced-motion .transition-all,
+.reduced-motion .transition-colors,
+.reduced-motion .transition-transform {
+  transition: none !important;
+}
+
+/* Screen Reader Mode */
+.screen-reader-mode .sr-only {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.25rem !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+  border: 1px solid #f59e0b !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+}
+
+.screen-reader-mode [aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Focus indicators for keyboard navigation */
+.high-contrast *:focus,
+*:focus-visible {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast button:focus,
+.high-contrast a:focus,
+.high-contrast input:focus,
+.high-contrast select:focus,
+.high-contrast textarea:focus {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Skip navigation link */
+.skip-nav {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000000;
+  color: #ffffff;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: bold;
+}
+
+.skip-nav:focus {
+  top: 6px;
+}
+
+/* Enhanced button states for accessibility */
+button:hover, a:hover {
+  text-decoration: underline;
+}
+
+.high-contrast button:hover {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+/* Ensure proper color contrast for form elements */
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast input::placeholder {
+  color: #cccccc !important;
+}
+
+/* Status and error messages */
+.high-contrast .text-red-500,
+.high-contrast .text-red-600,
+.high-contrast .text-red-700 {
+  color: #ff6b6b !important;
+}
+
+.high-contrast .text-green-500,
+.high-contrast .text-green-600,
+.high-contrast .text-green-700 {
+  color: #51cf66 !important;
+}
+
+.high-contrast .bg-red-50 {
+  background-color: #2d0a0a !important;
+  border-color: #ff6b6b !important;
+}
+
+.high-contrast .bg-blue-50 {
+  background-color: #0a1429 !important;
+  border-color: #74c0fc !important;
+}
+
+.high-contrast .text-blue-700,
+.high-contrast .text-blue-800 {
+  color: #74c0fc !important;
+}
+
 :root {
   /* Ko Lake Villa Theme - Kurumba & King Coconut */
   --kurumba-brown: #8B5E3C;
