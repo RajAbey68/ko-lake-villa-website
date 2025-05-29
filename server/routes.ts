@@ -15,6 +15,15 @@ import path from "path";
 import fs from "fs";
 import axios from "axios";
 import { imageCompressor } from "./imageCompression";
+import Stripe from "stripe";
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 // Create upload directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -906,6 +915,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Content saved successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to save content" });
+    }
+  });
+
+  // Stripe payment endpoints
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount, booking } = req.body;
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          room: booking?.roomName || 'Unknown',
+          checkin: booking?.checkIn || '',
+          checkout: booking?.checkOut || '',
+          guests: booking?.guests?.toString() || '1',
+        },
+      });
+      
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Stripe payment intent error:', error);
+      res.status(500).json({ 
+        message: "Error creating payment intent: " + error.message 
+      });
     }
   });
 
