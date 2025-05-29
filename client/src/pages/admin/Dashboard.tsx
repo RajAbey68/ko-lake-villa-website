@@ -1758,6 +1758,10 @@ function AdminDashboardContent() {
                 </Card>
               </TabsContent>
               
+              <TabsContent value="sirvoy">
+                <SirVoyTab />
+              </TabsContent>
+              
               <TabsContent value="gallery">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
