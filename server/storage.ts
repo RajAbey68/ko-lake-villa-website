@@ -146,7 +146,7 @@ export class MemStorage implements IStorage {
         name: "Entire Villa (KLV)",
         description: "Book the entire Ko Lake Villa exclusively - all 8 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Sleeps 18+ guests (up to 25). Perfect for corporate retreats, family reunions, or group celebrations.",
         airbnb: "https://airbnb.co.uk/h/klv",
-        guests: "18+ guests (up to 25)",
+        guests: "25+ guests",
         capacity: 25,
         size: 500,
         features: ["All 8 A/C rooms", "60-ft infinity pool", "Rooftop terrace", "Lakefront views"],
