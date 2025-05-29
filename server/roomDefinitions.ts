@@ -17,34 +17,34 @@ interface RoomDefinition {
 
 export const koLakeVillaRooms: RoomDefinition[] = [
   {
-    name: "Entire Villa Exclusive (KNP)",
-    slug: "knp",
-    capacity: "16++ guests (up to 25)",
-    features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view"],
-    link: "https://airbnb.co.uk/h/knp",
+    name: "Entire Villa (KLV)",
+    slug: "klv",
+    capacity: "18+ guests (up to 25)",
+    features: ["All 8 A/C rooms", "60-ft infinity pool", "Rooftop terrace", "Lakefront views"],
+    link: "https://airbnb.co.uk/h/klv",
     checkinDate: "2025-06-05"
   },
   {
-    name: "Master Family Suite (KNP1)",
-    slug: "knp1", 
-    capacity: "6 guests",
-    features: ["Lake views", "Master suite", "Pool access"],
-    link: "https://airbnb.co.uk/h/knp1",
+    name: "Master Family Suite (KLV1)",
+    slug: "klv1", 
+    capacity: "6+ guests",
+    features: ["Lake views", "Master suite", "Pool access", "Private terrace"],
+    link: "https://airbnb.co.uk/h/klv1",
     checkinDate: "2025-06-05"
   },
   {
-    name: "Triple/Twin Rooms (KNP3)",
-    slug: "knp3",
-    capacity: "3 guests per room (4 rooms)",
-    features: ["Flexible bedding", "Garden views", "Shared amenities"],
-    link: "https://airbnb.co.uk/h/knp3",
+    name: "Triple/Twin Rooms (KLV3)",
+    slug: "klv3",
+    capacity: "3+ guests per room",
+    features: ["Flexible bedding", "Garden views", "Shared amenities", "A/C"],
+    link: "https://airbnb.co.uk/h/klv3",
     checkinDate: "2025-06-05"
   },
   {
-    name: "Group Room (KNP6)",
-    slug: "knp6",
-    capacity: "4 guests",
-    features: ["Team layout", "Communal space", "Shared access"],
+    name: "Group Room (KLV6)",
+    slug: "klv6",
+    capacity: "6+ guests",
+    features: ["Group layout", "Communal space", "Shared access", "A/C"],
     link: "Coming Soon",
     checkinDate: "2025-06-05"
   }
