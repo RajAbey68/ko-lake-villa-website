@@ -94,7 +94,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <i className="fas fa-map-marker-alt mt-1 mr-3"></i>
-                <span>Ko Lake House, Lake Road, Koggala Lake, Sri Lanka</span>
+                <span>Ko Lake House, Mirissane Ovita<br />Madolduwa Road, Kathaluwa West<br />Ahangama, Galle 80650, Sri Lanka</span>
               </li>
               <li className="flex items-start">
                 <i className="fas fa-phone-alt mt-1 mr-3"></i>
