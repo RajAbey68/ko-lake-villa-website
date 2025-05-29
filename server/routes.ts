@@ -945,6 +945,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get real availability for all rooms from SirVoy
+  app.get('/api/sirvoy/availability', async (req, res) => {
+    try {
+      const icalUrls = {
+        klv: '',
+        klv1: 'https://secured.sirvoy.com/ical/ba9904a2-aa48-4a1b-a3c4-26d65bf93790',
+        klv3: '',
+        klv6: ''
+      };
+
+      const availability: any = {};
+
+      for (const [roomCode, icalUrl] of Object.entries(icalUrls)) {
+        if (icalUrl) {
+          const result = await sirvoyConnector.getICalBookings(icalUrl);
+          availability[roomCode] = {
+            bookings: result,
+            unavailableDates: result.map((booking: any) => ({
+              start: booking.checkIn,
+              end: booking.checkOut
+            }))
+          };
+        } else {
+          availability[roomCode] = {
+            bookings: [],
+            unavailableDates: []
+          };
+        }
+      }
+
+      res.json(availability);
+    } catch (error: any) {
+      console.error('Error fetching availability:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post("/api/sirvoy/check-availability", async (req, res) => {
     try {
       const { icalUrl, checkIn, checkOut } = req.body;
