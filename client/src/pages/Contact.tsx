@@ -83,7 +83,26 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-[#1E4E5F] mb-1">Location</h4>
-                  <p className="text-[#333333]">Ko Lake House<br />Mirissane Ovita, Madolduwa Road<br />Kathaluwa West<br />Ahangama, 80650<br />Sri Lanka</p>
+                  <p className="text-[#333333]">Ko Lake House, Mirissane Ovita<br />Madolduwa Road<br />Kathaluwa West<br />Ahangama<br />Galle, Southern District, Sri Lanka<br />80650</p>
+                  <p className="text-[#666666] text-sm mt-2">Landmark: Koggala Lake Bridge, South Beach Resort Hotel</p>
+                  <div className="mt-3 space-y-2">
+                    <a 
+                      href="https://maps.app.goo.gl/6tDbt8o3Ph2SHrH89" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-block bg-[#1E4E5F] hover:bg-[#2A5F72] text-white px-4 py-2 rounded-full text-sm transition-colors mr-2"
+                    >
+                      <i className="fas fa-map-marker-alt mr-2"></i> View on Google Maps
+                    </a>
+                    <a 
+                      href="https://what3words.com/wifely.rebuff.vented" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-block bg-[#E11F26] hover:bg-[#B91C1C] text-white px-4 py-2 rounded-full text-sm transition-colors"
+                    >
+                      <i className="fas fa-location-dot mr-2"></i> what3words
+                    </a>
+                  </div>
                 </div>
               </div>
               
