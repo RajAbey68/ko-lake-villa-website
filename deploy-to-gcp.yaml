@@ -1,12 +1,12 @@
 # Google Cloud Platform App Engine deployment configuration
-# For Ko Lake Villa - www.KoLakeHouse.com
+# For Ko Lake Villa - www.KoLakeVilla.com
 
 runtime: nodejs20
 
 # Environment variables for production
 env_variables:
   NODE_ENV: production
-  DOMAIN: www.KoLakeHouse.com
+  DOMAIN: www.KoLakeVilla.com
   
 # Automatic scaling configuration
 automatic_scaling:

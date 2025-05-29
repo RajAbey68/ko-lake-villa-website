@@ -435,7 +435,7 @@ class ComprehensiveTestSuite {
 
   async runAllTests() {
     console.log('🧪 Ko Lake Villa - Comprehensive Test Suite Starting...\n');
-    console.log('Testing domain: www.KoLakeHouse.com (configured for production)');
+    console.log('Testing domain: www.KoLakeVilla.com (configured for production)');
     console.log('Current test environment: Replit development server\n');
     
     await this.testSEOFunctionality();
@@ -483,7 +483,7 @@ class ComprehensiveTestSuite {
     
     console.log('\n📋 HOSTING RECOMMENDATIONS:');
     console.log('• AWS Lightsail ($15/month) + CloudFlare CDN (Free)');
-    console.log('• Domain: www.KoLakeHouse.com (configured in code)');
+    console.log('• Domain: www.KoLakeVilla.com (configured in code)');
     console.log('• SSL: Auto-provided by CloudFlare');
     console.log('• Performance: Global CDN with edge caching');
     console.log('='.repeat(60));

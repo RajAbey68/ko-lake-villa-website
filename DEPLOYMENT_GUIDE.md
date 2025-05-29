@@ -4,7 +4,7 @@
 
 **Why Replit Hosting is Perfect for Ko Lake Villa:**
 - Runs on Google Cloud Platform infrastructure
-- Automatic SSL certificates for www.KoLakeHouse.com
+- Automatic SSL certificates for www.KoLakeVilla.com
 - Built-in CDN and auto-scaling
 - Cost: ~$20/month
 - Zero configuration needed
@@ -12,7 +12,7 @@
 **To Deploy on Replit:**
 1. Click the "Deploy" button in your Replit interface
 2. Choose "Autoscale Deployment" 
-3. Set custom domain to: www.KoLakeHouse.com
+3. Set custom domain to: www.KoLakeVilla.com
 4. Configure your GoDaddy DNS to point to Replit's provided IP
 
 ## Google Cloud Platform Direct Hosting
@@ -51,7 +51,7 @@ gcloud sql instances create ko-lake-villa-db \
     --region=us-central1
 ```
 
-## Domain Configuration for www.KoLakeHouse.com
+## Domain Configuration for www.KoLakeVilla.com
 
 **For Either Hosting Option:**
 
