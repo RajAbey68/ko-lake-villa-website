@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage as dataStorage } from "./storage";
+import { sirvoyConnector, shouldUseSampleData, getIntegrationStatus } from "./sirvoyIntegration";
 import { 
   insertBookingInquirySchema, 
   insertContactMessageSchema,
