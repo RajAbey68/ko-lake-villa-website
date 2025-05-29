@@ -10,10 +10,10 @@ import { apiRequest } from '@/lib/queryClient';
 export default function SirVoyTab() {
   const { toast } = useToast();
   const [icalUrls, setIcalUrls] = useState({
-    deluxeFamilySuite: 'https://secured.sirvoy.com/ical/ba9904a2-aa48-4a1b-a3c4-26d65bf93790',
-    room002: '',
-    room003: '',
-    room004: ''
+    klv: '',
+    klv1: 'https://secured.sirvoy.com/ical/ba9904a2-aa48-4a1b-a3c4-26d65bf93790',
+    klv3: '',
+    klv6: ''
   });
   const [testResults, setTestResults] = useState<any>(null);
 
@@ -64,17 +64,17 @@ export default function SirVoyTab() {
         <CardContent className="space-y-4">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="deluxeSuite">Deluxe Family Suite (Room 001)</Label>
+              <Label htmlFor="klv">Entire Villa (KLV)</Label>
               <div className="flex gap-2">
                 <Input
-                  id="deluxeSuite"
+                  id="klv"
                   placeholder="https://secured.sirvoy.com/ical/..."
-                  value={icalUrls.deluxeFamilySuite}
-                  onChange={(e) => setIcalUrls(prev => ({ ...prev, deluxeFamilySuite: e.target.value }))}
+                  value={icalUrls.klv}
+                  onChange={(e) => setIcalUrls(prev => ({ ...prev, klv: e.target.value }))}
                   className="flex-1"
                 />
                 <Button 
-                  onClick={() => handleTestUrl(icalUrls.deluxeFamilySuite)}
+                  onClick={() => handleTestUrl(icalUrls.klv)}
                   disabled={testConnection.isPending}
                   variant="outline"
                 >
@@ -84,18 +84,18 @@ export default function SirVoyTab() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="room002">Room 002</Label>
+              <Label htmlFor="klv1">Master Family Suite (KLV1)</Label>
               <div className="flex gap-2">
                 <Input
-                  id="room002"
+                  id="klv1"
                   placeholder="https://secured.sirvoy.com/ical/..."
-                  value={icalUrls.room002}
-                  onChange={(e) => setIcalUrls(prev => ({ ...prev, room002: e.target.value }))}
+                  value={icalUrls.klv1}
+                  onChange={(e) => setIcalUrls(prev => ({ ...prev, klv1: e.target.value }))}
                   className="flex-1"
                 />
                 <Button 
-                  onClick={() => handleTestUrl(icalUrls.room002)}
-                  disabled={testConnection.isPending || !icalUrls.room002}
+                  onClick={() => handleTestUrl(icalUrls.klv1)}
+                  disabled={testConnection.isPending || !icalUrls.klv1}
                   variant="outline"
                 >
                   Test
@@ -104,18 +104,18 @@ export default function SirVoyTab() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="room003">Room 003</Label>
+              <Label htmlFor="klv3">Triple/Twin Rooms (KLV3)</Label>
               <div className="flex gap-2">
                 <Input
-                  id="room003"
+                  id="klv3"
                   placeholder="https://secured.sirvoy.com/ical/..."
-                  value={icalUrls.room003}
-                  onChange={(e) => setIcalUrls(prev => ({ ...prev, room003: e.target.value }))}
+                  value={icalUrls.klv3}
+                  onChange={(e) => setIcalUrls(prev => ({ ...prev, klv3: e.target.value }))}
                   className="flex-1"
                 />
                 <Button 
-                  onClick={() => handleTestUrl(icalUrls.room003)}
-                  disabled={testConnection.isPending || !icalUrls.room003}
+                  onClick={() => handleTestUrl(icalUrls.klv3)}
+                  disabled={testConnection.isPending || !icalUrls.klv3}
                   variant="outline"
                 >
                   Test
@@ -124,18 +124,18 @@ export default function SirVoyTab() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="room004">Room 004</Label>
+              <Label htmlFor="klv6">Group Room (KLV6)</Label>
               <div className="flex gap-2">
                 <Input
-                  id="room004"
+                  id="klv6"
                   placeholder="https://secured.sirvoy.com/ical/..."
-                  value={icalUrls.room004}
-                  onChange={(e) => setIcalUrls(prev => ({ ...prev, room004: e.target.value }))}
+                  value={icalUrls.klv6}
+                  onChange={(e) => setIcalUrls(prev => ({ ...prev, klv6: e.target.value }))}
                   className="flex-1"
                 />
                 <Button 
-                  onClick={() => handleTestUrl(icalUrls.room004)}
-                  disabled={testConnection.isPending || !icalUrls.room004}
+                  onClick={() => handleTestUrl(icalUrls.klv6)}
+                  disabled={testConnection.isPending || !icalUrls.klv6}
                   variant="outline"
                 >
                   Test
