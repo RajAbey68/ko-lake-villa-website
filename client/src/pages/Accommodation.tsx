@@ -40,10 +40,10 @@ const Accommodation = () => {
   // Helper function to get current price for a room
   const getCurrentPrice = (roomName: string) => {
     let roomId = '';
-    if (roomName.includes('KNP1')) roomId = 'knp1';
-    else if (roomName.includes('KNP3')) roomId = 'knp3';
-    else if (roomName.includes('KNP6')) roomId = 'knp6';
-    else roomId = 'knp';
+    if (roomName.includes('KLV1')) roomId = 'klv1';
+    else if (roomName.includes('KLV3')) roomId = 'klv3';
+    else if (roomName.includes('KLV6')) roomId = 'klv6';
+    else roomId = 'klv';
 
     // Check if there's a custom override
     const override = pricing?.overrides?.[roomId];
@@ -59,9 +59,9 @@ const Accommodation = () => {
     }
 
     // Fallback to static pricing
-    return roomName.includes('KNP1') ? 107 : 
-           roomName.includes('KNP3') ? 63 :
-           roomName.includes('KNP6') ? 225 : 388;
+    return roomName.includes('KLV1') ? 107 : 
+           roomName.includes('KLV3') ? 63 :
+           roomName.includes('KLV6') ? 225 : 388;
   };
 
   const getAirbnbRate = (roomName: string) => {

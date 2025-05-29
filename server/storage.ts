@@ -134,19 +134,19 @@ export class MemStorage implements IStorage {
     
     // Ko Lake Villa - Real Airbnb Rates (extracted from live data)
     const BASE_RATES = {
-      knp: 431,    // Entire Villa – real Airbnb rate with discounts applied
-      knp1: 119,   // Family Suite – actual current rate
-      knp3: 70,    // Triple/Twin per room – actual current rate
-      knp6: 250,   // Group Room (planned)
+      klv: 431,    // Entire Villa – real Airbnb rate with discounts applied
+      klv1: 119,   // Family Suite – actual current rate
+      klv3: 70,    // Triple/Twin per room – actual current rate
+      klv6: 250,   // Group Room (planned)
     };
 
     const ROOM_CONFIG = [
       {
-        id: "knp",
-        name: "Entire Villa Exclusive (KNP)",
+        id: "klv",
+        name: "Entire Villa KLV",
         description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Perfect for corporate retreats, family reunions, or group celebrations.",
         airbnb: "https://airbnb.co.uk/h/knp",
-        guests: "16+ guests (up to 25)",
+        guests: "18+ guests (special request)",
         capacity: 25,
         size: 500,
         features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront"],
@@ -154,11 +154,11 @@ export class MemStorage implements IStorage {
         checkinDate: "2025-06-05",
       },
       {
-        id: "knp1",
-        name: "Master Family Suite (KNP1)",
+        id: "klv1",
+        name: "Master Family Suite (KLV1)",
         description: "Premium lakefront family suite sleeping up to 6 guests. Master bedroom plus additional sleeping areas with stunning Koggala Lake views and direct pool access.",
         airbnb: "https://airbnb.co.uk/h/knp1",
-        guests: "6 guests",
+        guests: "6+ guests (special request)",
         capacity: 6,
         size: 60,
         features: ["Lake views", "Master suite", "Pool access"],
@@ -166,11 +166,11 @@ export class MemStorage implements IStorage {
         checkinDate: "2025-06-05",
       },
       {
-        id: "knp3",
-        name: "Triple/Twin Rooms (KNP3)",
+        id: "klv3",
+        name: "Triple/Twin Rooms (KLV3)",
         description: "Four flexible rooms, each sleeping up to 3 guests per room. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
         airbnb: "https://airbnb.co.uk/h/knp3",
-        guests: "3 guests per room",
+        guests: "3+ guests (special request)",
         capacity: 3,
         size: 35,
         features: ["4 rooms", "Flexible bedding", "Garden views"],
@@ -178,12 +178,12 @@ export class MemStorage implements IStorage {
         checkinDate: "2025-06-05",
       },
       {
-        id: "knp6",
-        name: "Group Room (KNP6)",
+        id: "klv6",
+        name: "Group Room (KLV6)",
         description: "Spacious group accommodation perfect for team retreats, wellness groups, or extended families. Designed for collaborative stays with shared spaces and modern amenities.",
         airbnb: "https://airbnb.co.uk/h/knp6",
-        guests: "4 guests",
-        capacity: 4,
+        guests: "6+ guests (special request)",
+        capacity: 6,
         size: 40,
         features: ["Shared spaces", "Team layout"],
         imageUrl: "/uploads/gallery/default/1747446102756-742973380-20250329_154102.jpg",
