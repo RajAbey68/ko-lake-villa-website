@@ -1632,6 +1632,20 @@ function AdminDashboardContent() {
                       </CardContent>
                     </Card>
                   </Link>
+                  
+                  <Link href="/admin/content-manager">
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#8B5E3C]/20">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-medium flex items-center gap-2">
+                          📝 Content Manager
+                        </CardTitle>
+                        <CardDescription>Edit website text and content</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600">Update page titles, descriptions, and text content</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
