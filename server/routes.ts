@@ -919,6 +919,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SirVoy iCal Integration Endpoints
+  app.get("/api/sirvoy/bookings", async (req, res) => {
+    try {
+      const icalUrl = req.query.icalUrl as string;
+      
+      if (!icalUrl) {
+        return res.status(400).json({ 
+          message: "iCal URL is required",
+          status: getIntegrationStatus()
+        });
+      }
+      
+      const bookings = await sirvoyConnector.getICalBookings(icalUrl);
+      res.json({
+        bookings,
+        count: bookings.length,
+        status: "Connected to SirVoy via iCal"
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: "Failed to fetch bookings from SirVoy: " + error.message,
+        status: getIntegrationStatus()
+      });
+    }
+  });
+
+  app.post("/api/sirvoy/check-availability", async (req, res) => {
+    try {
+      const { icalUrl, checkIn, checkOut } = req.body;
+      
+      if (!icalUrl || !checkIn || !checkOut) {
+        return res.status(400).json({ 
+          message: "iCal URL, check-in, and check-out dates are required" 
+        });
+      }
+      
+      const available = await sirvoyConnector.checkICalAvailability(icalUrl, checkIn, checkOut);
+      res.json({
+        available,
+        checkIn,
+        checkOut,
+        message: available ? "Dates are available" : "Dates are not available"
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: "Failed to check availability: " + error.message 
+      });
+    }
+  });
+
+  app.get("/api/sirvoy/status", async (req, res) => {
+    res.json({
+      status: getIntegrationStatus(),
+      configured: !shouldUseSampleData(),
+      message: shouldUseSampleData() 
+        ? "Add your SirVoy iCal URLs to connect with live booking data"
+        : "Connected to SirVoy - Real booking data available"
+    });
+  });
+
   // Stripe payment endpoints
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
