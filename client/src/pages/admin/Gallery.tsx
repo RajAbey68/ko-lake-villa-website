@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useToast } from '../../hooks/use-toast';
 import SimpleImageUploadDialog from '../../components/SimpleImageUploadDialog';
+import TaggingDialog from '../../components/TaggingDialog';
 import { 
   HomeIcon, 
   ArrowLeftIcon,
@@ -113,6 +114,8 @@ function SimpleGalleryManager() {
   const [addingImage, setAddingImage] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [taggingDialogOpen, setTaggingDialogOpen] = useState(false);
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const { toast } = useToast();
   
   // Load gallery images on component mount
@@ -816,7 +819,19 @@ function SimpleGalleryManager() {
                 </div>
                 
                 {/* Actions */}
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="h-8 w-8 p-0 bg-white"
+                    onClick={() => {
+                      setEditingImage(image);
+                      setTaggingDialogOpen(true);
+                    }}
+                    title="Edit tags and details"
+                  >
+                    <EditIcon className="h-4 w-4" />
+                  </Button>
                   <Button 
                     size="sm" 
                     variant="destructive"
@@ -837,6 +852,60 @@ function SimpleGalleryManager() {
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
         onSuccess={fetchImages}
+      />
+      
+      {/* Tagging Dialog */}
+      <TaggingDialog 
+        isOpen={taggingDialogOpen}
+        onClose={() => {
+          setTaggingDialogOpen(false);
+          setEditingImage(null);
+        }}
+        onSave={async (data) => {
+          if (editingImage) {
+            try {
+              const response = await fetch(`/api/admin/gallery/${editingImage.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  alt: data.title,
+                  description: data.description,
+                  category: data.category,
+                  tags: data.tags,
+                  featured: data.featured
+                })
+              });
+              
+              if (response.ok) {
+                toast({
+                  title: "Success!",
+                  description: "Image details updated successfully"
+                });
+                fetchImages();
+              } else {
+                toast({
+                  title: "Error",
+                  description: "Failed to update image details",
+                  variant: "destructive"
+                });
+              }
+            } catch (error) {
+              toast({
+                title: "Error", 
+                description: "Failed to update image details",
+                variant: "destructive"
+              });
+            }
+          }
+        }}
+        initialData={editingImage ? {
+          title: editingImage.alt || '',
+          description: editingImage.description || '',
+          category: editingImage.category || '',
+          tags: editingImage.tags || '',
+          featured: editingImage.featured || false
+        } : undefined}
+        imagePreview={editingImage?.imageUrl}
       />
     </Card>
   );
