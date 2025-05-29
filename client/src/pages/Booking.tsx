@@ -12,7 +12,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
 
-// SirVoy integration functions removed - can be re-enabled later
+// Ready for Beds24 or Questy integration
 
 // Schema for booking form validation
 const bookingFormSchema = z.object({

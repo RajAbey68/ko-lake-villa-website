@@ -1758,8 +1758,43 @@ function AdminDashboardContent() {
                 </Card>
               </TabsContent>
               
-              <TabsContent value="sirvoy">
-                <SirVoyTab />
+              <TabsContent value="booking-integration">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Booking System Integration</CardTitle>
+                    <CardDescription>Ready to integrate with Beds24 or Questy</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 border border-gray-200 rounded-lg">
+                        <h3 className="font-medium text-gray-900 mb-2">Beds24 Integration</h3>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Connect with Beds24 for channel management and real-time availability
+                        </p>
+                        <Button variant="outline" disabled>
+                          Configure Beds24
+                        </Button>
+                      </div>
+                      
+                      <div className="p-4 border border-gray-200 rounded-lg">
+                        <h3 className="font-medium text-gray-900 mb-2">Questy Integration</h3>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Connect with Questy for property management and booking automation
+                        </p>
+                        <Button variant="outline" disabled>
+                          Configure Questy
+                        </Button>
+                      </div>
+                      
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-700">
+                          <strong>Ready for Integration:</strong> All SirVoy references have been removed. 
+                          The system is now prepared for Beds24 or Questy integration.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
               
               <TabsContent value="gallery">
