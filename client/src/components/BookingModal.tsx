@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Users, DollarSign } from 'lucide-react';
+import { Calendar, Users, DollarSign, Phone, Mail, MessageCircle } from 'lucide-react';
 
 interface BookingModalProps {
   roomName: string;
@@ -26,6 +26,7 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
   });
   
   const [guests, setGuests] = useState(2);
+  const [showAlternatives, setShowAlternatives] = useState(false);
 
   const calculateNights = () => {
     const checkInDate = new Date(checkIn);
@@ -36,7 +37,33 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
   const nights = calculateNights();
   const totalAmount = basePrice * nights;
 
+  // Generate suggested available dates (sample dates)
+  const getAvailableDates = () => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 1; i <= 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      // Sample availability pattern - skip some dates to simulate real availability
+      if (i % 5 !== 0) { // Skip every 5th day as "unavailable"
+        dates.push({
+          date: date.toISOString().split('T')[0],
+          display: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        });
+      }
+    }
+    return dates.slice(0, 10); // Show next 10 available dates
+  };
+
   const handleBookNow = () => {
+    // Simulate availability check
+    const isAvailable = Math.random() > 0.3; // 70% chance of availability for demo
+    
+    if (!isAvailable) {
+      setShowAlternatives(true);
+      return;
+    }
+
     const bookingData = {
       roomName,
       checkIn,
@@ -116,17 +143,83 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleBookNow}
-              className="flex-1 bg-[#E8B87D] hover:bg-[#1E4E5F]"
-            >
-              Book Now
-            </Button>
-          </div>
+          {!showAlternatives ? (
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleBookNow}
+                className="flex-1 bg-[#E8B87D] hover:bg-[#1E4E5F]"
+              >
+                Book Now
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <h4 className="font-medium text-red-800 mb-2">Dates Not Available</h4>
+                <p className="text-sm text-red-700">
+                  Sorry, {roomName} is not available for your selected dates. Please try one of these alternatives:
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-800">Available Dates This Month:</h4>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                  {getAvailableDates().map((dateOption, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setCheckIn(dateOption.date);
+                        const checkOutDate = new Date(dateOption.date);
+                        checkOutDate.setDate(checkOutDate.getDate() + 2);
+                        setCheckOut(checkOutDate.toISOString().split('T')[0]);
+                        setShowAlternatives(false);
+                      }}
+                      className="text-left p-2 text-sm border border-gray-200 rounded hover:bg-green-50 hover:border-green-300 transition-colors"
+                    >
+                      {dateOption.display}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 mb-3 flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Need Help Finding Dates?
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <Phone className="w-4 h-4" />
+                    <span>Call us: +94 071 173 0345</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp: +94 071 173 0345</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <Mail className="w-4 h-4" />
+                    <span>Email: info@kolakevilla.lk</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAlternatives(false)}
+                  className="flex-1"
+                >
+                  Try Different Dates
+                </Button>
+                <Button onClick={onClose} className="flex-1 bg-[#1E4E5F] hover:bg-[#E8B87D]">
+                  Contact Us
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
