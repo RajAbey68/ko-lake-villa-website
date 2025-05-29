@@ -143,37 +143,37 @@ export class MemStorage implements IStorage {
     const ROOM_CONFIG = [
       {
         id: "klv",
-        name: "Entire Villa KLV",
-        description: "Book the entire Ko Lake Villa exclusively - all 7 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Perfect for corporate retreats, family reunions, or group celebrations.",
-        airbnb: "https://airbnb.co.uk/h/knp",
-        guests: "18+ guests (special request)",
+        name: "Entire Villa (KLV)",
+        description: "Book the entire Ko Lake Villa exclusively - all 8 A/C rooms, 60-ft infinity pool, rooftop terrace, and lakefront grounds. Sleeps 18+ guests (up to 25). Perfect for corporate retreats, family reunions, or group celebrations.",
+        airbnb: "https://airbnb.co.uk/h/klv",
+        guests: "18+ guests (up to 25)",
         capacity: 25,
         size: 500,
-        features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront"],
+        features: ["All 8 A/C rooms", "60-ft infinity pool", "Rooftop terrace", "Lakefront views"],
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
         checkinDate: "2025-06-05",
       },
       {
-        id: "klv1",
+        id: "klv1", 
         name: "Master Family Suite (KLV1)",
-        description: "Premium lakefront family suite sleeping up to 6 guests. Master bedroom plus additional sleeping areas with stunning Koggala Lake views and direct pool access.",
-        airbnb: "https://airbnb.co.uk/h/knp1",
-        guests: "6+ guests (special request)",
-        capacity: 6,
+        description: "Premium lakefront family suite sleeping 6+ guests. Master bedroom plus additional sleeping areas with stunning Koggala Lake views and direct pool access.",
+        airbnb: "https://airbnb.co.uk/h/klv1",
+        guests: "6+ guests",
+        capacity: 8,
         size: 60,
-        features: ["Lake views", "Master suite", "Pool access"],
+        features: ["Lake views", "Master suite", "Pool access", "Private terrace"],
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
         checkinDate: "2025-06-05",
       },
       {
         id: "klv3",
-        name: "Triple/Twin Rooms (KLV3)",
-        description: "Four flexible rooms, each sleeping up to 3 guests per room. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
-        airbnb: "https://airbnb.co.uk/h/knp3",
-        guests: "3+ guests (special request)",
-        capacity: 3,
+        name: "Triple/Twin Rooms (KLV3)", 
+        description: "Four flexible rooms, each sleeping 3+ guests per room. Perfect for friends, colleagues, or families wanting separate but connected accommodation. Choose twin or triple configurations.",
+        airbnb: "https://airbnb.co.uk/h/klv3",
+        guests: "3+ guests per room",
+        capacity: 4,
         size: 35,
-        features: ["4 rooms", "Flexible bedding", "Garden views"],
+        features: ["4 rooms available", "Flexible bedding", "Garden views", "A/C"],
         imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
         checkinDate: "2025-06-05",
       },
@@ -181,11 +181,11 @@ export class MemStorage implements IStorage {
         id: "klv6",
         name: "Group Room (KLV6)",
         description: "Spacious group accommodation perfect for team retreats, wellness groups, or extended families. Designed for collaborative stays with shared spaces and modern amenities.",
-        airbnb: "https://airbnb.co.uk/h/knp6",
-        guests: "6+ guests (special request)",
-        capacity: 6,
+        airbnb: "https://airbnb.co.uk/h/klv6",
+        guests: "6+ guests",
+        capacity: 8,
         size: 40,
-        features: ["Shared spaces", "Team layout"],
+        features: ["Group layout", "Communal space", "Shared access", "A/C"],
         imageUrl: "/uploads/gallery/default/1747446102756-742973380-20250329_154102.jpg",
         checkinDate: "2025-06-05",
       },
@@ -221,13 +221,13 @@ export class MemStorage implements IStorage {
     // Validation function
     const validateRoomNames = (ROOM_CONFIG: any[]) => {
       const expected = [
-        "Entire Villa Exclusive (KNP)",
-        "Master Family Suite (KNP1)",
-        "Triple/Twin Rooms (KNP3)",
-        "Group Room (KNP6)"
+        "Entire Villa (KLV)",
+        "Master Family Suite (KLV1)",
+        "Triple/Twin Rooms (KLV3)",
+        "Group Room (KLV6)"
       ];
       const match = ROOM_CONFIG.every((room, index) => room.name === expected[index]);
-      console.log(match ? "✅ Room names match Airbnb structure." : "❌ Room name mismatch found.");
+      console.log(match ? "✅ Room names updated to KLV structure." : "❌ Room name mismatch found.");
       return match;
     };
 
