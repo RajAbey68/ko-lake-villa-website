@@ -66,6 +66,7 @@ export interface IStorage {
   subscribeToNewsletter(subscriber: InsertNewsletterSubscriber): Promise<NewsletterSubscriber>;
   unsubscribeFromNewsletter(email: string): Promise<boolean>;
   getNewsletterSubscribers(): Promise<NewsletterSubscriber[]>;
+  getNewsletterSubscriberByEmail(email: string): Promise<NewsletterSubscriber | undefined>;
 
   // Page hero image operations
   getPageHeroImage(pageName: string): Promise<PageHeroImage | undefined>;
@@ -758,6 +759,12 @@ export class MemStorage implements IStorage {
   async getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
     return Array.from(this.newsletterSubscribers.values()).filter(
       (subscriber) => subscriber.active
+    );
+  }
+
+  async getNewsletterSubscriberByEmail(email: string): Promise<NewsletterSubscriber | undefined> {
+    return Array.from(this.newsletterSubscribers.values()).find(
+      (subscriber) => subscriber.email === email && subscriber.active
     );
   }
 

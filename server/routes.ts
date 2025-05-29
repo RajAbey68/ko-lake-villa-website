@@ -672,6 +672,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form
   app.post("/api/contact", async (req, res) => {
     try {
+      // Additional email validation
+      const { email } = req.body;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (email && !emailRegex.test(email)) {
+        return res.status(400).json({ 
+          message: "Please enter a valid email address" 
+        });
+      }
+      
       const validatedData = insertContactMessageSchema.parse(req.body);
       const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
@@ -693,6 +702,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/newsletter", async (req, res) => {
     try {
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
+      
+      // Check for existing subscription
+      const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
+      if (existingSubscriber) {
+        return res.status(200).json({
+          message: "You're already subscribed to our newsletter!",
+          data: existingSubscriber
+        });
+      }
+      
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
         message: "Subscribed to newsletter successfully!",
