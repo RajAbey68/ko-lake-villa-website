@@ -55,8 +55,9 @@ class WeekdayPricingManager {
         await this.saveWeekdayRates(updatedRates);
         console.log(`Updated weekday rates: ${updatedRates.length} rate entries created`);
         console.log('Pricing control strategy:');
-        console.log('- Monday to Thursday: Auto-updated with 10% discount');
+        console.log('- Monday to Thursday: Auto-calculated with manual override option');
         console.log('- Friday, Saturday & Sunday: Manual admin control');
+        console.log('- All rates can be manually overridden and saved at any time');
       }
 
     } catch (error) {
