@@ -123,7 +123,7 @@ const Home = () => {
                 <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">Rooftop Terrace</h3>
                 <p className="text-[#8B5E3C] mb-4">360° views of lake, paddy fields, and Madol Duwa Island</p>
                 <div className="flex flex-wrap">
-                  <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">8 A/C Rooms</span>
+                  <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">5 Triple Rooms + 2 Suites</span>
                   <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">Lakefront</span>
                 </div>
               </div>
