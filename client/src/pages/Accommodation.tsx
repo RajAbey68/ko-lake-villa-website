@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
 import { Separator } from '@/components/ui/separator';
+import BookingModal from '@/components/BookingModal';
 
 interface PricingData {
   updated: string;
@@ -23,6 +24,9 @@ interface PricingData {
 }
 
 const Accommodation = () => {
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<{ name: string; price: number } | null>(null);
+
   // Fetch all rooms
   const { data: rooms, isLoading, error } = useQuery<Room[]>({
     queryKey: ['/api/rooms'],
@@ -179,18 +183,11 @@ const Accommodation = () => {
                           </div>
                           <button 
                             onClick={() => {
-                              const bookingData = {
-                                roomName: room.name,
-                                checkIn: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Tomorrow
-                                checkOut: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Day after
-                                guests: 2,
-                                amount: getCurrentPrice(room.name),
-                                nights: 1
-                              };
-                              
-                              // Store booking data and navigate to checkout
-                              sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-                              window.location.href = '/checkout';
+                              setSelectedRoom({
+                                name: room.name,
+                                price: getCurrentPrice(room.name)
+                              });
+                              setShowBookingModal(true);
                             }}
                             className="bg-[#E8B87D] text-white px-6 py-3 rounded hover:bg-[#1E4E5F] transition-colors font-medium"
                           >
@@ -284,6 +281,20 @@ const Accommodation = () => {
           <Link href="/booking" className="inline-block bg-[#1E4E5F] text-white px-8 py-4 rounded text-lg font-medium hover:bg-[#E8B87D] transition-colors">Book Your Stay</Link>
         </div>
       </section>
+
+      {/* Booking Modal */}
+      {showBookingModal && selectedRoom && (
+        <BookingModal
+          roomName={selectedRoom.name}
+          basePrice={selectedRoom.price}
+          onClose={() => setShowBookingModal(false)}
+          onBook={(bookingData) => {
+            // Store booking data and navigate to checkout
+            sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+            window.location.href = '/checkout';
+          }}
+        />
+      )}
     </>
   );
 };
