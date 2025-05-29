@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Room, Testimonial, Activity } from '@shared/schema';
 import { ratingToStars } from '@/lib/utils';
+import SEOHead from '@/components/SEOHead';
 
 const Home = () => {
   // Fetch rooms for the accommodation section
@@ -26,6 +27,13 @@ const Home = () => {
 
   return (
     <>
+      <SEOHead 
+        title="Ko Lake Villa - Luxury Lakeside Villa in Ahangama, Galle, Sri Lanka"
+        description="Experience luxury at Ko Lake Villa - a boutique lakefront accommodation with 5 triple rooms, 2 suites, infinity pool, and stunning Koggala Lake views. Direct booking rates from $70/night with 10-15% savings over Airbnb."
+        keywords="Ko Lake Villa, Ahangama accommodation, Galle villa, Sri Lanka lakefront, Koggala Lake, boutique villa, family suite, group accommodation, infinity pool, direct booking, luxury villa Sri Lanka"
+        url="https://www.KoLakeHouse.com"
+        image="https://www.KoLakeHouse.com/images/hero-villa.jpg"
+      />
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-[#8B5E3C] to-[#A0B985]">
         <div 
