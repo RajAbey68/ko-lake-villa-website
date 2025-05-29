@@ -1409,6 +1409,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO Routes - Serve sitemap and robots.txt
+  app.get('/sitemap.xml', (req, res) => {
+    res.set('Content-Type', 'text/xml');
+    res.sendFile(path.join(process.cwd(), 'static', 'sitemap.xml'));
+  });
+
+  app.get('/robots.txt', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    res.sendFile(path.join(process.cwd(), 'static', 'robots.txt'));
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
