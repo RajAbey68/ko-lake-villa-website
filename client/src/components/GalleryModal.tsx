@@ -46,13 +46,14 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
         if (!open) handleClose();
       }}
     >
-      <DialogContent className="max-w-6xl bg-[#FDF6EE] p-6 rounded-lg border-2 border-[#A0B985] shadow-xl">
-        <div className="flex flex-col items-center">
+      <DialogContent className="max-w-7xl max-h-[95vh] bg-[#FDF6EE] p-4 rounded-lg border-2 border-[#A0B985] shadow-xl overflow-auto">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Main Image/Video Display */}
           {image.mediaType === 'video' ? (
-            <div className="relative w-full max-w-3xl">
+            <div className="relative w-full">
               {image.imageUrl.includes('youtube.com') || image.imageUrl.includes('youtu.be') ? (
                 // YouTube embed
-                <div className="aspect-video w-full border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
+                <div className="aspect-video w-full max-w-4xl border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
                   <div className="text-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#FF0000" stroke="none" className="mx-auto">
                       <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
@@ -69,7 +70,7 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
                   </div>
                 </div>
               ) : (
-                // Standard video player with simpler implementation
+                // Standard video player
                 <div className="video-container w-full flex justify-center">
                   <video 
                     key={`video-${Date.now()}`}
@@ -77,7 +78,7 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
                     controls
                     autoPlay
                     preload="auto"
-                    className="max-h-[80vh] w-full object-contain rounded-md shadow-md"
+                    className="max-h-[70vh] max-w-full object-contain rounded-md shadow-md"
                     onError={(e) => {
                       console.error("Video error:", e);
                     }}
@@ -88,11 +89,11 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
               )}
             </div>
           ) : (
-            <div className="relative flex justify-center">
+            <div className="relative flex justify-center w-full">
               <img 
                 src={imageSrc}
                 alt={image.alt || "Gallery image"} 
-                className="max-h-[80vh] w-auto object-contain rounded-md shadow-md"
+                className="max-h-[70vh] max-w-full object-contain rounded-md shadow-lg"
                 onError={(e) => {
                   console.error(`Failed to load modal image: ${image.imageUrl}`);
                   (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
@@ -100,45 +101,53 @@ const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
               />
             </div>
           )}
-          <div className="mt-4 flex items-center gap-3">
-            {image.mediaType === 'video' && (
-              <span className="px-2 py-1 bg-[#62C3D2] text-white text-xs rounded-full">
-                Video
-              </span>
+          
+          {/* Image Details - Smaller and Less Prominent */}
+          <div className="text-center space-y-2 max-w-2xl">
+            {/* Title */}
+            {image.alt && (
+              <h3 className="text-[#8B5E3C] font-medium text-lg">{image.alt}</h3>
             )}
-            <p className="text-[#8B5E3C] font-medium text-lg">{image.alt}</p>
-          </div>
-          
-          {/* Description if available */}
-          {image.description && (
-            <p className="mt-2 text-gray-600 text-center max-w-lg">
-              {image.description}
-            </p>
-          )}
-          
-          {/* Category badge */}
-          {image.category && (
-            <span className="mt-3 px-3 py-1 bg-[#A0B985] text-white text-sm rounded-full">
-              {image.category
-                .split('-')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ')}
-            </span>
-          )}
-          
-          {/* Tags */}
-          {image.tags && image.tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              {image.tags.split(',').map((tag, index) => (
-                <span 
-                  key={index} 
-                  className="px-2 py-1 bg-[#62C3D2] bg-opacity-20 text-[#62C3D2] text-xs rounded-full"
-                >
-                  #{tag.trim()}
+            
+            {/* Description */}
+            {image.description && (
+              <p className="text-gray-600 text-sm">
+                {image.description}
+              </p>
+            )}
+            
+            {/* Badges - Smaller and Less Prominent */}
+            <div className="flex flex-wrap justify-center items-center gap-2">
+              {image.mediaType === 'video' && (
+                <span className="px-2 py-1 bg-[#62C3D2] text-white text-xs rounded-full">
+                  Video
                 </span>
-              ))}
+              )}
+              
+              {image.category && (
+                <span className="px-2 py-1 bg-[#A0B985] text-white text-xs rounded-full">
+                  {image.category
+                    .split('-')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')}
+                </span>
+              )}
             </div>
-          )}
+            
+            {/* Tags */}
+            {image.tags && image.tags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-1">
+                {image.tags.split(',').map((tag, index) => (
+                  <span 
+                    key={index} 
+                    className="px-2 py-1 bg-[#62C3D2] bg-opacity-20 text-[#62C3D2] text-xs rounded-full"
+                  >
+                    #{tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
