@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("Request body:", req.body);
     console.log("Request files:", req.files);
     
-    upload.single('image')(req, res, async (err) => {
+    upload.any()(req, res, async (err) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ 
@@ -291,13 +291,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Processing file upload");
         console.log("Request file after multer:", req.file);
         
-        if (!req.file) {
+        if (!req.files || req.files.length === 0) {
           console.error("No file in request");
           return res.status(400).json({ message: "No file uploaded" });
         }
         
         // Get file details
-        const file = req.file;
+        const file = req.files[0];
         console.log("File details:", {
           filename: file.filename,
           originalname: file.originalname,
@@ -1046,15 +1046,6 @@ The host will respond within 24 hours to discuss:
         data: subscriber
       });
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: "Invalid email", 
-          errors: error.errors 
-        });
-      }
-      res.status(500).json({ message: "Failed to subscribe to newsletter" });
-    }
-  });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           message: "Invalid email", 
