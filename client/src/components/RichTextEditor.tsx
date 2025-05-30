@@ -68,18 +68,20 @@ export default function RichTextEditor({ value, onChange, placeholder, className
   };
 
   const formatPreview = (text: string) => {
+    if (!text || typeof text !== 'string') return '';
+    
     return text
       // Convert markdown links to HTML
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">$1</a>')
-      // Convert **bold** to HTML
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      // Convert *italic* to HTML
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-      // Convert bullet points
+      // Convert **bold** to HTML (non-greedy match)
+      .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
+      // Convert *italic* to HTML (avoid matching bold markers)
+      .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
+      // Convert bullet points to list items
       .replace(/^• (.+)$/gm, '<li class="ml-4">$1</li>')
-      // Wrap bullet points in ul (simplified for compatibility)
-      .replace(/(<li[^>]*>.*<\/li>)/g, '<ul class="list-disc list-inside space-y-1">$&</ul>')
-      // Convert line breaks
+      // Wrap consecutive list items in ul tags
+      .replace(/((?:<li[^>]*>.*?<\/li>\s*)+)/g, '<ul class="list-disc list-inside space-y-1">$1</ul>')
+      // Convert line breaks to HTML
       .replace(/\n/g, '<br>');
   };
 
