@@ -23,7 +23,9 @@ import {
   ClockIcon,
   CalendarDaysIcon,
   MapPinIcon,
-  InfoIcon
+  InfoIcon,
+  FileTextIcon,
+  TrendingUpIcon
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 import { ScrollArea } from '../../components/ui/scroll-area';
@@ -450,17 +452,35 @@ export default function AdminLanding() {
             </div>
           </Link>
 
-          <Link href="/admin/statistics">
+          <Link href="/admin/analytics">
             <div className="cursor-pointer transition-all hover:shadow-lg">
               <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-4">
                     <div className="bg-[#FF914D]/10 p-3 rounded-lg">
-                      <BarChartIcon className="h-8 w-8 text-[#FF914D]" />
+                      <TrendingUpIcon className="h-8 w-8 text-[#FF914D]" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Analytics</h3>
-                      <p className="text-[#8B5E3C]/70">Website statistics and reports</p>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Analytics Dashboard</h3>
+                      <p className="text-[#8B5E3C]/70">Google Analytics & Meta insights</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+
+          <Link href="/admin/documents">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#FF914D]/10 p-3 rounded-lg">
+                      <FileTextIcon className="h-8 w-8 text-[#FF914D]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#8B5E3C]">Content Documents</h3>
+                      <p className="text-[#8B5E3C]/70">Marketing files, events & SEO content</p>
                     </div>
                   </div>
                 </CardContent>

@@ -32,6 +32,8 @@ import AdminGallery from "@/pages/admin/Gallery";
 import ImageCompression from "@/pages/admin/ImageCompression";
 import ContentManager from "@/pages/admin/ContentManager";
 import Statistics from "@/pages/admin/Statistics";
+import Analytics from "@/pages/admin/Analytics";
+import Documents from "@/pages/admin/Documents";
 import MediaExport from "@/pages/admin/MediaExport";
 import AdminCalendar from "@/pages/AdminCalendar";
 import GoogleDriveExport from "@/pages/admin/GoogleDriveExport";
@@ -91,6 +93,8 @@ function Router() {
         <Route path="/admin/content-manager" component={ContentManager} />
         <Route path="/admin/testing" component={DeploymentTesting} />
         <Route path="/admin/statistics" component={Statistics} />
+        <Route path="/admin/analytics" component={Analytics} />
+        <Route path="/admin/documents" component={Documents} />
         <Route path="/admin/export" component={MediaExport} />
         <Route path="/admin/drive-export" component={GoogleDriveExport} />
         <Route path="/admin/upload-images" component={UploadImages} />
