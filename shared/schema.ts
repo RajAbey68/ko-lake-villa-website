@@ -214,6 +214,7 @@ export const contentDocuments = pgTable("content_documents", {
   fileSize: integer("file_size").notNull(), // in bytes
   category: text("category").notNull(), // "marketing", "news", "events", "seo", "content"
   targetTribes: text("target_tribes").array(), // ["leisure", "digital-nomads", "experienced-tourers"]
+  eventTypes: text("event_types").array(), // ["cultural-events", "cricket-events", "surfing-events"]
   extractedKeywords: text("extracted_keywords"), // AI-generated keywords
   aiSummary: text("ai_summary"), // AI-generated summary
   seoScore: integer("seo_score").default(0), // 0-100 SEO optimization score

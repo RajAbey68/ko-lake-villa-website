@@ -7,7 +7,8 @@ import {
   insertBookingInquirySchema, 
   insertContactMessageSchema,
   insertNewsletterSubscriberSchema,
-  insertGalleryImageSchema
+  insertGalleryImageSchema,
+  insertContentDocumentSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { ZodError } from "zod-validation-error";
@@ -30,6 +31,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Create upload directories
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 const GALLERY_DIR = path.join(UPLOAD_DIR, 'gallery');
+const DOCUMENTS_DIR = path.join(UPLOAD_DIR, 'documents');
 
 // Ensure directories exist
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -37,6 +39,9 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 }
 if (!fs.existsSync(GALLERY_DIR)) {
   fs.mkdirSync(GALLERY_DIR, { recursive: true });
+}
+if (!fs.existsSync(DOCUMENTS_DIR)) {
+  fs.mkdirSync(DOCUMENTS_DIR, { recursive: true });
 }
 
 // Set up multer for file uploads
