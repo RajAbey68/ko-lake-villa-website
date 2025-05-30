@@ -19,12 +19,14 @@ async function testAIUpload() {
   const form = new FormData();
   form.append('image', fs.createReadStream(testImagePath));
   form.append('category', 'family-suite');
-  form.append('title', '');
+  form.append('alt', '');
   form.append('description', '');
   form.append('featured', 'false');
+  form.append('sortOrder', '1');
+  form.append('displaySize', 'medium');
   
   try {
-    const response = await fetch('http://localhost:5000/api/upload', {
+    const response = await fetch('http://localhost:5000/api/gallery/upload', {
       method: 'POST',
       body: form
     });
