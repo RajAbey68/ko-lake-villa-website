@@ -111,6 +111,10 @@ export const insertBookingInquirySchema = createInsertSchema(bookingInquiries).o
   id: true,
   createdAt: true,
   processed: true
+}).extend({
+  email: z.string().email("Please enter a valid email address"),
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  specialRequests: z.string().max(1000, "Special requests too long").optional()
 });
 
 export type InsertBookingInquiry = z.infer<typeof insertBookingInquirySchema>;
@@ -131,6 +135,11 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
   id: true,
   createdAt: true,
   read: true
+}).extend({
+  email: z.string().email("Please enter a valid email address"),
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message too long"),
+  subject: z.string().min(3, "Subject must be at least 3 characters").max(200, "Subject too long")
 });
 
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
