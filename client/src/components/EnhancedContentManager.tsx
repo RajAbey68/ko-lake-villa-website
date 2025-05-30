@@ -219,16 +219,33 @@ export default function EnhancedContentManager({ sections, onUpdate, onImageUplo
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) handleImageUpload(section.id, file);
+                    if (file) {
+                      handleImageUpload(section.id, file);
+                      // Reset input value to allow selecting the same file again
+                      e.target.value = '';
+                    }
                   }}
                   className="hidden"
                   id={`image-upload-${section.id}`}
+                  ref={(input) => {
+                    if (input) {
+                      // Store reference for click handler
+                      (window as any)[`fileInput_${section.id}`] = input;
+                    }
+                  }}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => document.getElementById(`image-upload-${section.id}`)?.click()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const input = (window as any)[`fileInput_${section.id}`];
+                    if (input) {
+                      input.click();
+                    }
+                  }}
                   className="flex items-center gap-2"
                 >
                   <ImageIcon className="h-4 w-4" />
