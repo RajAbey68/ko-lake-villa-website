@@ -174,13 +174,13 @@ export default function GalleryManager() {
         
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Category Filter */}
-          <Select value={selectedCategory || ""} onValueChange={(value) => setSelectedCategory(value || null)}>
+          <Select value={selectedCategory || "all"} onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}>
             <SelectTrigger className="w-48">
               <FilterIcon className="h-4 w-4 mr-2" />
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {GALLERY_CATEGORIES.map(category => (
                 <SelectItem key={category.value} value={category.value}>
                   {category.label}
