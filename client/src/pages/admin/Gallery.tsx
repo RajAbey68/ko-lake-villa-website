@@ -864,38 +864,73 @@ function SimpleGalleryManager() {
         onSave={async (data) => {
           if (editingImage) {
             try {
+              console.log('Saving image edit:', {
+                imageId: editingImage.id,
+                originalData: {
+                  alt: editingImage.alt,
+                  description: editingImage.description,
+                  category: editingImage.category,
+                  tags: editingImage.tags,
+                  featured: editingImage.featured
+                },
+                newData: data
+              });
+
+              const updatePayload = {
+                alt: data.title,
+                description: data.description,
+                category: data.category,
+                tags: data.tags,
+                featured: data.featured
+              };
+
+              console.log('Sending PATCH request with payload:', updatePayload);
+
               const response = await fetch(`/api/admin/gallery/${editingImage.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  alt: data.title,
-                  description: data.description,
-                  category: data.category,
-                  tags: data.tags,
-                  featured: data.featured
-                })
+                body: JSON.stringify(updatePayload)
               });
               
+              console.log('PATCH response status:', response.status);
+              
               if (response.ok) {
+                const result = await response.json();
+                console.log('PATCH response data:', result);
+                
                 toast({
-                  title: "Success!",
-                  description: "Image details updated successfully"
+                  title: "Image Updated!",
+                  description: `Successfully updated "${data.title}"`
                 });
+                
+                // Refresh the gallery
                 fetchImages();
               } else {
+                const errorText = await response.text();
+                console.error('PATCH failed:', response.status, errorText);
+                
                 toast({
-                  title: "Error",
-                  description: "Failed to update image details",
+                  title: "Update Failed",
+                  description: `Error ${response.status}: ${errorText}`,
                   variant: "destructive"
                 });
               }
             } catch (error) {
+              console.error('Error updating image:', error);
+              
               toast({
-                title: "Error", 
-                description: "Failed to update image details",
+                title: "Update Error", 
+                description: `Network error: ${error.message}`,
                 variant: "destructive"
               });
             }
+          } else {
+            console.error('No editing image selected');
+            toast({
+              title: "Error",
+              description: "No image selected for editing",
+              variant: "destructive"
+            });
           }
         }}
         initialData={editingImage ? {
