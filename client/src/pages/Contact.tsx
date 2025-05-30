@@ -83,7 +83,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-[#1E4E5F] mb-1">Location</h4>
-                  <p className="text-[#333333]">Ko Lake House, Mirissane Ovita<br />Madolduwa Road<br />Kathaluwa West<br />Ahangama<br />Galle, Southern District, Sri Lanka<br />80650</p>
+                  <p className="text-[#333333]">Ko Lake Villa, Mirissane Ovita<br />Madolduwa Road<br />Kathaluwa West<br />Ahangama<br />Galle, Southern District, Sri Lanka<br />80650</p>
                   <p className="text-[#666666] text-sm mt-2">Landmark: Koggala Lake Bridge, South Beach Resort Hotel</p>
                   <div className="mt-3 space-y-2">
                     <a 
