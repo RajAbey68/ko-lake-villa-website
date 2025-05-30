@@ -94,17 +94,23 @@ export default function TaggingDialog({
           {/* Image Preview */}
           <div className="space-y-4">
             {imagePreview ? (
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="w-full h-48 object-cover rounded-lg border"
-                onError={(e) => {
-                  console.error('Image preview failed to load:', imagePreview);
-                  e.currentTarget.style.display = 'none';
-                  const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
-                  if (errorDiv) errorDiv.style.display = 'block';
-                }}
-              />
+              <div className="relative">
+                <img 
+                  src={imagePreview.startsWith('http') ? imagePreview : `${window.location.origin}${imagePreview}`} 
+                  alt="Preview" 
+                  className="w-full h-48 object-cover rounded-lg border"
+                  onLoad={() => console.log('Image preview loaded successfully')}
+                  onError={(e) => {
+                    console.error('Image preview failed to load:', imagePreview);
+                    e.currentTarget.style.display = 'none';
+                    const errorDiv = e.currentTarget.parentElement?.querySelector('.error-message') as HTMLElement;
+                    if (errorDiv) errorDiv.style.display = 'block';
+                  }}
+                />
+                <div className="error-message text-red-500 text-sm mt-2" style={{display: 'none'}}>
+                  Preview unavailable - image will be processed after upload
+                </div>
+              </div>
             ) : (
               <div className="w-full h-48 bg-gray-100 rounded-lg border flex items-center justify-center">
                 <div className="text-center text-gray-500">
@@ -113,9 +119,6 @@ export default function TaggingDialog({
                 </div>
               </div>
             )}
-            <div className="text-red-500 text-sm" style={{display: 'none'}}>
-              Preview unavailable - image will be processed after upload
-            </div>
           </div>
           
           {/* Form Fields */}
