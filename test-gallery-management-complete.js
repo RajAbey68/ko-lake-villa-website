@@ -10,7 +10,7 @@ class GalleryManagementTests {
       failed: 0,
       tests: []
     };
-    this.baseUrl = '';
+    this.baseUrl = 'http://localhost:5000';
   }
 
   async apiRequest(method, endpoint, body = null) {
@@ -445,5 +445,3 @@ async function runGalleryManagementTests() {
 if (typeof window === 'undefined') {
   runGalleryManagementTests().catch(console.error);
 }
-
-module.exports = { GalleryManagementTests, runGalleryManagementTests };
