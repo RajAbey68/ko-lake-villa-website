@@ -83,12 +83,26 @@ export function formatCategoryLabel(categoryValue: string): string {
 }
 
 // Parse tags for display with hashtags
-export function formatTagsForDisplay(tags?: string): string[] {
+export function formatTagsForDisplay(tags?: string | string[]): string[] {
   if (!tags) return [];
-  return tags.split(',')
-    .map(tag => tag.trim())
-    .filter(tag => tag.length > 0)
-    .map(tag => `#${tag}`);
+  
+  // Handle case where tags is already an array
+  if (Array.isArray(tags)) {
+    return tags
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0)
+      .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+  }
+  
+  // Handle case where tags is a string
+  if (typeof tags === 'string') {
+    return tags.split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0)
+      .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+  }
+  
+  return [];
 }
 
 // Get category filter options
