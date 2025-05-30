@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { ImageIcon } from 'lucide-react';
 
 const GALLERY_CATEGORIES = [
+  { value: "entire-villa", label: "Entire Villa" },
   { value: "family-suite", label: "Family Suite" },
   { value: "group-room", label: "Group Room" },
   { value: "triple-room", label: "Triple Room" },
