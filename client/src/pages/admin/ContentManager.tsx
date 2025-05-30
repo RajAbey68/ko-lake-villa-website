@@ -157,10 +157,7 @@ export default function ContentManager() {
   const saveAllContent = () => saveContent();
 
   const getContentByPage = (page: string) => {
-    const pageContent = content.filter(item => item.page === page);
-    console.log(`Getting content for page "${page}":`, pageContent);
-    console.log('All available content:', content);
-    return pageContent;
+    return content.filter(item => item.page === page);
   };
 
   // Image upload handler
@@ -176,7 +173,6 @@ export default function ContentManager() {
 
   // Convert PageContent to ContentSection format for EnhancedContentManager
   const convertToContentSections = (pageContent: PageContent[]) => {
-    console.log('Converting page content:', pageContent);
     return pageContent.map(item => ({
       id: item.id,
       title: item.title,
