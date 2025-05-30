@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { ImageIcon } from 'lucide-react';
 
 const GALLERY_CATEGORIES = [
   { value: "family-suite", label: "Family Suite" },
@@ -91,15 +92,31 @@ export default function TaggingDialog({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Image Preview */}
-          {imagePreview && (
-            <div className="space-y-4">
+          <div className="space-y-4">
+            {imagePreview ? (
               <img 
                 src={imagePreview} 
                 alt="Preview" 
                 className="w-full h-48 object-cover rounded-lg border"
+                onError={(e) => {
+                  console.error('Image preview failed to load:', imagePreview);
+                  e.currentTarget.style.display = 'none';
+                  const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (errorDiv) errorDiv.style.display = 'block';
+                }}
               />
+            ) : (
+              <div className="w-full h-48 bg-gray-100 rounded-lg border flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <ImageIcon className="mx-auto h-12 w-12 mb-2" />
+                  <p className="text-sm">Image preview will appear here</p>
+                </div>
+              </div>
+            )}
+            <div className="text-red-500 text-sm" style={{display: 'none'}}>
+              Preview unavailable - image will be processed after upload
             </div>
-          )}
+          </div>
           
           {/* Form Fields */}
           <div className="space-y-4">
