@@ -861,6 +861,14 @@ function SimpleGalleryManager() {
           setTaggingDialogOpen(false);
           setEditingImage(null);
         }}
+        imagePreview={editingImage?.imageUrl}
+        initialData={editingImage ? {
+          title: editingImage.alt,
+          description: editingImage.description,
+          category: editingImage.category,
+          tags: editingImage.tags,
+          featured: editingImage.featured
+        } : undefined}
         onSave={async (data) => {
           if (editingImage) {
             try {
@@ -933,14 +941,6 @@ function SimpleGalleryManager() {
             });
           }
         }}
-        initialData={editingImage ? {
-          title: editingImage.alt || '',
-          description: editingImage.description || '',
-          category: editingImage.category || '',
-          tags: editingImage.tags || '',
-          featured: editingImage.featured || false
-        } : undefined}
-        imagePreview={editingImage?.imageUrl}
       />
     </Card>
   );
