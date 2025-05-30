@@ -1056,5 +1056,5 @@ class DbStorage implements IStorage {
   }
 }
 
-// Use PostgreSQL database storage to access all restored gallery images
-export const storage = new DbStorage();
+// Revert to memory storage to stabilize the system
+export const storage = new MemStorage();
