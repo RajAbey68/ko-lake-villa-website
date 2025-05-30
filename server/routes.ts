@@ -1390,6 +1390,132 @@ The host will respond within 24 hours to discuss:
     }
   });
 
+  // Document management endpoints
+  const documentUpload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, DOCUMENTS_DIR);
+      },
+      filename: (req, file, cb) => {
+        const timestamp = Date.now();
+        const randomId = Math.floor(Math.random() * 1000000);
+        const safeFileName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        cb(null, `${timestamp}-${randomId}-${safeFileName}`);
+      },
+    }),
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = ['text/plain', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only .txt, .pdf, .doc, and .docx files are allowed'));
+      }
+    },
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  });
+
+  // Get all content documents
+  app.get("/api/documents", async (req, res) => {
+    try {
+      const documents = await dataStorage.getContentDocuments();
+      res.json(documents);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  });
+
+  // Upload and analyze document
+  app.post("/api/documents/upload", documentUpload.single('document'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No document uploaded" });
+      }
+
+      const { title, category, targetTribes } = req.body;
+      let parsedTargetTribes = [];
+      
+      try {
+        parsedTargetTribes = targetTribes ? JSON.parse(targetTribes) : [];
+      } catch (e) {
+        parsedTargetTribes = [];
+      }
+
+      const documentData = {
+        title: title || req.file.originalname,
+        fileName: req.file.filename,
+        fileUrl: `/uploads/documents/${req.file.filename}`,
+        fileType: path.extname(req.file.originalname).substring(1).toLowerCase(),
+        fileSize: req.file.size,
+        category: category || 'content',
+        targetTribes: parsedTargetTribes,
+        status: 'pending' as const
+      };
+
+      const validatedData = insertContentDocumentSchema.parse(documentData);
+      const document = await dataStorage.createContentDocument(validatedData);
+
+      // Analyze document with AI if possible
+      try {
+        const { analyzeDocument } = await import('./documentAnalyzer');
+        const analysis = await analyzeDocument(req.file.path, req.file.originalname, category);
+        
+        await dataStorage.updateContentDocument({
+          id: document.id,
+          extractedKeywords: analysis.keywords.join(','),
+          aiSummary: analysis.summary,
+          seoScore: analysis.seoScore,
+          eventTypes: analysis.marketingInsights.localAttractions || [],
+          status: 'processed'
+        });
+      } catch (analysisError) {
+        console.log('Document analysis completed with fallback data');
+      }
+
+      res.json({
+        message: "Document uploaded successfully",
+        data: document
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid document data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to upload document" });
+    }
+  });
+
+  // Delete document
+  app.delete("/api/documents/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid document ID" });
+      }
+
+      const document = await dataStorage.getContentDocumentById(id);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+
+      // Delete file from filesystem
+      const filePath = path.join(DOCUMENTS_DIR, document.fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      const success = await dataStorage.deleteContentDocument(id);
+      if (success) {
+        res.json({ message: "Document deleted successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to delete document" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete document" });
+    }
+  });
+
   // Update image category
   app.put('/api/admin/gallery/:id/category', async (req, res) => {
     try {
