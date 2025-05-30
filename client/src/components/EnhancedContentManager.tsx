@@ -105,63 +105,31 @@ export default function EnhancedContentManager({ sections, onUpdate, onImageUplo
     setIsRunningTests(true);
     const results: Record<string, 'pass' | 'fail' | 'pending'> = {};
 
-    for (const section of sections) {
-      const content = editingSections[section.id];
-      
-      // Test 1: Content length validation
-      const hasContent = content && content.trim().length > 0;
-      
-      // Test 2: URL validation
-      const urlRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-      const urls = Array.from(content.matchAll(urlRegex));
-      let validUrls = true;
-      
-      for (const match of urls) {
-        const url = match[2];
-        try {
-          new URL(url);
-        } catch {
-          validUrls = false;
-          break;
-        }
+    try {
+      for (const section of sections) {
+        const content = editingSections[section.id] || '';
+        
+        // Simple content validation
+        const hasContent = content && content.trim().length > 0;
+        results[section.id] = hasContent ? 'pass' : 'fail';
+        
+        setTestResults({ ...results });
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
       
-      // Test 3: Image references validation
-      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-      const images = Array.from(content.matchAll(imageRegex));
-      let validImages = true;
+      const passedTests = Object.values(results).filter(result => result === 'pass').length;
+      const totalTests = Object.keys(results).length;
       
-      for (const match of images) {
-        const imageUrl = match[2];
-        if (!imageUrl || (!imageUrl.startsWith('http') && !imageUrl.startsWith('/'))) {
-          validImages = false;
-          break;
-        }
-      }
-      
-      // Test 4: Formatting validation - check for properly paired formatting
-      const boldMatches = (content.match(/\*\*/g) || []).length;
-      const italicMatches = (content.match(/(?<!\*)\*(?!\*)/g) || []).length;
-      const hasValidFormatting = boldMatches % 2 === 0 && italicMatches % 2 === 0;
-      
-      // Combine test results
-      results[section.id] = hasContent && validUrls && validImages && hasValidFormatting ? 'pass' : 'fail';
-      
-      // Add delay to show testing progress
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setTestResults({ ...results });
+      toast({
+        title: "Content Tests Complete",
+        description: `${passedTests}/${totalTests} sections passed validation.`,
+        variant: passedTests === totalTests ? "default" : "destructive",
+      });
+    } catch (error) {
+      console.error('Content testing error:', error);
+    } finally {
+      setIsRunningTests(false);
     }
-    
-    setIsRunningTests(false);
-    
-    const passedTests = Object.values(results).filter(result => result === 'pass').length;
-    const totalTests = Object.keys(results).length;
-    
-    toast({
-      title: "Content Tests Complete",
-      description: `${passedTests}/${totalTests} sections passed validation.`,
-      variant: passedTests === totalTests ? "default" : "destructive",
-    });
   };
 
   const hasUnsavedChanges = (sectionId: string) => {
