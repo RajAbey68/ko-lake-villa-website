@@ -90,7 +90,7 @@ export async function updateGalleryImage(
   }
 ): Promise<GalleryApiResponse> {
   try {
-    const response = await apiRequest('PUT', `/api/gallery/${id}`, updates);
+    const response = await apiRequest('PATCH', `/api/admin/gallery/${id}`, updates);
     
     if (!response.ok) {
       const result = await response.json();
