@@ -893,5 +893,168 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use memory storage for now since we're focused on the auth issue
-export const storage = new MemStorage();
+// Database storage implementation
+class DbStorage implements IStorage {
+  async getGalleryImages(): Promise<GalleryImage[]> {
+    return await db.select().from(galleryImages);
+  }
+
+  async getGalleryImagesByCategory(category: string): Promise<GalleryImage[]> {
+    return await db.select().from(galleryImages).where(eq(galleryImages.category, category));
+  }
+
+  async getGalleryImageById(id: number): Promise<GalleryImage | undefined> {
+    const results = await db.select().from(galleryImages).where(eq(galleryImages.id, id));
+    return results[0];
+  }
+
+  async createGalleryImage(insertGalleryImage: InsertGalleryImage): Promise<GalleryImage> {
+    const [galleryImage] = await db.insert(galleryImages).values(insertGalleryImage).returning();
+    return galleryImage;
+  }
+
+  async updateGalleryImage(updateData: Partial<GalleryImage> & { id: number }): Promise<GalleryImage> {
+    const { id, ...data } = updateData;
+    const [updated] = await db.update(galleryImages).set(data).where(eq(galleryImages.id, id)).returning();
+    return updated;
+  }
+
+  async updateGalleryImageCategory(id: number, category: string): Promise<GalleryImage> {
+    const [updated] = await db.update(galleryImages).set({ category }).where(eq(galleryImages.id, id)).returning();
+    return updated;
+  }
+
+  async deleteGalleryImage(id: number): Promise<boolean> {
+    const result = await db.delete(galleryImages).where(eq(galleryImages.id, id));
+    return result.rowCount > 0;
+  }
+
+  async deleteAllGalleryImages(): Promise<number> {
+    const result = await db.delete(galleryImages);
+    return result.rowCount;
+  }
+
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    const results = await db.select().from(users).where(eq(users.id, id));
+    return results[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const results = await db.select().from(users).where(eq(users.email, email));
+    return results[0];
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const [result] = await db.insert(users).values(user).onConflictDoUpdate({
+      target: users.email,
+      set: user
+    }).returning();
+    return result;
+  }
+
+  // Room operations
+  async getRooms(): Promise<Room[]> {
+    return await db.select().from(rooms);
+  }
+
+  async getRoomById(id: number): Promise<Room | undefined> {
+    const results = await db.select().from(rooms).where(eq(rooms.id, id));
+    return results[0];
+  }
+
+  async createRoom(room: InsertRoom): Promise<Room> {
+    const [result] = await db.insert(rooms).values(room).returning();
+    return result;
+  }
+
+  // Testimonial operations
+  async getTestimonials(): Promise<Testimonial[]> {
+    return await db.select().from(testimonials);
+  }
+
+  async createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial> {
+    const [result] = await db.insert(testimonials).values(testimonial).returning();
+    return result;
+  }
+
+  // Activity operations
+  async getActivities(): Promise<Activity[]> {
+    return await db.select().from(activities);
+  }
+
+  async getActivityById(id: number): Promise<Activity | undefined> {
+    const results = await db.select().from(activities).where(eq(activities.id, id));
+    return results[0];
+  }
+
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    const [result] = await db.insert(activities).values(activity).returning();
+    return result;
+  }
+
+  // Dining operations
+  async getDiningOptions(): Promise<DiningOption[]> {
+    return await db.select().from(diningOptions);
+  }
+
+  async getDiningOptionById(id: number): Promise<DiningOption | undefined> {
+    const results = await db.select().from(diningOptions).where(eq(diningOptions.id, id));
+    return results[0];
+  }
+
+  async createDiningOption(diningOption: InsertDiningOption): Promise<DiningOption> {
+    const [result] = await db.insert(diningOptions).values(diningOption).returning();
+    return result;
+  }
+
+  // Booking operations
+  async createBookingInquiry(bookingInquiry: InsertBookingInquiry): Promise<BookingInquiry> {
+    const [result] = await db.insert(bookingInquiries).values(bookingInquiry).returning();
+    return result;
+  }
+
+  async getBookingInquiries(): Promise<BookingInquiry[]> {
+    return await db.select().from(bookingInquiries);
+  }
+
+  async markBookingInquiryAsProcessed(id: number): Promise<BookingInquiry | undefined> {
+    const [result] = await db.update(bookingInquiries)
+      .set({ processed: true })
+      .where(eq(bookingInquiries.id, id))
+      .returning();
+    return result;
+  }
+
+  // Contact operations
+  async createContactMessage(contactMessage: InsertContactMessage): Promise<ContactMessage> {
+    const [result] = await db.insert(contactMessages).values(contactMessage).returning();
+    return result;
+  }
+
+  async getContactMessages(): Promise<ContactMessage[]> {
+    return await db.select().from(contactMessages);
+  }
+
+  // Newsletter operations
+  async createNewsletterSubscriber(subscriber: InsertNewsletterSubscriber): Promise<NewsletterSubscriber> {
+    const [result] = await db.insert(newsletterSubscribers).values(subscriber).returning();
+    return result;
+  }
+
+  async getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
+    return await db.select().from(newsletterSubscribers);
+  }
+
+  // Content operations - fallback to default content for now
+  async getContent(): Promise<any[]> {
+    return []; // Content will be handled separately
+  }
+
+  async saveContent(content: any[]): Promise<boolean> {
+    return true; // Content will be handled separately
+  }
+}
+
+// Use PostgreSQL database storage to access all restored gallery images
+export const storage = new DbStorage();
