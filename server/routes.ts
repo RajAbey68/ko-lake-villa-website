@@ -671,55 +671,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Alternative booking endpoint (for test compatibility)
   app.post("/api/bookings", async (req, res) => {
-    // Map test data format to booking inquiry format
-    const mappedData = {
-      name: req.body.customerName || req.body.name,
-      email: req.body.email,
-      checkInDate: req.body.checkIn || req.body.checkInDate,
-      checkOutDate: req.body.checkOut || req.body.checkOutDate,
-      guests: parseInt(req.body.guestCount || req.body.guests),
-      roomType: req.body.roomType,
-      specialRequests: req.body.specialRequests || req.body.phone || ""
-    };
-
-    // Strict validation - reject immediately on any validation failure
-    
-    // Email validation
-    if (!mappedData.email || mappedData.email.trim() === '') {
-      return res.status(400).json({ message: "Email is required" });
-    }
-
-    // Comprehensive email validation
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(mappedData.email)) {
-      return res.status(400).json({ message: "Please enter a valid email address" });
-    }
-
-    // Name validation
-    if (!mappedData.name || mappedData.name.trim() === '') {
-      return res.status(400).json({ message: "Name is required" });
-    }
-
-    // Date validation
-    if (!mappedData.checkInDate || !mappedData.checkOutDate) {
-      return res.status(400).json({ message: "Check-in and check-out dates are required" });
-    }
-
-    // Guest count validation
-    if (!mappedData.guests || mappedData.guests < 1) {
-      return res.status(400).json({ message: "Number of guests must be at least 1" });
-    }
-
     try {
+      // Map test data format to booking inquiry format
+      const mappedData = {
+        name: req.body.customerName || req.body.name,
+        email: req.body.email,
+        checkInDate: req.body.checkIn || req.body.checkInDate,
+        checkOutDate: req.body.checkOut || req.body.checkOutDate,
+        guests: parseInt(req.body.guestCount || req.body.guests),
+        roomType: req.body.roomType,
+        specialRequests: req.body.specialRequests || req.body.phone || ""
+      };
+
+      // Email validation - reject invalid formats immediately
+      if (!mappedData.email || mappedData.email.trim() === '') {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Strict email validation regex
+      const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(mappedData.email)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+
+      // Additional validation for edge cases
+      if (mappedData.email.includes('..') || 
+          mappedData.email.startsWith('.') || 
+          mappedData.email.endsWith('.') ||
+          mappedData.email.indexOf('@') !== mappedData.email.lastIndexOf('@')) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+
+      // Name validation with security checks
+      if (!mappedData.name || mappedData.name.trim() === '') {
+        return res.status(400).json({ message: "Name is required" });
+      }
+
+      // Security: Block potential XSS and injection attempts
+      const securityPatterns = [
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        /javascript:/gi,
+        /on\w+\s*=/gi,
+        /<iframe/gi,
+        /eval\s*\(/gi,
+        /expression\s*\(/gi
+      ];
+
+      const checkSecurity = (input: string) => {
+        if (input.length > 1000) return false; // Prevent buffer overflow
+        return !securityPatterns.some(pattern => pattern.test(input));
+      };
+
+      if (!checkSecurity(mappedData.name) || 
+          !checkSecurity(mappedData.specialRequests || '') ||
+          !checkSecurity(mappedData.email)) {
+        return res.status(400).json({ message: "Invalid input detected" });
+      }
+
+      // Date validation
+      if (!mappedData.checkInDate || !mappedData.checkOutDate) {
+        return res.status(400).json({ message: "Check-in and check-out dates are required" });
+      }
+
+      // Guest count validation
+      if (!mappedData.guests || mappedData.guests < 1) {
+        return res.status(400).json({ message: "Number of guests must be at least 1" });
+      }
+
+      // Validate guest capacity limits before proceeding
+      const capacityLimits = {
+        'KLV': 25,
+        'KLV1': 6,
+        'KLV3': 3,
+        'KLV6': 6,
+        'Entire Villa (KLV)': 25,
+        'Master Family Suite (KLV1)': 6,
+        'Triple/Twin Rooms (KLV3)': 3,
+        'Group Room (KLV6)': 6
+      };
+
+      const maxCapacity = capacityLimits[mappedData.roomType as keyof typeof capacityLimits];
+      if (maxCapacity && mappedData.guests > maxCapacity) {
+        return res.status(400).json({ 
+          message: `${mappedData.roomType} maximum capacity is ${maxCapacity} guests` 
+        });
+      }
+
+      // Allow over-capacity bookings with special handling (as per business requirements)
+      if (mappedData.roomType === 'KLV' && mappedData.guests > 18 && mappedData.guests <= 25) {
+        // Allow 19-25 guests but add special handling note
+        mappedData.specialRequests = (mappedData.specialRequests || '') + 
+          `\n\nSPECIAL HANDLING: ${mappedData.guests} guests (over standard 18). Extra charges may apply.`;
+      }
+
+      // Allow limited over-capacity for individual rooms with special request
+      if ((mappedData.roomType === 'KLV1' && mappedData.guests === 7) ||
+          (mappedData.roomType === 'KLV3' && mappedData.guests === 4) ||
+          (mappedData.roomType === 'KLV6' && mappedData.guests > 6 && mappedData.guests <= 8)) {
+        mappedData.specialRequests = (mappedData.specialRequests || '') + 
+          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard capacity). Subject to availability.`;
+      }
+
       const validatedData = insertBookingInquirySchema.parse(mappedData);
       
-      // Additional validation
+      // Additional date validation
       const checkIn = new Date(validatedData.checkInDate);
       const checkOut = new Date(validatedData.checkOutDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Validate dates
       if (checkIn <= today) {
         return res.status(400).json({ 
           message: "Check-in date must be in the future" 
@@ -730,43 +790,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ 
           message: "Check-out date must be after check-in date" 
         });
-      }
-
-      // Validate guest capacity with strict Ko Lake Villa limits
-      const roomLimits = {
-        'KLV': { base: 18, max: 25 },
-        'KLV1': { base: 6, max: 6 },
-        'KLV3': { base: 3, max: 3 },
-        'KLV6': { base: 6, max: 6 },
-        'Entire Villa (KLV)': { base: 18, max: 25 },
-        'Master Family Suite (KLV1)': { base: 6, max: 6 },
-        'Triple/Twin Rooms (KLV3)': { base: 3, max: 3 },
-        'Group Room (KLV6)': { base: 6, max: 6 }
-      };
-
-      const limits = roomLimits[validatedData.roomType as keyof typeof roomLimits];
-      if (limits) {
-        if (validatedData.guests > limits.max) {
-          return res.status(400).json({ 
-            message: `${validatedData.roomType} maximum capacity is ${limits.max} guests` 
-          });
-        }
-        
-        // For villa bookings over base capacity, require special handling
-        if ((validatedData.roomType === 'KLV' || validatedData.roomType === 'Entire Villa (KLV)') && 
-            validatedData.guests > limits.base) {
-          return res.status(400).json({ 
-            message: `Bookings for ${validatedData.guests} guests require special arrangement. Base capacity is ${limits.base} guests. Please contact us directly for groups over ${limits.base}.` 
-          });
-        }
-        
-        // For individual rooms, enforce strict limits
-        if (validatedData.roomType !== 'KLV' && validatedData.roomType !== 'Entire Villa (KLV)' && 
-            validatedData.guests > limits.base) {
-          return res.status(400).json({ 
-            message: `${validatedData.roomType} accommodates maximum ${limits.base} guests` 
-          });
-        }
       }
 
       const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
@@ -788,31 +811,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form
   app.post("/api/contact", async (req, res) => {
     try {
-      // Validate required fields
+      // Security: Block potential XSS and injection attempts
+      const securityPatterns = [
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+        /javascript:/gi,
+        /on\w+\s*=/gi,
+        /<iframe/gi,
+        /eval\s*\(/gi,
+        /expression\s*\(/gi
+      ];
+
+      const checkSecurity = (input: string) => {
+        if (input.length > 2000) return false; // Prevent buffer overflow
+        return !securityPatterns.some(pattern => pattern.test(input));
+      };
+
+      // Validate required fields with security checks
       if (!req.body.message || req.body.message.trim() === '') {
-        return res.status(400).json({ 
-          message: "Message is required" 
-        });
+        return res.status(400).json({ message: "Message is required" });
       }
 
       if (!req.body.name || req.body.name.trim() === '') {
-        return res.status(400).json({ 
-          message: "Name is required" 
-        });
+        return res.status(400).json({ message: "Name is required" });
       }
 
       if (!req.body.email || req.body.email.trim() === '') {
-        return res.status(400).json({ 
-          message: "Email is required" 
-        });
+        return res.status(400).json({ message: "Email is required" });
       }
 
-      // Additional email validation
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      if (!req.body.subject || req.body.subject.trim() === '') {
+        return res.status(400).json({ message: "Subject is required" });
+      }
+
+      // Security validation
+      if (!checkSecurity(req.body.name) || 
+          !checkSecurity(req.body.message) ||
+          !checkSecurity(req.body.subject) ||
+          !checkSecurity(req.body.email)) {
+        return res.status(400).json({ message: "Invalid input detected" });
+      }
+
+      // Email validation
+      const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(req.body.email)) {
-        return res.status(400).json({ 
-          message: "Please enter a valid email address" 
-        });
+        return res.status(400).json({ message: "Please enter a valid email address" });
       }
       
       const validatedData = insertContactMessageSchema.parse(req.body);
@@ -867,28 +909,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Validate email first
       if (!req.body.email || req.body.email.trim() === '') {
-        return res.status(400).json({ 
-          message: "Email is required" 
-        });
+        return res.status(400).json({ message: "Email is required" });
       }
 
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      // Email validation
+      const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(req.body.email)) {
-        return res.status(400).json({ 
-          message: "Please enter a valid email address" 
-        });
+        return res.status(400).json({ message: "Please enter a valid email address" });
       }
 
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
       
-      // Check for existing subscription
-      const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
+      // Check for existing subscription (case-insensitive)
+      const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email.toLowerCase());
       if (existingSubscriber) {
         return res.status(409).json({
           message: "You're already subscribed to our newsletter!",
           data: existingSubscriber
         });
       }
+      
+      // Normalize email to lowercase for storage
+      validatedData.email = validatedData.email.toLowerCase();
       
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
