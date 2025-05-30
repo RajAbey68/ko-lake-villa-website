@@ -1,386 +1,388 @@
-import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { uploadFile } from "../lib/firebaseStorage";
-import { useToast } from "../hooks/use-toast";
+import { useState, useRef } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  UploadIcon, 
+  ImageIcon, 
+  XIcon,
+  LoaderIcon
+} from 'lucide-react';
 
-// Available categories for the gallery
-const galleryCategories = [
-  { value: "family-suite", label: "Family Suite" },
-  { value: "group-room", label: "Group Room" },
-  { value: "triple-room", label: "Triple Room" },
-  { value: "dining-area", label: "Dining Area" },
-  { value: "pool-deck", label: "Pool Deck" },
-  { value: "lake-garden", label: "Lake Garden" },
-  { value: "roof-garden", label: "Roof Garden" },
-  { value: "front-garden", label: "Front Garden and Entrance" },
-  { value: "koggala-lake", label: "Koggala Lake Ahangama and Surrounding" },
-  { value: "excursions", label: "Excursions" }
-];
+import { 
+  GALLERY_CATEGORIES, 
+  validateImageData, 
+  generateConsistentTags,
+  formatCategoryLabel,
+  getFileType
+} from '@/lib/galleryUtils';
+
+import { uploadGalleryImage, analyzeMedia } from '@/lib/galleryApi';
 
 interface ImageUploadDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const ImageUploadDialog = ({ open, onOpenChange, onSuccess }: ImageUploadDialogProps) => {
+export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialogProps) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>('');
+  const [alt, setAlt] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [customTags, setCustomTags] = useState<string>('');
+  const [featured, setFeatured] = useState<boolean>(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
-  const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  
-  // Form state
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [alt, setAlt] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("family-suite");
-  const [tags, setTags] = useState("");
-  const [featured, setFeatured] = useState(false);
-  
-  // Reset the form
-  const resetForm = () => {
-    setImageFile(null);
-    setImageUrl("");
-    setAlt("");
-    setDescription("");
-    setCategory("family-suite");
-    setTags("");
-    setFeatured(false);
-    setUploadMethod('file');
-    setMediaType('image');
-    setUploadProgress(0);
-  };
-  
-  // Handle file input change
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-      // Set alt text to file name (without extension) by default
-      const fileName = e.target.files[0].name;
-      const fileNameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
-      setAlt(fileNameWithoutExt.replace(/[-_]/g, ' '));
-    }
-  };
-  
-  // Handle form submission
-  const handleSubmit = async () => {
-    try {
-      setIsUploading(true);
-      
-      if (uploadMethod === 'file' && !imageFile) {
-        toast({
-          title: "Error",
-          description: "Please select a file to upload",
-          variant: "destructive",
-        });
-        setIsUploading(false);
-        return;
+  const queryClient = useQueryClient();
+
+  // Upload mutation
+  const uploadMutation = useMutation({
+    mutationFn: () => {
+      if (!selectedFile || !category || !alt) {
+        throw new Error('Missing required fields');
       }
       
-      if (uploadMethod === 'url' && !imageUrl) {
+      return uploadGalleryImage(selectedFile, category, alt, description, featured, customTags);
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
         toast({
-          title: "Error",
-          description: "Please enter an image URL",
-          variant: "destructive",
+          title: "Success",
+          description: "Image uploaded successfully",
         });
-        setIsUploading(false);
-        return;
-      }
-      
-      if (!alt) {
-        toast({
-          title: "Error",
-          description: "Please enter alt text for accessibility",
-          variant: "destructive",
-        });
-        setIsUploading(false);
-        return;
-      }
-      
-      // Prepare the data object
-      let uploadedImageUrl = "";
-      
-      // If uploading a file, use Firebase Storage
-      if (uploadMethod === 'file' && imageFile) {
-        try {
-          // Upload to Firebase with progress tracking
-          uploadedImageUrl = await uploadFile(imageFile, `gallery/${category}/`, (progress) => {
-            setUploadProgress(progress);
-          });
-        } catch (err) {
-          console.error("Error uploading file to Firebase:", err);
-          toast({
-            title: "Upload Error",
-            description: "Failed to upload image to storage. Please try again.",
-            variant: "destructive",
-          });
-          setIsUploading(false);
-          return;
-        }
+        handleClose();
       } else {
-        // If using a URL, use the provided URL
-        uploadedImageUrl = imageUrl;
+        toast({
+          title: "Upload Failed",
+          description: result.error || "Failed to upload image",
+          variant: "destructive",
+        });
       }
-      
-      // Prepare the image data
-      const imageData = {
-        uploadMethod,
-        imageUrl: uploadedImageUrl,
-        alt,
-        description,
-        category,
-        tags,
-        featured,
-        sortOrder: 0,
-        mediaType
-      };
-      
-      // Submit to API
-      const response = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(imageData),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API error: ${response.status} - ${errorText}`);
-      }
-      
-      // Show success message
-      toast({
-        title: "Success!",
-        description: `${mediaType === 'video' ? 'Video' : 'Image'} uploaded successfully!`,
-      });
-      
-      // Reset form and close dialog
-      resetForm();
-      onOpenChange(false);
-      
-      // Call success callback to refresh the gallery
-      onSuccess();
-      
-    } catch (error: any) {
-      console.error("Error in handleSubmit:", error);
+    },
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: `Failed to upload: ${error?.message || 'Unknown error'}`,
+        description: error.message || "Failed to upload image",
         variant: "destructive",
       });
+    },
+  });
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/mov', 'video/avi'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select an image (JPEG, PNG, GIF, WebP) or video (MP4, MOV, AVI) file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (50MB limit)
+    if (file.size > 50 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select a file smaller than 50MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    // Create preview URL
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    
+    // Auto-fill alt text with filename if empty
+    if (!alt) {
+      const fileName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+      setAlt(fileName);
+    }
+
+    // Try AI analysis if API key is available
+    await tryAIAnalysis(file);
+  };
+
+  const tryAIAnalysis = async (file: File) => {
+    try {
+      setIsAnalyzing(true);
+      
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = (e.target?.result as string)?.split(',')[1];
+        if (!base64) return;
+
+        const analysis = await analyzeMedia(base64, file.name, getFileType(file.name));
+        
+        if (analysis.suggestedCategory && !analysis.error) {
+          setAiSuggestion(analysis.suggestedCategory);
+          toast({
+            title: "AI Analysis Complete",
+            description: `Suggested category: ${formatCategoryLabel(analysis.suggestedCategory)}`,
+          });
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.log('AI analysis not available');
     } finally {
-      setIsUploading(false);
+      setIsAnalyzing(false);
     }
   };
-  
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form data
+    const validation = validateImageData({ 
+      category, 
+      alt, 
+      tags: customTags 
+    });
+    
+    if (!validation.valid) {
+      toast({
+        title: "Validation Error",
+        description: validation.errors.join(', '),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedFile) {
+      toast({
+        title: "No File Selected",
+        description: "Please select an image or video to upload",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    uploadMutation.mutate();
+  };
+
+  const handleClose = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setCategory('');
+    setAlt('');
+    setDescription('');
+    setCustomTags('');
+    setFeatured(false);
+    setAiSuggestion(null);
+    onClose();
+  };
+
+  const acceptAISuggestion = () => {
+    if (aiSuggestion) {
+      setCategory(aiSuggestion);
+      setAiSuggestion(null);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      if (!isUploading) {
-        if (!newOpen) resetForm();
-        onOpenChange(newOpen);
-      }
-    }}>
-      <DialogContent className="w-full max-w-[400px] overflow-auto">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-[#8B5E3C] text-lg">Add to Gallery</DialogTitle>
+          <DialogTitle>Upload Image or Video</DialogTitle>
         </DialogHeader>
-        
-        {/* Top tabs for upload method */}
-        <div className="flex gap-2 mt-2 mb-4">
-          <Button
-            type="button"
-            size="sm"
-            variant={uploadMethod === 'file' ? "default" : "outline"}
-            className={uploadMethod === 'file' ? "bg-[#FF914D] text-white" : ""}
-            onClick={() => setUploadMethod('file')}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* File Upload Area */}
+          <div 
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors"
+            onClick={() => fileInputRef.current?.click()}
           >
-            Upload File
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={uploadMethod === 'url' ? "default" : "outline"}
-            className={uploadMethod === 'url' ? "bg-[#FF914D] text-white" : ""}
-            onClick={() => setUploadMethod('url')}
-          >
-            Use URL
-          </Button>
-        </div>
-        
-        {/* Main form - vertical layout for better fit */}
-        <div className="space-y-4">
-          {/* Upload method-specific section */}
-          {uploadMethod === 'file' ? (
-            <div>
-              <Label htmlFor="image-upload">Select Image File</Label>
-              <Input 
-                id="image-upload" 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileChange}
-                className="mt-1"
-              />
-              {imageFile && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Selected: {imageFile.name}
-                </p>
-              )}
-            </div>
-          ) : (
-            <>
-              <div>
-                <Label htmlFor="image-url">Image or Video URL</Label>
-                <Input 
-                  id="image-url" 
-                  type="url" 
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <label className="text-sm">Media Type:</label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="mr-1"
-                    checked={mediaType === 'image'}
-                    onChange={() => setMediaType('image')}
-                  />
-                  <span className="text-sm">Image</span>
-                </label>
-                <label className="inline-flex items-center ml-4">
-                  <input
-                    type="radio"
-                    className="mr-1"
-                    checked={mediaType === 'video'}
-                    onChange={() => setMediaType('video')}
-                  />
-                  <span className="text-sm">Video</span>
-                </label>
-              </div>
-            </>
-          )}
-          
-          {/* Required fields */}
-          <div>
-            <Label htmlFor="alt-text">Alt Text / Title *</Label>
-            <Input 
-              id="alt-text" 
-              placeholder="Title or description"
-              value={alt}
-              onChange={(e) => setAlt(e.target.value)}
-              required
-              className="mt-1"
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleFileSelect}
+              className="hidden"
             />
+            
+            {previewUrl ? (
+              <div className="relative">
+                {selectedFile?.type.startsWith('video/') ? (
+                  <video
+                    src={previewUrl}
+                    className="max-h-32 mx-auto rounded"
+                    controls
+                  />
+                ) : (
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="max-h-32 mx-auto rounded"
+                  />
+                )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute -top-2 -right-2 h-6 w-6 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                >
+                  <XIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <UploadIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Click to select an image or video</p>
+                <p className="text-sm text-gray-500 mt-2">Supports: JPEG, PNG, GIF, WebP, MP4, MOV, AVI (Max 50MB)</p>
+              </div>
+            )}
           </div>
-          
+
+          {/* AI Analysis Status */}
+          {isAnalyzing && (
+            <div className="flex items-center gap-2 text-sm text-blue-600">
+              <LoaderIcon className="h-4 w-4 animate-spin" />
+              Analyzing image with AI...
+            </div>
+          )}
+
+          {/* AI Suggestion */}
+          {aiSuggestion && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-900">AI Suggestion</p>
+                  <p className="text-sm text-blue-700">
+                    Recommended category: {formatCategoryLabel(aiSuggestion)}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={acceptAISuggestion}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Use Suggestion
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Category Selection */}
+            <div>
+              <Label htmlFor="category">Category *</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {GALLERY_CATEGORIES.map(cat => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Title/Alt Text */}
+            <div>
+              <Label htmlFor="alt">Title/Description *</Label>
+              <Input
+                id="alt"
+                value={alt}
+                onChange={(e) => setAlt(e.target.value)}
+                placeholder="Enter image title"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Additional Tags */}
           <div>
-            <Label htmlFor="category">Category *</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="category" className="mt-1">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {galleryCategories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="customTags">Additional Tags</Label>
+            <Input
+              id="customTags"
+              value={customTags}
+              onChange={(e) => setCustomTags(e.target.value)}
+              placeholder="beach, sunset, relaxing (comma-separated)"
+            />
+            {category && (
+              <p className="text-xs text-gray-500 mt-1">
+                Category "{formatCategoryLabel(category)}" will be automatically included
+              </p>
+            )}
           </div>
-          
-          {/* Optional fields */}
+
+          {/* Description */}
           <div>
             <Label htmlFor="description">Description</Label>
-            <Textarea 
-              id="description" 
-              placeholder="Add more details"
+            <Textarea
+              id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 h-16"
+              placeholder="Optional description"
+              rows={3}
             />
           </div>
-          
-          <div>
-            <Label htmlFor="tags">Tags (comma separated)</Label>
-            <Input 
-              id="tags" 
-              placeholder="e.g. landscape, sunset"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="mt-1"
-            />
-          </div>
-          
+
+          {/* Featured Toggle */}
           <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="featured" 
+            <Switch
+              id="featured"
               checked={featured}
-              onCheckedChange={(checked) => setFeatured(!!checked)}
+              onCheckedChange={setFeatured}
             />
-            <Label htmlFor="featured">
-              Featured image
-            </Label>
+            <Label htmlFor="featured">Featured Image</Label>
           </div>
-        </div>
-        
-        {/* Upload Progress */}
-        {isUploading && (
-          <div className="mt-4 mb-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-[#FF914D] h-2 rounded-full" 
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
+
+          {/* Upload Progress */}
+          {uploadMutation.isPending && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Uploading...</span>
+                <span>Processing</span>
+              </div>
+              <Progress value={undefined} className="w-full" />
             </div>
-            <p className="text-xs text-center mt-1">{uploadProgress}% uploaded</p>
-          </div>
-        )}
-        
-        {/* Footer actions */}
-        <DialogFooter className="mt-6 flex justify-between">
-          <Button 
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isUploading}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSubmit}
-            disabled={isUploading || (uploadMethod === 'file' && !imageFile) || (uploadMethod === 'url' && !imageUrl)}
-            className="bg-[#FF914D] hover:bg-[#e67e3d]"
-          >
-            {isUploading ? 'Uploading...' : 'Upload'}
-          </Button>
-        </DialogFooter>
+          )}
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={!selectedFile || !category || !alt || uploadMutation.isPending}
+              className="bg-[#FF914D] hover:bg-[#8B5E3C]"
+            >
+              {uploadMutation.isPending ? 'Uploading...' : 'Upload Image'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default ImageUploadDialog;
+}
