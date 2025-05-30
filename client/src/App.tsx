@@ -86,6 +86,7 @@ function Router() {
         <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/gallery" component={AdminGallery} />
         <Route path="/admin/image-compression" component={ImageCompression} />
+        <Route path="/admin/content" component={ContentManager} />
         <Route path="/admin/content-manager" component={ContentManager} />
         <Route path="/admin/statistics" component={Statistics} />
         <Route path="/admin/export" component={MediaExport} />
