@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft } from 'lucide-react';
 
 interface PricingData {
   updated: string;
@@ -117,6 +119,14 @@ export default function AdminCalendar() {
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="bg-[#1E4E5F] text-white p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <Link href="/admin">
+                <button className="flex items-center gap-2 text-white hover:text-blue-200 transition-colors">
+                  <ArrowLeft className="h-5 w-5" />
+                  Back to Dashboard
+                </button>
+              </Link>
+            </div>
             <h1 className="text-2xl font-bold mb-2">📅 Ko Lake Villa – Airbnb Price Calendar</h1>
             <p className="text-blue-100">Monitor and update your baseline pricing strategy</p>
           </div>
