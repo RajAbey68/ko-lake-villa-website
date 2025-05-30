@@ -30,16 +30,17 @@ import { ScrollArea } from "../../components/ui/scroll-area";
 
 // Define the gallery categories
 const GALLERY_CATEGORIES = [
-  "Family Suite",
-  "Group Room", 
-  "Triple Room", 
-  "Dining Area", 
-  "Pool Deck", 
-  "Lake Garden", 
-  "Roof Garden", 
-  "Front Garden and Entrance", 
-  "Koggala Lake Ahangama and Surrounding", 
-  "Excursions"
+  { value: "entire-villa", label: "Entire Villa" },
+  { value: "family-suite", label: "Family Suite" },
+  { value: "group-room", label: "Group Room" },
+  { value: "triple-room", label: "Triple Room" },
+  { value: "dining-area", label: "Dining Area" },
+  { value: "pool-deck", label: "Pool Deck" },
+  { value: "lake-garden", label: "Lake Garden" },
+  { value: "roof-garden", label: "Roof Garden" },
+  { value: "front-garden", label: "Front Garden and Entrance" },
+  { value: "koggala-lake", label: "Koggala Lake and Surrounding" },
+  { value: "excursions", label: "Excursions" }
 ];
 
 interface ImagePreview {
@@ -59,7 +60,7 @@ export default function BulkUploader() {
   
   const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [defaultCategory, setDefaultCategory] = useState<string>(GALLERY_CATEGORIES[0]);
+  const [defaultCategory, setDefaultCategory] = useState<string>(GALLERY_CATEGORIES[0].value);
   const [uploading, setUploading] = useState<boolean>(false);
   const [overallProgress, setOverallProgress] = useState<number>(0);
   const [uploadStats, setUploadStats] = useState({
@@ -327,7 +328,7 @@ export default function BulkUploader() {
                       </SelectTrigger>
                       <SelectContent>
                         {GALLERY_CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                          <SelectItem key={category.value} value={category.value}>{category.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -466,7 +467,7 @@ export default function BulkUploader() {
                   </Button>
                   
                   {GALLERY_CATEGORIES.map(category => {
-                    const count = imagePreviews.filter(img => img.category === category).length;
+                    const count = imagePreviews.filter(img => img.category === category.value).length;
                     if (count === 0) return null;
                     
                     return (
