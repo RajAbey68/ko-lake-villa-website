@@ -1865,6 +1865,65 @@ The host will respond within 24 hours to discuss:
     }
   });
 
+  // AI Media Analysis endpoint
+  app.post("/api/analyze-media", async (req, res) => {
+    try {
+      const { imageData, filename, mediaType = 'image' } = req.body;
+      
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OpenAI API key not configured' });
+      }
+
+      if (!imageData || !filename) {
+        return res.status(400).json({ error: 'Image data and filename required' });
+      }
+
+      // Use OpenAI to analyze the image
+      const OpenAI = require('openai');
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Analyze this Ko Lake Villa image. Categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions. 
+
+Return JSON with:
+- suggestedCategory (from the list above)
+- confidence (0-1)
+- description (brief, marketing-friendly)
+- title (catchy title for the image)`
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${imageData}`
+              }
+            }
+          ]
+        }],
+        max_tokens: 500,
+        response_format: { type: "json_object" }
+      });
+
+      const analysis = JSON.parse(response.choices[0].message.content);
+      
+      res.json({
+        suggestedCategory: analysis.suggestedCategory,
+        confidence: analysis.confidence || 0.7,
+        description: analysis.description,
+        title: analysis.title
+      });
+
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      res.status(500).json({ error: 'AI analysis failed' });
+    }
+  });
+
   // SEO Routes - Serve sitemap and robots.txt
   app.get('/sitemap.xml', (req, res) => {
     res.set('Content-Type', 'text/xml');
