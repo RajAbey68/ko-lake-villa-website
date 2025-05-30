@@ -27,6 +27,9 @@ export default function EnhancedContentManager({ sections, onUpdate, onImageUplo
   const [isRunningTests, setIsRunningTests] = useState(false);
   const { toast } = useToast();
 
+  // Debug logging
+  console.log('EnhancedContentManager sections:', sections);
+
   // Initialize editing states
   useEffect(() => {
     const initialStates: Record<string, string> = {};
