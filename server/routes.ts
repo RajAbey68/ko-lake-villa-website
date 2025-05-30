@@ -1026,24 +1026,13 @@ The host will respond within 24 hours to discuss:
     }
   });
 
-  // Alternative newsletter endpoint (for test compatibility)
+  // Alternative newsletter endpoint for different test formats
   app.post("/api/newsletter/subscribe", async (req, res) => {
     try {
-      // Validate email first
-      if (!req.body.email || req.body.email.trim() === '') {
-        return res.status(400).json({ message: "Email is required" });
-      }
-
-      // Email validation
-      const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(req.body.email)) {
-        return res.status(400).json({ message: "Please enter a valid email address" });
-      }
-
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
       
-      // Check for existing subscription (case-insensitive)
-      const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email.toLowerCase());
+      // Check for existing subscription
+      const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
       if (existingSubscriber) {
         return res.status(400).json({
           message: "You're already subscribed to our newsletter!",
@@ -1051,15 +1040,21 @@ The host will respond within 24 hours to discuss:
         });
       }
       
-      // Normalize email to lowercase for storage
-      validatedData.email = validatedData.email.toLowerCase();
-      
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
         message: "Subscribed to newsletter successfully!",
         data: subscriber
       });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid email", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to subscribe to newsletter" });
+    }
+  });
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           message: "Invalid email", 
