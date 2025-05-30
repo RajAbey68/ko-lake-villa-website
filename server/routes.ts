@@ -669,6 +669,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Alternative booking endpoint (for test compatibility)
+  app.post("/api/bookings", async (req, res) => {
+    try {
+      // Map test data format to booking inquiry format
+      const mappedData = {
+        name: req.body.customerName || req.body.name,
+        email: req.body.email,
+        checkInDate: req.body.checkIn || req.body.checkInDate,
+        checkOutDate: req.body.checkOut || req.body.checkOutDate,
+        guests: parseInt(req.body.guestCount || req.body.guests),
+        roomType: req.body.roomType,
+        specialRequests: req.body.specialRequests || req.body.phone || ""
+      };
+
+      const validatedData = insertBookingInquirySchema.parse(mappedData);
+      
+      // Additional validation
+      const checkIn = new Date(validatedData.checkInDate);
+      const checkOut = new Date(validatedData.checkOutDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Validate dates
+      if (checkIn <= today) {
+        return res.status(400).json({ 
+          message: "Check-in date must be in the future" 
+        });
+      }
+
+      if (checkOut <= checkIn) {
+        return res.status(400).json({ 
+          message: "Check-out date must be after check-in date" 
+        });
+      }
+
+      // Validate guest capacity with proper Ko Lake Villa limits
+      const maxCapacity = {
+        'KLV': 18, // Base capacity 18, extra charges for 19+
+        'KLV1': 6, // Family Suite base capacity
+        'KLV3': 3, // Triple room base capacity  
+        'KLV6': 6, // Group room base capacity
+        'Entire Villa (KLV)': 18,
+        'Master Family Suite (KLV1)': 6,
+        'Triple/Twin Rooms (KLV3)': 3,
+        'Group Room (KLV6)': 6
+      };
+
+      const roomCapacity = maxCapacity[validatedData.roomType as keyof typeof maxCapacity];
+      
+      // For KLV (entire villa), allow up to 25 but flag for extra charges
+      if (validatedData.roomType === 'KLV' || validatedData.roomType === 'Entire Villa (KLV)') {
+        if (validatedData.guests > 25) {
+          return res.status(400).json({ 
+            message: "Maximum capacity is 25 guests for entire villa" 
+          });
+        }
+      } else if (roomCapacity && validatedData.guests > (roomCapacity + 2)) {
+        // Allow 2 extra guests with special request for individual rooms
+        return res.status(400).json({ 
+          message: `${validatedData.roomType} standard capacity is ${roomCapacity} guests (up to ${roomCapacity + 2} with special request)` 
+        });
+      }
+
+      const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
+      res.status(201).json({
+        message: "Booking inquiry submitted successfully!",
+        data: bookingInquiry
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid booking data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to submit booking inquiry" });
+    }
+  });
+
   // Contact form
   app.post("/api/contact", async (req, res) => {
     try {
@@ -698,7 +777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Newsletter subscription
+  // Newsletter subscription endpoints
   app.post("/api/newsletter", async (req, res) => {
     try {
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
@@ -707,6 +786,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
       if (existingSubscriber) {
         return res.status(200).json({
+          message: "You're already subscribed to our newsletter!",
+          data: existingSubscriber
+        });
+      }
+      
+      const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
+      res.status(201).json({
+        message: "Subscribed to newsletter successfully!",
+        data: subscriber
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid email", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to subscribe to newsletter" });
+    }
+  });
+
+  // Alternative newsletter endpoint (for test compatibility)
+  app.post("/api/newsletter/subscribe", async (req, res) => {
+    try {
+      const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
+      
+      // Check for existing subscription
+      const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
+      if (existingSubscriber) {
+        return res.status(409).json({
           message: "You're already subscribed to our newsletter!",
           data: existingSubscriber
         });
