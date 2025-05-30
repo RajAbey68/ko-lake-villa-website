@@ -122,12 +122,12 @@ class FinalTestSuite {
     // Test invalid email validation
     try {
       const invalidBooking = {
-        guestName: 'Test Guest',
-        guestEmail: 'invalid-email',
-        checkIn: '2025-06-01',
-        checkOut: '2025-06-03',
-        numberOfGuests: 2,
-        roomName: 'KLV3'
+        name: 'Test Guest',
+        email: 'invalid-email',
+        checkInDate: '2025-06-01',
+        checkOutDate: '2025-06-03',
+        guests: 2,
+        roomType: 'KLV3'
       };
 
       const response = await this.apiRequest('POST', '/api/booking', invalidBooking);
@@ -166,6 +166,7 @@ class FinalTestSuite {
       const validContact = {
         name: 'Test User',
         email: 'test@example.com',
+        subject: 'Test Subject',
         message: 'This is a test message'
       };
 
@@ -180,6 +181,7 @@ class FinalTestSuite {
       const invalidContact = {
         name: 'Test User',
         email: 'test@example.com',
+        subject: 'Test Subject',
         message: ''
       };
 
