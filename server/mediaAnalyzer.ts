@@ -20,6 +20,7 @@ interface MediaAnalysisResult {
 
 // Ko Lake Villa specific categories for better AI categorization
 const VILLA_CATEGORIES = [
+  'entire-villa',
   'family-suite',
   'group-room', 
   'triple-room',
