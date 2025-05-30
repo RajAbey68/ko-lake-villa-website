@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -52,7 +52,10 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0 overflow-hidden" aria-describedby="gallery-modal-description">
+        <DialogTitle className="sr-only">
+          {image.alt} - Ko Lake Villa Gallery
+        </DialogTitle>
         <div className="relative w-full h-full bg-white rounded-lg">
           {/* Main Image - Takes up 60% of screen */}
           <div className="relative h-[60vh] bg-black flex items-center justify-center">
@@ -65,26 +68,24 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
               }}
             />
             
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="lg"
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-12 h-12 p-0"
+            {/* Navigation Arrows - Big and Bold */}
+            <button
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white text-4xl px-4 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-white z-50 transition-all duration-200"
               onClick={() => onNavigate('prev')}
               disabled={images.length <= 1}
+              aria-label="Previous image"
             >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
+              ←
+            </button>
 
-            <Button
-              variant="ghost"
-              size="lg"
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-12 h-12 p-0"
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white text-4xl px-4 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-white z-50 transition-all duration-200"
               onClick={() => onNavigate('next')}
               disabled={images.length <= 1}
+              aria-label="Next image"
             >
-              <ChevronRight className="w-6 h-6" />
-            </Button>
+              →
+            </button>
 
             {/* Close Button */}
             <Button
