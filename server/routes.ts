@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log("Request body:", req.body);
     console.log("Request files:", req.files);
     
-    upload.single('file')(req, res, async (err) => {
+    upload.single('image')(req, res, async (err) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ 
@@ -350,24 +350,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           if (process.env.OPENAI_API_KEY) {
             console.log("🤖 Starting AI analysis for uploaded file...");
-            aiAnalysis = mediaType === 'video' 
-              ? await mediaAnalyzer.analyzeVideo(file.path)
-              : await mediaAnalyzer.analyzeImage(file.path);
+            const { analyzeImageWithAI } = await import('./mediaAnalyzer');
+            aiAnalysis = await analyzeImageWithAI(file.path, category);
             
             console.log("✅ AI Analysis complete:", aiAnalysis);
             
-            // Use AI suggestions if form data is minimal
-            if (!title || title === file.originalname) {
-              title = aiAnalysis.title;
-            }
-            if (!description) {
-              description = aiAnalysis.description;
-            }
-            if (!category || category === 'default') {
-              category = aiAnalysis.category;
-            }
-            if (!tags) {
-              tags = aiAnalysis.tags.join(',');
+            // Use AI suggestions if confidence > 0.7
+            if (aiAnalysis.confidence > 0.7) {
+              if (!title || title === file.originalname) {
+                title = aiAnalysis.title;
+              }
+              if (!description) {
+                description = aiAnalysis.description;
+              }
+              if (!category || category === 'default') {
+                category = aiAnalysis.category;
+              }
+              if (!tags) {
+                tags = Array.isArray(aiAnalysis.tags) ? aiAnalysis.tags.join(',') : aiAnalysis.tags;
+              }
             }
           }
         } catch (aiError) {
