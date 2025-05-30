@@ -569,13 +569,13 @@ export default function BulkUploader() {
                     
                     return (
                       <Button
-                        key={category}
-                        variant={activeCategory === category ? 'default' : 'outline'}
+                        key={category.value}
+                        variant={activeCategory === category.value ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setActiveCategory(category)}
-                        className={activeCategory === category ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
+                        onClick={() => setActiveCategory(category.value)}
+                        className={activeCategory === category.value ? 'bg-[#FF914D] hover:bg-[#FF914D]/90' : ''}
                       >
-                        {category} ({count})
+                        {category.label} ({count})
                       </Button>
                     );
                   })}
@@ -642,7 +642,7 @@ export default function BulkUploader() {
                               </SelectTrigger>
                               <SelectContent>
                                 {GALLERY_CATEGORIES.map((category) => (
-                                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                                  <SelectItem key={category.value} value={category.value}>{category.label}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
