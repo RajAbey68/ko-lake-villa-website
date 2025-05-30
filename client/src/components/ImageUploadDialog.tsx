@@ -125,24 +125,39 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
     try {
       setIsAnalyzing(true);
       
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const base64 = (e.target?.result as string)?.split(',')[1];
-        if (!base64) return;
+      // Use the AI analysis endpoint we built
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('category', category || '');
 
-        const analysis = await analyzeMedia(base64, file.name, getFileType(file.name));
+      const response = await fetch('/api/analyze-media', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const analysis = await response.json();
         
-        if (analysis.suggestedCategory && !analysis.error) {
+        if (analysis.suggestedCategory) {
           setAiSuggestion(analysis.suggestedCategory);
+          
+          // Auto-fill title and description if provided
+          if (analysis.title && !alt) {
+            setAlt(analysis.title);
+          }
+          if (analysis.description && !description) {
+            setDescription(analysis.description);
+          }
+          if (analysis.tags && !customTags) {
+            setCustomTags(Array.isArray(analysis.tags) ? analysis.tags.join(', ') : analysis.tags);
+          }
+          
           toast({
             title: "AI Analysis Complete",
-            description: `Suggested category: ${formatCategoryLabel(analysis.suggestedCategory)}`,
+            description: `Suggested: ${formatCategoryLabel(analysis.suggestedCategory)} (${Math.round(analysis.confidence * 100)}% confidence)`,
           });
         }
-      };
-      
-      reader.readAsDataURL(file);
+      }
     } catch (error) {
       console.log('AI analysis not available');
     } finally {
