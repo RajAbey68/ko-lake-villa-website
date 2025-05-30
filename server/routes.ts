@@ -1785,6 +1785,86 @@ The host will respond within 24 hours to discuss:
     }
   });
 
+  // Gallery Management Routes
+  const GALLERY_CATEGORIES = [
+    { value: "entire-villa", label: "Entire Villa" },
+    { value: "family-suite", label: "Family Suite" },
+    { value: "group-room", label: "Group Room" },
+    { value: "triple-room", label: "Triple Room" },
+    { value: "dining-area", label: "Dining Area" },
+    { value: "pool-deck", label: "Pool Deck" },
+    { value: "lake-garden", label: "Lake Garden" },
+    { value: "roof-garden", label: "Roof Garden" },
+    { value: "front-garden", label: "Front Garden" },
+    { value: "koggala-lake", label: "Koggala Lake" },
+    { value: "excursions", label: "Excursions" }
+  ];
+
+  // Tag-category consistency function
+  function generateConsistentTags(category: string, customTags?: string): string {
+    const categoryTag = category;
+    const additionalTags = customTags ? 
+      customTags.split(',').map(t => t.trim()).filter(t => t.length > 0) : [];
+    
+    const allTags = [categoryTag, ...additionalTags];
+    return Array.from(new Set(allTags)).join(',');
+  }
+
+  // Validation function
+  function validateImageData(data: any): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    const validCategories = GALLERY_CATEGORIES.map(c => c.value);
+    
+    if (!data.category || !validCategories.includes(data.category)) {
+      errors.push("Invalid category selected");
+    }
+    
+    if (!data.alt || data.alt.trim().length === 0) {
+      errors.push("Image title/alt text is required");
+    }
+    
+    if (data.tags && !data.tags.includes(data.category)) {
+      errors.push("Tags must include the selected category");
+    }
+    
+    return { valid: errors.length === 0, errors };
+  }
+
+  // Enhanced gallery image update endpoint
+  app.put("/api/gallery/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { category, alt, description, featured, customTags, sortOrder } = req.body;
+      
+      // Validate input data
+      const validation = validateImageData({ category, alt, tags: customTags });
+      if (!validation.valid) {
+        return res.status(400).json({ errors: validation.errors });
+      }
+
+      // Generate consistent tags
+      const tags = generateConsistentTags(category, customTags);
+      
+      const updatedImage = await dataStorage.updateGalleryImage(id, {
+        category,
+        alt: alt.trim(),
+        description: description?.trim() || null,
+        tags,
+        featured: Boolean(featured),
+        sortOrder: sortOrder ? parseInt(sortOrder) : undefined
+      });
+
+      if (!updatedImage) {
+        return res.status(404).json({ error: 'Image not found' });
+      }
+
+      res.json(updatedImage);
+    } catch (error) {
+      console.error('Error updating image:', error);
+      res.status(500).json({ error: 'Failed to update image' });
+    }
+  });
+
   // SEO Routes - Serve sitemap and robots.txt
   app.get('/sitemap.xml', (req, res) => {
     res.set('Content-Type', 'text/xml');
