@@ -464,18 +464,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const stats = fs.statSync(filePath);
         const fileSize = stats.size;
         
+        // AI-powered analysis if enabled
+        let finalAlt = alt || 'Ko Lake Villa Image';
+        let finalDescription = description || null;
+        let finalCategory = category;
+        let finalTags = category;
+        let aiAnalysis = null;
+        
+        try {
+          if (process.env.OPENAI_API_KEY && (!alt || !description)) {
+            console.log("🤖 Starting AI analysis for gallery image...");
+            const { analyzeImageWithAI } = await import('./mediaAnalyzer');
+            aiAnalysis = await analyzeImageWithAI(filePath, category);
+            
+            console.log("✅ AI Analysis complete:", aiAnalysis);
+            
+            // Use AI suggestions if confidence > 0.7 and fields are empty
+            if (aiAnalysis.confidence > 0.7) {
+              if (!alt) {
+                finalAlt = aiAnalysis.title;
+              }
+              if (!description) {
+                finalDescription = aiAnalysis.description;
+              }
+              if (!category || category === 'default') {
+                finalCategory = aiAnalysis.category;
+              }
+              if (aiAnalysis.tags) {
+                finalTags = Array.isArray(aiAnalysis.tags) ? aiAnalysis.tags.join(',') : aiAnalysis.tags;
+              }
+            }
+          }
+        } catch (aiError) {
+          console.error("AI analysis failed (continuing with manual data):", aiError);
+        }
+        
         // Create gallery image in database
         const galleryImage = await dataStorage.createGalleryImage({
           imageUrl: relativePath,
-          alt: alt || 'Ko Lake Villa Image',
-          description: description || null,
-          category: category,
+          alt: finalAlt,
+          description: finalDescription,
+          category: finalCategory,
           featured: featured === 'true',
           sortOrder: parseInt(sortOrder) || 1,
           mediaType: 'image',
           displaySize: displaySize || 'medium',
           fileSize: fileSize,
-          tags: category
+          tags: finalTags
         });
         
         res.json({ 
