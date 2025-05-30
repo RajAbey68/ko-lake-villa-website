@@ -714,14 +714,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Name is required" });
       }
 
-      // Security: Block potential XSS and injection attempts
+      // Enhanced Security: Block potential XSS and injection attempts
       const securityPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         /javascript:/gi,
         /on\w+\s*=/gi,
         /<iframe/gi,
         /eval\s*\(/gi,
-        /expression\s*\(/gi
+        /expression\s*\(/gi,
+        /<img[^>]*src[^>]*onerror/gi,
+        /<?php/gi,
+        /drop\s+table/gi,
+        /\$\{jndi:/gi,
+        /\.\.\//gi,
+        /etc\/passwd/gi,
+        /<[^>]*>/gi // Block any HTML tags
       ];
 
       const checkSecurity = (input: string) => {
@@ -745,37 +752,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Number of guests must be at least 1" });
       }
 
-      // Ko Lake Villa capacity validation with business logic
+      // Ko Lake Villa capacity validation - allow over-capacity with special handling
       const capacityRules = {
-        'KLV': { standard: 18, absolute_max: 25, allow_over: true },
-        'KLV1': { standard: 6, absolute_max: 8, allow_over: true },
-        'KLV3': { standard: 3, absolute_max: 5, allow_over: true },
-        'KLV6': { standard: 6, absolute_max: 8, allow_over: true },
-        'Entire Villa (KLV)': { standard: 18, absolute_max: 25, allow_over: true },
-        'Master Family Suite (KLV1)': { standard: 6, absolute_max: 8, allow_over: true },
-        'Triple/Twin Rooms (KLV3)': { standard: 3, absolute_max: 5, allow_over: true },
-        'Group Room (KLV6)': { standard: 6, absolute_max: 8, allow_over: true }
+        'KLV': { absolute_max: 25 },
+        'KLV1': { absolute_max: 8 },
+        'KLV3': { absolute_max: 5 },
+        'KLV6': { absolute_max: 8 },
+        'Entire Villa (KLV)': { absolute_max: 25 },
+        'Master Family Suite (KLV1)': { absolute_max: 8 },
+        'Triple/Twin Rooms (KLV3)': { absolute_max: 5 },
+        'Group Room (KLV6)': { absolute_max: 8 }
       };
 
       const rules = capacityRules[mappedData.roomType as keyof typeof capacityRules];
-      if (rules) {
-        // Reject if exceeds absolute maximum
-        if (mappedData.guests > rules.absolute_max) {
-          return res.status(400).json({ 
-            message: `${mappedData.roomType} maximum capacity is ${rules.absolute_max} guests` 
-          });
-        }
+      if (rules && mappedData.guests > rules.absolute_max) {
+        return res.status(400).json({ 
+          message: `${mappedData.roomType} maximum capacity is ${rules.absolute_max} guests` 
+        });
+      }
 
-        // Handle over-standard capacity with special notes
-        if (mappedData.guests > rules.standard) {
-          if (mappedData.roomType === 'KLV' || mappedData.roomType === 'Entire Villa (KLV)') {
-            mappedData.specialRequests = (mappedData.specialRequests || '') + 
-              `\n\nSPECIAL HANDLING: ${mappedData.guests} guests (over standard ${rules.standard}). Extra charges apply.`;
-          } else {
-            mappedData.specialRequests = (mappedData.specialRequests || '') + 
-              `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard ${rules.standard}). Subject to availability.`;
-          }
-        }
+      // Add special handling notes for over-standard capacity (but allow the booking)
+      if (mappedData.roomType === 'KLV' && mappedData.guests >= 19) {
+        mappedData.specialRequests = (mappedData.specialRequests || '') + 
+          `\n\nSPECIAL HANDLING: ${mappedData.guests} guests (over standard 18). Extra charges apply.`;
+      } else if (mappedData.roomType === 'KLV1' && mappedData.guests >= 7) {
+        mappedData.specialRequests = (mappedData.specialRequests || '') + 
+          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard 6). Subject to availability.`;
+      } else if (mappedData.roomType === 'KLV3' && mappedData.guests >= 4) {
+        mappedData.specialRequests = (mappedData.specialRequests || '') + 
+          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard 3). Subject to availability.`;
+      } else if (mappedData.roomType === 'KLV6' && mappedData.guests >= 7) {
+        mappedData.specialRequests = (mappedData.specialRequests || '') + 
+          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard 6). Subject to availability.`;
       }
 
       const validatedData = insertBookingInquirySchema.parse(mappedData);
@@ -817,14 +825,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form
   app.post("/api/contact", async (req, res) => {
     try {
-      // Security: Block potential XSS and injection attempts
+      // Enhanced Security: Block potential XSS and injection attempts
       const securityPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         /javascript:/gi,
         /on\w+\s*=/gi,
         /<iframe/gi,
         /eval\s*\(/gi,
-        /expression\s*\(/gi
+        /expression\s*\(/gi,
+        /<img[^>]*src[^>]*onerror/gi,
+        /<?php/gi,
+        /drop\s+table/gi,
+        /\$\{jndi:/gi,
+        /\.\.\//gi,
+        /etc\/passwd/gi,
+        /<[^>]*>/gi // Block any HTML tags
       ];
 
       const checkSecurity = (input: string) => {
