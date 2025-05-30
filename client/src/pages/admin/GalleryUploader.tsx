@@ -30,7 +30,7 @@ import { Textarea } from "../../components/ui/textarea";
 
 // Define the gallery categories to match your requirements
 const GALLERY_CATEGORIES = [
-  "All Villa",
+  "Entire Villa",
   "Family Suite",
   "Group Room", 
   "Triple Room", 
@@ -38,14 +38,14 @@ const GALLERY_CATEGORIES = [
   "Pool Deck", 
   "Lake Garden", 
   "Roof Garden", 
-  "Front Garden and Entrance", 
-  "Koggala Lake Ahangama and Surrounding", 
+  "Front Garden", 
+  "Koggala Lake", 
   "Excursions"
 ];
 
 // Define category value mappings for URL slugs
 export const CATEGORY_VALUES = {
-  "All Villa": "all-villa",
+  "Entire Villa": "entire-villa",
   "Family Suite": "family-suite",
   "Group Room": "group-room", 
   "Triple Room": "triple-room", 
@@ -53,8 +53,8 @@ export const CATEGORY_VALUES = {
   "Pool Deck": "pool-deck", 
   "Lake Garden": "lake-garden", 
   "Roof Garden": "roof-garden", 
-  "Front Garden and Entrance": "front-garden", 
-  "Koggala Lake Ahangama and Surrounding": "koggala-lake", 
+  "Front Garden": "front-garden", 
+  "Koggala Lake": "koggala-lake", 
   "Excursions": "excursions"
 };
 

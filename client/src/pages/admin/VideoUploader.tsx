@@ -27,7 +27,7 @@ import { Progress } from "../../components/ui/progress";
 
 // Define the gallery categories to match your requirements
 const GALLERY_CATEGORIES = [
-  "All Villa",
+  "Entire Villa",
   "Family Suite",
   "Group Room", 
   "Triple Room", 
@@ -35,8 +35,8 @@ const GALLERY_CATEGORIES = [
   "Pool Deck", 
   "Lake Garden", 
   "Roof Garden", 
-  "Front Garden and Entrance", 
-  "Koggala Lake Ahangama and Surrounding", 
+  "Front Garden", 
+  "Koggala Lake", 
   "Excursions"
 ];
 

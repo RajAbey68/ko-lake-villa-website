@@ -23,6 +23,7 @@ import { useToast } from "../hooks/use-toast";
 
 // Available categories for the gallery
 const galleryCategories = [
+  { value: "entire-villa", label: "Entire Villa" },
   { value: "family-suite", label: "Family Suite" },
   { value: "group-room", label: "Group Room" },
   { value: "triple-room", label: "Triple Room" },
