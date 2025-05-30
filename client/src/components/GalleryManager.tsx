@@ -39,6 +39,8 @@ import {
   uploadGalleryImage 
 } from '@/lib/galleryApi';
 
+import { TagCategoryHint } from './TagCategoryHint';
+
 export default function GalleryManager() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
@@ -196,6 +198,9 @@ export default function GalleryManager() {
           </Button>
         </div>
       </div>
+
+      {/* Tag-Category Consistency Information */}
+      <TagCategoryHint />
 
       {/* Gallery Grid */}
       <div 
