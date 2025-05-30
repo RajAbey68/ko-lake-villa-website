@@ -182,9 +182,22 @@ const Dining = () => {
               </div>
             </div>
             
-            <p className="text-[#333333]">
+            <p className="text-[#333333] mb-8">
               Please let us know about any dietary requirements when making your booking or inquiring about our dining services, and we'll be happy to accommodate your needs.
             </p>
+            
+            {/* Dietary Safety & Allergen Notice */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 max-w-2xl mx-auto">
+              <h3 className="text-lg font-display font-semibold text-[#1E4E5F] mb-3">Dietary Safety & Allergen Notice</h3>
+              <div className="text-sm text-[#333333] space-y-3 text-left">
+                <p>
+                  We do our best to accommodate dietary needs and religious preferences, and our team follows careful food-handling protocols. However, in a small kitchen environment, we cannot guarantee full segregation or zero cross-contamination.
+                </p>
+                <p className="font-medium text-amber-800">
+                  If you have a severe allergy or extreme dietary restriction, please speak with us in advance — we'll always be honest about what we can and cannot safely offer.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
