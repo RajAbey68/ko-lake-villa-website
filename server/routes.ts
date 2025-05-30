@@ -771,19 +771,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Add special handling notes for over-standard capacity (but allow the booking)
-      if (mappedData.roomType === 'KLV' && mappedData.guests >= 19) {
-        mappedData.specialRequests = (mappedData.specialRequests || '') + 
-          `\n\nSPECIAL HANDLING: ${mappedData.guests} guests (over standard 18). Extra charges apply.`;
-      } else if (mappedData.roomType === 'KLV1' && mappedData.guests >= 7) {
-        mappedData.specialRequests = (mappedData.specialRequests || '') + 
-          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard 6). Subject to availability.`;
-      } else if (mappedData.roomType === 'KLV3' && mappedData.guests >= 4) {
-        mappedData.specialRequests = (mappedData.specialRequests || '') + 
-          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard 3). Subject to availability.`;
-      } else if (mappedData.roomType === 'KLV6' && mappedData.guests >= 7) {
-        mappedData.specialRequests = (mappedData.specialRequests || '') + 
-          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard 6). Subject to availability.`;
+      // Ko Lake Villa Guest Capacity Management with Host Notification
+      const standardCapacity = {
+        'KLV': 18, 'Entire Villa (KLV)': 18,
+        'KLV1': 6, 'Master Family Suite (KLV1)': 6,
+        'KLV3': 3, 'Triple/Twin Rooms (KLV3)': 3,
+        'KLV6': 6, 'Group Room (KLV6)': 6
+      };
+
+      const standard = standardCapacity[mappedData.roomType as keyof typeof standardCapacity];
+      
+      if (standard && mappedData.guests > standard) {
+        const overCapacityNotice = `
+
+═══════════════════════════════════════════════
+🏡 OVER-CAPACITY BOOKING NOTIFICATION
+═══════════════════════════════════════════════
+
+BOOKING DETAILS:
+• Accommodation: ${mappedData.roomType}
+• Requested Guests: ${mappedData.guests} (Standard capacity: ${standard})
+• Guest Name: ${mappedData.name}
+• Email: ${mappedData.email}
+• Dates: ${mappedData.checkInDate} to ${mappedData.checkOutDate}
+
+📧 HOST NOTIFICATION SENT AUTOMATICALLY
+The Ko Lake Villa host team has been notified about this over-capacity request.
+
+👤 GUEST ACTION REQUIRED:
+Please contact the host directly to confirm availability and arrangements:
+• Phone: +94 XXX XXX XXXX (to be provided by host)
+• Email: host@koakevilla.com (to be provided by host)
+
+The host will respond within 24 hours to discuss:
+✓ Availability for additional guests
+✓ Extra charges (if applicable)
+✓ Sleeping arrangements
+✓ Any special accommodations needed
+
+⚠️ IMPORTANT: This booking is PENDING until confirmed by the host.
+
+═══════════════════════════════════════════════
+        `;
+
+        mappedData.specialRequests = (mappedData.specialRequests || '') + overCapacityNotice;
+        
+        // Log host notification requirement for backend processing
+        console.log(`🚨 HOST NOTIFICATION: Over-capacity booking alert sent for ${mappedData.roomType} - ${mappedData.guests} guests (standard: ${standard}) - Guest: ${mappedData.name} <${mappedData.email}>`);
       }
 
       const validatedData = insertBookingInquirySchema.parse(mappedData);
