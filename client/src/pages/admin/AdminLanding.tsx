@@ -13,6 +13,7 @@ import {
   MailIcon,
   LogOutIcon,
   DownloadIcon,
+  TestTube as TestTubeIcon,
   CloudUploadIcon,
   Upload as UploadIcon,
   Video as VideoIcon,
@@ -419,6 +420,28 @@ export default function AdminLanding() {
                       <div className="mt-2 text-sm text-green-600">
                         <div>KNP: $431 → $388 (Save $43)</div>
                         <div>KNP1: $119 → $107 (Save $12)</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+
+          <Link href="/admin/testing">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 hover:border-blue-300">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-blue-100 p-3 rounded-lg">
+                      <TestTubeIcon className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-blue-800">Deployment Testing</h3>
+                      <p className="text-blue-700">A/B test matrix with debug logs</p>
+                      <div className="mt-2 text-sm text-blue-600">
+                        <div>• Route testing & validation</div>
+                        <div>• Copy/paste debug reports</div>
                       </div>
                     </div>
                   </div>
