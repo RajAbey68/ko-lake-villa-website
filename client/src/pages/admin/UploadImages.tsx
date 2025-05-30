@@ -353,7 +353,7 @@ const UploadImages = () => {
                       <p className="font-medium text-[#8B5E3C]">{title || 'No title'}</p>
                       {category && (
                         <p className="text-sm text-gray-500 mt-1">
-                          Category: {category}
+                          Category: {categories.find(cat => cat.value === category)?.label || category}
                         </p>
                       )}
                       {description && (
