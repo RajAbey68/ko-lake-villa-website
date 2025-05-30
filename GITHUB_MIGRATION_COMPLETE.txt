@@ -1,0 +1,503 @@
+KO LAKE VILLA - COMPLETE PROJECT MIGRATION TO GITHUB
+===================================================
+
+This file contains everything needed to set up your Ko Lake Villa project on GitHub.
+
+GITHUB SETUP INSTRUCTIONS
+=========================
+
+1. CREATE NEW GITHUB REPOSITORY
+   - Go to github.com
+   - Click "New repository"
+   - Name: "ko-lake-villa"
+   - Make it private if desired
+   - Initialize with README
+
+2. CLONE REPOSITORY TO YOUR COMPUTER
+   git clone https://github.com/yourusername/ko-lake-villa.git
+   cd ko-lake-villa
+
+3. CREATE ALL FILES BELOW
+   Copy each section into the appropriate file path
+
+ROOT DIRECTORY FILES
+===================
+
+=== package.json ===
+{
+  "name": "ko-lake-villa",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server/index.ts",
+    "build": "vite build",
+    "preview": "vite preview",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0",
+    "@hookform/resolvers": "^3.9.0",
+    "@neondatabase/serverless": "^0.9.5",
+    "@radix-ui/react-accordion": "^1.2.1",
+    "@radix-ui/react-alert-dialog": "^1.1.2",
+    "@radix-ui/react-aspect-ratio": "^1.1.0",
+    "@radix-ui/react-avatar": "^1.1.1",
+    "@radix-ui/react-checkbox": "^1.1.2",
+    "@radix-ui/react-collapsible": "^1.1.1",
+    "@radix-ui/react-context-menu": "^2.2.2",
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.2",
+    "@radix-ui/react-hover-card": "^1.1.2",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-menubar": "^1.1.2",
+    "@radix-ui/react-navigation-menu": "^1.2.1",
+    "@radix-ui/react-popover": "^1.1.2",
+    "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-radio-group": "^1.2.1",
+    "@radix-ui/react-scroll-area": "^1.2.0",
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slider": "^1.2.1",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.1",
+    "@radix-ui/react-toast": "^1.2.2",
+    "@radix-ui/react-toggle": "^1.1.0",
+    "@radix-ui/react-toggle-group": "^1.1.0",
+    "@radix-ui/react-tooltip": "^1.1.3",
+    "@stripe/react-stripe-js": "^2.8.0",
+    "@stripe/stripe-js": "^4.7.0",
+    "@tailwindcss/typography": "^0.5.15",
+    "@tailwindcss/vite": "^4.0.0-alpha.24",
+    "@tanstack/react-query": "^5.59.16",
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "cheerio": "^1.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "cmdk": "1.0.0",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.35.3",
+    "drizzle-zod": "^0.5.1",
+    "embla-carousel-react": "^8.3.0",
+    "express": "^4.21.1",
+    "express-fileupload": "^1.5.1",
+    "file-saver": "^2.0.5",
+    "firebase": "^10.14.1",
+    "framer-motion": "^11.11.7",
+    "input-otp": "^1.2.4",
+    "lucide-react": "^0.447.0",
+    "multer": "^1.4.5-lts.1",
+    "next-themes": "^0.3.0",
+    "openai": "^4.67.3",
+    "react": "^18.3.1",
+    "react-day-picker": "^9.1.3",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-icons": "^5.3.0",
+    "react-resizable-panels": "^2.1.4",
+    "recharts": "^2.12.7",
+    "stripe": "^17.1.0",
+    "tailwind-merge": "^2.5.3",
+    "tailwindcss": "^3.4.13",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.0.0",
+    "wouter": "^3.3.5",
+    "zod": "^3.23.8",
+    "zod-validation-error": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.26.2",
+    "postcss": "^8.4.47",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}
+
+=== .gitignore ===
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local uploads
+uploads/
+images/
+extracted_images/
+
+=== README.md ===
+# Ko Lake Villa - Luxury Accommodation Website
+
+A cutting-edge property management platform for Ko Lake Villa, featuring an intelligent AI-powered media management system that automatically categorizes and optimizes visual content for enhanced guest experience and digital marketing.
+
+## Features
+
+- **AI-Powered Image Categorization**: Automatic image and video categorization using OpenAI
+- **Gallery Management**: Advanced gallery system with 11 villa-specific categories
+- **Booking System**: Direct booking with dynamic pricing (10% discount, 15% last-minute)
+- **Payment Processing**: Stripe integration for secure payments
+- **Admin Dashboard**: Complete content management system
+- **Responsive Design**: Mobile-first design with Tailwind CSS
+- **SEO Optimized**: Meta tags and structured data
+
+## Technology Stack
+
+- **Frontend**: React.js with TypeScript, Tailwind CSS
+- **Backend**: Express.js, Node.js
+- **Database**: PostgreSQL with Drizzle ORM
+- **AI**: OpenAI API for image analysis
+- **Payments**: Stripe
+- **Hosting**: GitHub Pages / Vercel
+
+## Villa Categories
+
+1. Entire Villa (KLV) - 18+ guests
+2. Family Suite (KLV1) - Master suite for 6+ guests
+3. Triple Rooms (KLV3) - 5 rooms for 3+ guests each
+4. Group Room (KLV6) - 6+ guests
+5. Dining Area
+6. Pool Deck - 60ft infinity pool
+7. Lake Garden - Koggala Lake views
+8. Roof Garden - Rooftop terrace
+9. Front Garden
+10. Koggala Lake
+11. Excursions
+
+## Setup Instructions
+
+1. Clone the repository
+2. Run `npm install`
+3. Set up environment variables (see .env.example)
+4. Run `npm run db:push` to set up database
+5. Run `npm run dev` to start development server
+
+## Environment Variables
+
+```
+OPENAI_API_KEY=your_openai_key
+STRIPE_SECRET_KEY=your_stripe_secret
+VITE_STRIPE_PUBLIC_KEY=your_stripe_public
+DATABASE_URL=your_postgres_url
+VITE_GA_MEASUREMENT_ID=your_analytics_id
+```
+
+## Deployment
+
+The application is ready for deployment on:
+- Vercel (recommended)
+- Netlify
+- GitHub Pages
+- Any Node.js hosting platform
+
+## Location
+
+Ko Lake Villa
+Mirissane Ovita, Madolduwa Road
+Kathaluwa West, Ahangama
+Galle, Southern District
+Sri Lanka 80650
+
+Website: www.KoLakeVilla.com
+
+=== tsconfig.json ===
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./client/src/*"],
+      "@shared/*": ["./shared/*"],
+      "@assets/*": ["./client/assets/*"]
+    }
+  },
+  "include": ["client/src", "shared", "server"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+
+=== vite.config.ts ===
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./client/src"),
+      "@shared": path.resolve(__dirname, "./shared"),
+      "@assets": path.resolve(__dirname, "./client/assets"),
+    },
+  },
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+  },
+});
+
+=== tailwind.config.ts ===
+import type { Config } from "tailwindcss";
+
+export default {
+  darkMode: ["class"],
+  content: [
+    "./client/**/*.{ts,tsx}",
+  ],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config;
+
+=== drizzle.config.ts ===
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+  schema: "./shared/schema.ts",
+  out: "./drizzle",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+
+=== postcss.config.js ===
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+=== components.json ===
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "client/src/index.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils"
+  }
+}
+
+=== .env.example ===
+OPENAI_API_KEY=your_openai_api_key_here
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+VITE_STRIPE_PUBLIC_KEY=your_stripe_publishable_key_here
+DATABASE_URL=your_postgresql_database_url_here
+VITE_GA_MEASUREMENT_ID=G-KWDLSJXM1T
+
+DEPLOYMENT INSTRUCTIONS
+======================
+
+FOR GITHUB PAGES:
+1. Enable GitHub Pages in repository settings
+2. Set build command: npm run build
+3. Set publish directory: dist
+
+FOR VERCEL:
+1. Connect GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on git push
+
+FOR NETLIFY:
+1. Connect GitHub repository to Netlify
+2. Set build command: npm run build
+3. Set publish directory: dist
+4. Add environment variables
+
+NEXT STEPS:
+1. Copy all file contents below to create your project structure
+2. Commit and push to GitHub
+3. Set up environment variables on your hosting platform
+4. Deploy your Ko Lake Villa website
+
+Continue reading for all source code files...
