@@ -33,6 +33,48 @@ const VILLA_CATEGORIES = [
   'excursions'
 ];
 
+export async function analyzeImageWithAI(imagePath: string, userCategory: string) {
+  try {
+    console.log(`🔍 Analyzing image: ${imagePath}`);
+    
+    if (!fs.existsSync(imagePath)) {
+      throw new Error(`File not found: ${imagePath}`);
+    }
+
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Image = imageBuffer.toString('base64');
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+      messages: [{
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Analyze this Ko Lake Villa image. Categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions. Suggest best category, title, description, and 5 relevant tags. Return JSON: {"category": "...", "title": "...", "description": "...", "tags": ["..."], "confidence": 0.95}`
+          },
+          {
+            type: "image_url",
+            image_url: { url: `data:image/jpeg;base64,${base64Image}` }
+          }
+        ]
+      }],
+      response_format: { type: "json_object" }
+    });
+
+    return JSON.parse(response.choices[0].message.content);
+  } catch (error) {
+    console.error('AI analysis failed:', error);
+    return {
+      category: userCategory,
+      title: `Villa Image`,
+      description: `Ko Lake Villa image`,
+      tags: ['villa', 'accommodation'],
+      confidence: 0.5
+    };
+  }
+}
+
 export class MediaAnalyzer {
   
   /**
