@@ -49,8 +49,9 @@ interface ImagePreview {
   name: string;
   size: string;
   category: string;
-  status: 'pending' | 'uploading' | 'success' | 'error';
+  status: 'pending' | 'uploading' | 'success' | 'error' | 'analyzing';
   error?: string;
+  aiSuggestion?: string;
 }
 
 export default function BulkUploader() {
@@ -62,6 +63,7 @@ export default function BulkUploader() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [defaultCategory, setDefaultCategory] = useState<string>(GALLERY_CATEGORIES[0].value);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [analyzing, setAnalyzing] = useState<boolean>(false);
   const [overallProgress, setOverallProgress] = useState<number>(0);
   const [uploadStats, setUploadStats] = useState({
     total: 0,
@@ -147,6 +149,82 @@ export default function BulkUploader() {
       newPreviews[index].category = category;
       return newPreviews;
     });
+  };
+
+  const analyzeImagesWithAI = async () => {
+    if (imagePreviews.length === 0) return;
+    
+    setAnalyzing(true);
+    
+    for (let i = 0; i < imagePreviews.length; i++) {
+      // Skip if already analyzed or has error
+      if (imagePreviews[i].aiSuggestion || imagePreviews[i].status === 'error') {
+        continue;
+      }
+      
+      // Update status to analyzing
+      setImagePreviews(prev => {
+        const newPreviews = [...prev];
+        newPreviews[i].status = 'analyzing';
+        return newPreviews;
+      });
+      
+      try {
+        // Convert image to base64 for AI analysis
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const result = reader.result as string;
+            const base64 = result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+            resolve(base64);
+          };
+          reader.onerror = reject;
+        });
+        
+        reader.readAsDataURL(imagePreviews[i].file);
+        const base64Image = await base64Promise;
+        
+        // Call AI analysis API
+        const response = await fetch('/api/analyze-media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageData: base64Image,
+            filename: imagePreviews[i].name,
+            mediaType: 'image'
+          }),
+        });
+        
+        if (response.ok) {
+          const analysis = await response.json();
+          
+          // Update with AI suggestion
+          setImagePreviews(prev => {
+            const newPreviews = [...prev];
+            newPreviews[i].status = 'pending';
+            newPreviews[i].aiSuggestion = analysis.suggestedCategory || analysis.category;
+            newPreviews[i].category = analysis.suggestedCategory || analysis.category || newPreviews[i].category;
+            return newPreviews;
+          });
+        } else {
+          // AI analysis failed, keep original category
+          setImagePreviews(prev => {
+            const newPreviews = [...prev];
+            newPreviews[i].status = 'pending';
+            return newPreviews;
+          });
+        }
+      } catch (error) {
+        console.error(`AI analysis failed for ${imagePreviews[i].name}:`, error);
+        setImagePreviews(prev => {
+          const newPreviews = [...prev];
+          newPreviews[i].status = 'pending';
+          return newPreviews;
+        });
+      }
+    }
+    
+    setAnalyzing(false);
   };
   
   const processUploads = async () => {
@@ -338,6 +416,25 @@ export default function BulkUploader() {
                 {imagePreviews.length > 0 && (
                   <div className="mt-2">
                     <div className="flex items-center justify-between">
+                      <Button
+                        onClick={analyzeImagesWithAI}
+                        disabled={analyzing || uploading}
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        {analyzing ? (
+                          <>
+                            <LoadingIcon className="mr-2 h-4 w-4 animate-spin" />
+                            AI Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <ImageIcon className="mr-2 h-4 w-4" />
+                            AI Auto-Categorize
+                          </>
+                        )}
+                      </Button>
                       <div>
                         <p className="text-sm font-medium text-[#8B5E3C]">
                           {imagePreviews.length} image{imagePreviews.length !== 1 ? 's' : ''} ready for upload
@@ -504,6 +601,7 @@ export default function BulkUploader() {
                             ${image.status === 'success' ? 'bg-green-500' : 
                               image.status === 'error' ? 'bg-red-500' : 
                               image.status === 'uploading' ? 'bg-blue-500' : 
+                              image.status === 'analyzing' ? 'bg-purple-500' :
                               'bg-gray-200'}
                           `}>
                             {image.status === 'success' ? (
@@ -512,8 +610,17 @@ export default function BulkUploader() {
                               <ErrorIcon className="h-4 w-4 text-white" />
                             ) : image.status === 'uploading' ? (
                               <LoadingIcon className="h-4 w-4 text-white animate-spin" />
+                            ) : image.status === 'analyzing' ? (
+                              <LoadingIcon className="h-4 w-4 text-white animate-spin" />
                             ) : null}
                           </div>
+                          
+                          {/* AI suggestion indicator */}
+                          {image.aiSuggestion && (
+                            <div className="absolute top-2 left-2 bg-purple-100 text-purple-700 text-xs px-1 py-0.5 rounded">
+                              AI
+                            </div>
+                          )}
                           
                           <img 
                             src={image.preview} 
@@ -584,7 +691,8 @@ export default function BulkUploader() {
             <CardContent>
               <ol className="list-decimal pl-5 space-y-2">
                 <li>Select multiple images using the file browser at the top</li>
-                <li>Organize images by assigning each to the appropriate category</li>
+                <li>Use "AI Auto-Categorize" to automatically detect image categories (entire villa, rooms, pool, etc.)</li>
+                <li>Review and adjust categories manually if needed</li>
                 <li>Click "Upload All Images" to begin the upload process</li>
                 <li>Wait for uploads to complete - you'll see green checkmarks next to successful uploads</li>
                 <li>If any uploads fail, click "Retry Failed" to attempt again</li>
