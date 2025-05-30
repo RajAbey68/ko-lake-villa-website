@@ -671,51 +671,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Alternative booking endpoint (for test compatibility)
   app.post("/api/bookings", async (req, res) => {
+    // Map test data format to booking inquiry format
+    const mappedData = {
+      name: req.body.customerName || req.body.name,
+      email: req.body.email,
+      checkInDate: req.body.checkIn || req.body.checkInDate,
+      checkOutDate: req.body.checkOut || req.body.checkOutDate,
+      guests: parseInt(req.body.guestCount || req.body.guests),
+      roomType: req.body.roomType,
+      specialRequests: req.body.specialRequests || req.body.phone || ""
+    };
+
+    // Strict validation - reject immediately on any validation failure
+    
+    // Email validation
+    if (!mappedData.email || mappedData.email.trim() === '') {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Comprehensive email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(mappedData.email)) {
+      return res.status(400).json({ message: "Please enter a valid email address" });
+    }
+
+    // Name validation
+    if (!mappedData.name || mappedData.name.trim() === '') {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    // Date validation
+    if (!mappedData.checkInDate || !mappedData.checkOutDate) {
+      return res.status(400).json({ message: "Check-in and check-out dates are required" });
+    }
+
+    // Guest count validation
+    if (!mappedData.guests || mappedData.guests < 1) {
+      return res.status(400).json({ message: "Number of guests must be at least 1" });
+    }
+
     try {
-      // Map test data format to booking inquiry format
-      const mappedData = {
-        name: req.body.customerName || req.body.name,
-        email: req.body.email,
-        checkInDate: req.body.checkIn || req.body.checkInDate,
-        checkOutDate: req.body.checkOut || req.body.checkOutDate,
-        guests: parseInt(req.body.guestCount || req.body.guests),
-        roomType: req.body.roomType,
-        specialRequests: req.body.specialRequests || req.body.phone || ""
-      };
-
-      // Strict email validation before schema validation
-      if (!mappedData.email || mappedData.email.trim() === '') {
-        return res.status(400).json({ 
-          message: "Email is required" 
-        });
-      }
-
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-      if (!emailRegex.test(mappedData.email)) {
-        return res.status(400).json({ 
-          message: "Please enter a valid email address" 
-        });
-      }
-
-      // Validate required fields
-      if (!mappedData.name || mappedData.name.trim() === '') {
-        return res.status(400).json({ 
-          message: "Name is required" 
-        });
-      }
-
-      if (!mappedData.checkInDate || !mappedData.checkOutDate) {
-        return res.status(400).json({ 
-          message: "Check-in and check-out dates are required" 
-        });
-      }
-
-      if (!mappedData.guests || mappedData.guests < 1) {
-        return res.status(400).json({ 
-          message: "Number of guests must be at least 1" 
-        });
-      }
-
       const validatedData = insertBookingInquirySchema.parse(mappedData);
       
       // Additional validation
