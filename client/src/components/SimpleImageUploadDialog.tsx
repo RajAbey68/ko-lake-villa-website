@@ -259,7 +259,7 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
         onOpenChange(newOpen);
       }
     }}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-[#8B5E3C]">Add Media to Gallery</DialogTitle>
         </DialogHeader>
