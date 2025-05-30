@@ -203,3 +203,38 @@ export const insertPageHeroImageSchema = createInsertSchema(pageHeroImages).omit
 
 export type InsertPageHeroImage = z.infer<typeof insertPageHeroImageSchema>;
 export type PageHeroImage = typeof pageHeroImages.$inferSelect;
+
+// Content documents table for marketing materials, news, and events
+export const contentDocuments = pgTable("content_documents", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  fileName: text("file_name").notNull(),
+  fileUrl: text("file_url").notNull(),
+  fileType: text("file_type").notNull(), // "pdf", "txt", "doc", "docx"
+  fileSize: integer("file_size").notNull(), // in bytes
+  category: text("category").notNull(), // "marketing", "news", "events", "seo", "content"
+  targetTribes: text("target_tribes").array(), // ["leisure", "digital-nomads", "experienced-tourers"]
+  extractedKeywords: text("extracted_keywords"), // AI-generated keywords
+  aiSummary: text("ai_summary"), // AI-generated summary
+  seoScore: integer("seo_score").default(0), // 0-100 SEO optimization score
+  status: text("status").default("pending").notNull(), // "pending", "processed", "active", "archived"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertContentDocumentSchema = createInsertSchema(contentDocuments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  extractedKeywords: true,
+  aiSummary: true,
+  seoScore: true,
+}).extend({
+  title: z.string().min(3, "Title must be at least 3 characters").max(200, "Title too long"),
+  category: z.enum(["marketing", "news", "events", "seo", "content"]),
+  targetTribes: z.array(z.enum(["leisure", "digital-nomads", "experienced-tourers"])).optional(),
+  status: z.enum(["pending", "processed", "active", "archived"]).optional(),
+});
+
+export type InsertContentDocument = z.infer<typeof insertContentDocumentSchema>;
+export type ContentDocument = typeof contentDocuments.$inferSelect;
