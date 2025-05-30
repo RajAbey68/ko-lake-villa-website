@@ -1,157 +1,157 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { GalleryImage } from '@shared/schema';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { GalleryImage } from '@/lib/galleryUtils';
+import { formatCategoryLabel, formatTagsForDisplay } from '@/lib/galleryUtils';
 
 interface GalleryModalProps {
-  image: GalleryImage | null;
+  images: GalleryImage[];
+  isOpen: boolean;
+  currentIndex: number;
   onClose: () => void;
+  onNavigate: (direction: 'prev' | 'next') => void;
 }
 
-const GalleryModal = ({ image, onClose }: GalleryModalProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [imageSrc, setImageSrc] = useState('');
-  const [videoSrc, setVideoSrc] = useState('');
+export const GalleryModal: React.FC<GalleryModalProps> = ({
+  images,
+  isOpen,
+  currentIndex,
+  onClose,
+  onNavigate,
+}) => {
+  const image = images[currentIndex];
 
+  // Keyboard navigation
   useEffect(() => {
-    setIsOpen(!!image);
-    
-    if (image) {
-      // Add timestamp to URL for cache busting
-      const timestamp = Date.now();
-      const baseUrl = image.imageUrl.includes('?') ? image.imageUrl.split('?')[0] : image.imageUrl;
+    const handleKey = (e: KeyboardEvent) => {
+      if (!isOpen) return;
       
-      if (image.mediaType === 'video') {
-        // For videos, we'll use a direct URL with timestamp
-        setVideoSrc(`${baseUrl}?t=${timestamp}`);
-        console.log(`Opening video modal: ${baseUrl}?t=${timestamp}`);
-      } else {
-        // For images, we'll use a direct URL with timestamp
-        setImageSrc(`${baseUrl}?t=${timestamp}`);
-        console.log(`Opening image modal: ${baseUrl}?t=${timestamp}`);
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        onNavigate('prev');
       }
-    }
-  }, [image]);
-
-  const handleClose = () => {
-    setIsOpen(false);
-    onClose();
-  };
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        onNavigate('next');
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isOpen, onNavigate, onClose]);
 
   if (!image) return null;
 
+  const tags = formatTagsForDisplay(image.tags);
+
   return (
-    <Dialog 
-      open={isOpen} 
-      onOpenChange={(open) => {
-        if (!open) handleClose();
-      }}
-    >
-      <DialogContent className="max-w-7xl max-h-[95vh] bg-[#FDF6EE] p-4 rounded-lg border-2 border-[#A0B985] shadow-xl overflow-auto">
-        <div className="flex flex-col items-center space-y-4">
-          {/* Main Image/Video Display */}
-          {image.mediaType === 'video' ? (
-            <div className="relative w-full">
-              {image.imageUrl.includes('youtube.com') || image.imageUrl.includes('youtu.be') ? (
-                // YouTube embed
-                <div className="aspect-video w-full max-w-4xl border border-gray-300 rounded-lg flex items-center justify-center bg-gray-100">
-                  <div className="text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#FF0000" stroke="none" className="mx-auto">
-                      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                    </svg>
-                    <p className="mt-2 text-gray-600">YouTube Video</p>
-                    <a 
-                      href={image.imageUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-block px-4 py-2 bg-[#FF914D] text-white rounded-full text-sm hover:bg-[#8B5E3C] transition-colors"
-                    >
-                      Open in YouTube
-                    </a>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0 overflow-hidden">
+        <div className="relative w-full h-full bg-white rounded-lg">
+          {/* Main Image - Takes up 60% of screen */}
+          <div className="relative h-[60vh] bg-black flex items-center justify-center">
+            <img
+              src={image.imageUrl}
+              alt={image.alt}
+              className="max-w-full max-h-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+              }}
+            />
+            
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="lg"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-12 h-12 p-0"
+              onClick={() => onNavigate('prev')}
+              disabled={images.length <= 1}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="lg"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-12 h-12 p-0"
+              onClick={() => onNavigate('next')}
+              disabled={images.length <= 1}
+            >
+              <ChevronRight className="w-6 h-6" />
+            </Button>
+
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="lg"
+              className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 p-0"
+              onClick={onClose}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+
+            {/* Image Counter */}
+            <div className="absolute bottom-4 left-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+              {currentIndex + 1} of {images.length}
+            </div>
+          </div>
+
+          {/* Image Details - Below the image */}
+          <div className="p-6 space-y-3 bg-white">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
+                  {image.alt}
+                </h2>
+                
+                <div className="flex items-center gap-3 mb-3">
+                  <Badge variant="secondary" className="bg-[#A0B985] text-white">
+                    {formatCategoryLabel(image.category)}
+                  </Badge>
+                  
+                  {image.featured && (
+                    <Badge className="bg-[#FF914D] text-white">
+                      Featured
+                    </Badge>
+                  )}
+                </div>
+
+                {image.description && (
+                  <p className="text-gray-700 mb-3 leading-relaxed">
+                    {image.description}
+                  </p>
+                )}
+
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                </div>
-              ) : (
-                // Standard video player
-                <div className="video-container w-full flex justify-center">
-                  <video 
-                    key={`video-${Date.now()}`}
-                    src={videoSrc}
-                    controls
-                    autoPlay
-                    preload="auto"
-                    className="max-h-[70vh] max-w-full object-contain rounded-md shadow-md"
-                    onError={(e) => {
-                      console.error("Video error:", e);
-                    }}
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="relative flex justify-center w-full">
-              <img 
-                src={imageSrc}
-                alt={image.alt || "Gallery image"} 
-                className="max-h-[70vh] max-w-full object-contain rounded-md shadow-lg"
-                onError={(e) => {
-                  console.error(`Failed to load modal image: ${image.imageUrl}`);
-                  (e.target as HTMLImageElement).onerror = null; // Prevent infinite loop
-                }}
-              />
-            </div>
-          )}
-          
-          {/* Image Details - Smaller and Less Prominent */}
-          <div className="text-center space-y-2 max-w-2xl">
-            {/* Title */}
-            {image.alt && (
-              <h3 className="text-[#8B5E3C] font-medium text-lg">{image.alt}</h3>
-            )}
-            
-            {/* Description */}
-            {image.description && (
-              <p className="text-gray-600 text-sm">
-                {image.description}
-              </p>
-            )}
-            
-            {/* Badges - Smaller and Less Prominent */}
-            <div className="flex flex-wrap justify-center items-center gap-2">
-              {image.mediaType === 'video' && (
-                <span className="px-2 py-1 bg-[#62C3D2] text-white text-xs rounded-full">
-                  Video
-                </span>
-              )}
-              
-              {image.category && (
-                <span className="px-2 py-1 bg-[#A0B985] text-white text-xs rounded-full">
-                  {image.category
-                    .split('-')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')}
-                </span>
-              )}
-            </div>
-            
-            {/* Tags */}
-            {image.tags && image.tags.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-1">
-                {image.tags.split(',').map((tag, index) => (
-                  <span 
-                    key={index} 
-                    className="px-2 py-1 bg-[#62C3D2] bg-opacity-20 text-[#62C3D2] text-xs rounded-full"
-                  >
-                    #{tag.trim()}
-                  </span>
-                ))}
+                )}
               </div>
-            )}
+            </div>
+
+            {/* Quick Navigation Hints */}
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500 text-center">
+                Use ← → arrow keys or click the arrows to navigate • Press Esc to close
+              </p>
+            </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
-
-export default GalleryModal;
