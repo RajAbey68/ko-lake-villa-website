@@ -4,7 +4,7 @@ import { GalleryImage as GalleryImageType } from '@shared/schema';
 import ZyrositeImage from '@/components/ZyrositeImage';
 import GalleryImageLoader from '@/components/GalleryImageLoader';
 import DirectImageDisplay from '@/components/DirectImageDisplay';
-import GalleryModal from '@/components/GalleryModal';
+import { GalleryModal } from '@/components/GalleryModal';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -152,7 +152,8 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
 
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Helper function to clean and format image URLs
   const getCleanImageUrl = (url: string) => {
@@ -221,17 +222,29 @@ const handleCategoryChange = (category: string | null) => {
 };
 
   const openImageModal = (image: GalleryImageType) => {
-    console.log('Opening modal for image:', image);
-    // Create a clean copy of the image with fresh timestamps
-    const imageWithTimestamp = {
-      ...image,
-      imageUrl: `${image.imageUrl.split('?')[0]}?t=${Date.now()}`
-    };
-    setSelectedImage(imageWithTimestamp);
+    if (!galleryImages) return;
+    
+    const imageIndex = galleryImages.findIndex(img => img.id === image.id);
+    setCurrentImageIndex(imageIndex);
+    setModalOpen(true);
   };
 
   const closeImageModal = () => {
-    setSelectedImage(null);
+    setModalOpen(false);
+  };
+
+  const handleModalNavigate = (direction: 'prev' | 'next') => {
+    if (!galleryImages) return;
+    
+    if (direction === 'prev') {
+      setCurrentImageIndex(prev => 
+        prev === 0 ? galleryImages.length - 1 : prev - 1
+      );
+    } else {
+      setCurrentImageIndex(prev => 
+        prev === galleryImages.length - 1 ? 0 : prev + 1
+      );
+    }
   };
 
   return (
@@ -472,11 +485,16 @@ const handleCategoryChange = (category: string | null) => {
             </div>
           )}
 
-          {/* Image Modal - Using dedicated component */}
-          <GalleryModal 
-            image={selectedImage} 
-            onClose={closeImageModal} 
-          />
+          {/* Lightbox Modal for Gallery Images */}
+          {galleryImages && galleryImages.length > 0 && (
+            <GalleryModal 
+              images={galleryImages}
+              isOpen={modalOpen}
+              currentIndex={currentImageIndex}
+              onClose={closeImageModal}
+              onNavigate={handleModalNavigate}
+            />
+          )}
         </div>
       </section>
 
