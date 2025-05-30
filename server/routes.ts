@@ -630,19 +630,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Validate guest capacity
-      const maxCapacity = {
-        'Entire Villa (KLV)': 25, // Allow up to 25 but with special handling for 19+
-        'Master Family Suite (KLV1)': 8,
-        'Triple/Twin Rooms (KLV3)': 4,
-        'Group Room (KLV6)': 8
+      // Ko Lake Villa capacity validation with business logic (matching /api/bookings endpoint)
+      const capacityRules = {
+        'KLV': { standard: 18, absolute_max: 25, allow_over: true },
+        'KLV1': { standard: 6, absolute_max: 8, allow_over: true },
+        'KLV3': { standard: 3, absolute_max: 5, allow_over: true },
+        'KLV6': { standard: 6, absolute_max: 8, allow_over: true },
+        'Entire Villa (KLV)': { standard: 18, absolute_max: 25, allow_over: true },
+        'Master Family Suite (KLV1)': { standard: 6, absolute_max: 8, allow_over: true },
+        'Triple/Twin Rooms (KLV3)': { standard: 3, absolute_max: 5, allow_over: true },
+        'Group Room (KLV6)': { standard: 6, absolute_max: 8, allow_over: true }
       };
 
-      const roomCapacity = maxCapacity[validatedData.roomType as keyof typeof maxCapacity];
-      if (roomCapacity && validatedData.guests > roomCapacity) {
-        return res.status(400).json({ 
-          message: `${validatedData.roomType} can accommodate maximum ${roomCapacity} guests` 
-        });
+      const rules = capacityRules[validatedData.roomType as keyof typeof capacityRules];
+      if (rules) {
+        // Reject if exceeds absolute maximum
+        if (validatedData.guests > rules.absolute_max) {
+          return res.status(400).json({ 
+            message: `${validatedData.roomType} maximum capacity is ${rules.absolute_max} guests` 
+          });
+        }
       }
 
       // Special handling for Villa bookings with 19+ guests
@@ -738,38 +745,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Number of guests must be at least 1" });
       }
 
-      // Validate guest capacity limits before proceeding
-      const capacityLimits = {
-        'KLV': 25,
-        'KLV1': 6,
-        'KLV3': 3,
-        'KLV6': 6,
-        'Entire Villa (KLV)': 25,
-        'Master Family Suite (KLV1)': 6,
-        'Triple/Twin Rooms (KLV3)': 3,
-        'Group Room (KLV6)': 6
+      // Ko Lake Villa capacity validation with business logic
+      const capacityRules = {
+        'KLV': { standard: 18, absolute_max: 25, allow_over: true },
+        'KLV1': { standard: 6, absolute_max: 8, allow_over: true },
+        'KLV3': { standard: 3, absolute_max: 5, allow_over: true },
+        'KLV6': { standard: 6, absolute_max: 8, allow_over: true },
+        'Entire Villa (KLV)': { standard: 18, absolute_max: 25, allow_over: true },
+        'Master Family Suite (KLV1)': { standard: 6, absolute_max: 8, allow_over: true },
+        'Triple/Twin Rooms (KLV3)': { standard: 3, absolute_max: 5, allow_over: true },
+        'Group Room (KLV6)': { standard: 6, absolute_max: 8, allow_over: true }
       };
 
-      const maxCapacity = capacityLimits[mappedData.roomType as keyof typeof capacityLimits];
-      if (maxCapacity && mappedData.guests > maxCapacity) {
-        return res.status(400).json({ 
-          message: `${mappedData.roomType} maximum capacity is ${maxCapacity} guests` 
-        });
-      }
+      const rules = capacityRules[mappedData.roomType as keyof typeof capacityRules];
+      if (rules) {
+        // Reject if exceeds absolute maximum
+        if (mappedData.guests > rules.absolute_max) {
+          return res.status(400).json({ 
+            message: `${mappedData.roomType} maximum capacity is ${rules.absolute_max} guests` 
+          });
+        }
 
-      // Allow over-capacity bookings with special handling (as per business requirements)
-      if (mappedData.roomType === 'KLV' && mappedData.guests > 18 && mappedData.guests <= 25) {
-        // Allow 19-25 guests but add special handling note
-        mappedData.specialRequests = (mappedData.specialRequests || '') + 
-          `\n\nSPECIAL HANDLING: ${mappedData.guests} guests (over standard 18). Extra charges may apply.`;
-      }
-
-      // Allow limited over-capacity for individual rooms with special request
-      if ((mappedData.roomType === 'KLV1' && mappedData.guests === 7) ||
-          (mappedData.roomType === 'KLV3' && mappedData.guests === 4) ||
-          (mappedData.roomType === 'KLV6' && mappedData.guests > 6 && mappedData.guests <= 8)) {
-        mappedData.specialRequests = (mappedData.specialRequests || '') + 
-          `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard capacity). Subject to availability.`;
+        // Handle over-standard capacity with special notes
+        if (mappedData.guests > rules.standard) {
+          if (mappedData.roomType === 'KLV' || mappedData.roomType === 'Entire Villa (KLV)') {
+            mappedData.specialRequests = (mappedData.specialRequests || '') + 
+              `\n\nSPECIAL HANDLING: ${mappedData.guests} guests (over standard ${rules.standard}). Extra charges apply.`;
+          } else {
+            mappedData.specialRequests = (mappedData.specialRequests || '') + 
+              `\n\nSPECIAL REQUEST: ${mappedData.guests} guests (over standard ${rules.standard}). Subject to availability.`;
+          }
+        }
       }
 
       const validatedData = insertBookingInquirySchema.parse(mappedData);
