@@ -104,7 +104,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           </div>
 
           {/* Image Details - Below the image */}
-          <div className="p-6 space-y-3 bg-white">
+          <div className="p-6 space-y-3 bg-white" id="gallery-modal-description">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
