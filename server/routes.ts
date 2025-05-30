@@ -16,6 +16,7 @@ import path from "path";
 import fs from "fs";
 import axios from "axios";
 import { imageCompressor } from "./imageCompression";
+import { mediaAnalyzer } from "./mediaAnalyzer";
 import Stripe from "stripe";
 
 // Initialize Stripe
@@ -344,6 +345,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
         console.log("Generated file URL:", fileUrl);
         
+        // AI-powered analysis if enabled
+        let aiAnalysis = null;
+        try {
+          if (process.env.OPENAI_API_KEY) {
+            console.log("🤖 Starting AI analysis for uploaded file...");
+            aiAnalysis = mediaType === 'video' 
+              ? await mediaAnalyzer.analyzeVideo(file.path)
+              : await mediaAnalyzer.analyzeImage(file.path);
+            
+            console.log("✅ AI Analysis complete:", aiAnalysis);
+            
+            // Use AI suggestions if form data is minimal
+            if (!title || title === file.originalname) {
+              title = aiAnalysis.title;
+            }
+            if (!description) {
+              description = aiAnalysis.description;
+            }
+            if (!category || category === 'default') {
+              category = aiAnalysis.category;
+            }
+            if (!tags) {
+              tags = aiAnalysis.tags.join(',');
+            }
+          }
+        } catch (aiError) {
+          console.error("AI analysis failed (continuing with manual data):", aiError);
+        }
+
         // Save to database
         try {
           // Prepare gallery image data
@@ -365,7 +395,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           res.status(201).json({
             message: "File uploaded successfully!",
-            data: galleryImage
+            data: galleryImage,
+            aiAnalysis: aiAnalysis // Include AI suggestions in response
           });
         } catch (dbError: any) {
           console.error("Database error:", dbError);
