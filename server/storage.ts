@@ -796,6 +796,70 @@ export class MemStorage implements IStorage {
           title: 'Page Title',
           content: 'Luxury Accommodations',
           lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'dining-title',
+          page: 'dining',
+          section: 'hero',
+          title: 'Page Title',
+          content: 'Culinary Excellence',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'dining-description',
+          page: 'dining',
+          section: 'hero',
+          title: 'Dining Description',
+          content: 'Experience exceptional culinary delights at Ko Lake Villa. Our kitchen offers authentic Sri Lankan cuisine alongside international favorites, prepared with fresh local ingredients and served with stunning lake views.',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'experiences-title',
+          page: 'experiences',
+          section: 'hero',
+          title: 'Page Title',
+          content: 'Unique Experiences',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'experiences-description',
+          page: 'experiences',
+          section: 'hero',
+          title: 'Experience Description',
+          content: 'Discover unforgettable adventures at Ko Lake Villa. From serene lake excursions and traditional fishing experiences to cultural tours of nearby temples and local markets, we offer authentic Sri Lankan experiences.',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'gallery-title',
+          page: 'gallery',
+          section: 'hero',
+          title: 'Page Title',
+          content: 'Photo Gallery',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'gallery-description',
+          page: 'gallery',
+          section: 'hero',
+          title: 'Gallery Description',
+          content: 'Explore the beauty of Ko Lake Villa through our curated photo collection. From stunning lake views and luxurious accommodations to culinary delights and unique experiences.',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'contact-title',
+          page: 'contact',
+          section: 'hero',
+          title: 'Page Title',
+          content: 'Get in Touch',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'contact-description',
+          page: 'contact',
+          section: 'hero',
+          title: 'Contact Description',
+          content: 'Ready to experience the tranquility of Ko Lake Villa? Contact us to make your reservation or inquire about our accommodations, dining, and unique experiences.',
+          lastUpdated: new Date().toISOString()
         }
       ];
       
