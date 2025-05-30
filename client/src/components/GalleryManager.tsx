@@ -198,16 +198,22 @@ export default function GalleryManager() {
       </div>
 
       {/* Gallery Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        role="grid"
+        aria-label="Gallery images management grid"
+      >
         {filteredAndSortedImages.map((image) => (
-          <Card key={image.id} className="overflow-hidden">
+          <Card key={image.id} className="overflow-hidden" role="gridcell">
             <div className="relative aspect-square">
               <img
                 src={image.imageUrl}
                 alt={image.alt}
+                loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                  (e.target as HTMLImageElement).alt = 'Image not available';
                 }}
               />
               
