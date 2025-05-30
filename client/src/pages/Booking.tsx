@@ -80,6 +80,17 @@ const Booking = () => {
   });
 
   const onSubmit = async (values: BookingFormValues) => {
+    // Check validation before submitting
+    if (validationError) {
+      toast({
+        title: "Cannot submit booking",
+        description: validationError,
+        variant: "destructive",
+        duration: 5000
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       await apiRequest('POST', '/api/booking', values);
@@ -103,10 +114,70 @@ const Booking = () => {
   const checkInDate = form.watch('checkInDate');
   const checkOutMinDate = getCheckOutMinDate(checkInDate);
   
-  // Watch guest count for 19+ handling
+  // Watch guest count for validation
   const guestCount = form.watch('guests');
   const roomType = form.watch('roomType');
   const showAgeBreakdownNotice = roomType === 'Entire Villa (KLV)' && parseInt(guestCount) >= 19;
+
+  // Room capacity validation logic
+  const validateRoomCapacity = (guests: string, room: string) => {
+    const guestNum = parseInt(guests);
+    
+    // Define room capacities
+    const roomCapacities = {
+      'Triple Room (KLV3)': 3,
+      'Family Suite (KLV1)': 6,
+      'Group Room (KLV6)': 6,
+      'Entire Villa (KLV)': 25
+    };
+
+    // Rule 1: 3+ guests must use Family Suite, Group Room, or Entire Villa
+    if (guestNum >= 3) {
+      const allowedRooms = ['Family Suite (KLV1)', 'Group Room (KLV6)', 'Entire Villa (KLV)'];
+      if (!allowedRooms.includes(room)) {
+        return {
+          isValid: false,
+          message: '3+ guests require Family Suite, Group Room, or Entire Villa. Please contact host to arrange suitable accommodation.'
+        };
+      }
+    }
+
+    // Rule 2: 6+ guests must use Entire Villa
+    if (guestNum >= 6 && room !== 'Entire Villa (KLV)') {
+      return {
+        isValid: false,
+        message: '6+ guests require Entire Villa booking. Please contact host to arrange your stay.'
+      };
+    }
+
+    // Rule 3: Check if guests exceed room capacity
+    const capacity = roomCapacities[room as keyof typeof roomCapacities];
+    if (capacity && guestNum > capacity) {
+      return {
+        isValid: false,
+        message: `${guestNum} guests exceed ${room} capacity (${capacity}). Please email host to confirm if we can accommodate your group.`
+      };
+    }
+
+    return { isValid: true, message: '' };
+  };
+
+  // Validation state
+  const [validationError, setValidationError] = useState<string>('');
+  
+  // Check validation when guest count or room type changes
+  useEffect(() => {
+    if (guestCount && roomType) {
+      const validation = validateRoomCapacity(guestCount, roomType);
+      if (!validation.isValid) {
+        setValidationError(validation.message);
+        // Clear error after 5 seconds
+        setTimeout(() => setValidationError(''), 5000);
+      } else {
+        setValidationError('');
+      }
+    }
+  }, [guestCount, roomType]);
 
   return (
     <>
@@ -215,9 +286,26 @@ const Booking = () => {
 
 
 
+                  {/* Validation Error Display */}
+                  {validationError && (
+                    <div className="col-span-full bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-red-800">Booking Validation Error</h3>
+                          <p className="mt-1 text-sm text-red-700">{validationError}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Age Breakdown Notice for 19+ Guests */}
                   {showAgeBreakdownNotice && (
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <div className="col-span-full bg-orange-50 border border-orange-200 rounded-lg p-4">
                       <h4 className="font-semibold text-orange-800 mb-2">Extra Charges Apply (19+ Guests)</h4>
                       <div className="text-sm text-orange-700 space-y-2">
                         <p>For groups over 18 guests, additional charges apply.</p>
