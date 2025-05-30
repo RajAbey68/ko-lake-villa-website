@@ -8,16 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 
 const GALLERY_CATEGORIES = [
-  "Family Suite",
-  "Group Room", 
-  "Triple Room",
-  "Dining Area",
-  "Pool Deck",
-  "Lake Garden",
-  "Roof Garden",
-  "Front Garden and Entrance",
-  "Koggala Lake and Surrounding",
-  "Excursions"
+  { value: "family-suite", label: "Family Suite" },
+  { value: "group-room", label: "Group Room" },
+  { value: "triple-room", label: "Triple Room" },
+  { value: "dining-area", label: "Dining Area" },
+  { value: "pool-deck", label: "Pool Deck" },
+  { value: "lake-garden", label: "Lake Garden" },
+  { value: "roof-garden", label: "Roof Garden" },
+  { value: "front-garden", label: "Front Garden and Entrance" },
+  { value: "koggala-lake", label: "Koggala Lake and Surrounding" },
+  { value: "excursions", label: "Excursions" }
 ];
 
 interface TaggingDialogProps {
@@ -49,7 +49,7 @@ export default function TaggingDialog({
 }: TaggingDialogProps) {
   const [title, setTitle] = useState(initialData.title || '');
   const [description, setDescription] = useState(initialData.description || '');
-  const [category, setCategory] = useState(initialData.category || GALLERY_CATEGORIES[0]);
+  const [category, setCategory] = useState(initialData.category || GALLERY_CATEGORIES[0].value);
   const [tags, setTags] = useState(initialData.tags || '');
   const [featured, setFeatured] = useState(initialData.featured || false);
 
@@ -58,7 +58,7 @@ export default function TaggingDialog({
     if (isOpen && initialData) {
       setTitle(initialData.title || '');
       setDescription(initialData.description || '');
-      setCategory(initialData.category || GALLERY_CATEGORIES[0]);
+      setCategory(initialData.category || GALLERY_CATEGORIES[0].value);
       setTags(initialData.tags || '');
       setFeatured(initialData.featured || false);
     }
@@ -125,7 +125,7 @@ export default function TaggingDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {GALLERY_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

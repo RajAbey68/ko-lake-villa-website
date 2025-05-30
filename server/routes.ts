@@ -868,31 +868,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update a gallery image
   app.patch("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
+    console.log(`[GALLERY EDIT] PATCH request for image ID: ${id}`);
+    console.log(`[GALLERY EDIT] Request body:`, req.body);
+    
     if (isNaN(id)) {
+      console.log(`[GALLERY EDIT] Invalid ID provided: ${req.params.id}`);
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
     
     try {
       const galleryImage = await dataStorage.getGalleryImageById(id);
+      console.log(`[GALLERY EDIT] Found existing image:`, galleryImage);
+      
       if (!galleryImage) {
+        console.log(`[GALLERY EDIT] Image not found with ID: ${id}`);
         return res.status(404).json({ message: "Gallery image not found" });
       }
       
       const updatedData = { ...req.body, id };
+      console.log(`[GALLERY EDIT] Updating with data:`, updatedData);
+      
       const updatedImage = await dataStorage.updateGalleryImage(updatedData);
+      console.log(`[GALLERY EDIT] Successfully updated image:`, updatedImage);
       
       res.json({
         message: "Gallery image updated successfully!",
         data: updatedImage
       });
     } catch (error) {
+      console.error(`[GALLERY EDIT] Error updating image:`, error);
+      
       if (error instanceof z.ZodError) {
+        console.log(`[GALLERY EDIT] Validation error:`, error.errors);
         return res.status(400).json({ 
           message: "Invalid gallery image data", 
           errors: error.errors 
         });
       }
-      res.status(500).json({ message: "Failed to update gallery image" });
+      res.status(500).json({ message: "Failed to update gallery image", error: error.message });
     }
   });
 
