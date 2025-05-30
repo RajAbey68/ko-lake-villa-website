@@ -156,7 +156,7 @@ export default function TaggingDialog({
               </p>
               {tags && (
                 <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
-                  <strong>SEO Tags:</strong> {tags.split(',').map(tag => `#${tag.trim()}`).join(' ')}
+                  <strong>SEO Tags:</strong> {tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0).map(tag => `#${tag}`).join(' ')}
                 </div>
               )}
             </div>
