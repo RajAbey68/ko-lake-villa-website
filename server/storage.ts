@@ -7,7 +7,8 @@ import {
   galleryImages, type GalleryImage, type InsertGalleryImage,
   bookingInquiries, type BookingInquiry, type InsertBookingInquiry,
   contactMessages, type ContactMessage, type InsertContactMessage,
-  newsletterSubscribers, type NewsletterSubscriber, type InsertNewsletterSubscriber
+  newsletterSubscribers, type NewsletterSubscriber, type InsertNewsletterSubscriber,
+  contentDocuments, type ContentDocument, type InsertContentDocument
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -76,6 +77,14 @@ export interface IStorage {
   // Content management operations
   getAllContent(): Promise<any[]>;
   saveContent(content: any[]): Promise<void>;
+
+  // Content document operations
+  getContentDocuments(): Promise<ContentDocument[]>;
+  getContentDocumentById(id: number): Promise<ContentDocument | undefined>;
+  getContentDocumentsByCategory(category: string): Promise<ContentDocument[]>;
+  createContentDocument(document: InsertContentDocument): Promise<ContentDocument>;
+  updateContentDocument(document: Partial<ContentDocument> & { id: number }): Promise<ContentDocument>;
+  deleteContentDocument(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -890,6 +899,38 @@ export class MemStorage implements IStorage {
 
   async getAllPageHeroImages(): Promise<any[]> {
     return Array.from(this.pageHeroImages.values());
+  }
+
+  // Content document operations
+  async getContentDocuments(): Promise<ContentDocument[]> {
+    return await db.select().from(contentDocuments);
+  }
+
+  async getContentDocumentById(id: number): Promise<ContentDocument | undefined> {
+    const result = await db.select().from(contentDocuments).where(eq(contentDocuments.id, id));
+    return result[0];
+  }
+
+  async getContentDocumentsByCategory(category: string): Promise<ContentDocument[]> {
+    return await db.select().from(contentDocuments).where(eq(contentDocuments.category, category));
+  }
+
+  async createContentDocument(document: InsertContentDocument): Promise<ContentDocument> {
+    const result = await db.insert(contentDocuments).values(document).returning();
+    return result[0];
+  }
+
+  async updateContentDocument(document: Partial<ContentDocument> & { id: number }): Promise<ContentDocument> {
+    const result = await db.update(contentDocuments)
+      .set(document)
+      .where(eq(contentDocuments.id, document.id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteContentDocument(id: number): Promise<boolean> {
+    const result = await db.delete(contentDocuments).where(eq(contentDocuments.id, id));
+    return result.rowCount > 0;
   }
 }
 
