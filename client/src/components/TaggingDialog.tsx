@@ -76,10 +76,10 @@ export default function TaggingDialog({
   };
 
   const handleTagsChange = (value: string) => {
-    // Auto-format tags: remove duplicates, trim spaces, ensure comma separation without spaces
+    // Auto-format tags: remove duplicates, trim spaces, ensure comma separation with spaces
     const tagList = value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
     const uniqueTags = Array.from(new Set(tagList));
-    setTags(uniqueTags.join(','));
+    setTags(uniqueTags.join(', '));
   };
 
   return (
