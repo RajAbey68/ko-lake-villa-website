@@ -139,8 +139,10 @@ export default function EnhancedContentManager({ sections, onUpdate, onImageUplo
         }
       }
       
-      // Test 4: Formatting validation
-      const hasValidFormatting = !content.includes('**') || content.split('**').length % 2 === 1;
+      // Test 4: Formatting validation - check for properly paired formatting
+      const boldMatches = (content.match(/\*\*/g) || []).length;
+      const italicMatches = (content.match(/(?<!\*)\*(?!\*)/g) || []).length;
+      const hasValidFormatting = boldMatches % 2 === 0 && italicMatches % 2 === 0;
       
       // Combine test results
       results[section.id] = hasContent && validUrls && validImages && hasValidFormatting ? 'pass' : 'fail';
