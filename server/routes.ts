@@ -19,6 +19,7 @@ import axios from "axios";
 import { imageCompressor } from "./imageCompression";
 import { mediaAnalyzer } from "./mediaAnalyzer";
 import Stripe from "stripe";
+import OpenAI from 'openai';
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -1866,61 +1867,85 @@ The host will respond within 24 hours to discuss:
   });
 
   // AI Media Analysis endpoint
-  app.post("/api/analyze-media", async (req, res) => {
+  app.post("/api/analyze-media", upload.single('image'), async (req, res) => {
     try {
-      const { imageData, filename, mediaType = 'image' } = req.body;
-      
+      const { category = "" } = req.body;
+      const filePath = req.file?.path;
+
       if (!process.env.OPENAI_API_KEY) {
         return res.status(500).json({ error: 'OpenAI API key not configured' });
       }
 
-      if (!imageData || !filename) {
-        return res.status(400).json({ error: 'Image data and filename required' });
+      if (!filePath) {
+        return res.status(400).json({ error: 'Image file missing' });
       }
 
-      // Use OpenAI to analyze the image
-      const OpenAI = require('openai');
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Analyze this Ko Lake Villa image. Categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions. 
-
-Return JSON with:
-- suggestedCategory (from the list above)
-- confidence (0-1)
-- description (brief, marketing-friendly)
-- title (catchy title for the image)`
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:image/jpeg;base64,${imageData}`
-              }
-            }
-          ]
-        }],
-        max_tokens: 500,
-        response_format: { type: "json_object" }
+      // Initialize OpenAI
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content);
+      const buffer = fs.readFileSync(filePath);
+      const base64Image = buffer.toString('base64');
+
+      const aiResponse = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: `Analyze this Ko Lake Villa accommodation image. 
+
+Available categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions
+
+Current user selection: ${category || "unspecified"}
+
+Return JSON with:
+- suggestedCategory (must be one from the list above)
+- confidence (0-1, how confident you are)
+- title (catchy title for marketing)
+- description (brief marketing description)
+- tags (array of 3-5 relevant marketing tags)
+
+Focus on luxury accommodation marketing language.`,
+              },
+              {
+                type: 'image_url',
+                image_url: { url: `data:image/jpeg;base64,${base64Image}` },
+              },
+            ],
+          },
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500
+      });
+
+      const result = JSON.parse(aiResponse.choices[0].message.content || '{}');
       
+      // Validate that suggested category is in our list
+      const validCategories = ['entire-villa', 'family-suite', 'group-room', 'triple-room', 'dining-area', 'pool-deck', 'lake-garden', 'roof-garden', 'front-garden', 'koggala-lake', 'excursions'];
+      if (result.suggestedCategory && !validCategories.includes(result.suggestedCategory)) {
+        result.suggestedCategory = 'entire-villa';
+      }
+
       res.json({
-        suggestedCategory: analysis.suggestedCategory,
-        confidence: analysis.confidence || 0.7,
-        description: analysis.description,
-        title: analysis.title
+        suggestedCategory: result.suggestedCategory || 'entire-villa',
+        confidence: result.confidence || 0.7,
+        title: result.title || 'Ko Lake Villa',
+        description: result.description || 'Beautiful villa accommodation',
+        tags: result.tags || ['luxury', 'villa', 'lakeside']
       });
 
     } catch (error) {
       console.error('AI analysis error:', error);
       res.status(500).json({ error: 'AI analysis failed' });
+    } finally {
+      // Clean up uploaded file
+      if (req.file?.path && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
     }
   });
 
