@@ -903,7 +903,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for existing subscription
       const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
       if (existingSubscriber) {
-        return res.status(200).json({
+        return res.status(400).json({
           message: "You're already subscribed to our newsletter!",
           data: existingSubscriber
         });
@@ -944,7 +944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for existing subscription (case-insensitive)
       const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email.toLowerCase());
       if (existingSubscriber) {
-        return res.status(409).json({
+        return res.status(400).json({
           message: "You're already subscribed to our newsletter!",
           data: existingSubscriber
         });
