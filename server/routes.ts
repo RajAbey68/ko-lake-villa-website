@@ -306,9 +306,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           path: file.path
         });
         
-        const category = req.body.category || 'default';
-        const title = req.body.title || file.originalname;
-        const description = req.body.description || '';
+        let category = req.body.category || 'default';
+        let title = req.body.title || file.originalname;
+        let description = req.body.description || '';
         
         // Determine media type from file mimetype or form data
         const isVideoFile = file.mimetype.startsWith('video/') || 
