@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Input } from '../../components/ui/input';
-import { Textarea } from '../../components/ui/textarea';
-import { Label } from '../../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { useToast } from '../../hooks/use-toast';
 import { Link } from 'wouter';
 import { ArrowLeft, Save, FileText, Home, Utensils, Camera, Phone, Bed } from 'lucide-react';
+import EnhancedContentManager from '../../components/EnhancedContentManager';
+import { uploadFile } from '../../lib/firebaseStorage';
 
 interface PageContent {
   id: string;
@@ -161,57 +160,60 @@ export default function ContentManager() {
     return content.filter(item => item.page === page);
   };
 
-  const ContentEditor = ({ pageContent }: { pageContent: PageContent[] }) => (
-    <div className="space-y-6">
-      {pageContent.map((item) => (
-        <Card key={item.id}>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">{item.title}</CardTitle>
-            <CardDescription>
-              {item.section.charAt(0).toUpperCase() + item.section.slice(1)} section
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {item.title.toLowerCase().includes('title') ? (
-              <div>
-                <Label htmlFor={item.id}>Content</Label>
-                <Input
-                  id={item.id}
-                  value={item.content}
-                  onChange={(e) => handleContentChange(item.id, e.target.value)}
-                  className="mt-1"
-                  placeholder="Enter title text..."
-                />
-              </div>
-            ) : (
-              <div>
-                <Label htmlFor={item.id}>Content</Label>
-                <Textarea
-                  id={item.id}
-                  value={item.content}
-                  onChange={(e) => handleContentChange(item.id, e.target.value)}
-                  className="mt-1 min-h-[100px]"
-                  placeholder="Enter description text..."
-                />
-              </div>
-            )}
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <span>Last updated: {new Date(item.lastUpdated).toLocaleString()}</span>
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={() => saveContent(item.page)}
-                disabled={saving}
-              >
-                <Save className="w-4 h-4 mr-1" />
-                Save This Page
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+  // Image upload handler
+  const handleImageUpload = async (file: File): Promise<string> => {
+    try {
+      const path = `content/${Date.now()}-${file.name}`;
+      const url = await uploadFile(file, path);
+      return url;
+    } catch (error) {
+      throw new Error('Failed to upload image');
+    }
+  };
+
+  // Convert PageContent to ContentSection format for EnhancedContentManager
+  const convertToContentSections = (pageContent: PageContent[]) => {
+    return pageContent.map(item => ({
+      id: item.id,
+      title: item.title,
+      content: item.content,
+      lastUpdated: item.lastUpdated
+    }));
+  };
+
+  // Handle content updates from EnhancedContentManager
+  const handleContentUpdate = async (sectionId: string, newContent: string): Promise<boolean> => {
+    try {
+      // Update local state
+      handleContentChange(sectionId, newContent);
+      
+      // Save to backend
+      const response = await fetch('/api/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Content Updated",
+          description: "Your changes have been saved successfully.",
+        });
+        return true;
+      } else {
+        throw new Error('Failed to save content');
+      }
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Failed to save changes. Please try again.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
 
   if (loading) {
     return (
@@ -300,11 +302,15 @@ export default function ContentManager() {
                   Homepage Content
                 </CardTitle>
                 <CardDescription>
-                  Edit the main landing page content including hero section and features
+                  Edit the main landing page content with rich formatting support (bold, italic, bullet points, links)
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('home')} />
+                <EnhancedContentManager 
+                  sections={convertToContentSections(getContentByPage('home'))}
+                  onUpdate={handleContentUpdate}
+                  onImageUpload={handleImageUpload}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -317,11 +323,15 @@ export default function ContentManager() {
                   Accommodation Page Content
                 </CardTitle>
                 <CardDescription>
-                  Edit content for the rooms and accommodation page
+                  Edit content for the rooms and accommodation page with advanced formatting
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('accommodation')} />
+                <EnhancedContentManager 
+                  sections={convertToContentSections(getContentByPage('accommodation'))}
+                  onUpdate={handleContentUpdate}
+                  onImageUpload={handleImageUpload}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -338,7 +348,11 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('dining')} />
+                <EnhancedContentManager 
+                  sections={convertToContentSections(getContentByPage('dining'))}
+                  onUpdate={handleContentUpdate}
+                  onImageUpload={handleImageUpload}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -355,7 +369,11 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('experiences')} />
+                <EnhancedContentManager 
+                  sections={convertToContentSections(getContentByPage('experiences'))}
+                  onUpdate={handleContentUpdate}
+                  onImageUpload={handleImageUpload}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -372,7 +390,11 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('gallery')} />
+                <EnhancedContentManager 
+                  sections={convertToContentSections(getContentByPage('gallery'))}
+                  onUpdate={handleContentUpdate}
+                  onImageUpload={handleImageUpload}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -389,7 +411,11 @@ export default function ContentManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ContentEditor pageContent={getContentByPage('contact')} />
+                <EnhancedContentManager 
+                  sections={convertToContentSections(getContentByPage('contact'))}
+                  onUpdate={handleContentUpdate}
+                  onImageUpload={handleImageUpload}
+                />
               </CardContent>
             </Card>
           </TabsContent>
