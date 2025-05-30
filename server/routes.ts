@@ -683,6 +683,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         specialRequests: req.body.specialRequests || req.body.phone || ""
       };
 
+      // Strict email validation before schema validation
+      if (!mappedData.email || mappedData.email.trim() === '') {
+        return res.status(400).json({ 
+          message: "Email is required" 
+        });
+      }
+
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      if (!emailRegex.test(mappedData.email)) {
+        return res.status(400).json({ 
+          message: "Please enter a valid email address" 
+        });
+      }
+
+      // Validate required fields
+      if (!mappedData.name || mappedData.name.trim() === '') {
+        return res.status(400).json({ 
+          message: "Name is required" 
+        });
+      }
+
+      if (!mappedData.checkInDate || !mappedData.checkOutDate) {
+        return res.status(400).json({ 
+          message: "Check-in and check-out dates are required" 
+        });
+      }
+
+      if (!mappedData.guests || mappedData.guests < 1) {
+        return res.status(400).json({ 
+          message: "Number of guests must be at least 1" 
+        });
+      }
+
       const validatedData = insertBookingInquirySchema.parse(mappedData);
       
       // Additional validation
@@ -704,32 +737,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Validate guest capacity with proper Ko Lake Villa limits
-      const maxCapacity = {
-        'KLV': 18, // Base capacity 18, extra charges for 19+
-        'KLV1': 6, // Family Suite base capacity
-        'KLV3': 3, // Triple room base capacity  
-        'KLV6': 6, // Group room base capacity
-        'Entire Villa (KLV)': 18,
-        'Master Family Suite (KLV1)': 6,
-        'Triple/Twin Rooms (KLV3)': 3,
-        'Group Room (KLV6)': 6
+      // Validate guest capacity with strict Ko Lake Villa limits
+      const roomLimits = {
+        'KLV': { base: 18, max: 25 },
+        'KLV1': { base: 6, max: 6 },
+        'KLV3': { base: 3, max: 3 },
+        'KLV6': { base: 6, max: 6 },
+        'Entire Villa (KLV)': { base: 18, max: 25 },
+        'Master Family Suite (KLV1)': { base: 6, max: 6 },
+        'Triple/Twin Rooms (KLV3)': { base: 3, max: 3 },
+        'Group Room (KLV6)': { base: 6, max: 6 }
       };
 
-      const roomCapacity = maxCapacity[validatedData.roomType as keyof typeof maxCapacity];
-      
-      // For KLV (entire villa), allow up to 25 but flag for extra charges
-      if (validatedData.roomType === 'KLV' || validatedData.roomType === 'Entire Villa (KLV)') {
-        if (validatedData.guests > 25) {
+      const limits = roomLimits[validatedData.roomType as keyof typeof roomLimits];
+      if (limits) {
+        if (validatedData.guests > limits.max) {
           return res.status(400).json({ 
-            message: "Maximum capacity is 25 guests for entire villa" 
+            message: `${validatedData.roomType} maximum capacity is ${limits.max} guests` 
           });
         }
-      } else if (roomCapacity && validatedData.guests > (roomCapacity + 2)) {
-        // Allow 2 extra guests with special request for individual rooms
-        return res.status(400).json({ 
-          message: `${validatedData.roomType} standard capacity is ${roomCapacity} guests (up to ${roomCapacity + 2} with special request)` 
-        });
+        
+        // For villa bookings over base capacity, require special handling
+        if ((validatedData.roomType === 'KLV' || validatedData.roomType === 'Entire Villa (KLV)') && 
+            validatedData.guests > limits.base) {
+          return res.status(400).json({ 
+            message: `Bookings for ${validatedData.guests} guests require special arrangement. Base capacity is ${limits.base} guests. Please contact us directly for groups over ${limits.base}.` 
+          });
+        }
+        
+        // For individual rooms, enforce strict limits
+        if (validatedData.roomType !== 'KLV' && validatedData.roomType !== 'Entire Villa (KLV)' && 
+            validatedData.guests > limits.base) {
+          return res.status(400).json({ 
+            message: `${validatedData.roomType} accommodates maximum ${limits.base} guests` 
+          });
+        }
       }
 
       const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
@@ -751,10 +793,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form
   app.post("/api/contact", async (req, res) => {
     try {
+      // Validate required fields
+      if (!req.body.message || req.body.message.trim() === '') {
+        return res.status(400).json({ 
+          message: "Message is required" 
+        });
+      }
+
+      if (!req.body.name || req.body.name.trim() === '') {
+        return res.status(400).json({ 
+          message: "Name is required" 
+        });
+      }
+
+      if (!req.body.email || req.body.email.trim() === '') {
+        return res.status(400).json({ 
+          message: "Email is required" 
+        });
+      }
+
       // Additional email validation
-      const { email } = req.body;
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (email && !emailRegex.test(email)) {
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      if (!emailRegex.test(req.body.email)) {
         return res.status(400).json({ 
           message: "Please enter a valid email address" 
         });
@@ -810,6 +870,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Alternative newsletter endpoint (for test compatibility)
   app.post("/api/newsletter/subscribe", async (req, res) => {
     try {
+      // Validate email first
+      if (!req.body.email || req.body.email.trim() === '') {
+        return res.status(400).json({ 
+          message: "Email is required" 
+        });
+      }
+
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      if (!emailRegex.test(req.body.email)) {
+        return res.status(400).json({ 
+          message: "Please enter a valid email address" 
+        });
+      }
+
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
       
       // Check for existing subscription
