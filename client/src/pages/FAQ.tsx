@@ -22,6 +22,7 @@ type SpecialRequestValues = z.infer<typeof specialRequestSchema>;
 const FAQ = () => {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const [calculatedNights, setCalculatedNights] = useState<number>(0);
 
   useEffect(() => {
     document.title = "FAQ & House Rules - Ko Lake Villa";
@@ -37,15 +38,39 @@ const FAQ = () => {
     }
   });
 
+  // Function to calculate nights between check-in and check-out dates
+  const calculateNights = (checkinDate: string, checkoutDate: string) => {
+    if (!checkinDate || !checkoutDate) {
+      setCalculatedNights(0);
+      return;
+    }
+    
+    const checkin = new Date(checkinDate);
+    const checkout = new Date(checkoutDate);
+    
+    if (checkout <= checkin) {
+      setCalculatedNights(0);
+      return;
+    }
+    
+    const timeDifference = checkout.getTime() - checkin.getTime();
+    const nights = Math.ceil(timeDifference / (1000 * 3600 * 24));
+    setCalculatedNights(nights);
+  };
+
   const onSubmit = async (values: SpecialRequestValues) => {
     setSubmitting(true);
     try {
-      await apiRequest('POST', '/api/special-request', values);
+      await apiRequest('POST', '/api/special-request', {
+        ...values,
+        nights: calculatedNights
+      });
       toast({
         title: "Request submitted successfully!",
         description: "We'll get back to you within 24 hours."
       });
       form.reset();
+      setCalculatedNights(0);
     } catch (error) {
       toast({
         title: "Error",
@@ -211,6 +236,10 @@ const FAQ = () => {
                               type="date" 
                               className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
                               required
+                              onChange={(e) => {
+                                field.onChange(e);
+                                calculateNights(e.target.value, form.getValues('checkout'));
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -230,6 +259,10 @@ const FAQ = () => {
                               type="date" 
                               className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
                               required
+                              onChange={(e) => {
+                                field.onChange(e);
+                                calculateNights(form.getValues('checkin'), e.target.value);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -237,6 +270,16 @@ const FAQ = () => {
                       )}
                     />
                   </div>
+                  
+                  {calculatedNights > 0 && (
+                    <div className="bg-[#E8F4F8] border border-[#B3D9E6] rounded-lg p-4">
+                      <div className="flex items-center justify-center">
+                        <span className="text-[#1E4E5F] font-semibold text-lg">
+                          Duration: {calculatedNights} night{calculatedNights !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   
                   <FormField
                     control={form.control}
