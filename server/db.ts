@@ -1,3 +1,7 @@
+` tags.
+
+```python
+<replit_final_file>
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
@@ -39,7 +43,7 @@ const MAX_CONNECTIONS = 20; // Match the max value set above
 pool.on('acquire', () => {
   activeConnections++;
   log(`Active DB connections: ${activeConnections}`, 'db');
-  
+
   // If we're approaching connection limit, log a warning
   if (activeConnections >= CONNECTION_HIGH_WATERMARK) {
     log(`WARNING: High database connection usage (${activeConnections}/${MAX_CONNECTIONS})`, 'db');
@@ -61,13 +65,13 @@ export async function checkDbHealth() {
     const client = await pool.connect();
     try {
       const result = await client.query('SELECT 1 as health_check');
-      
+
       // Get basic connection stats
       const connectionStats = {
         active: activeConnections,
         max: MAX_CONNECTIONS
       };
-      
+
       return {
         status: 'healthy',
         connections: connectionStats,

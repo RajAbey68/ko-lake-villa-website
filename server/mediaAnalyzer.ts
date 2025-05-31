@@ -33,6 +33,9 @@ const VILLA_CATEGORIES = [
   'excursions'
 ];
 
+// Cache for AI analysis results
+const analysisCache = new Map<string, any>();
+
 export async function analyzeImageWithAI(imagePath: string, userCategory: string) {
   try {
     console.log(`🔍 Analyzing image: ${imagePath}`);
@@ -41,11 +44,33 @@ export async function analyzeImageWithAI(imagePath: string, userCategory: string
       throw new Error(`File not found: ${imagePath}`);
     }
 
+    // Create cache key from file stats
+    const stats = fs.statSync(imagePath);
+    const cacheKey = `${path.basename(imagePath)}-${stats.size}-${stats.mtime.getTime()}`;
+    
+    // Check cache first
+    if (analysisCache.has(cacheKey)) {
+      console.log(`✅ Using cached analysis for ${imagePath}`);
+      return analysisCache.get(cacheKey);
+    }
+
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = imageBuffer.toString('base64');
 
+    // Compress image if too large (>4MB)
+    let finalBase64 = base64Image;
+    if (imageBuffer.length > 4 * 1024 * 1024) {
+      const sharp = require('sharp');
+      const compressedBuffer = await sharp(imageBuffer)
+        .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+      finalBase64 = compressedBuffer.toString('base64');
+      console.log(`📦 Compressed image from ${imageBuffer.length} to ${compressedBuffer.length} bytes`);
+    }
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+      model: "gpt-4o",
       messages: [{
         role: "user",
         content: [
@@ -55,14 +80,26 @@ export async function analyzeImageWithAI(imagePath: string, userCategory: string
           },
           {
             type: "image_url",
-            image_url: { url: `data:image/jpeg;base64,${base64Image}` }
+            image_url: { url: `data:image/jpeg;base64,${finalBase64}` }
           }
         ]
       }],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      max_tokens: 500
     });
 
-    return JSON.parse(response.choices[0].message.content);
+    const result = JSON.parse(response.choices[0].message.content);
+    
+    // Cache the result
+    analysisCache.set(cacheKey, result);
+    
+    // Limit cache size
+    if (analysisCache.size > 100) {
+      const firstKey = analysisCache.keys().next().value;
+      analysisCache.delete(firstKey);
+    }
+    
+    return result;
   } catch (error) {
     console.error('AI analysis failed:', error);
     return {

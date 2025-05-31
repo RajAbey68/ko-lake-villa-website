@@ -11,7 +11,7 @@ import {
   contentDocuments, type ContentDocument, type InsertContentDocument
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 // Define storage interface with all required CRUD operations
 export interface IStorage {
@@ -19,7 +19,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // For backward compatibility
   getUserByUsername?(username: string): Promise<User | undefined>;
   createUser?(user: InsertUser): Promise<User>;
@@ -104,7 +104,7 @@ export class MemStorage implements IStorage {
   private pageHeroImages: Map<string, PageHeroImage>;
   private websiteContent: Map<string, any>;
   private specialRequests: Map<number, any>;
-  
+
   private nextUserId: number;
   private nextRoomId: number;
   private nextTestimonialId: number;
@@ -129,7 +129,7 @@ export class MemStorage implements IStorage {
     this.pageHeroImages = new Map();
     this.websiteContent = new Map();
     this.specialRequests = new Map();
-    
+
     this.nextUserId = 1;
     this.nextRoomId = 1;
     this.nextTestimonialId = 1;
@@ -149,7 +149,7 @@ export class MemStorage implements IStorage {
   private initializeData() {
     // Clear existing rooms first
     this.rooms.clear();
-    
+
     // Ko Lake Villa - Real Airbnb Rates (extracted from live data)
     const BASE_RATES = {
       klv: 431,    // Entire Villa – real Airbnb rate with discounts applied
@@ -224,7 +224,7 @@ export class MemStorage implements IStorage {
     const sampleRooms: InsertRoom[] = ROOM_CONFIG.map(room => {
       const baseRate = BASE_RATES[room.id as keyof typeof BASE_RATES];
       const { directPrice, label } = getSmartRate(baseRate, room.checkinDate);
-      
+
       return {
         name: room.name,
         description: room.description,
@@ -345,7 +345,7 @@ export class MemStorage implements IStorage {
         mediaType: "image",
         sortOrder: 3
       },
-      
+
       // Group Room - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
@@ -362,7 +362,7 @@ export class MemStorage implements IStorage {
         mediaType: "video",
         sortOrder: 2
       },
-      
+
       // Triple Room - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4",
@@ -379,7 +379,7 @@ export class MemStorage implements IStorage {
         mediaType: "video",
         sortOrder: 2
       },
-      
+
       // Dining Area - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747348711121-217846602-20250420_170654.mp4",
@@ -396,7 +396,7 @@ export class MemStorage implements IStorage {
         mediaType: "video",
         sortOrder: 2
       },
-      
+
       // Pool Deck - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
@@ -413,7 +413,7 @@ export class MemStorage implements IStorage {
         mediaType: "image",
         sortOrder: 2
       },
-      
+
       // Lake Garden - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
@@ -430,7 +430,7 @@ export class MemStorage implements IStorage {
         mediaType: "image",
         sortOrder: 2
       },
-      
+
       // Roof Garden - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
@@ -447,7 +447,7 @@ export class MemStorage implements IStorage {
         mediaType: "image",
         sortOrder: 2
       },
-      
+
       // Front Garden and Entrance - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
@@ -464,7 +464,7 @@ export class MemStorage implements IStorage {
         mediaType: "video",
         sortOrder: 2
       },
-      
+
       // Koggala Lake Ahangama and Surrounding - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747347253299-598773798-20250420_170648.mp4",
@@ -481,7 +481,7 @@ export class MemStorage implements IStorage {
         mediaType: "video",
         sortOrder: 2
       },
-      
+
       // Excursions - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747359245374-177273305-20250420_170815.mp4",
@@ -598,7 +598,7 @@ export class MemStorage implements IStorage {
 
   async createGalleryImage(insertGalleryImage: InsertGalleryImage): Promise<GalleryImage> {
     const id = this.nextGalleryImageId++;
-    
+
     // Ensure all required fields have values
     const galleryImage: GalleryImage = { 
       ...insertGalleryImage, 
@@ -607,54 +607,54 @@ export class MemStorage implements IStorage {
       sortOrder: insertGalleryImage.sortOrder ?? 0,
       mediaType: insertGalleryImage.mediaType ?? "image"
     };
-    
+
     this.galleryImages.set(id, galleryImage);
     return galleryImage;
   }
-  
+
   async updateGalleryImage(partialGalleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage> {
     const { id } = partialGalleryImage;
     const existingImage = this.galleryImages.get(id);
-    
+
     if (!existingImage) {
       throw new Error(`Gallery image with ID ${id} not found`);
     }
-    
+
     // Update the existing image with the new properties
     const updatedImage: GalleryImage = {
       ...existingImage,
       ...partialGalleryImage,
     };
-    
+
     this.galleryImages.set(id, updatedImage);
     return updatedImage;
   }
 
   async updateGalleryImageCategory(id: number, category: string): Promise<GalleryImage> {
     const existingImage = this.galleryImages.get(id);
-    
+
     if (!existingImage) {
       throw new Error(`Gallery image with ID ${id} not found`);
     }
-    
+
     // Update the image category
     const updatedImage: GalleryImage = {
       ...existingImage,
       category
     };
-    
+
     this.galleryImages.set(id, updatedImage);
     return updatedImage;
   }
-  
+
   async deleteGalleryImage(id: number): Promise<boolean> {
     if (!this.galleryImages.has(id)) {
       return false;
     }
-    
+
     return this.galleryImages.delete(id);
   }
-  
+
   async deleteAllGalleryImages(): Promise<number> {
     const count = this.galleryImages.size;
     this.galleryImages.clear();
@@ -879,12 +879,12 @@ export class MemStorage implements IStorage {
           lastUpdated: new Date().toISOString()
         }
       ];
-      
+
       defaultContent.forEach(item => {
         this.websiteContent.set(item.id, item);
       });
     }
-    
+
     return Array.from(this.websiteContent.values());
   }
 
@@ -960,11 +960,30 @@ export class MemStorage implements IStorage {
 // Database storage implementation
 class DbStorage implements IStorage {
   async getGalleryImages(): Promise<GalleryImage[]> {
-    return await db.select().from(galleryImages);
+    return await db.select().from(galleryImages).orderBy(galleryImages.sortOrder, galleryImages.id);
   }
 
   async getGalleryImagesByCategory(category: string): Promise<GalleryImage[]> {
-    return await db.select().from(galleryImages).where(eq(galleryImages.category, category));
+    return await db.select().from(galleryImages)
+      .where(eq(galleryImages.category, category))
+      .orderBy(galleryImages.sortOrder, galleryImages.id);
+  }
+
+  // Batch operations for better efficiency
+  async getGalleryImagesBatch(imageIds: number[]): Promise<GalleryImage[]> {
+    if (imageIds.length === 0) return [];
+    return db.select().from(galleryImages)
+      .where(inArray(galleryImages.id, imageIds));
+  }
+
+  async updateGalleryImagesBatch(updates: Array<{id: number, data: Partial<GalleryImage>}>): Promise<void> {
+    await db.transaction(async (tx) => {
+      for (const update of updates) {
+        await tx.update(galleryImages)
+          .set(update.data)
+          .where(eq(galleryImages.id, update.id));
+      }
+    });
   }
 
   async getGalleryImageById(id: number): Promise<GalleryImage | undefined> {
