@@ -12,6 +12,12 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import OpenAI from "openai";
+
+// Initialize OpenAI for AI-powered content generation
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+}) : null;
 
 // File upload configuration
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
