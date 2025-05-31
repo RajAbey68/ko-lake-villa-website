@@ -12,7 +12,7 @@ import {
   CheckIcon, 
   XIcon, 
   EyeIcon,
-  PublishIcon,
+  SendIcon,
   ClockIcon,
   UserIcon
 } from 'lucide-react';
@@ -269,7 +269,7 @@ export default function VisitorUploads() {
                     onClick={() => handleAction(upload, 'publish')}
                     className="bg-[#FF914D] hover:bg-[#8B5E3C]"
                   >
-                    <PublishIcon className="h-4 w-4 mr-1" />
+                    <SendIcon className="h-4 w-4 mr-1" />
                     Publish
                   </Button>
                 )}
