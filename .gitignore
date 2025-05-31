@@ -4,3 +4,37 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+# Node and build files
+node_modules/
+dist/
+.DS_Store
+
+# Build tools
+*.tar.gz
+*.log
+*.env
+.env.*
+
+# Local development artifacts
+*.zip
+*.bak
+*.old
+
+# Replit and OS
+.replit
+*.swp
+
+# Specific folders
+server/public/
+vite.config.ts.*
+# Remove the zip file from Git (but not from your workspace)
+git rm --cached ko-lake-villa.zip
+
+# Add and commit the updated .gitignore
+git add .gitignore
+git commit -m "Update .gitignore to exclude large local files and dev artifacts"
+
+# Push to GitHub
+git push -u origin main
+
+exit
