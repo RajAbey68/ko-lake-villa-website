@@ -20,7 +20,8 @@ const contactFormSchema = z.object({
   timezone: z.string().default("Asia/Colombo"),
   familiarity: z.enum(["yes", "no"], { message: "Please select your familiarity with the region" }),
   subject: z.string().min(2, { message: "Subject must be at least 2 characters" }),
-  message: z.string().min(10, { message: "Message must be at least 10 characters" })
+  message: z.string().min(10, { message: "Message must be at least 10 characters" }),
+  localMedia: z.any().optional()
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -42,7 +43,8 @@ const Contact = () => {
       timezone: 'Asia/Colombo',
       familiarity: undefined,
       subject: '',
-      message: ''
+      message: '',
+      localMedia: undefined
     }
   });
 
@@ -369,6 +371,29 @@ const Contact = () => {
                             placeholder="Your message here..." 
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="localMedia"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="localMedia" className="text-[#333333]">Upload a photo or video of your local area</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="file" 
+                            id="localMedia" 
+                            name="localMedia" 
+                            accept="image/*,video/*" 
+                            multiple 
+                            className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E6D9C7] file:text-[#1E4E5F] hover:file:bg-[#D4C4A8]"
+                            onChange={(e) => field.onChange(e.target.files)}
+                          />
+                        </FormControl>
+                        <small className="text-[#666666] text-sm">Supported formats: JPG, PNG, MP4</small>
                         <FormMessage />
                       </FormItem>
                     )}
