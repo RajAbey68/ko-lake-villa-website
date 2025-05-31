@@ -21,6 +21,7 @@ import { imageCompressor } from "./imageCompression";
 import { mediaAnalyzer } from "./mediaAnalyzer";
 import Stripe from "stripe";
 import OpenAI from 'openai';
+import aiRoutes from "./aiRoutes";
 
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -51,18 +52,18 @@ const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Get category from request body, default to 'default' if not provided
     const category = req.body.category || 'default';
-    
+
     // Sanitize the category name to prevent directory traversal
     const safeCategory = category.replace(/[^a-zA-Z0-9 -]/g, '_');
-    
+
     // Create path to category directory
     const destination = path.join(GALLERY_DIR, safeCategory);
-    
+
     // Create directory if it doesn't exist
     if (!fs.existsSync(destination)) {
       fs.mkdirSync(destination, { recursive: true });
     }
-    
+
     cb(null, destination);
   },
   filename: (req, file, cb) => {
@@ -85,7 +86,7 @@ import { checkDbHealth } from './db';
 import { scrapeWebsiteHandler, scrapeMultipleWebsites } from './scraper';
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Admin pricing management routes
   // Store custom price overrides in memory (in production, this would be in database)
   let priceOverrides: { [roomId: string]: { customPrice: number; setDate: string; autoPrice: number } } = {};
@@ -111,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set custom price override
   app.patch('/api/admin/pricing/override', (req, res) => {
     const { roomId, customPrice } = req.body;
-    
+
     // Validate input
     if (!roomId || !customPrice || customPrice <= 0) {
       return res.status(400).json({ error: 'Invalid room ID or price' });
@@ -120,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Get the auto-calculated price (10% off Airbnb rate)
     const airbnbRates = { knp: 431, knp1: 119, knp3: 70, knp6: 250 };
     const autoPrice = Math.round(airbnbRates[roomId as keyof typeof airbnbRates] * 0.9);
-    
+
     // Ensure custom price doesn't exceed Airbnb rate (maintain some discount)
     const maxPrice = airbnbRates[roomId as keyof typeof airbnbRates] * 0.95; // Max 5% discount
     if (customPrice > maxPrice) {
@@ -146,12 +147,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/refresh-pricing', (req, res) => {
     const today = new Date();
     const isSunday = today.getDay() === 0; // Sunday = 0
-    
+
     if (isSunday) {
       // On Sundays, revert all custom overrides to pre-agreed pricing
       const revertedRooms = Object.keys(priceOverrides);
       priceOverrides = {}; // Clear all overrides
-      
+
       res.json({ 
         success: true, 
         message: 'Sunday auto-revert completed - all prices reset to pre-agreed rates',
@@ -188,7 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const validatedData = specialRequestSchema.parse(req.body);
-      
+
       // Store the special request
       await dataStorage.createSpecialRequest({
         ...validatedData,
@@ -219,10 +220,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Expires', '0');
     }
   }));
-  
+
   // Log upload directory for easier debugging
   console.log(`Serving uploads from: ${UPLOAD_DIR}`);
-  
+
   // Debug route to list all uploaded files
   app.get('/api/debug/uploads', (req, res) => {
     try {
@@ -232,32 +233,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to list uploaded files' });
     }
   });
-  
+
   // Image proxy endpoint to handle CORS and external images
   app.get('/api/image-proxy', async (req, res) => {
     const imageUrl = req.query.url as string;
-    
+
     if (!imageUrl) {
       return res.status(400).send('Missing URL parameter');
     }
-    
+
     try {
       // Check if this is a local path starting with /uploads
       if (imageUrl.startsWith('/uploads/')) {
         // This is a local image, serve it directly from the filesystem
         const localPath = path.join(process.cwd(), imageUrl);
         console.log(`Proxying local image: ${localPath}, exists: ${fs.existsSync(localPath)}`);
-        
+
         if (fs.existsSync(localPath)) {
           // Get the file's size
           const stats = fs.statSync(localPath);
           console.log(`File size: ${stats.size} bytes`);
-          
+
           if (stats.size === 0) {
             console.error(`Zero-byte file detected: ${localPath}`);
             return res.status(404).send('Empty image file');
           }
-          
+
           // Get the file's mime type
           const mimeType = imageUrl.endsWith('.jpg') || imageUrl.endsWith('.jpeg') ? 
             'image/jpeg' : 
@@ -266,24 +267,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
               imageUrl.endsWith('.gif') ? 
                 'image/gif' : 
                 'application/octet-stream';
-          
+
           // Set cache-control headers to prevent caching
           res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
           res.setHeader('Pragma', 'no-cache');
           res.setHeader('Expires', '0');
           res.setHeader('Content-Type', mimeType);
-          
+
           return fs.createReadStream(localPath).pipe(res);
         } else {
           console.error(`Local image not found: ${localPath}`);
           return res.status(404).send('Image not found on server');
         }
       }
-      
+
       // Otherwise, handle it as an external URL
       const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
       const contentType = response.headers['content-type'];
-      
+
       res.setHeader('Content-Type', contentType);
       return res.send(response.data);
     } catch (error) {
@@ -291,32 +292,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).send('Error loading image');
     }
   });
-  
+
   // Helper function to list all files in a directory (recursive)
   function listAllFiles(dir: string): string[] {
     let results: string[] = [];
     const list = fs.readdirSync(dir);
-    
+
     list.forEach((file) => {
       const fullPath = path.join(dir, file);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat && stat.isDirectory()) {
         results = results.concat(listAllFiles(fullPath));
       } else {
         results.push(fullPath);
       }
     });
-    
+
     return results;
   }
-  
+
   // File upload endpoint
   app.post("/api/upload", (req, res) => {
     console.log("Upload endpoint called");
     console.log("Request body:", req.body);
     console.log("Request files:", req.files);
-    
+
     upload.any()(req, res, async (err) => {
       if (err) {
         console.error("Multer error:", err);
@@ -325,16 +326,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error: err.message 
         });
       }
-      
+
       try {
         console.log("Processing file upload");
         console.log("Request file after multer:", req.file);
-        
+
         if (!req.files || req.files.length === 0) {
           console.error("No file in request");
           return res.status(400).json({ message: "No file uploaded" });
         }
-        
+
         // Get file details
         const file = req.files[0];
         console.log("File details:", {
@@ -344,25 +345,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           size: file.size,
           path: file.path
         });
-        
+
         let category = req.body.category || 'default';
         let title = req.body.title || file.originalname;
         let description = req.body.description || '';
-        
+
         // Determine media type from file mimetype or form data
         const isVideoFile = file.mimetype.startsWith('video/') || 
                             file.originalname.toLowerCase().endsWith('.mp4') ||
                             file.originalname.toLowerCase().endsWith('.mov') ||
                             file.originalname.toLowerCase().endsWith('.avi');
-        
+
         const mediaType = req.body.mediaType || (isVideoFile ? 'video' : 'image');
-        
+
         console.log("Media type detected:", mediaType, "for file:", file.originalname);
-        
+
         // Properly process tags - ensure they're in a consistent format
         let tags = req.body.tags || '';
         console.log("Raw tags:", tags);
-        
+
         // Clean up tags by removing extra spaces and ensuring comma separation
         if (tags) {
           // Convert to array, clean each tag, and join back with proper type annotation
@@ -371,19 +372,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .map(tag => tag.trim())
             .filter(tag => tag.length > 0) // Remove empty tags
             .join(',');
-          
+
           console.log("Processed tags:", tags);
         }
-        
+
         const featured = req.body.featured === 'true';
-        
+
         console.log("Form data:", { category, title, description, tags, featured, mediaType });
         console.log("File mimetype:", file.mimetype);
-        
+
         // Create URL for the uploaded file - always using the default folder
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
         console.log("Generated file URL:", fileUrl);
-        
+
         // AI-powered analysis if enabled (run in parallel with file processing)
         let aiAnalysisPromise: Promise<any> | null = null;
         if (process.env.OPENAI_API_KEY) {
@@ -399,14 +400,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Process other file operations while AI analysis runs
         const stats = fs.statSync(file.path);
         const fileSize = stats.size;
-        
+
         // Wait for AI analysis if it was started
         let aiAnalysis = null;
         if (aiAnalysisPromise) {
           try {
             aiAnalysis = await aiAnalysisPromise;
             console.log("✅ AI Analysis complete:", aiAnalysis);
-            
+
             // Use AI suggestions if confidence > 0.7
             if (aiAnalysis && aiAnalysis.confidence > 0.7) {
               if (!title || title === file.originalname) {
@@ -440,12 +441,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             mediaType,
             sortOrder: 0
           };
-          
+
           console.log("Creating gallery image with data:", galleryImageData);
-          
+
           const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
           console.log("Image saved to database:", galleryImage);
-          
+
           res.status(201).json({
             message: "File uploaded successfully!",
             data: galleryImage,
@@ -467,11 +468,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   });
-  
+
   // Gallery image upload endpoint
   app.post("/api/gallery/upload", (req, res) => {
     console.log("Gallery upload endpoint called");
-    
+
     upload.single('image')(req, res, async (err) => {
       if (err) {
         console.error("Gallery upload error:", err);
@@ -484,14 +485,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.file) {
         return res.status(400).json({ message: "No image uploaded" });
       }
-      
+
       try {
         // Extract form data
         const { category, alt, description, featured, sortOrder, displaySize } = req.body;
-        
+
         // Create relative path for database
         const filePath = req.file.path;
-        
+
         // Check if the file was properly written and has content
         const fileStats = fs.statSync(filePath);
         if (fileStats.size === 0) {
@@ -500,37 +501,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Report the error
           throw new Error(`File uploaded as empty (0 bytes): ${filePath}. File was deleted.`);
         }
-        
+
         // Double check that file exists
         if (!fs.existsSync(filePath)) {
           throw new Error(`The uploaded file doesn't exist at ${filePath} after saving`);
         }
-        
+
         // Use an absolute URL path that will work with the express.static middleware
         const relativePath = '/uploads/' + path.relative(UPLOAD_DIR, filePath).replace(/\\/g, '/');
-        
+
         console.log(`Gallery image uploaded: ${relativePath}, category: ${category}, size: ${fileStats.size} bytes`);
         console.log(`File saved at physical path: ${filePath}`);
-        
+
         // Get file size
         const stats = fs.statSync(filePath);
         const fileSize = stats.size;
-        
+
         // AI-powered analysis if enabled
         let finalAlt = alt || 'Ko Lake Villa Image';
         let finalDescription = description || null;
         let finalCategory = category;
         let finalTags = category;
         let aiAnalysis = null;
-        
+
         try {
           if (process.env.OPENAI_API_KEY && (!alt || !description)) {
             console.log("🤖 Starting AI analysis for gallery image...");
             const { analyzeImageWithAI } = await import('./mediaAnalyzer');
             aiAnalysis = await analyzeImageWithAI(filePath, category);
-            
+
             console.log("✅ AI Analysis complete:", aiAnalysis);
-            
+
             // Use AI suggestions if confidence > 0.7 and fields are empty
             if (aiAnalysis.confidence > 0.7) {
               if (!alt) {
@@ -550,7 +551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (aiError) {
           console.error("AI analysis failed (continuing with manual data):", aiError);
         }
-        
+
         // Create gallery image in database
         const galleryImage = await dataStorage.createGalleryImage({
           imageUrl: relativePath,
@@ -564,7 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fileSize: fileSize,
           tags: finalTags
         });
-        
+
         res.json({ 
           message: "Gallery image uploaded successfully",
           data: galleryImage
@@ -598,12 +599,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid room ID" });
     }
-    
+
     const room = await dataStorage.getRoomById(id);
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
     }
-    
+
     res.json(room);
   });
 
@@ -622,15 +623,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid activity ID" });
     }
-    
+
     const activity = await dataStorage.getActivityById(id);
     if (!activity) {
       return res.status(404).json({ message: "Activity not found" });
     }
-    
+
     res.json(activity);
   });
-  
+
   // Google Drive export endpoint
   app.post("/api/export/google-drive", async (req, res) => {
     try {
@@ -648,7 +649,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const diningOptions = await dataStorage.getDiningOptions();
     res.json(diningOptions);
   });
-  
+
   // Database status endpoint for monitoring
   app.get("/api/system/db-status", async (req, res) => {
     try {
@@ -667,12 +668,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid dining option ID" });
     }
-    
+
     const diningOption = await dataStorage.getDiningOptionById(id);
     if (!diningOption) {
       return res.status(404).json({ message: "Dining option not found" });
     }
-    
+
     res.json(diningOption);
   });
 
@@ -683,14 +684,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/gallery", async (req, res) => {
     const category = req.query.category as string | undefined;
     const cacheKey = category || 'all';
-    
+
     // Check cache first
     const cached = galleryCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
       console.log(`Gallery cache hit for category: ${cacheKey}`);
       return res.json(cached.data);
     }
-    
+
     let images;
     if (category && category !== 'all') {
       console.log(`Fetching images for category: ${category}`);
@@ -699,9 +700,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Fetching all gallery images');
       images = await dataStorage.getGalleryImages();
     }
-    
+
     console.log(`Found ${images.length} images for category "${category || 'all'}"`);
-    
+
     // Process images with optimized timestamp logic
     const processedImages = images.map(image => {
       if (image.imageUrl && image.imageUrl.startsWith('/uploads/')) {
@@ -712,17 +713,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       return image;
     });
-    
+
     // Cache the response
     galleryCache.set(cacheKey, {
       data: processedImages,
       timestamp: Date.now()
     });
-    
+
     console.log(`Returning ${processedImages.length} processed images`);
     res.json(processedImages);
   });
-  
+
   // Delete all gallery images (admin only)
   app.delete("/api/gallery/clear-all", async (req, res) => {
     try {
@@ -750,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const validatedData = insertBookingInquirySchema.parse(req.body);
-      
+
       // Additional validation
       const checkIn = new Date(validatedData.checkInDate);
       const checkOut = new Date(validatedData.checkOutDate);
@@ -795,7 +796,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Special handling for Villa bookings with 19+ guests
       if (validatedData.roomType === 'Entire Villa (KLV)' && validatedData.guests >= 19) {
         const ageBreakdownMessage = `\n\n--- IMPORTANT: 19+ GUESTS BOOKING ---\nExtra charges apply for groups over 18 guests.\nPlease contact us with the following information:\n- Total guests over 14 years: ___\n- Total guests under 14 years: ___\n- Special requirements: ___\n\nWe will contact you within 24 hours to confirm pricing and arrangements.`;
-        
+
         // Append age breakdown request to special requests
         validatedData.specialRequests = (validatedData.specialRequests || '') + ageBreakdownMessage;
       }
@@ -850,7 +851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Name validation with security checks
-      if (!mappedData.name || mappedData.name.trim() === '') {
+      if (!mappedData.name || mappedData.name.trim()== '') {
         return res.status(400).json({ message: "Name is required" });
       }
 
@@ -920,7 +921,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const standard = standardCapacity[mappedData.roomType as keyof typeof standardCapacity];
-      
+
       if (standard && mappedData.guests > standard) {
         const overCapacityNotice = `
 
@@ -955,13 +956,13 @@ The host will respond within 24 hours to discuss:
         `;
 
         mappedData.specialRequests = (mappedData.specialRequests || '') + overCapacityNotice;
-        
+
         // Log host notification requirement for backend processing
         console.log(`🚨 HOST NOTIFICATION: Over-capacity booking alert sent for ${mappedData.roomType} - ${mappedData.guests} guests (standard: ${standard}) - Guest: ${mappedData.name} <${mappedData.email}>`);
       }
 
       const validatedData = insertBookingInquirySchema.parse(mappedData);
-      
+
       // Additional date validation
       const checkIn = new Date(validatedData.checkInDate);
       const checkOut = new Date(validatedData.checkOutDate);
@@ -1051,7 +1052,7 @@ The host will respond within 24 hours to discuss:
       if (!emailRegex.test(req.body.email)) {
         return res.status(400).json({ message: "Please enter a valid email address" });
       }
-      
+
       const validatedData = insertContactMessageSchema.parse(req.body);
       const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
@@ -1073,7 +1074,7 @@ The host will respond within 24 hours to discuss:
   app.post("/api/newsletter", async (req, res) => {
     try {
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
-      
+
       // Check for existing subscription
       const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
       if (existingSubscriber) {
@@ -1082,7 +1083,7 @@ The host will respond within 24 hours to discuss:
           data: existingSubscriber
         });
       }
-      
+
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
         message: "Subscribed to newsletter successfully!",
@@ -1103,7 +1104,7 @@ The host will respond within 24 hours to discuss:
   app.post("/api/newsletter/subscribe", async (req, res) => {
     try {
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
-      
+
       // Check for existing subscription
       const existingSubscriber = await dataStorage.getNewsletterSubscriberByEmail(validatedData.email);
       if (existingSubscriber) {
@@ -1112,7 +1113,7 @@ The host will respond within 24 hours to discuss:
           data: existingSubscriber
         });
       }
-      
+
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
         message: "Subscribed to newsletter successfully!",
@@ -1170,13 +1171,13 @@ The host will respond within 24 hours to discuss:
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const { category } = req.body;
       if (!category) {
         return res.status(400).json({ message: "Category is required" });
       }
-      
+
       const success = await dataStorage.updateGalleryImageCategory(id, category);
       if (success) {
         return res.json({ message: "Gallery image category updated successfully!" });
@@ -1194,7 +1195,7 @@ The host will respond within 24 hours to discuss:
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const success = await dataStorage.deleteGalleryImage(id);
       if (success) {
@@ -1212,13 +1213,13 @@ The host will respond within 24 hours to discuss:
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const image = await dataStorage.getGalleryImageById(id);
       if (!image) {
         return res.status(404).json({ message: "Gallery image not found" });
       }
-      
+
       // Decrease sortOrder to move it up (higher priority)
       const currentOrder = image.sortOrder || 0;
       const updatedImage = await dataStorage.updateGalleryImage({
@@ -1226,7 +1227,7 @@ The host will respond within 24 hours to discuss:
         id,
         sortOrder: Math.max(0, currentOrder - 1) // Ensure we don't go below 0
       });
-      
+
       res.json({
         message: "Gallery image priority increased!",
         data: updatedImage
@@ -1235,20 +1236,20 @@ The host will respond within 24 hours to discuss:
       res.status(500).json({ message: "Failed to update image priority" });
     }
   });
-  
+
   // Decrease image priority (move down in sort order)
   app.post("/api/admin/gallery/:id/priority/decrease", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const image = await dataStorage.getGalleryImageById(id);
       if (!image) {
         return res.status(404).json({ message: "Gallery image not found" });
       }
-      
+
       // Increase sortOrder to move it down (lower priority)
       const currentOrder = image.sortOrder || 0;
       const updatedImage = await dataStorage.updateGalleryImage({
@@ -1256,7 +1257,7 @@ The host will respond within 24 hours to discuss:
         id,
         sortOrder: currentOrder + 1
       });
-      
+
       res.json({
         message: "Gallery image priority decreased!",
         data: updatedImage
@@ -1265,40 +1266,40 @@ The host will respond within 24 hours to discuss:
       res.status(500).json({ message: "Failed to update image priority" });
     }
   });
-  
+
   // Update a gallery image
   app.patch("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     console.log(`[GALLERY EDIT] PATCH request for image ID: ${id}`);
     console.log(`[GALLERY EDIT] Request body:`, req.body);
-    
+
     if (isNaN(id)) {
       console.log(`[GALLERY EDIT] Invalid ID provided: ${req.params.id}`);
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const galleryImage = await dataStorage.getGalleryImageById(id);
       console.log(`[GALLERY EDIT] Found existing image:`, galleryImage);
-      
+
       if (!galleryImage) {
         console.log(`[GALLERY EDIT] Image not found with ID: ${id}`);
         return res.status(404).json({ message: "Gallery image not found" });
       }
-      
+
       const updatedData = { ...req.body, id };
       console.log(`[GALLERY EDIT] Updating with data:`, updatedData);
-      
+
       const updatedImage = await dataStorage.updateGalleryImage(updatedData);
       console.log(`[GALLERY EDIT] Successfully updated image:`, updatedImage);
-      
+
       res.json({
         message: "Gallery image updated successfully!",
         data: updatedImage
       });
     } catch (error) {
       console.error(`[GALLERY EDIT] Error updating image:`, error);
-      
+
       if (error instanceof z.ZodError) {
         console.log(`[GALLERY EDIT] Validation error:`, error.errors);
         return res.status(400).json({ 
@@ -1313,14 +1314,14 @@ The host will respond within 24 hours to discuss:
   // Image proxy to bypass CORS restrictions
   app.get("/api/image-proxy", async (req, res) => {
     const imageUrl = req.query.url as string;
-    
+
     console.log(`[IMAGE PROXY] Received request for: ${imageUrl}`);
-    
+
     if (!imageUrl) {
       console.log('[IMAGE PROXY] Error: No URL provided');
       return res.status(400).json({ message: "No image URL provided" });
     }
-    
+
     try {
       // Ensure the URL has a protocol
       let fetchUrl = imageUrl;
@@ -1328,9 +1329,9 @@ The host will respond within 24 hours to discuss:
         fetchUrl = 'https://' + fetchUrl;
         console.log(`[IMAGE PROXY] Added https protocol: ${fetchUrl}`);
       }
-      
+
       console.log(`[IMAGE PROXY] Fetching from external source: ${fetchUrl}`);
-      
+
       // Add default user agent and referer to appear like a browser request
       const response = await axios({
         method: 'get',
@@ -1346,26 +1347,26 @@ The host will respond within 24 hours to discuss:
         // Don't reject unauthorized SSL certificates
         httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false })
       });
-      
+
       // Log success
       console.log(`[IMAGE PROXY] Successfully fetched image, size: ${response.data.length} bytes`);
-      
+
       // Determine the content type from the response headers or default to image/jpeg
       const contentType = response.headers['content-type'] || 'image/jpeg';
       console.log(`[IMAGE PROXY] Content type: ${contentType}`);
-      
+
       // Set the content type header for the response
       res.set('Content-Type', contentType);
-      
+
       // Set cache headers for better performance
       res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-      
+
       // Send the image data
       res.send(response.data);
     } catch (error) {
       console.error('[IMAGE PROXY] Error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       // Try to return a fallback image or an error message with more details
       res.status(500).json({ 
         message: "Failed to retrieve image",
@@ -1374,7 +1375,7 @@ The host will respond within 24 hours to discuss:
       });
     }
   });
-  
+
   // Content management endpoints
   app.get('/api/content', async (req, res) => {
     try {
@@ -1388,11 +1389,11 @@ The host will respond within 24 hours to discuss:
   app.post('/api/content', async (req, res) => {
     try {
       const { content } = req.body;
-      
+
       if (!Array.isArray(content)) {
         return res.status(400).json({ message: "Content must be an array" });
       }
-      
+
       await dataStorage.saveContent(content);
       res.json({ message: "Content saved successfully" });
     } catch (error) {
@@ -1437,7 +1438,7 @@ The host will respond within 24 hours to discuss:
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
       const { amount, booking } = req.body;
-      
+
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: "usd",
@@ -1448,7 +1449,7 @@ The host will respond within 24 hours to discuss:
           guests: booking?.guests?.toString() || '1',
         },
       });
-      
+
       res.json({ clientSecret: paymentIntent.client_secret });
     } catch (error: any) {
       console.error('Stripe payment intent error:', error);
@@ -1501,7 +1502,7 @@ The host will respond within 24 hours to discuss:
 
       const { title, category, targetTribes } = req.body;
       let parsedTargetTribes = [];
-      
+
       try {
         parsedTargetTribes = targetTribes ? JSON.parse(targetTribes) : [];
       } catch (e) {
@@ -1526,7 +1527,7 @@ The host will respond within 24 hours to discuss:
       try {
         const { analyzeDocument } = await import('./documentAnalyzer');
         const analysis = await analyzeDocument(req.file.path, req.file.originalname, category);
-        
+
         await dataStorage.updateContentDocument({
           id: document.id,
           extractedKeywords: analysis.keywords.join(','),
@@ -1589,14 +1590,14 @@ The host will respond within 24 hours to discuss:
     try {
       const imageId = parseInt(req.params.id);
       const { category } = req.body;
-      
+
       if (!category) {
         return res.status(400).json({ message: "Category is required" });
       }
-      
+
       // Update the image category in storage
       await dataStorage.updateGalleryImageCategory(imageId, category);
-      
+
       res.json({ message: "Category updated successfully" });
     } catch (error) {
       console.error("Error updating image category:", error);
@@ -1612,12 +1613,12 @@ The host will respond within 24 hours to discuss:
     try {
       // Get all gallery images
       const images = await dataStorage.getGalleryImages();
-      
+
       // Add file existence status
       const imagesWithStatus = await Promise.all(images.map(async (image) => {
         let fileExists = false;
         let absolutePath = '';
-        
+
         try {
           if (image.imageUrl) {
             // Handle paths
@@ -1635,7 +1636,7 @@ The host will respond within 24 hours to discuss:
         } catch (error) {
           console.error(`Error checking file: ${image.imageUrl}`, error);
         }
-        
+
         return {
           ...image,
           debug: {
@@ -1645,7 +1646,7 @@ The host will respond within 24 hours to discuss:
           }
         };
       }));
-      
+
       res.json({ 
         count: images.length,
         images: imagesWithStatus
@@ -1660,7 +1661,7 @@ The host will respond within 24 hours to discuss:
   });
 
   // Image Compression API Endpoints
-  
+
   // Compress a single uploaded image
   app.post("/api/admin/compress-image", upload.single('image'), async (req, res) => {
     try {
@@ -1671,7 +1672,7 @@ The host will respond within 24 hours to discuss:
       const inputPath = req.file.path;
       const quality = parseInt(req.body.quality) || 80;
       const format = req.body.format || 'webp';
-      
+
       const result = await imageCompressor.compressImage(inputPath, {
         quality,
         format: format as 'jpeg' | 'webp' | 'png'
@@ -1703,18 +1704,19 @@ The host will respond within 24 hours to discuss:
   app.post("/api/admin/compress-gallery", async (req, res) => {
     try {
       const { imageIds } = req.body;
-      
+
       if (!imageIds || !Array.isArray(imageIds)) {
         return res.status(400).json({ message: "No image IDs provided" });
       }
 
       const images = await dataStorage.getGalleryImages();
       const imagesToCompress = images.filter(img => imageIds.includes(img.id));
-      
+
       const imagePaths = imagesToCompress
         .map(img => path.join(process.cwd(), img.imageUrl))
         .filter(imagePath => fs.existsSync(imagePath));
 
+```tool_code
       if (imagePaths.length === 0) {
         return res.status(400).json({ message: "No valid images found to compress" });
       }
@@ -1756,13 +1758,13 @@ The host will respond within 24 hours to discuss:
   app.post("/api/admin/create-responsive", async (req, res) => {
     try {
       const { imagePath } = req.body;
-      
+
       if (!imagePath) {
         return res.status(400).json({ message: "No image path provided" });
       }
 
       const fullPath = path.join(process.cwd(), imagePath);
-      
+
       if (!fs.existsSync(fullPath)) {
         return res.status(404).json({ message: "Image file not found" });
       }
@@ -1804,7 +1806,7 @@ The host will respond within 24 hours to discuss:
     try {
       const images = await dataStorage.getGalleryImages();
       const compressedDir = path.join(process.cwd(), 'uploads/compressed');
-      
+
       let totalOriginalSize = 0;
       let totalCompressedSize = 0;
       let compressedCount = 0;
@@ -1818,7 +1820,7 @@ The host will respond within 24 hours to discuss:
           // Check if compressed version exists
           const filename = path.parse(image.imageUrl).name;
           const compressedPath = path.join(compressedDir, `${filename}-compressed.webp`);
-          
+
           if (fs.existsSync(compressedPath)) {
             const compressedStats = fs.statSync(compressedPath);
             totalCompressedSize += compressedStats.size;
@@ -1873,7 +1875,7 @@ The host will respond within 24 hours to discuss:
     const categoryTag = category;
     const additionalTags = customTags ? 
       customTags.split(',').map(t => t.trim()).filter(t => t.length > 0) : [];
-    
+
     const allTags = [categoryTag, ...additionalTags];
     return Array.from(new Set(allTags)).join(',');
   }
@@ -1882,19 +1884,19 @@ The host will respond within 24 hours to discuss:
   function validateImageData(data: any): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     const validCategories = GALLERY_CATEGORIES.map(c => c.value);
-    
+
     if (!data.category || !validCategories.includes(data.category)) {
       errors.push("Invalid category selected");
     }
-    
+
     if (!data.alt || data.alt.trim().length === 0) {
       errors.push("Image title/alt text is required");
     }
-    
+
     if (data.tags && !data.tags.includes(data.category)) {
       errors.push("Tags must include the selected category");
     }
-    
+
     return { valid: errors.length === 0, errors };
   }
 
@@ -1903,7 +1905,7 @@ The host will respond within 24 hours to discuss:
     try {
       const id = parseInt(req.params.id);
       const { category, alt, description, featured, customTags, sortOrder } = req.body;
-      
+
       // Validate input data
       const validation = validateImageData({ category, alt, tags: customTags });
       if (!validation.valid) {
@@ -1912,7 +1914,7 @@ The host will respond within 24 hours to discuss:
 
       // Generate consistent tags
       const tags = generateConsistentTags(category, customTags);
-      
+
       const updatedImage = await dataStorage.updateGalleryImage(id, {
         category,
         alt: alt.trim(),
@@ -1990,7 +1992,7 @@ Focus on luxury accommodation marketing language.`,
       });
 
       const result = JSON.parse(aiResponse.choices[0].message.content || '{}');
-      
+
       // Validate that suggested category is in our list
       const validCategories = ['entire-villa', 'family-suite', 'group-room', 'triple-room', 'dining-area', 'pool-deck', 'lake-garden', 'roof-garden', 'front-garden', 'koggala-lake', 'excursions'];
       if (result.suggestedCategory && !validCategories.includes(result.suggestedCategory)) {
@@ -2070,7 +2072,7 @@ Focus on luxury accommodation marketing language.`,
   app.patch("/api/visitor-uploads/:id/approve", async (req, res) => {
     const id = parseInt(req.params.id);
     const { notes } = req.body;
-    
+
     try {
       const success = await dataStorage.approveVisitorUpload(id, 'admin', notes);
       if (success) {
@@ -2086,7 +2088,7 @@ Focus on luxury accommodation marketing language.`,
   app.patch("/api/visitor-uploads/:id/reject", async (req, res) => {
     const id = parseInt(req.params.id);
     const { notes } = req.body;
-    
+
     try {
       const success = await dataStorage.rejectVisitorUpload(id, 'admin', notes);
       if (success) {
@@ -2101,7 +2103,7 @@ Focus on luxury accommodation marketing language.`,
 
   app.post("/api/visitor-uploads/:id/publish", async (req, res) => {
     const id = parseInt(req.params.id);
-    
+
     try {
       const galleryImage = await dataStorage.publishVisitorUpload(id);
       if (galleryImage) {
@@ -2119,7 +2121,7 @@ Focus on luxury accommodation marketing language.`,
 
   app.delete("/api/visitor-uploads/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    
+
     try {
       const success = await dataStorage.deleteVisitorUpload(id);
       if (success) {
@@ -2142,6 +2144,9 @@ Focus on luxury accommodation marketing language.`,
     res.set('Content-Type', 'text/plain');
     res.sendFile(path.join(process.cwd(), 'static', 'robots.txt'));
   });
+
+  // Register AI routes
+  app.use(aiRoutes);
 
   const httpServer = createServer(app);
   return httpServer;
