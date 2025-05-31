@@ -278,7 +278,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Gallery image not found" });
       }
       
-      const updatedData = { ...req.body, id };
+      // Ensure all metadata fields are included
+      const updatedData = {
+        id,
+        alt: req.body.alt || galleryImage.alt,
+        description: req.body.description || galleryImage.description,
+        category: req.body.category || galleryImage.category,
+        tags: req.body.tags || galleryImage.tags,
+        featured: req.body.featured !== undefined ? req.body.featured : galleryImage.featured,
+        sortOrder: req.body.sortOrder !== undefined ? req.body.sortOrder : galleryImage.sortOrder,
+        mediaType: req.body.mediaType || galleryImage.mediaType,
+        imageUrl: galleryImage.imageUrl // Keep original URL
+      };
+      
       const updatedImage = await dataStorage.updateGalleryImage(updatedData);
       
       res.json({
@@ -286,6 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data: updatedImage
       });
     } catch (error) {
+      console.error('Gallery update error:', error);
       res.status(500).json({ message: "Failed to update gallery image" });
     }
   });
