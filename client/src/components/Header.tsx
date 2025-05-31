@@ -8,24 +8,24 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { currentUser, isAdmin } = useAuth();
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
-  
+
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
-  
+
   return (
     <header 
       className={cn(
@@ -38,7 +38,7 @@ const Header = () => {
         <Link href="/" className="flex items-center">
           <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
         </Link>
-        
+
         {/* Mobile Menu Button */}
         <div className="flex items-center">
           <Link 
@@ -47,7 +47,7 @@ const Header = () => {
           >
             Book Now
           </Link>
-          
+
           {isAdmin && (
             <Link 
               href="/admin" 
@@ -56,7 +56,7 @@ const Header = () => {
               Admin
             </Link>
           )}
-          
+
           <button 
             className="md:hidden text-[#8B5E3C] focus:outline-none" 
             onClick={toggleMobileMenu}
@@ -66,7 +66,7 @@ const Header = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Bottom section with navigation */}
       <div className="container mx-auto px-4">
         {/* Desktop Navigation */}
@@ -145,7 +145,7 @@ const Header = () => {
           </Link>
         </nav>
       </div>
-      
+
       {/* Mobile Navigation Menu */}
       <div 
         className={cn(
@@ -241,7 +241,7 @@ const Header = () => {
           >
             Book Now
           </Link>
-          
+
           {isAdmin && (
             <Link 
               href="/admin" 
