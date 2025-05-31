@@ -1,3 +1,4 @@
+
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
@@ -8,7 +9,7 @@ const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'demo-key',
 });
 
 // Ko Lake Villa specific categories
@@ -26,80 +27,88 @@ const VILLA_CATEGORIES = [
   'excursions'
 ];
 
-// AI Media Analysis endpoint
-router.post('/api/analyze-media', upload.single('image'), async (req, res) => {
+router.post('/analyze-media', upload.single('file'), async (req, res) => {
   try {
-    const { category = "" } = req.body;
-    const filePath = req.file?.path;
-
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    if (!filePath) {
-      return res.status(400).json({ error: 'Image file missing' });
+    const filePath = req.file.path;
+    const fileBuffer = fs.readFileSync(filePath);
+    const base64Image = fileBuffer.toString('base64');
+
+    // If no OpenAI key, return default categorization
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo-key') {
+      const filename = req.file.originalname.toLowerCase();
+      let suggestedCategory = 'entire-villa';
+      
+      if (filename.includes('pool')) suggestedCategory = 'pool-deck';
+      else if (filename.includes('dining')) suggestedCategory = 'dining-area';
+      else if (filename.includes('room')) suggestedCategory = 'family-suite';
+      else if (filename.includes('garden')) suggestedCategory = 'front-garden';
+      else if (filename.includes('lake')) suggestedCategory = 'koggala-lake';
+
+      fs.unlinkSync(filePath); // Clean up temp file
+      
+      return res.json({
+        category: suggestedCategory,
+        confidence: 0.8,
+        description: `Auto-categorized based on filename`,
+        tags: [suggestedCategory, 'ko-lake-villa']
+      });
     }
 
-    const buffer = fs.readFileSync(filePath);
-    const base64Image = buffer.toString('base64');
-
-    const aiResponse = await openai.chat.completions.create({
-      model: 'gpt-4o', // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-vision-preview",
       messages: [
         {
-          role: 'user',
+          role: "user",
           content: [
             {
-              type: 'text',
-              text: `Analyze this Ko Lake Villa accommodation image. 
-
-Available categories: ${VILLA_CATEGORIES.join(', ')}
-
-Current user selection: ${category || "unspecified"}
-
-Return JSON with:
-- suggestedCategory (must be one from the list above)
-- confidence (0-1, how confident you are)
-- title (catchy title for marketing)
-- description (brief marketing description)
-- tags (array of 3-5 relevant marketing tags)
-
-Focus on luxury accommodation marketing language.`,
+              type: "text",
+              text: `Analyze this image from Ko Lake Villa and categorize it. Available categories: ${VILLA_CATEGORIES.join(', ')}. Return only the most appropriate category name.`
             },
             {
-              type: 'image_url',
-              image_url: { url: `data:image/jpeg;base64,${base64Image}` },
-            },
-          ],
-        },
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${base64Image}`
+              }
+            }
+          ]
+        }
       ],
-      response_format: { type: "json_object" },
-      max_tokens: 500
+      max_tokens: 300
     });
 
-    const result = JSON.parse(aiResponse.choices[0].message.content || '{}');
-    
-    // Validate that suggested category is in our list
-    if (result.suggestedCategory && !VILLA_CATEGORIES.includes(result.suggestedCategory)) {
-      result.suggestedCategory = 'entire-villa'; // fallback to default
-    }
+    const aiResponse = response.choices[0].message.content;
+    const suggestedCategory = VILLA_CATEGORIES.find(cat => 
+      aiResponse?.toLowerCase().includes(cat)
+    ) || 'entire-villa';
+
+    // Clean up temp file
+    fs.unlinkSync(filePath);
 
     res.json({
-      suggestedCategory: result.suggestedCategory || 'entire-villa',
-      confidence: result.confidence || 0.7,
-      title: result.title || 'Ko Lake Villa',
-      description: result.description || 'Beautiful villa accommodation',
-      tags: result.tags || ['luxury', 'villa', 'lakeside']
+      category: suggestedCategory,
+      confidence: 0.9,
+      description: aiResponse,
+      tags: [suggestedCategory, 'ko-lake-villa', 'ai-categorized']
     });
 
   } catch (error) {
     console.error('AI analysis error:', error);
-    res.status(500).json({ error: 'AI analysis failed' });
-  } finally {
-    // Clean up uploaded file
-    if (req.file?.path && fs.existsSync(req.file.path)) {
+    
+    // Clean up temp file on error
+    if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
+    
+    res.status(500).json({ 
+      error: 'AI analysis failed',
+      category: 'entire-villa', // fallback category
+      confidence: 0.5,
+      description: 'Default categorization due to analysis error'
+    });
   }
 });
 
