@@ -265,3 +265,240 @@ export default function AdminCalendar() {
     </div>
   );
 }
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, DollarSign, Users, Clock } from 'lucide-react';
+
+interface Booking {
+  id: string;
+  room: string;
+  guestName: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  originalPrice: number;
+  discountedPrice?: number;
+  dealType?: 'early-bird' | 'late-deal';
+  status: 'confirmed' | 'pending' | 'cancelled';
+}
+
+interface DealConfig {
+  earlyBirdDays: number;
+  earlyBirdDiscount: number;
+  lateDealDays: number;
+  lateDealDiscount: number;
+  baseDiscountPercent: number;
+}
+
+export default function AdminCalendar() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [dealConfig, setDealConfig] = useState<DealConfig>({
+    earlyBirdDays: 30,
+    earlyBirdDiscount: 15,
+    lateDealDays: 3,
+    lateDealDiscount: 20,
+    baseDiscountPercent: 10
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBookings();
+    fetchDealConfig();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch('/admin/bookings');
+      const data = await response.json();
+      setBookings(data);
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDealConfig = async () => {
+    try {
+      const response = await fetch('/admin/deal-config');
+      const config = await response.json();
+      setDealConfig(config);
+    } catch (error) {
+      console.error('Failed to fetch deal config:', error);
+    }
+  };
+
+  const updateDealConfig = async () => {
+    try {
+      await fetch('/admin/deal-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dealConfig)
+      });
+      alert('Deal configuration updated successfully!');
+    } catch (error) {
+      console.error('Failed to update deal config:', error);
+      alert('Failed to update configuration');
+    }
+  };
+
+  const calculateDealPrice = (originalPrice: number, checkInDate: string): { price: number; dealType?: string } => {
+    const today = new Date();
+    const checkin = new Date(checkInDate);
+    const daysToCheckin = Math.ceil((checkin.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    let discount = dealConfig.baseDiscountPercent;
+    let dealType = '';
+
+    if (daysToCheckin >= dealConfig.earlyBirdDays) {
+      discount = dealConfig.earlyBirdDiscount;
+      dealType = 'early-bird';
+    } else if (daysToCheckin <= dealConfig.lateDealDays) {
+      discount = dealConfig.lateDealDiscount;
+      dealType = 'late-deal';
+    }
+
+    const discountedPrice = Math.round(originalPrice * (1 - discount / 100));
+    return { price: discountedPrice, dealType };
+  };
+
+  const getDealBadge = (booking: Booking) => {
+    const deal = calculateDealPrice(booking.originalPrice, booking.checkIn);
+    
+    if (deal.dealType === 'early-bird') {
+      return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Early Bird {dealConfig.earlyBirdDiscount}% Off</Badge>;
+    } else if (deal.dealType === 'late-deal') {
+      return <Badge variant="secondary" className="bg-red-100 text-red-800">Last Minute {dealConfig.lateDealDiscount}% Off</Badge>;
+    } else {
+      return <Badge variant="outline">Direct Booking {dealConfig.baseDiscountPercent}% Off</Badge>;
+    }
+  };
+
+  if (loading) return <div>Loading calendar...</div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Booking Calendar & Deals</h1>
+      </div>
+
+      {/* Deal Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Deal Configuration
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <Label htmlFor="earlyBirdDays">Early Bird (Days)</Label>
+            <Input
+              id="earlyBirdDays"
+              type="number"
+              value={dealConfig.earlyBirdDays}
+              onChange={(e) => setDealConfig({...dealConfig, earlyBirdDays: parseInt(e.target.value)})}
+            />
+          </div>
+          <div>
+            <Label htmlFor="earlyBirdDiscount">Early Bird Discount (%)</Label>
+            <Input
+              id="earlyBirdDiscount"
+              type="number"
+              value={dealConfig.earlyBirdDiscount}
+              onChange={(e) => setDealConfig({...dealConfig, earlyBirdDiscount: parseInt(e.target.value)})}
+            />
+          </div>
+          <div>
+            <Label htmlFor="lateDealDays">Late Deal (Days)</Label>
+            <Input
+              id="lateDealDays"
+              type="number"
+              value={dealConfig.lateDealDays}
+              onChange={(e) => setDealConfig({...dealConfig, lateDealDays: parseInt(e.target.value)})}
+            />
+          </div>
+          <div>
+            <Label htmlFor="lateDealDiscount">Late Deal Discount (%)</Label>
+            <Input
+              id="lateDealDiscount"
+              type="number"
+              value={dealConfig.lateDealDiscount}
+              onChange={(e) => setDealConfig({...dealConfig, lateDealDiscount: parseInt(e.target.value)})}
+            />
+          </div>
+          <div className="col-span-2 md:col-span-4">
+            <Button onClick={updateDealConfig} className="w-full">
+              Update Deal Configuration
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bookings Calendar */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Current Bookings ({bookings.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {bookings.map((booking) => {
+              const deal = calculateDealPrice(booking.originalPrice, booking.checkIn);
+              const savings = booking.originalPrice - deal.price;
+              
+              return (
+                <div key={booking.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{booking.guestName}</h3>
+                        <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
+                          {booking.status}
+                        </Badge>
+                        {getDealBadge(booking)}
+                      </div>
+                      <div className="text-sm text-gray-600 flex items-center gap-4">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(booking.checkIn).toLocaleDateString()} - {new Date(booking.checkOut).toLocaleDateString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          {booking.guests} guests
+                        </span>
+                        <span className="font-medium">{booking.room}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-green-600">
+                        ${deal.price}
+                      </div>
+                      {savings > 0 && (
+                        <div className="text-sm text-gray-500">
+                          <span className="line-through">${booking.originalPrice}</span>
+                          <span className="text-green-600 ml-1">Save ${savings}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {bookings.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                No bookings found
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
