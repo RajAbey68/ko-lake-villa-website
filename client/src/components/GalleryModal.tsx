@@ -27,7 +27,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
+
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
         onNavigate('prev');
@@ -41,7 +41,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
         onClose();
       }
     };
-    
+
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [isOpen, onNavigate, onClose]);
@@ -59,15 +59,34 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
         <div className="relative w-full h-full bg-white rounded-lg">
           {/* Main Image - Takes up 60% of screen */}
           <div className="relative h-[60vh] bg-black flex items-center justify-center">
-            <img
-              src={image.imageUrl}
-              alt={image.alt}
-              className="max-w-full max-h-full object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-              }}
-            />
-            
+            {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? (
+              <video
+                key={image.id}
+                className="max-w-full max-h-full object-contain"
+                controls
+                autoPlay
+                muted
+                playsInline
+                onError={(e) => {
+                  console.error('Failed to load video:', image.imageUrl);
+                }}
+              >
+                <source src={image.imageUrl} type="video/mp4" />
+                <source src={image.imageUrl} type="video/quicktime" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img
+                key={image.id}
+                src={image.imageUrl}
+                alt={image.alt}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                }}
+              />
+            )}
+
             {/* Navigation Arrows - Big and Bold */}
             <button
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white text-4xl px-4 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-white z-50 transition-all duration-200"
@@ -110,12 +129,12 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
                   {image.alt}
                 </h2>
-                
+
                 <div className="flex items-center gap-3 mb-3">
                   <Badge variant="secondary" className="bg-[#A0B985] text-white">
                     {formatCategoryLabel(image.category)}
                   </Badge>
-                  
+
                   {image.featured && (
                     <Badge className="bg-[#FF914D] text-white">
                       Featured
