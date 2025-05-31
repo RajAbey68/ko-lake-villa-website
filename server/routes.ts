@@ -383,18 +383,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
         console.log("Generated file URL:", fileUrl);
         
-        // AI-powered analysis if enabled
+        // AI-powered analysis if enabled (run in parallel with file processing)
+        let aiAnalysisPromise: Promise<any> | null = null;
+        if (process.env.OPENAI_API_KEY) {
+          console.log("🤖 Starting AI analysis for uploaded file...");
+          aiAnalysisPromise = import('./mediaAnalyzer')
+            .then(({ analyzeImageWithAI }) => analyzeImageWithAI(file.path, category))
+            .catch(error => {
+              console.error("AI analysis failed:", error);
+              return null;
+            });
+        }
+
+        // Process other file operations while AI analysis runs
+        const stats = fs.statSync(file.path);
+        const fileSize = stats.size;
+        
+        // Wait for AI analysis if it was started
         let aiAnalysis = null;
-        try {
-          if (process.env.OPENAI_API_KEY) {
-            console.log("🤖 Starting AI analysis for uploaded file...");
-            const { analyzeImageWithAI } = await import('./mediaAnalyzer');
-            aiAnalysis = await analyzeImageWithAI(file.path, category);
-            
+        if (aiAnalysisPromise) {
+          try {
+            aiAnalysis = await aiAnalysisPromise;
             console.log("✅ AI Analysis complete:", aiAnalysis);
             
             // Use AI suggestions if confidence > 0.7
-            if (aiAnalysis.confidence > 0.7) {
+            if (aiAnalysis && aiAnalysis.confidence > 0.7) {
               if (!title || title === file.originalname) {
                 title = aiAnalysis.title;
               }
@@ -408,9 +421,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 tags = Array.isArray(aiAnalysis.tags) ? aiAnalysis.tags.join(',') : aiAnalysis.tags;
               }
             }
+          } catch (aiError) {
+            console.error("AI analysis failed (continuing with manual data):", aiError);
           }
-        } catch (aiError) {
-          console.error("AI analysis failed (continuing with manual data):", aiError);
         }
 
         // Save to database
@@ -662,8 +675,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(diningOption);
   });
 
+  // Cache for gallery responses
+  const galleryCache = new Map<string, {data: any[], timestamp: number}>();
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
   app.get("/api/gallery", async (req, res) => {
     const category = req.query.category as string | undefined;
+    const cacheKey = category || 'all';
+    
+    // Check cache first
+    const cached = galleryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return res.json(cached.data);
+    }
     
     let images;
     if (category && category !== 'all') {
@@ -672,17 +696,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       images = await dataStorage.getGalleryImages();
     }
     
-    // Add timestamp to image URLs to prevent browser caching issues
+    // Process images with optimized timestamp logic
     const processedImages = images.map(image => {
       if (image.imageUrl && image.imageUrl.startsWith('/uploads/')) {
-        const timestamp = Date.now();
         return {
           ...image,
-          // Add a timestamp to force browser to load a fresh version
-          imageUrl: `${image.imageUrl}?t=${timestamp}`
+          imageUrl: `${image.imageUrl}?v=${image.id}`
         };
       }
       return image;
+    });
+    
+    // Cache the response
+    galleryCache.set(cacheKey, {
+      data: processedImages,
+      timestamp: Date.now()
     });
     
     res.json(processedImages);
