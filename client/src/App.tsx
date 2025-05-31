@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, lazy } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -100,6 +100,8 @@ function Router() {
         <Route path="/admin/testing" component={DeploymentTesting} />
         <Route path="/admin/statistics" component={Statistics} />
         <Route path="/admin/calendar" component={AdminCalendar} />
+        <Route path="/admin/deals" component={Deals} />
+        <Route path="/admin/ai-validation" component={lazy(() => import('./pages/admin/AIValidationTest'))} />
         <Route path="/admin/drive-export" component={GoogleDriveExport} />
         <Route path="/admin/upload-images" component={UploadImages} />
         <Route path="/admin/image-uploader" component={ImageUploader} />
