@@ -16,7 +16,8 @@ import {
   ImageIcon,
   StarIcon,
   EyeIcon,
-  FilterIcon
+  FilterIcon,
+  UploadIcon
 } from 'lucide-react';
 import { GalleryImage } from '@shared/schema';
 
@@ -130,20 +131,29 @@ export default function GalleryManager() {
     }
   };
 
-  const handleUpdateSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // State for edit dialog
+  const [editCategory, setEditCategory] = useState<string>('');
+  const [editTitle, setEditTitle] = useState<string>('');
+  const [editDescription, setEditDescription] = useState<string>('');
+  const [editSortOrder, setEditSortOrder] = useState<number>(1);
+  const [editFeatured, setEditFeatured] = useState<boolean>(false);
+
+  // Initialize edit dialog when editing image changes
+  useEffect(() => {
+    if (editingImage) {
+      setEditCategory(editingImage.category || '');
+      setEditTitle(editingImage.alt || '');
+      setEditDescription(editingImage.description || '');
+      setEditSortOrder(editingImage.sortOrder || 1);
+      setEditFeatured(editingImage.featured || false);
+    }
+  }, [editingImage]);
+
+  const handleSaveEdit = () => {
     if (!editingImage) return;
 
-    const formData = new FormData(e.currentTarget);
-    const category = formData.get('category') as string;
-    const alt = formData.get('alt') as string;
-    const description = formData.get('description') as string;
-    const featured = formData.get('featured') === 'on';
-    const customTags = formData.get('customTags') as string;
-    const sortOrder = parseInt(formData.get('sortOrder') as string) || 1;
-
     // Validate data
-    const validation = validateImageData({ category, alt, tags: customTags });
+    const validation = validateImageData({ category: editCategory, alt: editTitle, tags: '' });
     if (!validation.valid) {
       toast({
         title: "Validation Error",
@@ -156,12 +166,11 @@ export default function GalleryManager() {
     updateMutation.mutate({
       id: editingImage.id,
       updates: {
-        category,
-        alt,
-        description,
-        featured,
-        customTags,
-        sortOrder
+        category: editCategory,
+        alt: editTitle,
+        description: editDescription,
+        featured: editFeatured,
+        sortOrder: editSortOrder
       }
     });
   };
