@@ -19,6 +19,90 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 }) : null;
 
+// AI-powered content generation for gallery images
+async function generateImageContent(filename: string, category: string, isVideo: boolean = false): Promise<{title: string, description: string}> {
+  if (!openai) {
+    // Fallback to rule-based generation if OpenAI is not available
+    return generateFallbackContent(filename, category, isVideo);
+  }
+
+  try {
+    const mediaType = isVideo ? 'video' : 'image';
+    const prompt = `You are creating content for Ko Lake Villa, a luxury lakeside retreat in Ahangama, Galle, Sri Lanka. 
+    
+    Generate a beautiful title and description for this ${mediaType} in the "${category}" category.
+    
+    Guidelines:
+    - Title should be elegant and guest-friendly (2-6 words)
+    - Description should be enticing and descriptive (1-2 sentences)
+    - Focus on the luxury experience and beautiful lake setting
+    - Make it sound inviting for potential guests
+    
+    Category context:
+    - family-suite: Spacious family accommodations with lake views
+    - friends: Fun social spaces and experiences
+    - dining-area: Culinary experiences and dining spaces
+    - pool-deck: Private pool and relaxation areas
+    - lake-view: Stunning views of Koggala Lake
+    - gardens: Tropical landscaping and outdoor spaces
+    
+    Respond in JSON format: {"title": "Beautiful Title", "description": "Engaging description that makes guests want to visit."}`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      max_tokens: 200
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return {
+      title: result.title || generateFallbackContent(filename, category, isVideo).title,
+      description: result.description || generateFallbackContent(filename, category, isVideo).description
+    };
+  } catch (error) {
+    console.error('AI content generation error:', error);
+    return generateFallbackContent(filename, category, isVideo);
+  }
+}
+
+// Fallback content generation when AI is not available
+function generateFallbackContent(filename: string, category: string, isVideo: boolean): {title: string, description: string} {
+  const categoryTitles: Record<string, string> = {
+    'family-suite': 'Family Suite',
+    'friends': 'Friends & Fun',
+    'events': 'Villa Events',
+    'dining-area': 'Dining Experience',
+    'pool-deck': 'Pool & Deck',
+    'lake-view': 'Lake Views',
+    'gardens': 'Tropical Gardens',
+    'exterior': 'Villa Architecture',
+    'amenities': 'Villa Amenities',
+    'default': 'Ko Lake Villa'
+  };
+
+  const categoryDescriptions: Record<string, string> = {
+    'family-suite': 'Spacious family accommodations with stunning lake views and modern amenities for the perfect getaway.',
+    'friends': 'Create unforgettable memories with friends in our beautiful lakeside villa setting.',
+    'events': 'Host your special celebrations with breathtaking lake views and elegant villa spaces.',
+    'dining-area': 'Enjoy delicious Sri Lankan cuisine and international dishes in elegant settings.',
+    'pool-deck': 'Relax by our private pool deck with panoramic views of Koggala Lake.',
+    'lake-view': 'Wake up to stunning views of Koggala Lake from every window.',
+    'gardens': 'Stroll through beautifully landscaped tropical gardens filled with local flora.',
+    'exterior': 'Traditional Sri Lankan architecture blended with modern luxury amenities.',
+    'amenities': 'Premium amenities that make your stay at Ko Lake Villa truly special.',
+    'default': 'Experience the beauty and tranquility of Ko Lake Villa, your luxury lakeside retreat.'
+  };
+
+  const title = categoryTitles[category] || 'Ko Lake Villa Experience';
+  const description = categoryDescriptions[category] || 'Beautiful moments at Ko Lake Villa, your luxury lakeside retreat in Ahangama.';
+
+  return {
+    title: isVideo ? `${title} - Video` : title,
+    description
+  };
+}
+
 // File upload configuration
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 
@@ -172,6 +256,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Gallery API error:', error);
       res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
+  // AI content generation endpoint for existing gallery images
+  app.post("/api/admin/generate-gallery-content", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      let updatedCount = 0;
+
+      for (const image of images) {
+        // Only generate content if title or description is missing
+        if (!image.title || !image.description || image.title.trim() === '' || image.description.trim() === '') {
+          const isVideo = image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov');
+          const generatedContent = await generateImageContent(image.imageUrl, image.category, isVideo);
+          
+          // Update the image with AI-generated content
+          await dataStorage.updateGalleryImage(image.id, {
+            title: generatedContent.title,
+            description: generatedContent.description
+          });
+          
+          updatedCount++;
+        }
+      }
+
+      res.json({ 
+        message: `Successfully generated content for ${updatedCount} images`,
+        updated: updatedCount,
+        total: images.length
+      });
+    } catch (error) {
+      console.error('AI content generation error:', error);
+      res.status(500).json({ message: "Failed to generate AI content" });
     }
   });
 
