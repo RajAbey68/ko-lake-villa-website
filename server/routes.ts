@@ -687,15 +687,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Check cache first
     const cached = galleryCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      console.log(`Gallery cache hit for category: ${cacheKey}`);
       return res.json(cached.data);
     }
     
     let images;
     if (category && category !== 'all') {
+      console.log(`Fetching images for category: ${category}`);
       images = await dataStorage.getGalleryImagesByCategory(category);
     } else {
+      console.log('Fetching all gallery images');
       images = await dataStorage.getGalleryImages();
     }
+    
+    console.log(`Found ${images.length} images for category "${category || 'all'}"`);
     
     // Process images with optimized timestamp logic
     const processedImages = images.map(image => {
@@ -714,6 +719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       timestamp: Date.now()
     });
     
+    console.log(`Returning ${processedImages.length} processed images`);
     res.json(processedImages);
   });
   
