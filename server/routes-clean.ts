@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
-import { storage } from "./storage";
+import { dataStorage } from "./storage";
 import {
   insertBookingInquirySchema,
   insertContactMessageSchema,
