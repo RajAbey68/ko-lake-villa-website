@@ -82,18 +82,23 @@ export default function AdminLogin() {
 
   // Redirect if already authenticated and is admin
   useEffect(() => {
-    if (currentUser && isAdmin) {
+    console.log('Auth state check:', { currentUser: !!currentUser, isAdmin, isSigningIn });
+    
+    if (currentUser && isAdmin && !isSigningIn) {
       // Get redirectAfterLogin from sessionStorage or default to admin dashboard
       const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/admin/dashboard';
       // Clear the stored path
       sessionStorage.removeItem('redirectAfterLogin');
+      console.log('Redirecting authenticated admin to:', redirectPath);
       // Navigate to the redirect path
-      window.location.href = redirectPath;
-    } else if (currentUser && !isAdmin) {
+      setTimeout(() => {
+        window.location.href = redirectPath;
+      }, 100);
+    } else if (currentUser && !isAdmin && !isSigningIn) {
       // User is authenticated but not an admin
       setError('You do not have permission to access the admin area.');
     }
-  }, [currentUser, isAdmin, location]);
+  }, [currentUser, isAdmin, isSigningIn]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#FDF6EE] p-4">
