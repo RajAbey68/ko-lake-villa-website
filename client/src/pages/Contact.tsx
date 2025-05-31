@@ -6,6 +6,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -13,6 +16,9 @@ import { apiRequest } from '@/lib/queryClient';
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
+  phone: z.string().min(10, { message: "Please enter a valid phone number" }),
+  timezone: z.string().default("Asia/Colombo"),
+  familiarity: z.enum(["yes", "no"], { message: "Please select your familiarity with the region" }),
   subject: z.string().min(2, { message: "Subject must be at least 2 characters" }),
   message: z.string().min(10, { message: "Message must be at least 10 characters" })
 });
@@ -32,6 +38,9 @@ const Contact = () => {
     defaultValues: {
       name: '',
       email: '',
+      phone: '',
+      timezone: 'Asia/Colombo',
+      familiarity: undefined,
       subject: '',
       message: ''
     }
@@ -248,6 +257,80 @@ const Contact = () => {
                             className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
                             placeholder="your@email.com" 
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#333333]">Contact Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="tel" 
+                            className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
+                            placeholder="+94 71 123 4567" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="timezone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#333333]">Timezone</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]">
+                              <SelectValue placeholder="Select your timezone" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Asia/Colombo">Sri Lanka (GMT+5:30)</SelectItem>
+                            <SelectItem value="Europe/London">London (GMT+0)</SelectItem>
+                            <SelectItem value="Europe/Paris">Paris (GMT+1)</SelectItem>
+                            <SelectItem value="America/New_York">New York (GMT-5)</SelectItem>
+                            <SelectItem value="America/Los_Angeles">Los Angeles (GMT-8)</SelectItem>
+                            <SelectItem value="Asia/Dubai">Dubai (GMT+4)</SelectItem>
+                            <SelectItem value="Asia/Singapore">Singapore (GMT+8)</SelectItem>
+                            <SelectItem value="Australia/Sydney">Sydney (GMT+11)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="familiarity"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-[#333333]">Are you familiar with this region?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-row space-x-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id="familiar-yes" />
+                              <Label htmlFor="familiar-yes" className="text-[#333333] cursor-pointer">Yes</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id="familiar-no" />
+                              <Label htmlFor="familiar-no" className="text-[#333333] cursor-pointer">No</Label>
+                            </div>
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
