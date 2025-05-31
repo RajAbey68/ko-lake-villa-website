@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { APP_VERSION, RELEASE_LINK } from '@/constants/version';
 
 // Schema for newsletter subscription form
 const newsletterSchema = z.object({
@@ -141,7 +142,20 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-[#FDF6EE] border-opacity-20 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p>&copy; {new Date().getFullYear()} Ko Lake House. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+            <p>&copy; {new Date().getFullYear()} Ko Lake House. All rights reserved.</p>
+            <div className="text-xs opacity-75">
+              Ko Lake Villa <strong>{APP_VERSION}</strong> •{' '}
+              <a
+                href={RELEASE_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#FF914D] hover:underline"
+              >
+                Release Notes
+              </a>
+            </div>
+          </div>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <Link href="/privacy-policy" className="hover:text-[#FF914D] transition-colors">Privacy Policy</Link>
             <Link href="/terms-of-service" className="hover:text-[#FF914D] transition-colors">Terms of Service</Link>
