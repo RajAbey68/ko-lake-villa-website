@@ -13,12 +13,22 @@ export function ProtectedRoute({ children, requireAdmin = true }: ProtectedRoute
   const [location] = useLocation();
 
   useEffect(() => {
-    // If not loading and either not authenticated or not admin (when required)
-    if (!isLoading && (!currentUser || (requireAdmin && !isAdmin))) {
-      // Store the attempted URL for redirection after login
-      sessionStorage.setItem('redirectAfterLogin', location);
-      // Redirect to login
-      window.location.href = '/admin/login';
+    // Only redirect if authentication check is complete
+    if (!isLoading) {
+      if (!currentUser) {
+        // Store the attempted URL for redirection after login
+        sessionStorage.setItem('redirectAfterLogin', location);
+        // Redirect to login
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      if (requireAdmin && !isAdmin) {
+        // User is authenticated but not admin - show error instead of redirect loop
+        console.warn('User authenticated but not admin:', currentUser?.email);
+        // Don't redirect, let the error state show
+        return;
+      }
     }
   }, [currentUser, isLoading, isAdmin, requireAdmin, location]);
 
