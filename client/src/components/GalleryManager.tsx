@@ -38,7 +38,6 @@ const GALLERY_CATEGORIES = [
 ];
 
 import { 
-  GalleryImage, 
   generateConsistentTags, 
   validateImageData,
   formatCategoryLabel,
@@ -57,14 +56,16 @@ import {
 import { TagCategoryHint } from './TagCategoryHint';
 
 export default function GalleryManager() {
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch gallery images
-  const { data: images = [], error } = useQuery<GalleryImage[]>({
+  const { data: images = [], isLoading, error } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery', selectedCategory],
     queryFn: () => fetchGalleryImages(selectedCategory || undefined),
   });
