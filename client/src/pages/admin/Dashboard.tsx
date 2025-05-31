@@ -867,9 +867,9 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             value="url"
                             checked={field.value === "url"}
                             onChange={() => field.onChange("url")}
-                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]`
-                          />
-                          <Label htmlFor="upload-url" className="font-medium ml-2 cursor-pointer flex items-center">
+                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]"
+                            />
+                            <Label htmlFor="upload-url" className="font-medium ml-2 cursor-pointer flex items-center">
                             <LinkIcon className="w-4 h-4 mr-2 text-[#FF914D]" />
                             Use URL
                           </Label>
@@ -1663,3 +1663,39 @@ function AdminDashboardContent() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm text-gray-600">Reduce file sizes while maintaining quality</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="bookings">
+                <h2 className="text-2xl font-semibold text-[#8B5E3C]">Bookings</h2>
+                <p>This is where you would manage bookings.</p>
+              </TabsContent>
+
+              <TabsContent value="messages">
+                <h2 className="text-2xl font-semibold text-[#8B5E3C]">Messages</h2>
+                <p>This is where you would manage messages.</p>
+              </TabsContent>
+
+              <TabsContent value="booking-integration">
+                <h2 className="text-2xl font-semibold text-[#8B5E3C]">Booking Integration</h2>
+                <p>Connect to booking platforms like Airbnb and Booking.com.</p>
+              </TabsContent>
+
+              <TabsContent value="gallery">
+                <GalleryTab />
+              </TabsContent>
+
+              <TabsContent value="subscribers">
+                <h2 className="text-2xl font-semibold text-[#8B5E3C]">Subscribers</h2>
+                <p>Manage your email subscribers here.</p>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
