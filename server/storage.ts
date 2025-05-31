@@ -128,6 +128,7 @@ export class MemStorage implements IStorage {
     this.newsletterSubscribers = new Map();
     this.pageHeroImages = new Map();
     this.websiteContent = new Map();
+    this.specialRequests = new Map();
     
     this.nextUserId = 1;
     this.nextRoomId = 1;
@@ -138,6 +139,7 @@ export class MemStorage implements IStorage {
     this.nextBookingInquiryId = 1;
     this.nextContactMessageId = 1;
     this.nextNewsletterSubscriberId = 1;
+    this.nextSpecialRequestId = 1;
 
     // Initialize with sample data
     this.initializeData();
@@ -938,6 +940,21 @@ export class MemStorage implements IStorage {
     const result = await db.delete(contentDocuments).where(eq(contentDocuments.id, id));
     return result.rowCount > 0;
   }
+
+  // Special request operations
+  async createSpecialRequest(request: any): Promise<any> {
+    const specialRequest = {
+      id: this.nextSpecialRequestId++,
+      ...request,
+      createdAt: new Date().toISOString()
+    };
+    this.specialRequests.set(specialRequest.id, specialRequest);
+    return specialRequest;
+  }
+
+  async getSpecialRequests(): Promise<any[]> {
+    return Array.from(this.specialRequests.values());
+  }
 }
 
 // Database storage implementation
@@ -1098,8 +1115,21 @@ class DbStorage implements IStorage {
     return []; // Content will be handled separately
   }
 
-  async saveContent(content: any[]): Promise<boolean> {
-    return true; // Content will be handled separately
+  async saveContent(content: any[]): Promise<void> {
+    // Content will be handled separately
+  }
+
+  // Special request operations
+  async createSpecialRequest(request: any): Promise<any> {
+    // For now, store in memory as we don't have a database table
+    // In production, this would insert into a special_requests table
+    return { id: Date.now(), ...request, createdAt: new Date().toISOString() };
+  }
+
+  async getSpecialRequests(): Promise<any[]> {
+    // For now, return empty array as we don't have a database table
+    // In production, this would query the special_requests table
+    return [];
   }
 }
 
