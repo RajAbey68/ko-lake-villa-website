@@ -120,6 +120,10 @@ export const insertBookingInquirySchema = createInsertSchema(bookingInquiries).o
 }).extend({
   email: z.string().email("Please enter a valid email address"),
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  guests: z.union([
+    z.string().transform(val => parseInt(val, 10)),
+    z.number()
+  ]).pipe(z.number().min(1).max(20)),
   specialRequests: z.string().max(1000, "Special requests too long").optional()
 });
 
@@ -131,6 +135,9 @@ export const contactMessages = pgTable("contact_messages", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
+  phone: text("phone"),
+  timezone: text("timezone"),
+  familiarity: text("familiarity"),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -144,6 +151,9 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 }).extend({
   email: z.string().email("Please enter a valid email address"),
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  phone: z.string().optional(),
+  timezone: z.string().optional(),
+  familiarity: z.string().optional(),
   message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message too long"),
   subject: z.string().min(3, "Subject must be at least 3 characters").max(200, "Subject too long")
 });
