@@ -1,0 +1,96 @@
+Absolutely — a versioning and release tracking standard will make your Ko Lake Villa development far more structured, testable, and scalable, especially as you add features like Guesty, analytics, and multi-language support.
+
+Here’s what I recommend Replit Assistant implement for you:
+
+⸻
+
+✅ Versioning & Release Notes Strategy
+
+🧱 1. Semantic Versioning Standard (SemVer)
+
+Use this format:
+
+v[MAJOR].[MINOR].[PATCH]-[stage]
+
+Examples:
+v1.2.0-production
+v1.3.1-dev
+v2.0.0-beta
+
+Version	Meaning
+MAJOR	Breaking changes (e.g. Gallery structure overhaul, new booking engine)
+MINOR	New features (e.g. video support, Guesty sync)
+PATCH	Bug fixes or backend tweaks
+Stage	dev / beta / prod (optional)
+
+
+⸻
+
+🗂️ 2. Tracking in Admin Dashboard
+
+Replit Assistant should implement:
+
+// client/src/pages/admin/Dashboard.tsx
+
+const VersionInfo = () => (
+  <Card className="mt-4">
+    <CardHeader>📌 Current Version</CardHeader>
+    <CardContent>
+      <p><strong>Frontend:</strong> v1.3.2</p>
+      <p><strong>Backend:</strong> v1.1.4</p>
+      <p><strong>Release Notes:</strong> Added video gallery, fixed newsletter POST error</p>
+      <p><strong>Last Updated:</strong> 31 May 2025</p>
+    </CardContent>
+  </Card>
+);
+
+Stored in Firebase or .env JSON:
+
+{
+  "frontendVersion": "v1.3.2",
+  "backendVersion": "v1.1.4",
+  "releaseNotes": [
+    "✅ Video support in gallery",
+    "🔧 Newsletter POST endpoint fixed",
+    "🛠️ Improved AI button UI"
+  ],
+  "lastUpdated": "2025-05-31"
+}
+
+
+⸻
+
+🛠️ 3. Git Tagging for Replit Deployments
+
+Ask Replit to run this after a stable deployment:
+
+git tag -a v1.3.2 -m "🚀 Video gallery, newsletter fix, AI button UX"
+git push origin v1.3.2
+
+
+⸻
+
+📣 4. Release Notes Location
+	•	Auto-populate in Admin Dashboard
+	•	Show a changelog in /about or /releases
+	•	Optional: Include a “What’s New” toast/banner for staff
+
+⸻
+
+📝 Instructions for Replit Assistant
+
+Please implement a versioning and release tracking module:
+	1.	Use Semantic Versioning (SemVer) like v1.3.2-prod.
+	2.	Track frontendVersion, backendVersion, and releaseNotes in a new JSON file (version.json) in /public or a small Firestore collection.
+	3.	Display this on the Admin Dashboard under “Current Version”.
+	4.	Add a git tag during production deployment with the version string.
+	5.	Optionally show a “What’s New” banner if the version changes.
+
+This will help our team:
+	•	Track deployments
+	•	Communicate release changes
+	•	Debug production regressions
+
+⸻
+
+Would you like me to generate the first version.json file and dashboard component for you now?
