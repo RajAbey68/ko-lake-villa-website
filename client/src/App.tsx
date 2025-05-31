@@ -22,6 +22,8 @@ import Gallery from "@/pages/Gallery";
 import Contact from "@/pages/Contact";
 import Booking from "@/pages/Booking";
 import Checkout from "@/pages/Checkout";
+import Deals from "@/pages/Deals";
+import Friends from "@/pages/Friends";
 // import FAQ from "@/pages/FAQ";
 
 // Admin pages
@@ -60,10 +62,12 @@ function Router() {
         <main className="flex-grow">
           <Switch>
             <Route path="/" component={Home} />
+            <Route path="/deals" component={Deals} />
             <Route path="/accommodation" component={Accommodation} />
             <Route path="/dining" component={Dining} />
             <Route path="/experiences" component={Experiences} />
             <Route path="/gallery" component={Gallery} />
+            <Route path="/friends" component={Friends} />
             <Route path="/contact" component={Contact} />
             <Route path="/booking" component={Booking} />
             <Route path="/checkout" component={Checkout} />
