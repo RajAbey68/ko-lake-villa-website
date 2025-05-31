@@ -123,3 +123,89 @@ export default function SEOHead({
   
   return null;
 }
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+
+interface SEOHeadProps {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  image?: string;
+  url?: string;
+  type?: string;
+}
+
+export default function SEOHead({
+  title = "Ko Lake Villa - Luxury Lakeside Accommodation in Koggala",
+  description = "Experience luxury at Ko Lake Villa, a stunning lakeside retreat in Koggala, Sri Lanka. Direct booking saves 15% compared to Airbnb. Pool, gardens, and lake views.",
+  keywords = "Ko Lake Villa, Koggala accommodation, Sri Lanka villa, luxury lakeside retreat, direct booking discount, pool villa, lake view",
+  image = "/uploads/gallery/entire-villa/hero-image.jpg",
+  url = "https://skill-bridge-rajabey68.replit.app",
+  type = "website"
+}: SEOHeadProps) {
+  return (
+    <Helmet>
+      {/* Primary Meta Tags */}
+      <title>{title}</title>
+      <meta name="title" content={title} />
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="robots" content="index, follow" />
+      <meta name="language" content="English" />
+      <meta name="author" content="Ko Lake Villa" />
+
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content={type} />
+      <meta property="og:url" content={url} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
+      <meta property="og:site_name" content="Ko Lake Villa" />
+
+      {/* Twitter */}
+      <meta property="twitter:card" content="summary_large_image" />
+      <meta property="twitter:url" content={url} />
+      <meta property="twitter:title" content={title} />
+      <meta property="twitter:description" content={description} />
+      <meta property="twitter:image" content={image} />
+
+      {/* Additional SEO */}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="theme-color" content="#8B5E3C" />
+      <link rel="canonical" href={url} />
+      
+      {/* Schema.org structured data */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LodgingBusiness",
+          "name": "Ko Lake Villa",
+          "description": description,
+          "url": url,
+          "telephone": "+94-77-123-4567",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Koggala Lake",
+            "addressLocality": "Koggala",
+            "addressRegion": "Southern Province",
+            "addressCountry": "Sri Lanka"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "5.9932",
+            "longitude": "80.3254"
+          },
+          "image": image,
+          "priceRange": "$63-$388",
+          "amenityFeature": [
+            "Swimming Pool",
+            "Lake View",
+            "Garden",
+            "Free WiFi",
+            "Air Conditioning"
+          ]
+        })}
+      </script>
+    </Helmet>
+  );
+}
