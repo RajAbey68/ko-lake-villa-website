@@ -175,28 +175,33 @@ export default function GalleryManager() {
         <h2 className="text-2xl font-bold text-[#8B5E3C]">Gallery Management</h2>
         
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Category Filter */}
-          <Select value={selectedCategory || "all"} onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}>
-            <SelectTrigger className="w-48">
-              <FilterIcon className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {GALLERY_CATEGORIES.map(category => (
-                <SelectItem key={category.value} value={category.value}>
-                  {category.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           {/* Upload Button */}
           <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C]">
             <UploadIcon className="h-4 w-4 mr-2" />
             Upload Image
           </Button>
         </div>
+      </div>
+
+      {/* Category Filter Buttons */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button
+          variant={selectedCategory === null ? "default" : "outline"}
+          onClick={() => setSelectedCategory(null)}
+          className="mb-2"
+        >
+          All Categories
+        </Button>
+        {GALLERY_CATEGORIES.map(category => (
+          <Button
+            key={category.value}
+            variant={selectedCategory === category.value ? "default" : "outline"}
+            onClick={() => setSelectedCategory(category.value)}
+            className="mb-2"
+          >
+            {category.label}
+          </Button>
+        ))}
       </div>
 
       {/* Tag-Category Consistency Information */}
@@ -209,18 +214,33 @@ export default function GalleryManager() {
         aria-label="Gallery images management grid"
       >
         {filteredAndSortedImages.map((image) => (
-          <Card key={image.id} className="overflow-hidden" role="gridcell">
+          <Card key={image.id} className="overflow-hidden gallery-image" role="gridcell">
             <div className="relative aspect-square">
-              <img
-                src={image.imageUrl}
-                alt={image.alt}
-                loading="lazy"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                  (e.target as HTMLImageElement).alt = 'Image not available';
-                }}
-              />
+              {image.mediaType === 'video' ? (
+                <video
+                  controls
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Video failed to load:', image.imageUrl);
+                  }}
+                >
+                  <source src={image.imageUrl} type="video/mp4" />
+                  <source src={image.imageUrl} type="video/webm" />
+                  <source src={image.imageUrl} type="video/ogg" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <img
+                  src={image.imageUrl}
+                  alt={image.alt}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    (e.target as HTMLImageElement).alt = 'Image not available';
+                  }}
+                />
+              )}
               
               {/* Featured Badge */}
               {image.featured && (
@@ -236,6 +256,7 @@ export default function GalleryManager() {
                   variant="secondary"
                   onClick={() => handleEdit(image)}
                   className="h-8 w-8 p-0"
+                  aria-label={`Edit ${image.alt}`}
                 >
                   <EditIcon className="h-4 w-4" />
                 </Button>
@@ -244,6 +265,7 @@ export default function GalleryManager() {
                   variant="destructive"
                   onClick={() => handleDelete(image.id)}
                   className="h-8 w-8 p-0"
+                  aria-label={`Delete ${image.alt}`}
                 >
                   <TrashIcon className="h-4 w-4" />
                 </Button>
@@ -287,10 +309,28 @@ export default function GalleryManager() {
       {filteredAndSortedImages.length === 0 && (
         <div className="text-center py-12">
           <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No images found</p>
-          <Button onClick={() => setUploadDialogOpen(true)} className="mt-4">
-            Upload your first image
-          </Button>
+          {selectedCategory ? (
+            <div>
+              <p className="text-gray-600 mb-2">No items found</p>
+              <p className="text-sm text-gray-500">No images or videos in the "{formatCategoryLabel(selectedCategory)}" category</p>
+              <div className="mt-4 space-x-2">
+                <Button onClick={() => setSelectedCategory(null)} variant="outline">
+                  View All Categories
+                </Button>
+                <Button onClick={() => setUploadDialogOpen(true)}>
+                  Upload to this Category
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="text-gray-600 mb-2">No items found</p>
+              <p className="text-sm text-gray-500">Your gallery is empty</p>
+              <Button onClick={() => setUploadDialogOpen(true)} className="mt-4">
+                Upload your first image
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -396,13 +436,30 @@ function EditImageDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="customTags" className="text-lg font-medium">Additional Tags</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="customTags" className="text-lg font-medium">Additional Tags</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // AI suggestion functionality
+                      setCustomTags(prev => {
+                        const suggested = "scenic, beautiful, vacation, property";
+                        return prev ? `${prev}, ${suggested}` : suggested;
+                      });
+                    }}
+                    className="text-sm"
+                  >
+                    ✨ Suggest Tags
+                  </Button>
+                </div>
                 <Input
                   id="customTags"
                   name="customTags"
                   value={customTags}
                   onChange={(e) => setCustomTags(e.target.value)}
-                  placeholder="beach, sunset, relaxing"
+                  placeholder="Additional Tags"
                   className="h-12 text-lg"
                 />
                 <p className="text-sm text-gray-500 mt-2">
