@@ -431,7 +431,9 @@ const handleCategoryChange = (category: string | null) => {
               {galleryImages?.map((image) => (
                 <div 
                   key={image.id} 
-                  className={`group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] hover:shadow-lg transition-all duration-300
+                  className={`group overflow-hidden rounded-lg cursor-pointer bg-white p-2 shadow-md border border-[#A0B985] 
+                    hover:shadow-2xl hover:shadow-[#8B5E3C]/20 hover:border-[#8B5E3C] hover:-translate-y-2 hover:scale-105
+                    transform transition-all duration-500 ease-out
                     ${image.displaySize === 'big' ? 'col-span-2 row-span-2 md:col-span-3 lg:col-span-4' : ''} 
                     ${image.displaySize === 'medium' ? 'col-span-1 md:col-span-1 lg:col-span-1' : ''}
                     ${image.displaySize === 'small' ? 'col-span-1' : ''}`
@@ -479,16 +481,26 @@ const handleCategoryChange = (category: string | null) => {
                         </div>
 
                         {/* Using a simple img tag with direct URL for maximum compatibility */}
-                        <div className="w-full h-full relative z-10">
+                        <div className="w-full h-full relative z-10 overflow-hidden">
                           <img 
                             src={`${image.imageUrl}?t=${Date.now()}`}
                             alt={image.alt || "Ko Lake Villa Image"}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                             onError={(e) => {
                               console.error(`Error loading image: ${image.imageUrl}`);
                               (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
                             }}
                           />
+                          {/* Elegant hover overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#8B5E3C]/60 via-transparent to-transparent 
+                                        opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out
+                                        flex items-end justify-center pb-4">
+                            <div className="text-white text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                              <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
+                                Click to view
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
