@@ -20,7 +20,7 @@ export default function AdminGallery() {
   const { toast } = useToast();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-screen overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
