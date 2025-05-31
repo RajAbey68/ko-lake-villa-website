@@ -6,6 +6,53 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { GalleryImage } from '@/lib/galleryUtils';
 import { formatCategoryLabel, formatTagsForDisplay } from '@/lib/galleryUtils';
 
+// Function to generate beautiful display titles for guests
+const getDisplayTitle = (image: GalleryImage): string => {
+  if (image.title) return image.title;
+  
+  const categoryTitles: Record<string, string> = {
+    'family-suite': 'Family Suite',
+    'friends': 'Friends & Fun',
+    'events': 'Villa Events',
+    'pool-deck': 'Pool & Deck',
+    'lake-view': 'Lake Views', 
+    'dining': 'Dining Experience',
+    'gardens': 'Tropical Gardens',
+    'exterior': 'Villa Architecture',
+    'amenities': 'Villa Amenities',
+    'default': 'Ko Lake Villa'
+  };
+  
+  // Generate title based on category and media type
+  const baseTitle = categoryTitles[image.category] || 'Ko Lake Villa Experience';
+  
+  if (image.mediaType === 'video') {
+    return `${baseTitle} - Video Experience`;
+  }
+  
+  return baseTitle;
+};
+
+// Function to generate beautiful descriptions for guests
+const getDisplayDescription = (image: GalleryImage): string => {
+  if (image.description) return image.description;
+  
+  const categoryDescriptions: Record<string, string> = {
+    'family-suite': 'Spacious accommodations with stunning lake views and modern amenities for the perfect family getaway.',
+    'friends': 'Create unforgettable memories with friends in our beautiful lakeside villa setting.',
+    'events': 'Host your special celebrations with breathtaking lake views and elegant villa spaces.',
+    'pool-deck': 'Relax by our private pool with panoramic views of Koggala Lake.',
+    'lake-view': 'Wake up to stunning views of Koggala Lake from every window.',
+    'dining': 'Enjoy delicious Sri Lankan cuisine and international dishes in elegant settings.',
+    'gardens': 'Stroll through beautifully landscaped tropical gardens.',
+    'exterior': 'Traditional Sri Lankan architecture blended with modern luxury.',
+    'amenities': 'Premium amenities for an exceptional villa experience.',
+    'default': 'Experience the beauty and tranquility of Ko Lake Villa.'
+  };
+  
+  return categoryDescriptions[image.category] || 'Beautiful moments at Ko Lake Villa, your luxury lakeside retreat in Ahangama.';
+};
+
 interface GalleryModalProps {
   images: GalleryImage[];
   isOpen: boolean;
@@ -142,11 +189,9 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                   )}
                 </div>
 
-                {image.description && (
-                  <p className="text-gray-700 mb-3 leading-relaxed">
-                    {image.description}
-                  </p>
-                )}
+                <p className="text-gray-700 mb-3 leading-relaxed">
+                  {getDisplayDescription(image)}
+                </p>
 
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
