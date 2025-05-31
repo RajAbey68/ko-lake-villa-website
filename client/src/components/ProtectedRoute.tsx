@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { useEffect, useState } from 'react';
 
 interface ProtectedRouteProps {
@@ -26,7 +26,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Redirect to login if not authenticated
   if (!user) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    window.location.href = "/admin/login";
+    return null;
   }
 
   return <>{children}</>;
