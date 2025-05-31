@@ -12,35 +12,35 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
   const [error, setError] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   useEffect(() => {
     // Check if it's a YouTube URL and don't try to generate thumbnail
     if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
       setError(true);
       return;
     }
-    
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    
+
     if (!video || !canvas) return;
-    
+
     const generateThumbnail = () => {
       try {
         const context = canvas.getContext('2d');
         if (!context) return;
-        
+
         // Set canvas dimensions to match video
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
+
         // Draw the video frame to the canvas
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+
         // Convert canvas to data URL
         const dataUrl = canvas.toDataURL('image/jpeg');
         setThumbnail(dataUrl);
-        
+
         // Cleanup
         video.removeEventListener('loadeddata', handleVideoLoad);
         video.removeEventListener('seeked', generateThumbnail);
@@ -49,7 +49,7 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
         setError(true);
       }
     };
-    
+
     const handleVideoLoad = () => {
       // Seek to the middle of the video for thumbnail
       if (video.duration) {
@@ -58,17 +58,17 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
         generateThumbnail();
       }
     };
-    
+
     const handleError = () => {
       console.error('Error loading video:', videoUrl);
       setError(true);
-      
+
       // Cleanup
       video.removeEventListener('loadeddata', handleVideoLoad);
       video.removeEventListener('seeked', generateThumbnail);
       video.removeEventListener('error', handleError);
     };
-    
+
     // Set proper URL for local files
     let videoSrc = videoUrl;
     if (videoUrl.startsWith('/uploads')) {
@@ -78,12 +78,12 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
       // External URL does not have protocol, add it
       videoSrc = 'https://' + videoUrl;
     }
-    
+
     video.crossOrigin = 'anonymous';
     video.addEventListener('loadeddata', handleVideoLoad);
     video.addEventListener('seeked', generateThumbnail);
     video.addEventListener('error', handleError);
-    
+
     try {
       video.src = videoSrc;
       video.load();
@@ -91,17 +91,17 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
       console.error('Failed to load video:', loadError);
       setError(true);
     }
-    
+
     return () => {
       video.removeEventListener('loadeddata', handleVideoLoad);
       video.removeEventListener('seeked', generateThumbnail);
       video.removeEventListener('error', handleError);
     };
   }, [videoUrl]);
-  
+
   // Determine if this is a YouTube URL
   const isYouTubeUrl = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
-  
+
   if (isYouTubeUrl) {
     return (
       <div className={`${className} bg-gray-200 flex items-center justify-center`}>
@@ -114,7 +114,7 @@ const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?:
       </div>
     );
   }
-  
+
   return (
     <div className={className}>
       {error ? (
@@ -178,15 +178,15 @@ const Gallery = () => {
       const url = category 
         ? `/api/gallery?category=${category}`
         : '/api/gallery';
-      
+
       console.log('Fetching gallery images from:', url);
       const response = await fetch(url, { credentials: 'include' });
-      
+
       if (!response.ok) throw new Error('Failed to fetch gallery images');
-      
+
       const data = await response.json() as GalleryImageType[];
       console.log('Received gallery data:', data.length, 'images');
-      
+
       // Process image URLs to use our proxy for external URLs
       return data.map((image) => ({
         ...image,
@@ -223,7 +223,7 @@ const handleCategoryChange = (category: string | null) => {
 
   const openImageModal = (image: GalleryImageType) => {
     if (!galleryImages) return;
-    
+
     const imageIndex = galleryImages.findIndex(img => img.id === image.id);
     setCurrentImageIndex(imageIndex);
     setModalOpen(true);
@@ -235,7 +235,7 @@ const handleCategoryChange = (category: string | null) => {
 
   const handleModalNavigate = (direction: 'prev' | 'next') => {
     if (!galleryImages) return;
-    
+
     if (direction === 'prev') {
       setCurrentImageIndex(prev => 
         prev === 0 ? galleryImages.length - 1 : prev - 1
@@ -418,18 +418,26 @@ const handleCategoryChange = (category: string | null) => {
                   }}
                 >
                   <div className="relative overflow-hidden rounded-md">
-                    {image.mediaType === 'video' ? (
-                      <div className="relative">
-                        <VideoThumbnail
-                          videoUrl={image.imageUrl}
-                          className="w-full h-40 md:h-56"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
-                          <div className="w-12 h-12 rounded-full bg-white bg-opacity-70 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#FF914D]">
-                              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                          </div>
+                    {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? (
+                      <div className="relative w-full h-full">
+                        <video
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                          loop
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => e.currentTarget.pause()}
+                          onError={(e) => {
+                            console.error('Failed to load video:', image.imageUrl);
+                          }}
+                        >
+                          <source src={image.imageUrl} type="video/mp4" />
+                          <source src={image.imageUrl} type="video/quicktime" />
+                        </video>
+                        <div className="absolute top-2 right-2">
+                          <svg className="w-6 h-6 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                          </svg>
                         </div>
                       </div>
                     ) : (
@@ -445,7 +453,7 @@ const handleCategoryChange = (category: string | null) => {
                           </div>
                           <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
                         </div>
-                        
+
                         {/* Using a simple img tag with direct URL for maximum compatibility */}
                         <div className="w-full h-full relative z-10">
                           <img 
