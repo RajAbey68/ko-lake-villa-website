@@ -214,7 +214,9 @@ const CATEGORY_MAPPING: Record<string, string> = {
   "Roof Garden": "roof-garden", 
   "Front Garden and Entrance": "front-garden", 
   "Koggala Lake Ahangama and Surrounding": "koggala-lake", 
-  "Excursions": "excursions"
+  "Excursions": "excursions",
+  "Friends": "friends",
+  "Events": "events"
 };
 
 const handleCategoryChange = (category: string | null) => {
@@ -384,6 +386,26 @@ const handleCategoryChange = (category: string | null) => {
                 }`}
               >
                 Excursions
+              </button>
+              <button
+                onClick={() => handleCategoryChange('Friends')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'Friends'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Friends
+              </button>
+              <button
+                onClick={() => handleCategoryChange('Events')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'Events'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Events
               </button>
             </div>
           </div>
