@@ -192,7 +192,7 @@ Relax, Revive, and Connect — you're in the right place.`;
                     <span className="font-semibold text-[#1E4E5F]">👫 Friends welcome:</span> Just let us know
                   </div>
                   <div className="bg-[#F8F6F2] p-4 rounded-lg">
-                    <span className="font-semibold text-[#1E4E5F]">🍷 Drinks & food:</span> Enjoy freely!
+                    <span className="font-semibold text-[#1E4E5F]">🍷 Drinks & food:</span> we try to oblige!
                   </div>
                   <div className="bg-[#F8F6F2] p-4 rounded-lg">
                     <span className="font-semibold text-[#1E4E5F]">🐒 Wildlife:</span> Don't feed them
