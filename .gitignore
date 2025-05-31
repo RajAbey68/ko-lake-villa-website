@@ -38,3 +38,4 @@ git commit -m "Update .gitignore to exclude large local files and dev artifacts"
 git push -u origin main
 
 exit
+ko-lake-villa.zip
