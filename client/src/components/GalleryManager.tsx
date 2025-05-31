@@ -38,7 +38,6 @@ const GALLERY_CATEGORIES = [
 
 import { 
   GalleryImage, 
-  GALLERY_CATEGORIES, 
   generateConsistentTags, 
   validateImageData,
   formatCategoryLabel,
