@@ -141,7 +141,9 @@ export default function AdminGallery() {
               { value: "roof-garden", label: "Roof Garden", color: "bg-lime-100 text-lime-800" },
               { value: "front-garden", label: "Front Garden", color: "bg-teal-100 text-teal-800" },
               { value: "koggala-lake", label: "Koggala Lake", color: "bg-indigo-100 text-indigo-800" },
-              { value: "excursions", label: "Excursions", color: "bg-pink-100 text-pink-800" }
+              { value: "excursions", label: "Excursions", color: "bg-pink-100 text-pink-800" },
+              { value: "friends", label: "Friends", color: "bg-orange-100 text-orange-800" },
+              { value: "events", label: "Events", color: "bg-violet-100 text-violet-800" }
             ].map(category => (
               <Badge 
                 key={category.value} 

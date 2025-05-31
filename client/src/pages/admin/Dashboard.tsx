@@ -33,6 +33,29 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { apiRequest } from '../../lib/queryClient';
 import { z } from 'zod';
+import { 
+  HomeIcon, 
+  LayoutDashboardIcon, 
+  LogOutIcon, 
+  MailIcon, 
+  CalendarRangeIcon, 
+  ImageIcon, 
+  UsersIcon,
+  UserIcon,
+  EditIcon,
+  TrashIcon,
+  ImagePlusIcon,
+  CheckCircleIcon,
+  ExternalLinkIcon,
+  UploadIcon,
+  LinkIcon,
+  RefreshCwIcon,
+  BugIcon,
+  PlusCircleIcon,
+  CheckIcon,
+  XIcon,
+  FilterIcon
+} from 'lucide-react';
 
 // Import GalleryImage type directly to fix the import error
 type GalleryImage = {
@@ -109,28 +132,7 @@ function PricingManagerCard() {
     </div>
   );
 }
-import { 
-  HomeIcon, 
-  LayoutDashboardIcon, 
-  LogOutIcon, 
-  MailIcon, 
-  CalendarRangeIcon, 
-  ImageIcon, 
-  UsersIcon,
-  EditIcon,
-  TrashIcon,
-  ImagePlusIcon,
-  CheckCircleIcon,
-  ExternalLinkIcon,
-  UploadIcon,
-  LinkIcon,
-  RefreshCwIcon,
-  BugIcon,
-  PlusCircleIcon,
-  CheckIcon,
-  XIcon,
-  FilterIcon
-} from 'lucide-react';
+
 
 // Forward declaration of components
 function AdminDashboardContent();
@@ -198,13 +200,13 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  
+
   // Load gallery images
   const { data: images = [], isLoading, isError } = useQuery<GalleryImage[]>({
     queryKey: [selectedCategory ? `/api/gallery?category=${selectedCategory}` : '/api/gallery'],
     retry: false
   });
-  
+
   // Form for adding/editing images
   const form = useForm<FormValues>({
     resolver: zodResolver(galleryImageSchema),
@@ -220,7 +222,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       mediaType: 'image',
     }
   });
-  
+
   // Create image mutation
   const createMutation = useMutation({
     mutationFn: async (data: FormValues) => {
@@ -254,7 +256,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       });
     }
   });
-  
+
   // Update image mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: FormValues }) => {
@@ -288,7 +290,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       });
     }
   });
-  
+
   // Delete image mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -317,7 +319,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       });
     }
   });
-  
+
   // Use uploadFile from the top-level import
 
   // Direct Save - Bypassing firebase for simplicity in testing
@@ -335,19 +337,19 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
         mediaType: "image" as const, // Always image for quick save
         imageUrl: "https://images.unsplash.com/photo-1544957992-6ef475c58fb1?q=80&w=1000&auto=format&fit=crop" // Guaranteed image URL
       };
-      
+
       console.log("Directly saving with values:", basicValues);
-      
+
       // Show initial toast
       toast({
         title: "Saving Image...",
         description: "Please wait while we save your image.",
         duration: 3000,
       });
-      
+
       // Set a loader state
       const saveStartTime = Date.now();
-      
+
       // Make a direct API call instead of using mutation
       const response = await fetch('/api/admin/gallery', {
         method: 'POST',
@@ -356,15 +358,15 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
         },
         body: JSON.stringify(basicValues),
       });
-      
+
       if (!response.ok) {
         throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
-      
+
       const responseData = await response.json();
-      
+
       console.log("Save response:", response);
-      
+
       // Show very explicit success message
       toast({
         title: "SUCCESS: IMAGE SAVED!",
@@ -383,16 +385,16 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
         ),
         duration: 10000, // Keep visible for 10 seconds
       });
-      
+
       // Invalidate the gallery cache to refresh the list
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      
+
       // Don't automatically close - let user see confirmation
       // The user can close the dialog manually when ready
-      
+
     } catch (error) {
       console.error("Error saving image:", error);
-      
+
       // Error toast
       toast({
         title: "Save Failed",
@@ -413,17 +415,17 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   // Handle form submission with reliable save
   const onSubmit = async (values: FormValues) => {
     console.log("Form submitted with values:", values);
-    
+
     // Show the submission in progress
     toast({
       title: "Processing submission...",
       description: "Please wait while we save your image.",
       duration: 5000,
     });
-    
+
     try {
       const formData = { ...values };
-      
+
       // Check all required fields with more detailed logging
       if (!values.category) {
         console.error("Missing category");
@@ -434,7 +436,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
         });
         return;
       }
-      
+
       if (!values.alt) {
         console.error("Missing alt text");
         toast({
@@ -444,14 +446,14 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
         });
         return;
       }
-      
+
       // Handle file upload if method is 'file'
       if (values.uploadMethod === 'file' && values.file) {
         try {
           // Set uploading state and reset progress
           setIsUploading(true);
           setUploadProgress(0);
-          
+
           // Progress tracking toast - show initial progress
           toast({
             title: "Uploading file...",
@@ -471,14 +473,14 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             ),
             duration: 100000, // Long duration, we'll update it as we go
           });
-          
+
           console.log("About to upload file:", values.file);
-          
+
           // Display Firebase config status to debug
           console.log("Firebase API Key exists:", !!import.meta.env.VITE_FIREBASE_API_KEY);
           console.log("Firebase Storage Bucket exists:", !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET);
           console.log("Firebase Project ID exists:", !!import.meta.env.VITE_FIREBASE_PROJECT_ID);
-          
+
           // Redirect to URL method if Firebase credentials are missing
           if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_STORAGE_BUCKET) {
             console.error("Firebase credentials missing");
@@ -489,7 +491,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             });
             return;
           }
-          
+
           try {
             // Upload file to Firebase Storage
             console.log("Starting file upload to Firebase...");
@@ -500,7 +502,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
               (progress) => {
                 // Update our local progress state
                 setUploadProgress(progress);
-                
+
                 // Update progress toast with new info each time without dismiss
                 // No need for toast.dismiss() here
                 toast({
@@ -523,7 +525,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 });
               }
             );
-            
+
             // Show a success toast when complete
             toast({
               title: "Upload Complete!",
@@ -531,7 +533,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
               variant: "default",
             });
             console.log("File uploaded successfully with URL:", downloadURL);
-            
+
             // Replace file with download URL
             formData.imageUrl = downloadURL;
           } catch (error) {
@@ -539,7 +541,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             console.error("Firebase upload error:", error);
             setIsUploading(false);
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
-            
+
             toast({
               title: "File Upload Failed",
               description: (
@@ -558,7 +560,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
               variant: "destructive",
               duration: 8000,
             });
-            
+
             return;
           }
         } catch (error) {
@@ -571,10 +573,10 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           return; // Exit early if upload fails
         }
       }
-      
+
       // Remove the file object as it can't be serialized
       delete formData.file;
-      
+
       if (isEditingImage !== null) {
         // Update existing image
         updateMutation.mutate({ id: isEditingImage, data: formData });
@@ -591,7 +593,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       });
     }
   };
-  
+
   // Handle editing an image
   const handleEdit = (image: GalleryImage) => {
     form.reset({
@@ -607,21 +609,21 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     });
     setIsEditingImage(image.id);
   };
-  
+
   // Handle closing the dialog
   const handleCloseDialog = () => {
     setIsAddingImage(false);
     setIsEditingImage(null);
     form.reset();
   };
-  
+
   // Handle deleting an image with confirmation
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this image?")) {
       deleteMutation.mutate(id);
     }
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Category filter */}
@@ -644,7 +646,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           </Button>
         ))}
       </div>
-      
+
       {/* Gallery grid */}
       {isLoading ? (
         <div className="flex justify-center py-12">
@@ -725,7 +727,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
           No images found. Click "Add New Image" to add your first gallery image.
         </div>
       )}
-      
+
       {/* Add/Edit Image Dialog */}
       <Dialog open={isAddingImage || isEditingImage !== null} onOpenChange={handleCloseDialog}>
         <DialogContent className="sm:max-w-[600px] overflow-y-auto max-h-[85vh]">
@@ -739,7 +741,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 : "Add a new image or video to your gallery."}
             </DialogDescription>
           </DialogHeader>
-          
+
           {/* Simplified form with prominent buttons at top */}
           <div className="flex flex-col gap-3 py-3 my-2">
             {/* Submit button at the top */}
@@ -756,7 +758,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             <p className="text-sm text-center text-gray-600">
               Fill in all required fields below before clicking this button
             </p>
-            
+
             {/* Alternative URL option and Quick Save */}
             <div className="text-center text-sm text-gray-600 border-t mt-2 pt-2">
               <p className="mb-1"><strong>Having trouble with file upload?</strong></p>
@@ -772,7 +774,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                     Guaranteed Quick Save
                   </span>
                 </Button>
-                
+
                 <div className="text-xs text-center text-gray-500 mt-1">
                   This button will definitely add a sample image to your gallery.
                 </div>
@@ -780,7 +782,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
               <p className="mt-2">Or try the "Provide URL" option below</p>
             </div>
           </div>
-          
+
           <Form {...form}>
             <form id="gallery-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pr-2">
               {/* Media Type Selection */}
@@ -820,7 +822,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   </FormItem>
                 )}
               />
-              
+
               {/* Upload Method Selection */}
               <FormField
                 control={form.control}
@@ -865,7 +867,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             value="url"
                             checked={field.value === "url"}
                             onChange={() => field.onChange("url")}
-                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]"
+                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]`
                           />
                           <Label htmlFor="upload-url" className="font-medium ml-2 cursor-pointer flex items-center">
                             <LinkIcon className="w-4 h-4 mr-2 text-[#FF914D]" />
@@ -885,7 +887,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   </FormItem>
                 )}
               />
-              
+
               {/* File Upload Field - shown when upload method is 'file' */}
               {form.watch("uploadMethod") === "file" && (
                 <FormField
@@ -896,7 +898,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                       <FormLabel className="text-base font-semibold">
                         {form.watch("mediaType") === "video" ? "Select Video File" : "Select Image File"}
                       </FormLabel>
-                      
+
                       <FormControl>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors">
                           <div className="space-y-3">
@@ -905,7 +907,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                                 <ImagePlusIcon className="h-8 w-8 text-[#FF914D]" />
                               </div>
                             </div>
-                            
+
                             <div>
                               <p className="text-base font-medium mb-1">
                                 {value 
@@ -913,7 +915,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                                   : "Click button to select a file from your device"}
                               </p>
                             </div>
-                            
+
                             <Button
                               type="button"
                               className="font-medium bg-[#FF914D] hover:bg-[#e67e3d] text-white"
@@ -937,7 +939,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                               />
                             </Button>
                           </div>
-                          
+
                           {value && (
                             <div className="mt-4 p-3 bg-green-50 border border-green-100 rounded-md text-sm text-green-800 flex items-center gap-2">
                               <CheckCircleIcon className="h-5 w-5 text-green-600 flex-shrink-0" />
@@ -949,7 +951,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                           )}
                         </div>
                       </FormControl>
-                      
+
                       <FormDescription className="text-center font-medium mt-2">
                         After selecting a file, click the large "Upload & Save Image" button at the bottom
                       </FormDescription>
@@ -958,7 +960,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   )}
                 />
               )}
-              
+
               {/* URL Field - shown when upload method is 'url' */}
               {form.watch("uploadMethod") === "url" && (
                 <FormField
@@ -978,7 +980,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             className="p-3 text-base"
                             {...field} 
                           />
-                          
+
                           {form.watch("mediaType") === "image" && (
                             <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
                               <h4 className="font-medium text-sm mb-2">Quick Image URLs:</h4>
@@ -1018,7 +1020,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   )}
                 />
               )}
-              
+
               {/* Title field (alt is repurposed as title) */}
               <FormField
                 control={form.control}
@@ -1039,7 +1041,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   </FormItem>
                 )}
               />
-              
+
               {/* Description field */}
               <FormField
                 control={form.control}
@@ -1061,7 +1063,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   </FormItem>
                 )}
               />
-              
+
               {/* Tags field */}
               <FormField
                 control={form.control}
@@ -1082,7 +1084,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="category"
@@ -1107,7 +1109,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -1129,7 +1131,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="sortOrder"
@@ -1153,7 +1155,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                   )}
                 />
               </div>
-              
+
               {/* Upload Button Section */}
               <div className="mt-8 border-t pt-6 flex flex-col gap-4">
                 {form.watch("uploadMethod") === "file" && (
@@ -1166,7 +1168,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                     </div>
                   </div>
                 )}
-                
+
                 <Button 
                   type="submit"
                   className="bg-[#FF914D] hover:bg-[#e67e3d] text-lg py-6 w-full font-semibold"
@@ -1184,7 +1186,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                     </span>
                   )}
                 </Button>
-                
+
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -1208,7 +1210,7 @@ function GalleryTab() {
   const [debugImages, setDebugImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  
+
   // Direct test function to add an image and fetch gallery
   const testAddImage = async () => {
     try {
@@ -1217,7 +1219,7 @@ function GalleryTab() {
         title: "Adding test image...",
         description: "Please wait while we add a test image.",
       });
-      
+
       // Create a test image
       const testImage = {
         uploadMethod: "url",
@@ -1230,7 +1232,7 @@ function GalleryTab() {
         sortOrder: 0,
         mediaType: "image"
       };
-      
+
       // Make a direct API call
       const response = await fetch('/api/admin/gallery', {
         method: 'POST',
@@ -1239,20 +1241,20 @@ function GalleryTab() {
         },
         body: JSON.stringify(testImage),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to add image: ${response.status}`);
       }
-      
+
       // Now fetch all images to verify it was added
       const galleryResponse = await fetch('/api/gallery');
       if (!galleryResponse.ok) {
         throw new Error(`Failed to fetch gallery: ${galleryResponse.status}`);
       }
-      
+
       const images = await galleryResponse.json();
       setDebugImages(images);
-      
+
       toast({
         title: "Success!",
         description: `Added test image and found ${images.length} total images in gallery.`,
@@ -1269,7 +1271,7 @@ function GalleryTab() {
       setLoading(false);
     }
   };
-  
+
   return (
     <Card>
       <CardHeader className="flex flex-col space-y-4">
@@ -1305,7 +1307,7 @@ function GalleryTab() {
             </Button>
           </div>
         </div>
-        
+
         {/* Debug display of images */}
         {debugImages.length > 0 && (
           <div className="mt-4 p-4 bg-gray-50 rounded-md border">
@@ -1367,7 +1369,7 @@ function AdminDashboardContent() {
             <LayoutDashboardIcon className="w-6 h-6" />
             <h1 className="text-xl font-semibold">Ko Lake Villa Admin</h1>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             {currentUser?.photoURL && (
               <img 
@@ -1414,7 +1416,7 @@ function AdminDashboardContent() {
                 <span>View Website</span>
               </a>
               <hr className="my-3 border-gray-200" />
-              
+
               <button 
                 onClick={() => setActiveTab('bookings')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left ${
@@ -1426,7 +1428,7 @@ function AdminDashboardContent() {
                 <CalendarRangeIcon className="w-5 h-5" />
                 <span>Bookings</span>
               </button>
-              
+
               <button 
                 onClick={() => setActiveTab('messages')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left ${
@@ -1438,7 +1440,7 @@ function AdminDashboardContent() {
                 <MailIcon className="w-5 h-5" />
                 <span>Messages</span>
               </button>
-              
+
               <button 
                 onClick={() => setActiveTab('booking-integration')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left ${
@@ -1450,7 +1452,7 @@ function AdminDashboardContent() {
                 <CalendarRangeIcon className="w-5 h-5" />
                 <span>Booking Integration</span>
               </button>
-              
+
               <Link href="/admin/calendar">
                 <button 
                   className="flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left text-green-700 hover:bg-green-50 border-l-4 border-green-500"
@@ -1468,7 +1470,7 @@ function AdminDashboardContent() {
                   <span>Gallery Manager</span>
                 </button>
               </Link>
-              
+
               <button 
                 onClick={() => setActiveTab('subscribers')}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left ${
@@ -1494,10 +1496,10 @@ function AdminDashboardContent() {
                 <TabsTrigger value="gallery">Gallery</TabsTrigger>
                 <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="overview" className="space-y-6">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C]">Welcome back, {currentUser?.displayName?.split(' ')[0] || 'Admin'}</h2>
-                
+
                 {/* PRICING MANAGER - Now Working! */}
                 <div style={{ background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', marginBottom: '2rem', border: '2px solid #4CAF50' }}>
                   <h3 style={{ color: '#2E7D32', fontSize: '1.5rem', marginBottom: '0.5rem' }}>💸 Pricing Manager - LIVE</h3>
@@ -1523,14 +1525,14 @@ function AdminDashboardContent() {
                           const sunRate = days.sun || 0;
                           const monRate = days.mon || days.sun || 0;
                           const tueRate = days.tue || days.sun || 0;
-                          
+
                           const avgRate = Math.round((sunRate + monRate + tueRate) / 3);
                           const autoDirectRate = Math.round(avgRate * 0.9);
                           const override = pricing.overrides?.[roomId as keyof typeof pricing.overrides];
                           const displayRate = override ? override.customPrice : autoDirectRate;
                           const isCustom = !!override;
                           const roomNames: Record<string, string> = { knp: "KNP", knp1: "KNP1", knp3: "KNP3", knp6: "KNP6" };
-                          
+
                           return (
                             <tr key={roomId} style={{ backgroundColor: '#fff' }}>
                               <td style={{ border: '1px solid #ddd', padding: '12px', fontWeight: 'bold' }}>
@@ -1590,23 +1592,41 @@ function AdminDashboardContent() {
                     </a>
                   </div>
                 </div>
-                
+
                 {/* Management Blocks */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  <Link href="/admin/gallery">
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#8B5E3C]/20">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg font-medium flex items-center gap-2">
-                          📷 Gallery Manager
-                        </CardTitle>
-                        <CardDescription>Upload and organize images & videos</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-600">Manage your Ko Lake Villa gallery with category dropdowns</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                  
+                 <Link href="/admin/gallery">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <ImageIcon className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#8B5E3C]">Gallery Management</h3>
+                  <p className="text-sm text-gray-600">Upload and organize property images</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/admin/visitor-uploads" className="block">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <UserIcon className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#8B5E3C]">Visitor Uploads</h3>
+                  <p className="text-sm text-gray-600">Review user-submitted content</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#FF914D]/20">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg font-medium flex items-center gap-2">
@@ -1618,7 +1638,7 @@ function AdminDashboardContent() {
                       <p className="text-sm text-gray-600">Upload property tour videos and room showcases</p>
                     </CardContent>
                   </Card>
-                  
+
                   <Link href="/admin/gallery">
                     <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#A0B985]/20">
                       <CardHeader className="pb-2">
@@ -1632,7 +1652,7 @@ function AdminDashboardContent() {
                       </CardContent>
                     </Card>
                   </Link>
-                  
+
                   <Link href="/admin/image-compression">
                     <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#FF914D]/20">
                       <CardHeader className="pb-2">
@@ -1643,202 +1663,3 @@ function AdminDashboardContent() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm text-gray-600">Reduce file sizes while maintaining quality</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                  
-                  <Link href="/admin/content-manager">
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-[#8B5E3C]/20">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg font-medium flex items-center gap-2">
-                          📝 Content Manager
-                        </CardTitle>
-                        <CardDescription>Edit website text and content</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-600">Update page titles, descriptions, and text content</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-medium">Pending Bookings</CardTitle>
-                      <CardDescription>Booking requests awaiting review</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold text-[#FF914D]">3</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-medium">Unread Messages</CardTitle>
-                      <CardDescription>Contact messages to respond to</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold text-[#FF914D]">5</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-medium">Newsletter Subscribers</CardTitle>
-                      <CardDescription>Total subscriber count</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-3xl font-bold text-[#FF914D]">42</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>Latest events on your website</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3">
-                        <CalendarRangeIcon className="w-5 h-5 text-[#FF914D] mt-0.5" />
-                        <div>
-                          <p className="font-medium">New booking request</p>
-                          <p className="text-sm text-gray-500">Robert Moore booked the Family Suite for Jun 15-20, 2025</p>
-                          <p className="text-xs text-gray-400">Today, 2:34 PM</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-3">
-                        <MailIcon className="w-5 h-5 text-[#FF914D] mt-0.5" />
-                        <div>
-                          <p className="font-medium">New contact message</p>
-                          <p className="text-sm text-gray-500">Sarah Williams asked about wheelchair accessibility</p>
-                          <p className="text-xs text-gray-400">Today, 11:20 AM</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-3">
-                        <UsersIcon className="w-5 h-5 text-[#FF914D] mt-0.5" />
-                        <div>
-                          <p className="font-medium">New newsletter subscriber</p>
-                          <p className="text-sm text-gray-500">james.wilson@example.com joined your mailing list</p>
-                          <p className="text-xs text-gray-400">Yesterday, 5:42 PM</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="bookings">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Booking Management</CardTitle>
-                    <CardDescription>Manage booking requests and availability</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-center py-6 text-gray-500">Bookings management functionality will be added here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="messages">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Contact Messages</CardTitle>
-                    <CardDescription>View and respond to contact form submissions</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-center py-6 text-gray-500">Contact messages functionality will be added here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="booking-integration">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Booking System Integration</CardTitle>
-                    <CardDescription>Ready to integrate with Beds24 or Questy</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="p-4 border border-gray-200 rounded-lg">
-                        <h3 className="font-medium text-gray-900 mb-2">Beds24 Integration</h3>
-                        <p className="text-sm text-gray-600 mb-3">
-                          Connect with Beds24 for channel management and real-time availability
-                        </p>
-                        <Button variant="outline" disabled>
-                          Configure Beds24
-                        </Button>
-                      </div>
-                      
-                      <div className="p-4 border border-gray-200 rounded-lg">
-                        <h3 className="font-medium text-gray-900 mb-2">Questy Integration</h3>
-                        <p className="text-sm text-gray-600 mb-3">
-                          Connect with Questy for property management and booking automation
-                        </p>
-                        <Button variant="outline" disabled>
-                          Configure Questy
-                        </Button>
-                      </div>
-                      
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-sm text-blue-700">
-                          <strong>Ready for Integration:</strong> All SirVoy references have been removed. 
-                          The system is now prepared for Beds24 or Questy integration.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="gallery">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                      <CardTitle>Gallery Management</CardTitle>
-                      <CardDescription>Add and manage gallery images</CardDescription>
-                    </div>
-                    <Link href="/admin/gallery">
-                      <Button className="bg-[#FF914D] hover:bg-[#e67e3d]">
-                        <ExternalLinkIcon className="w-4 h-4 mr-2" />
-                        Open Gallery Manager
-                      </Button>
-                    </Link>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="p-6 bg-gray-50 border rounded-lg text-center">
-                      <ImageIcon className="w-12 h-12 mx-auto text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium">Dedicated Gallery Management</h3>
-                      <p className="mt-2 text-gray-600">
-                        We've created a dedicated page for gallery management that's more reliable and easier to use.
-                        Click the button above to access it.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="subscribers">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Newsletter Subscribers</CardTitle>
-                    <CardDescription>Manage your email subscribers list</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-center py-6 text-gray-500">Subscriber management functionality will be added here.</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
