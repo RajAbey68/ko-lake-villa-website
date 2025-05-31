@@ -1819,7 +1819,7 @@ The host will respond within 24 hours to discuss:
 
           // Check if compressed version exists
           const filename = path.parse(image.imageUrl).name;
-          const compressedPath = path.join(compressedDir, filename + '-compressed.webp');
+          const compressedPath = path.join(compressedDir, `${filename}-compressed.webp`);
 
           if (fs.existsSync(compressedPath)) {
             const compressedStats = fs.statSync(compressedPath);
