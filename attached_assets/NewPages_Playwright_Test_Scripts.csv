@@ -1,0 +1,4 @@
+Test File,Description
+gallery-filter-categories.spec.ts,Validates Events and Friends & Crew filter in gallery
+navbar-deals-link.spec.ts,Confirms new 'Deals' nav link works and loads content
+friends-page.spec.ts,Checks Friends & Crew page loads properly
