@@ -591,3 +591,317 @@ function EditImageDialog({
     </Dialog>
   );
 }
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  EditIcon, 
+  TrashIcon, 
+  ImageIcon,
+  StarIcon,
+  EyeIcon,
+  FilterIcon
+} from 'lucide-react';
+import { GalleryImage } from '@shared/schema';
+
+const GALLERY_CATEGORIES = [
+  { value: "entire-villa", label: "Entire Villa" },
+  { value: "family-suite", label: "Family Suite" },
+  { value: "group-room", label: "Group Room" },
+  { value: "triple-room", label: "Triple Room" },
+  { value: "dining-area", label: "Dining Area" },
+  { value: "pool-deck", label: "Pool Deck" },
+  { value: "lake-garden", label: "Lake Garden" },
+  { value: "roof-garden", label: "Roof Garden" },
+  { value: "front-garden", label: "Front Garden" },
+  { value: "koggala-lake", label: "Koggala Lake" },
+  { value: "excursions", label: "Excursions" },
+  { value: "events", label: "Events" },
+  { value: "friends", label: "Friends" }
+];
+
+export default function GalleryManager() {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch gallery images
+  const { data: images, isLoading, error } = useQuery<GalleryImage[]>({
+    queryKey: ['/api/gallery', selectedCategory],
+    queryFn: async ({ queryKey }) => {
+      const category = queryKey[1] as string | null;
+      const url = category 
+        ? `/api/gallery?category=${category}`
+        : '/api/gallery';
+
+      const response = await fetch(url, { credentials: 'include' });
+      if (!response.ok) throw new Error('Failed to fetch gallery images');
+      return response.json();
+    }
+  });
+
+  // Delete image mutation
+  const deleteImageMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/admin/gallery/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to delete image');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({
+        title: "Success",
+        description: "Image deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete image: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Update image mutation
+  const updateImageMutation = useMutation({
+    mutationFn: async (updatedImage: Partial<GalleryImage> & { id: number }) => {
+      const response = await fetch(`/api/admin/gallery/${updatedImage.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(updatedImage)
+      });
+      if (!response.ok) throw new Error('Failed to update image');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setEditingImage(null);
+      toast({
+        title: "Success",
+        description: "Image updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update image: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleDeleteImage = (id: number) => {
+    if (window.confirm('Are you sure you want to delete this image?')) {
+      deleteImageMutation.mutate(id);
+    }
+  };
+
+  const handleEditImage = (image: GalleryImage) => {
+    setEditingImage(image);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingImage) {
+      updateImageMutation.mutate(editingImage);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+        <p className="mt-2 text-sm text-gray-600">Loading gallery images...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-red-600 mb-4">Failed to load gallery images.</p>
+        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/gallery'] })}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Filter Controls */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="flex items-center gap-2">
+          <FilterIcon className="h-4 w-4" />
+          <span className="text-sm font-medium">Filter by Category:</span>
+        </div>
+        <Select value={selectedCategory || "all"} onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {GALLERY_CATEGORIES.map(category => (
+              <SelectItem key={category.value} value={category.value}>
+                {category.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Images Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {images?.map((image) => (
+          <Card key={image.id} className="overflow-hidden">
+            <div className="relative aspect-square">
+              <img
+                src={image.imageUrl}
+                alt={image.alt}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                }}
+              />
+              {image.featured && (
+                <Badge className="absolute top-2 right-2 bg-yellow-500">
+                  <StarIcon className="h-3 w-3 mr-1" />
+                  Featured
+                </Badge>
+              )}
+            </div>
+            <CardContent className="p-4">
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm truncate">{image.alt}</h3>
+                <Badge variant="outline" className="text-xs">
+                  {GALLERY_CATEGORIES.find(cat => cat.value === image.category)?.label || image.category}
+                </Badge>
+                {image.description && (
+                  <p className="text-xs text-gray-600 line-clamp-2">{image.description}</p>
+                )}
+              </div>
+              <div className="flex justify-between items-center mt-4 pt-2 border-t">
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditImage(image)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <EditIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteImage(image.id)}
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+                <span className="text-xs text-gray-500">#{image.id}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {images?.length === 0 && (
+        <div className="text-center py-10">
+          <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No images found</h3>
+          <p className="text-gray-600">
+            {selectedCategory 
+              ? `No images in the ${GALLERY_CATEGORIES.find(cat => cat.value === selectedCategory)?.label} category.`
+              : 'Upload some images to get started.'
+            }
+          </p>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-medium mb-4">Edit Image</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Alt Text</label>
+                  <input
+                    type="text"
+                    value={editingImage.alt}
+                    onChange={(e) => setEditingImage({...editingImage, alt: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <Select 
+                    value={editingImage.category} 
+                    onValueChange={(value) => setEditingImage({...editingImage, category: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GALLERY_CATEGORIES.map(category => (
+                        <SelectItem key={category.value} value={category.value}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    value={editingImage.description || ''}
+                    onChange={(e) => setEditingImage({...editingImage, description: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-md"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={editingImage.featured}
+                    onChange={(e) => setEditingImage({...editingImage, featured: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <label htmlFor="featured" className="text-sm">Featured Image</label>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingImage(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={updateImageMutation.isPending}
+                >
+                  {updateImageMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}

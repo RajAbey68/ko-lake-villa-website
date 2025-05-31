@@ -153,15 +153,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/gallery", async (req, res) => {
-    const category = req.query.category as string | undefined;
-    
-    if (category) {
-      const images = await dataStorage.getGalleryImagesByCategory(category);
-      return res.json(images);
+    try {
+      const category = req.query.category as string | undefined;
+      
+      if (category && category !== 'all') {
+        const images = await dataStorage.getGalleryImagesByCategory(category);
+        return res.json(images);
+      }
+      
+      const allImages = await dataStorage.getGalleryImages();
+      res.json(allImages);
+    } catch (error) {
+      console.error('Gallery API error:', error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
     }
-    
-    const allImages = await dataStorage.getGalleryImages();
-    res.json(allImages);
   });
 
   // Booking inquiry

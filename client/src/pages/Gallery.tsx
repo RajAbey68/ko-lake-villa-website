@@ -204,7 +204,7 @@ const Gallery = () => {
 
   // Category value mapping to match database values
 const CATEGORY_MAPPING: Record<string, string> = {
-  "All Villa": "all-villa",
+  "All Villa": "entire-villa",
   "Family Suite": "family-suite",
   "Group Room": "group-room", 
   "Triple Room": "triple-room", 
@@ -215,12 +215,14 @@ const CATEGORY_MAPPING: Record<string, string> = {
   "Front Garden and Entrance": "front-garden", 
   "Koggala Lake Ahangama and Surrounding": "koggala-lake", 
   "Excursions": "excursions",
-  "Friends": "friends",
-  "Events": "events"
+  "Events": "events",
+  "Friends": "friends"
 };
 
 const handleCategoryChange = (category: string | null) => {
-  setSelectedCategory(category);
+  // Convert display name to database value
+  const dbCategory = category ? CATEGORY_MAPPING[category] || category : null;
+  setSelectedCategory(dbCategory);
 };
 
   const openImageModal = (image: GalleryImageType) => {
@@ -380,7 +382,7 @@ const handleCategoryChange = (category: string | null) => {
               <button
                 onClick={() => handleCategoryChange('Excursions')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'Excursions'
+                  selectedCategory === 'excursions'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
@@ -388,24 +390,24 @@ const handleCategoryChange = (category: string | null) => {
                 Excursions
               </button>
               <button
-                onClick={() => handleCategoryChange('Friends')}
-                className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'Friends'
-                    ? 'bg-[#8B5E3C] text-white'
-                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
-                }`}
-              >
-                Friends
-              </button>
-              <button
                 onClick={() => handleCategoryChange('Events')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'Events'
+                  selectedCategory === 'events'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
               >
                 Events
+              </button>
+              <button
+                onClick={() => handleCategoryChange('Friends')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                  selectedCategory === 'friends'
+                    ? 'bg-[#8B5E3C] text-white'
+                    : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
+                }`}
+              >
+                Friends & Crew
               </button>
             </div>
           </div>
