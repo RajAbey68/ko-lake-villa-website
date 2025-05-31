@@ -85,6 +85,10 @@ export interface IStorage {
   createContentDocument(document: InsertContentDocument): Promise<ContentDocument>;
   updateContentDocument(document: Partial<ContentDocument> & { id: number }): Promise<ContentDocument>;
   deleteContentDocument(id: number): Promise<boolean>;
+
+  // Special request operations
+  createSpecialRequest(request: any): Promise<any>;
+  getSpecialRequests(): Promise<any[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -99,6 +103,7 @@ export class MemStorage implements IStorage {
   private newsletterSubscribers: Map<number, NewsletterSubscriber>;
   private pageHeroImages: Map<string, PageHeroImage>;
   private websiteContent: Map<string, any>;
+  private specialRequests: Map<number, any>;
   
   private nextUserId: number;
   private nextRoomId: number;
@@ -109,6 +114,7 @@ export class MemStorage implements IStorage {
   private nextBookingInquiryId: number;
   private nextContactMessageId: number;
   private nextNewsletterSubscriberId: number;
+  private nextSpecialRequestId: number;
 
   constructor() {
     this.users = new Map();

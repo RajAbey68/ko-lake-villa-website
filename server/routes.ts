@@ -175,6 +175,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     nextSunday.setDate(today.getDate() + daysUntilSunday);
     return nextSunday.toDateString();
   }
+
+  // Special request endpoint for FAQ page
+  app.post('/api/special-request', async (req, res) => {
+    try {
+      const specialRequestSchema = z.object({
+        checkin: z.string().min(1, { message: "Check-in date is required" }),
+        checkout: z.string().min(1, { message: "Check-out date is required" }),
+        people: z.string().min(1, { message: "Number of people is required" }),
+        notes: z.string().optional()
+      });
+
+      const validatedData = specialRequestSchema.parse(req.body);
+      
+      // Store the special request
+      await dataStorage.createSpecialRequest({
+        ...validatedData,
+        submittedAt: new Date().toISOString()
+      });
+
+      res.json({ success: true, message: "Special request submitted successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          error: "Validation failed", 
+          details: error.errors.map(e => e.message) 
+        });
+      } else {
+        console.error('Special request submission error:', error);
+        res.status(500).json({ error: "Failed to submit special request" });
+      }
+    }
+  });
   // Serve uploaded files with proper caching disabled
   app.use('/uploads', express.static(UPLOAD_DIR, {
     etag: false,

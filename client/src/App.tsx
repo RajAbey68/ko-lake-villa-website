@@ -24,7 +24,7 @@ import Booking from "@/pages/Booking";
 import Checkout from "@/pages/Checkout";
 import Deals from "@/pages/Deals";
 import Friends from "@/pages/Friends";
-// import FAQ from "@/pages/FAQ";
+import FAQ from "@/pages/FAQ";
 
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
@@ -71,7 +71,7 @@ function Router() {
             <Route path="/contact" component={Contact} />
             <Route path="/booking" component={Booking} />
             <Route path="/checkout" component={Checkout} />
-            <Route path="/faq" component={() => <div>FAQ page coming soon</div>} />
+            <Route path="/faq" component={FAQ} />
             <Route component={NotFound} />
           </Switch>
         </main>

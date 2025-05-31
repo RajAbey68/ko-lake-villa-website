@@ -1,127 +1,298 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+
+// Schema for special request form
+const specialRequestSchema = z.object({
+  checkin: z.string().min(1, { message: "Check-in date is required" }),
+  checkout: z.string().min(1, { message: "Check-out date is required" }),
+  people: z.string().min(1, { message: "Number of people is required" }),
+  notes: z.string().optional()
+});
+
+type SpecialRequestValues = z.infer<typeof specialRequestSchema>;
 
 const FAQ = () => {
-  const [openItems, setOpenItems] = useState<number[]>([]);
+  const { toast } = useToast();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    document.title = "FAQ - Ko Lake Villa, Ahangama, Galle";
+    document.title = "FAQ & House Rules - Ko Lake Villa";
   }, []);
 
-  const toggleItem = (index: number) => {
-    setOpenItems(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
-    );
+  const form = useForm<SpecialRequestValues>({
+    resolver: zodResolver(specialRequestSchema),
+    defaultValues: {
+      checkin: '',
+      checkout: '',
+      people: '',
+      notes: ''
+    }
+  });
+
+  const onSubmit = async (values: SpecialRequestValues) => {
+    setSubmitting(true);
+    try {
+      await apiRequest('POST', '/api/special-request', values);
+      toast({
+        title: "Request submitted successfully!",
+        description: "We'll get back to you within 24 hours."
+      });
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const faqs = [
+  const faqItems = [
     {
-      question: "How do I get to Ko Lake Villa from Colombo Airport?",
-      answer: "Ko Lake Villa is located in Ahangama, Galle, approximately 150km from Bandaranaike International Airport. The journey takes about 2.5-3 hours by car. We can arrange airport transfers, or you can take the highway (A1) south to Galle, then follow coastal road to Ahangama. Tuk-tuks and buses are also available for a more local experience."
+      question: "What are the check-in and check-out times?",
+      answer: "Check-in is at 2:00 PM and check-out is at 11:00 AM. Early check-in or late check-out may be available upon request and subject to availability."
     },
     {
-      question: "What's included in the villa rental price?",
-      answer: "Your stay includes full access to the villa, lake views, Wi-Fi, housekeeping, garden access, and basic amenities. Meals can be arranged separately with our local chef who specializes in authentic Sri Lankan cuisine and international dishes."
+      question: "Is smoking allowed on the property?",
+      answer: "Smoking is not permitted indoors anywhere on the property. Designated outdoor smoking areas are available."
     },
     {
-      question: "Is early check-in or late check-out available?",
-      answer: "Standard check-in is 2:00 PM and check-out is 11:00 AM. Early check-in and late check-out may be available depending on occupancy. Please contact us in advance to arrange, and additional charges may apply."
+      question: "What are the quiet hours?",
+      answer: "We maintain quiet hours from 10:00 PM to 8:00 AM to ensure all guests can enjoy a peaceful stay."
     },
     {
-      question: "Can you help arrange activities and excursions?",
-      answer: "Absolutely! We can help arrange whale watching from Mirissa, visits to Galle Fort, surfing lessons, temple visits, spice garden tours, and many other authentic Sri Lankan experiences. Our local knowledge ensures you get the best experiences at fair prices."
+      question: "Can I bring guests who are not staying overnight?",
+      answer: "Outside guests must be pre-approved by management. Please contact us in advance to arrange day visits."
     },
     {
-      question: "Is Ko Lake Villa suitable for families with children?",
-      answer: "Yes, our villa welcomes families. The lake setting is safe and beautiful for children to explore. We can provide additional bedding, help arrange family-friendly activities, and our staff can assist with any special requirements for young guests."
+      question: "Are pets allowed?",
+      answer: "Pets are allowed on request. Please inform us during booking about any pets you plan to bring so we can prepare accordingly."
     },
     {
-      question: "What's the best time to visit Ahangama and the Southern Coast?",
-      answer: "The best weather is from December to March with calm seas and minimal rainfall. April-May and September-November are also pleasant. The monsoon season (May-September) brings rougher seas but fewer crowds and lush green landscapes."
+      question: "What if something gets damaged during my stay?",
+      answer: "Please report any breakages or damages immediately to our staff. We appreciate your honesty and will handle repairs promptly."
     },
     {
-      question: "Do you provide meals and what dietary restrictions can you accommodate?",
-      answer: "We can arrange delicious Sri Lankan and international meals with advance notice. Our local chef accommodates vegetarian, vegan, gluten-free, and other dietary requirements. Fresh seafood, tropical fruits, and organic vegetables are specialties of the region."
+      question: "Is the pool safe to use?",
+      answer: "The pool is available for guest use at your own risk. Children must be supervised at all times. Pool hours are 6:00 AM to 10:00 PM."
+    },
+    {
+      question: "What amenities are included?",
+      answer: "All rooms include air conditioning, Wi-Fi, private bathrooms, and daily housekeeping. Common areas include the pool, garden, and shared kitchen facilities."
+    },
+    {
+      question: "Is Wi-Fi available throughout the property?",
+      answer: "Yes, complimentary high-speed Wi-Fi is available throughout the villa and all outdoor areas."
+    },
+    {
+      question: "Can you arrange transportation from the airport?",
+      answer: "Yes, we can arrange airport transfers for an additional fee. Please contact us at least 24 hours before your arrival."
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white py-20">
-          <div className="container mx-auto px-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold font-playfair mb-4">
+    <div className="min-h-screen bg-[#F8F6F2]">
+      {/* Hero Section */}
+      <section className="relative py-20 bg-gradient-to-r from-[#1E4E5F] to-[#2A5A6B]">
+        <div className="container mx-auto px-4">
+          <div className="text-center text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Frequently Asked Questions
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Everything you need to know about your stay at Ko Lake Villa in Ahangama, Galle
+            <p className="text-xl opacity-90 max-w-2xl mx-auto">
+              Everything you need to know about your stay at Ko Lake Villa
             </p>
           </div>
         </div>
+      </section>
 
-        {/* FAQ Content */}
-        <div className="container mx-auto px-6 py-16">
+      {/* House Rules Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="grid gap-4">
-              {faqs.map((faq, index) => (
-                <Card key={index} className="border border-gray-200 hover:border-blue-300 transition-colors">
-                  <CardHeader 
-                    className="cursor-pointer"
-                    onClick={() => toggleItem(index)}
-                  >
-                    <CardTitle className="flex justify-between items-center text-lg text-gray-800">
-                      <span>{faq.question}</span>
-                      {openItems.includes(index) ? (
-                        <ChevronUp className="h-5 w-5 text-blue-600" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-blue-600" />
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  {openItems.includes(index) && (
-                    <CardContent className="pt-0">
-                      <p className="text-gray-600 leading-relaxed">
-                        {faq.answer}
-                      </p>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-
-            {/* Contact Section */}
-            <div className="mt-16 bg-blue-50 rounded-lg p-8 text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Still Have Questions?
+            <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
+              <h2 className="text-3xl font-bold text-[#1E4E5F] mb-6 flex items-center">
+                🏠 Rules of the House
               </h2>
-              <p className="text-gray-600 mb-6">
-                We're here to help make your stay at Ko Lake Villa perfect. Get in touch with us directly.
-              </p>
-              <div className="space-x-4">
-                <a 
-                  href="/contact" 
-                  className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Contact Us
-                </a>
-                <a 
-                  href="https://wa.me/940711730345" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  WhatsApp Us
-                </a>
+              <div className="prose prose-lg max-w-none text-[#333333]">
+                <ul className="space-y-3">
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    Check-in: 2:00 PM | Check-out: 11:00 AM
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    No smoking indoors
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    Respect quiet hours after 10:00 PM
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    Outside guests must be pre-approved
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    Pets allowed on request
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    Breakages must be reported
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-semibold text-[#1E4E5F] mr-2">•</span>
+                    Use of pool at own risk
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-[#1E4E5F] mb-8 text-center">
+              Common Questions
+            </h2>
+            <div className="space-y-6">
+              {faqItems.map((item, index) => (
+                <div key={index} className="bg-[#F8F6F2] rounded-lg p-6 border border-[#E6D9C7]">
+                  <h3 className="text-xl font-semibold text-[#1E4E5F] mb-3">
+                    {item.question}
+                  </h3>
+                  <p className="text-[#333333] leading-relaxed">
+                    {item.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Special Request Form */}
+      <section className="py-16 bg-[#F8F6F2]">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-[#1E4E5F] mb-6 text-center">
+                Submit a Special Request
+              </h2>
+              <p className="text-[#666666] text-center mb-8">
+                Have specific needs? Let us know about dietary requirements, mobility assistance, or event setup needs.
+              </p>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="checkin"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#333333]">Check-in Date</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              type="date" 
+                              className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
+                              required
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="checkout"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[#333333]">Check-out Date</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              type="date" 
+                              className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
+                              required
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="people"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#333333]">Number of People</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="number" 
+                            min="1" 
+                            className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
+                            placeholder="How many guests?"
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-[#333333]">Other Notes (Dietary / Mobility / Event setup)</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            {...field} 
+                            className="border-[#E6D9C7] focus:border-[#1E4E5F] focus:ring-[#1E4E5F]" 
+                            rows={4} 
+                            placeholder="Let us know your needs..."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={submitting}
+                    className="w-full bg-[#E8B87D] hover:bg-[#1E4E5F] text-white font-medium transition-colors"
+                  >
+                    {submitting ? "Submitting..." : "Submit Request"}
+                  </Button>
+                </form>
+              </Form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default FAQ;
