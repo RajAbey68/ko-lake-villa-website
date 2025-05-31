@@ -729,8 +729,6 @@ export class MemStorage implements IStorage {
     return Array.from(this.bookingInquiries.values());
   }
 
-  Applying the changes to include visitor uploads functionality, import visitor uploads schema, and add visitor uploads storage functions.```text
-
   async markBookingInquiryAsProcessed(id: number): Promise<BookingInquiry | undefined> {
     const bookingInquiry = this.bookingInquiries.get(id);
     if (bookingInquiry) {
