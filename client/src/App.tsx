@@ -31,9 +31,10 @@ import AdminLogin from "@/pages/admin/Login";
 import AdminLanding from "@/pages/admin/AdminLanding";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminGallery from "@/pages/admin/Gallery";
+import VisitorUploads from '@/pages/admin/VisitorUploads';
+import Statistics from '@/pages/admin/Statistics';
 import ImageCompression from "@/pages/admin/ImageCompression";
 import ContentManager from "@/pages/admin/ContentManager";
-import Statistics from "@/pages/admin/Statistics";
 import Analytics from "@/pages/admin/Analytics";
 import Documents from "@/pages/admin/Documents";
 import MediaExport from "@/pages/admin/MediaExport";
@@ -50,7 +51,7 @@ import PageImageManager from "@/pages/admin/PageImageManager";
 function Router() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
-  
+
   // Track page views when routes change
   useAnalytics();
 
@@ -91,6 +92,7 @@ function Router() {
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/gallery" component={AdminGallery} />
+        <Route path="/admin/visitor-uploads" component={VisitorUploads} />
         <Route path="/admin/image-compression" component={ImageCompression} />
         <Route path="/admin/content" component={ContentManager} />
         <Route path="/admin/content-manager" component={ContentManager} />

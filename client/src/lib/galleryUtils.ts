@@ -12,8 +12,8 @@ export const GALLERY_CATEGORIES = [
   { value: "front-garden", label: "Front Garden" },
   { value: "koggala-lake", label: "Koggala Lake" },
   { value: "excursions", label: "Excursions" },
-  { value: "events", label: "Events" },
-  { value: "friends-and-crew", label: "Friends and Crew" }
+  { value: "friends", label: "Friends" },
+  { value: "events", label: "Events" }
 ];
 
 export interface GalleryImage {
@@ -44,10 +44,10 @@ export function generateConsistentTags(category: string, customTags?: string): s
   const categoryTag = category; // Use category as primary tag
   const additionalTags = customTags ? 
     customTags.split(',').map(t => t.trim()).filter(t => t.length > 0) : [];
-  
+
   // Always include category as first tag
   const allTags = [categoryTag, ...additionalTags];
-  
+
   // Remove duplicates and return
   return Array.from(new Set(allTags)).join(',');
 }
@@ -56,22 +56,22 @@ export function generateConsistentTags(category: string, customTags?: string): s
 export function validateImageData(data: Partial<ImageUploadData>): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   const validCategories = GALLERY_CATEGORIES.map(c => c.value);
-  
+
   // Category must be from approved list
   if (!data.category || !validCategories.includes(data.category)) {
     errors.push("Category must be selected from the approved list");
   }
-  
+
   // Alt text is required
   if (!data.alt || data.alt.trim().length === 0) {
     errors.push("Image title/description is required");
   }
-  
+
   // Tags must include category if provided
   if (data.tags && data.category && !data.tags.includes(data.category)) {
     errors.push("Tags must include the selected category");
   }
-  
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -87,7 +87,7 @@ export function formatCategoryLabel(categoryValue: string): string {
 // Parse tags for display with hashtags
 export function formatTagsForDisplay(tags?: string | string[]): string[] {
   if (!tags) return [];
-  
+
   // Handle case where tags is already an array
   if (Array.isArray(tags)) {
     return tags
@@ -95,7 +95,7 @@ export function formatTagsForDisplay(tags?: string | string[]): string[] {
       .filter(tag => tag.length > 0)
       .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
   }
-  
+
   // Handle case where tags is a string
   if (typeof tags === 'string') {
     return tags.split(',')
@@ -103,7 +103,7 @@ export function formatTagsForDisplay(tags?: string | string[]): string[] {
       .filter(tag => tag.length > 0)
       .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
   }
-  
+
   return [];
 }
 
@@ -121,7 +121,7 @@ export function sortGalleryImages(images: GalleryImage[]): GalleryImage[] {
     // Featured images first
     if (a.featured && !b.featured) return -1;
     if (!a.featured && b.featured) return 1;
-    
+
     // Then by sort order
     return (a.sortOrder || 1) - (b.sortOrder || 1);
   });
@@ -143,10 +143,10 @@ export function getFileType(filename: string): 'image' | 'video' {
 // Format file size for display
 export function formatFileSize(bytes?: number): string {
   if (!bytes) return 'Unknown size';
-  
+
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   if (bytes === 0) return '0 Bytes';
-  
+
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 }
