@@ -46,7 +46,7 @@ export default function GalleryManager() {
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -173,7 +173,7 @@ export default function GalleryManager() {
       {/* Header with Upload and Filter */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-[#8B5E3C]">Gallery Management</h2>
-        
+
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Upload Button */}
           <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C]">
@@ -241,7 +241,7 @@ export default function GalleryManager() {
                   }}
                 />
               )}
-              
+
               {/* Featured Badge */}
               {image.featured && (
                 <Badge className="absolute top-2 left-2 bg-[#FF914D]">
@@ -274,7 +274,7 @@ export default function GalleryManager() {
 
             <CardContent className="p-4">
               <h3 className="font-medium text-[#8B5E3C] mb-2 line-clamp-2">{image.alt}</h3>
-              
+
               {/* Category Badge */}
               <Badge variant="outline" className="mb-2">
                 {formatCategoryLabel(image.category)}
@@ -341,6 +341,7 @@ export default function GalleryManager() {
           onClose={() => setEditingImage(null)}
           onSubmit={handleUpdateSubmit}
           isLoading={updateMutation.isPending}
+          images={images}
         />
       )}
 
@@ -376,17 +377,69 @@ function EditImageDialog({
   image, 
   onClose, 
   onSubmit, 
-  isLoading 
+  isLoading,
+  images
 }: {
   image: GalleryImage;
   onClose: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
+  images: GalleryImage[];
 }) {
   const [category, setCategory] = useState(image.category);
   const [customTags, setCustomTags] = useState(
     image.tags ? image.tags.split(',').filter(tag => tag !== image.category).join(',') : ''
   );
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { refetch } = useQuery({
+    queryKey: ['/api/gallery'],
+    queryFn: () => fetchGalleryImages(undefined),
+  });
+  
+  const handleSave = async (imageData: any) => {
+    // Optimistic update
+    const previousImages = images;
+    const optimisticImages = images.map(img => 
+      img.id === imageData.id ? { ...img, ...imageData } : img
+    );
+
+    try {
+      // Update UI immediately
+      queryClient.setQueryData(['/api/gallery'], optimisticImages);
+
+      const response = await fetch(`/api/gallery/${imageData.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(imageData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update image');
+      }
+
+      // Refresh to ensure consistency
+      refetch();
+      onClose();
+
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Image updated successfully",
+      });
+    } catch (error) {
+      // Rollback optimistic update
+      queryClient.setQueryData(['/api/gallery'], previousImages);
+
+      console.error('Error updating image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update image. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -394,8 +447,31 @@ function EditImageDialog({
         <DialogHeader>
           <DialogTitle>Edit Image</DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={onSubmit} className="space-y-4 p-2">
+
+        <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const category = formData.get('category') as string;
+              const alt = formData.get('alt') as string;
+              const description = formData.get('description') as string;
+              const featured = formData.get('featured') === 'on';
+              const customTags = formData.get('customTags') as string;
+              const sortOrder = parseInt(formData.get('sortOrder') as string) || 1;
+
+              const imageData = {
+                id: image.id,
+                category,
+                alt,
+                description,
+                featured,
+                customTags,
+                sortOrder
+              };
+              handleSave(imageData);
+            }}
+            className="space-y-4 p-2"
+          >
           <div className="grid grid-cols-1 gap-4">
             {/* Image Preview */}
             <div className="space-y-4">
