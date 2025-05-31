@@ -89,6 +89,11 @@ export const insertGalleryImageSchema = createInsertSchema(galleryImages).extend
   sortOrder: z.number().optional(),
   mediaType: z.enum(["image", "video"]).optional(),
   displaySize: z.enum(["big", "medium", "small"]).optional(),
+  category: z.enum([
+    "entire-villa", "family-suite", "group-room", "triple-room", 
+    "dining-area", "pool-deck", "lake-garden", "roof-garden", 
+    "front-garden", "koggala-lake", "excursions", "friends", "events"
+  ]).optional(),
 });
 export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
 export type GalleryImage = typeof galleryImages.$inferSelect;
@@ -239,3 +244,44 @@ export const insertContentDocumentSchema = createInsertSchema(contentDocuments).
 
 export type InsertContentDocument = z.infer<typeof insertContentDocumentSchema>;
 export type ContentDocument = typeof contentDocuments.$inferSelect;
+
+// Visitor uploads table for user-generated content that requires approval
+export const visitorUploads = pgTable("visitor_uploads", {
+  id: serial("id").primaryKey(),
+  imageUrl: text("image_url").notNull(),
+  alt: text("alt").notNull(),
+  description: text("description"),
+  tags: text("tags"),
+  category: text("category").notNull(),
+  mediaType: text("media_type").default("image").notNull(),
+  fileSize: integer("file_size").default(0),
+  uploaderName: text("uploader_name").notNull(),
+  uploaderEmail: text("uploader_email"),
+  uploaderPhone: text("uploader_phone"),
+  status: text("status").default("pending").notNull(), // "pending", "approved", "rejected"
+  moderatorNotes: text("moderator_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  approvedAt: timestamp("approved_at"),
+  approvedBy: text("approved_by"), // Admin user ID
+});
+
+export const insertVisitorUploadSchema = createInsertSchema(visitorUploads).omit({
+  id: true,
+  createdAt: true,
+  approvedAt: true,
+  approvedBy: true,
+  status: true,
+}).extend({
+  uploaderName: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  uploaderEmail: z.string().email("Please enter a valid email address").optional(),
+  uploaderPhone: z.string().optional(),
+  category: z.enum([
+    "entire-villa", "family-suite", "group-room", "triple-room", 
+    "dining-area", "pool-deck", "lake-garden", "roof-garden", 
+    "front-garden", "koggala-lake", "excursions", "friends", "events"
+  ]),
+  mediaType: z.enum(["image", "video"]).optional(),
+});
+
+export type InsertVisitorUpload = z.infer<typeof insertVisitorUploadSchema>;
+export type VisitorUpload = typeof visitorUploads.$inferSelect;
