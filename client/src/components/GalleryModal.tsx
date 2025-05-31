@@ -127,7 +127,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
-                  {image.alt}
+                  {image.title || getDisplayTitle(image)}
                 </h2>
 
                 <div className="flex items-center gap-3 mb-3">

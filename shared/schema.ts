@@ -72,7 +72,8 @@ export type DiningOption = typeof diningOptions.$inferSelect;
 export const galleryImages = pgTable("gallery_images", {
   id: serial("id").primaryKey(),
   imageUrl: text("image_url").notNull(),
-  alt: text("alt").notNull(),
+  title: text("title").notNull(), // Display title for guests
+  alt: text("alt").notNull(), // Alt text for accessibility
   description: text("description"), // Additional details about the image
   tags: text("tags"), // Comma-separated list of tags for searching and filtering
   category: text("category").notNull(), // Specific areas like "family-suite", "pool-deck", etc.
