@@ -69,19 +69,38 @@ test.describe('FAQ Page & Special Request Form', () => {
   test('should accept valid dates and numbers in special request form', async ({ page }) => {
     // Fill check-in date
     await page.fill('input[name="checkin"]', '2025-08-01');
-    await expect(page.getByDisplayValue('2025-08-01')).toBeVisible();
+    await expect(page.locator('input[name="checkin"]')).toHaveValue('2025-08-01');
     
     // Fill check-out date
     await page.fill('input[name="checkout"]', '2025-08-05');
-    await expect(page.getByDisplayValue('2025-08-05')).toBeVisible();
+    await expect(page.locator('input[name="checkout"]')).toHaveValue('2025-08-05');
     
     // Fill number of people
     await page.fill('input[name="people"]', '4');
-    await expect(page.getByDisplayValue('4')).toBeVisible();
+    await expect(page.locator('input[name="people"]')).toHaveValue('4');
     
     // Fill notes
     await page.fill('textarea[name="notes"]', 'Vegan meals, baby cot needed.');
-    await expect(page.getByDisplayValue('Vegan meals, baby cot needed.')).toBeVisible();
+    await expect(page.locator('textarea[name="notes"]')).toHaveValue('Vegan meals, baby cot needed.');
+  });
+
+  test('should auto-calculate nights based on check-in and check-out dates', async ({ page }) => {
+    // Fill check-in date
+    await page.fill('input[name="checkin"]', '2025-08-01');
+    
+    // Fill check-out date (4 nights later)
+    await page.fill('input[name="checkout"]', '2025-08-05');
+    
+    // Check that nights are calculated and displayed
+    await expect(page.locator('text=Duration: 4 nights')).toBeVisible();
+    
+    // Test with different dates (1 night)
+    await page.fill('input[name="checkout"]', '2025-08-02');
+    await expect(page.locator('text=Duration: 1 night')).toBeVisible();
+    
+    // Test with same dates (should show 0 or hide)
+    await page.fill('input[name="checkout"]', '2025-08-01');
+    await expect(page.locator('text=Duration:')).not.toBeVisible();
   });
 
   test('should submit special request successfully with all fields', async ({ page }) => {
@@ -130,10 +149,10 @@ test.describe('FAQ Page & Special Request Form', () => {
     await expect(page.locator('text=Request submitted successfully')).toBeVisible({ timeout: 5000 });
     
     // Check form is reset
-    await expect(page.getByDisplayValue('2025-08-01')).not.toBeVisible();
-    await expect(page.getByDisplayValue('2025-08-05')).not.toBeVisible();
-    await expect(page.getByDisplayValue('4')).not.toBeVisible();
-    await expect(page.getByDisplayValue('Test notes for form reset.')).not.toBeVisible();
+    await expect(page.locator('input[name="checkin"]')).toHaveValue('');
+    await expect(page.locator('input[name="checkout"]')).toHaveValue('');
+    await expect(page.locator('input[name="people"]')).toHaveValue('');
+    await expect(page.locator('textarea[name="notes"]')).toHaveValue('');
   });
 
   test('should handle form submission errors gracefully', async ({ page }) => {
