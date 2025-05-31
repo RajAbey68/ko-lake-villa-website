@@ -95,7 +95,7 @@ const Contact = () => {
                       <i className="fas fa-map-marker-alt mr-2"></i> View on Google Maps
                     </a>
                     <a 
-                      href="https://what3words.com/wifely.rebuff.vented" 
+                      href="https://w3w.co/surfer.loiterers.serenely" 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="inline-block bg-[#E11F26] hover:bg-[#B91C1C] text-white px-4 py-2 rounded-full text-sm transition-colors"
