@@ -1,51 +1,33 @@
-import { useEffect } from 'react';
-import { useLocation, useRoute } from 'wouter';
-import { useAuth } from '../contexts/AuthContext';
-import { Spinner } from './ui/spinner';
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireAdmin?: boolean;
 }
 
-export function ProtectedRoute({ children, requireAdmin = true }: ProtectedRouteProps) {
-  const { currentUser, isLoading, isAdmin } = useAuth();
-  const [location] = useLocation();
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Only redirect if authentication check is complete
-    if (!isLoading) {
-      if (!currentUser) {
-        // Store the attempted URL for redirection after login
-        sessionStorage.setItem('redirectAfterLogin', location);
-        // Redirect to login
-        window.location.href = '/admin/login';
-        return;
-      }
-      
-      if (requireAdmin && !isAdmin) {
-        // User is authenticated but not admin - show error instead of redirect loop
-        console.warn('User authenticated but not admin:', currentUser?.email);
-        // Don't redirect, let the error state show
-        return;
-      }
-    }
-  }, [currentUser, isLoading, isAdmin, requireAdmin, location]);
+    setMounted(true);
+  }, []);
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Show loading spinner while auth is being determined
+  if (!mounted || loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner size="lg" />
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
 
-  // If authenticated (and admin if required), render children
-  if (currentUser && (!requireAdmin || isAdmin)) {
-    return <>{children}</>;
+  // Redirect to login if not authenticated
+  if (!user) {
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
-  // This should not be visible because of the redirect, but as a fallback
-  return null;
+  return <>{children}</>;
 }
