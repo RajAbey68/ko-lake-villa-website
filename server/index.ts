@@ -39,33 +39,33 @@ app.use((req, res, next) => {
 // Enhanced static file serving for uploads to prevent disappearing images
 app.use('/uploads', (req, res, next) => {
   const filePath = path.join(UPLOADS_DIR, req.path);
-  
+
   // Check if the file exists
   try {
     if (fs.existsSync(filePath)) {
       const stats = fs.statSync(filePath);
-      
+
       // Verify file is not empty
       if (stats.size === 0) {
         console.error(`Empty file detected: ${filePath}`);
         return res.status(404).send('Empty file');
       }
-      
+
       // Determine content type
       let contentType = 'application/octet-stream';
       if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) contentType = 'image/jpeg';
       else if (filePath.endsWith('.png')) contentType = 'image/png';
       else if (filePath.endsWith('.gif')) contentType = 'image/gif';
       else if (filePath.endsWith('.mp4')) contentType = 'video/mp4';
-      
+
       // Set appropriate headers based on content type
       if (contentType.startsWith('video/')) {
         // For video files, set headers that support range requests and streaming
         res.setHeader('Accept-Ranges', 'bytes');
-        
+
         // Get the range header from the request
         const range = req.headers.range;
-        
+
         if (range) {
           // Range request handling for video streaming
           const fileSize = stats.size;
@@ -73,11 +73,11 @@ app.use('/uploads', (req, res, next) => {
           const start = parseInt(parts[0], 10);
           const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
           const chunkSize = (end - start) + 1;
-          
+
           console.log(`Video streaming request: Range: ${range}, Size: ${fileSize}, Start: ${start}, End: ${end}`);
-          
+
           const fileStream = fs.createReadStream(filePath, { start, end });
-          
+
           // Set appropriate headers for the range request
           res.writeHead(206, {
             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -85,7 +85,7 @@ app.use('/uploads', (req, res, next) => {
             'Content-Length': chunkSize,
             'Content-Type': contentType
           });
-          
+
           return fileStream.pipe(res);
         } 
         else {
@@ -101,7 +101,7 @@ app.use('/uploads', (req, res, next) => {
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
         res.setHeader('Content-Type', contentType);
-        
+
         // Stream the file
         return fs.createReadStream(filePath).pipe(res);
       }
@@ -109,7 +109,7 @@ app.use('/uploads', (req, res, next) => {
   } catch (error) {
     console.error(`Error serving upload: ${req.path}`, error);
   }
-  
+
   // If we get here, continue to the next middleware
   next();
 }, express.static(UPLOADS_DIR));
@@ -147,6 +147,10 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Add AI routes
+  import aiRoutes from './aiRoutes';
+  app.use('/api', aiRoutes);
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -162,6 +166,11 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
+
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.

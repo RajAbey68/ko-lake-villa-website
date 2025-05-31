@@ -47,6 +47,7 @@ import BulkUploader from "@/pages/admin/BulkUploader";
 import GalleryUploader from "@/pages/admin/GalleryUploader";
 import VideoUploader from "@/pages/admin/VideoUploader";
 import PageImageManager from "@/pages/admin/PageImageManager";
+import AdminBookingCalendar from './components/AdminBookingCalendar';
 
 function Router() {
   const [location] = useLocation();
@@ -98,9 +99,7 @@ function Router() {
         <Route path="/admin/content-manager" component={ContentManager} />
         <Route path="/admin/testing" component={DeploymentTesting} />
         <Route path="/admin/statistics" component={Statistics} />
-        <Route path="/admin/analytics" component={Analytics} />
-        <Route path="/admin/documents" component={Documents} />
-        <Route path="/admin/export" component={MediaExport} />
+        <Route path="/admin/calendar" component={AdminCalendar} />
         <Route path="/admin/drive-export" component={GoogleDriveExport} />
         <Route path="/admin/upload-images" component={UploadImages} />
         <Route path="/admin/image-uploader" component={ImageUploader} />
