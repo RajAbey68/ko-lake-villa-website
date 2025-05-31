@@ -14,6 +14,7 @@ import {
 
 import GalleryManager from '@/components/GalleryManager';
 import ImageUploadDialog from '@/components/ImageUploadDialog';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function AdminGallery() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -158,7 +159,9 @@ export default function AdminGallery() {
       </Card>
 
       {/* Main Gallery Management Component */}
-      <GalleryManager />
+      <ErrorBoundary>
+        <GalleryManager />
+      </ErrorBoundary>
 
       {/* Upload Dialog */}
       <ImageUploadDialog 
