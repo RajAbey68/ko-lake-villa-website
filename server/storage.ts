@@ -8,10 +8,15 @@ import {
   bookingInquiries, type BookingInquiry, type InsertBookingInquiry,
   contactMessages, type ContactMessage, type InsertContactMessage,
   newsletterSubscribers, type NewsletterSubscriber, type InsertNewsletterSubscriber,
-  contentDocuments, type ContentDocument, type InsertContentDocument
+  contentDocuments, type ContentDocument, type InsertContentDocument,
+  visitorUploads,
+  type PageHeroImage,
+  type InsertPageHeroImage,
+  type VisitorUpload,
+  type InsertVisitorUpload,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, desc } from "drizzle-orm";
 
 // Define storage interface with all required CRUD operations
 export interface IStorage {
@@ -89,6 +94,15 @@ export interface IStorage {
   // Special request operations
   createSpecialRequest(request: any): Promise<any>;
   getSpecialRequests(): Promise<any[]>;
+
+  // Visitor uploads management
+  createVisitorUpload(data: InsertVisitorUpload): Promise<VisitorUpload>;
+  getVisitorUploads(status?: string): Promise<VisitorUpload[]>;
+  getVisitorUploadById(id: number): Promise<VisitorUpload | undefined>;
+  approveVisitorUpload(id: number, approvedBy: string, notes?: string): Promise<boolean>;
+  rejectVisitorUpload(id: number, approvedBy: string, notes?: string): Promise<boolean>;
+  deleteVisitorUpload(id: number): Promise<boolean>;
+  publishVisitorUpload(id: number): Promise<GalleryImage | null>;
 }
 
 export class MemStorage implements IStorage {
@@ -104,6 +118,7 @@ export class MemStorage implements IStorage {
   private pageHeroImages: Map<string, PageHeroImage>;
   private websiteContent: Map<string, any>;
   private specialRequests: Map<number, any>;
+  private visitorUploads: Map<number, VisitorUpload>;
 
   private nextUserId: number;
   private nextRoomId: number;
@@ -115,6 +130,7 @@ export class MemStorage implements IStorage {
   private nextContactMessageId: number;
   private nextNewsletterSubscriberId: number;
   private nextSpecialRequestId: number;
+  private nextVisitorUploadId: number;
 
   constructor() {
     this.users = new Map();
@@ -129,6 +145,7 @@ export class MemStorage implements IStorage {
     this.pageHeroImages = new Map();
     this.websiteContent = new Map();
     this.specialRequests = new Map();
+    this.visitorUploads = new Map();
 
     this.nextUserId = 1;
     this.nextRoomId = 1;
@@ -140,6 +157,7 @@ export class MemStorage implements IStorage {
     this.nextContactMessageId = 1;
     this.nextNewsletterSubscriberId = 1;
     this.nextSpecialRequestId = 1;
+    this.nextVisitorUploadId = 1;
 
     // Initialize with sample data
     this.initializeData();
@@ -497,6 +515,38 @@ export class MemStorage implements IStorage {
         category: "excursions",
         mediaType: "video",
         sortOrder: 2
+      },
+       // Events - Using actual uploaded images
+      {
+        imageUrl: "/uploads/gallery/default/1747359245374-177273305-20250420_170815.mp4",
+        alt: "Local Event Video",
+        category: "events",
+        mediaType: "video",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
+        alt: "Events",
+        category: "events",
+        mediaType: "video",
+        sortOrder: 2
+      },
+       // Friends - Using actual uploaded images
+      {
+        imageUrl: "/uploads/gallery/default/1747359245374-177273305-20250420_170815.mp4",
+        alt: "Friends at Villa",
+        category: "friends",
+        mediaType: "video",
+        featured: true,
+        sortOrder: 1
+      },
+      {
+        imageUrl: "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
+        alt: "Friends",
+        category: "friends",
+        mediaType: "video",
+        sortOrder: 2
       }
     ];
 
@@ -678,6 +728,8 @@ export class MemStorage implements IStorage {
   async getBookingInquiries(): Promise<BookingInquiry[]> {
     return Array.from(this.bookingInquiries.values());
   }
+
+  Applying the changes to include visitor uploads functionality, import visitor uploads schema, and add visitor uploads storage functions.```text
 
   async markBookingInquiryAsProcessed(id: number): Promise<BookingInquiry | undefined> {
     const bookingInquiry = this.bookingInquiries.get(id);
@@ -909,6 +961,89 @@ export class MemStorage implements IStorage {
     return Array.from(this.pageHeroImages.values());
   }
 
+   // Visitor upload operations
+  async createVisitorUpload(upload: InsertVisitorUpload): Promise<VisitorUpload> {
+    const id = this.nextVisitorUploadId++;
+    const createdAt = new Date().toISOString();
+    const visitorUpload: VisitorUpload = {
+      ...upload,
+      id,
+      createdAt,
+      status: 'pending', // Default status
+      approvedAt: null,
+      approvedBy: null,
+      moderatorNotes: null
+    };
+    this.visitorUploads.set(id, visitorUpload);
+    return visitorUpload;
+  }
+
+  async getVisitorUploads(status?: string): Promise<VisitorUpload[]> {
+    let uploads = Array.from(this.visitorUploads.values());
+    if (status) {
+      uploads = uploads.filter(upload => upload.status === status);
+    }
+    return uploads;
+  }
+
+  async getVisitorUploadById(id: number): Promise<VisitorUpload | undefined> {
+    return this.visitorUploads.get(id);
+  }
+
+  async approveVisitorUpload(id: number, approvedBy: string, notes?: string): Promise<boolean> {
+    const upload = this.visitorUploads.get(id);
+    if (!upload) return false;
+
+    const updatedUpload: VisitorUpload = {
+      ...upload,
+      status: 'approved',
+      approvedAt: new Date().toISOString(),
+      approvedBy: approvedBy,
+      moderatorNotes: notes || null
+    };
+    this.visitorUploads.set(id, updatedUpload);
+    return true;
+  }
+
+  async rejectVisitorUpload(id: number, approvedBy: string, notes?: string): Promise<boolean> {
+    const upload = this.visitorUploads.get(id);
+    if (!upload) return false;
+
+    const updatedUpload: VisitorUpload = {
+      ...upload,
+      status: 'rejected',
+      approvedBy: approvedBy,
+      moderatorNotes: notes || null
+    };
+    this.visitorUploads.set(id, updatedUpload);
+    return true;
+  }
+
+  async deleteVisitorUpload(id: number): Promise<boolean> {
+    return this.visitorUploads.delete(id);
+  }
+
+   async publishVisitorUpload(id: number): Promise<GalleryImage | undefined> {
+      const upload = this.visitorUploads.get(id);
+        if (!upload || upload.status !== 'approved') {
+          return undefined; // Or handle the error as you see fit
+        }
+
+        // Map VisitorUpload data to GalleryImage
+        const galleryImage: GalleryImage = {
+          id: this.nextGalleryImageId++, // Generate a new ID
+          imageUrl: upload.imageUrl,
+          alt: upload.alt,
+          category: upload.category,
+          mediaType: upload.mediaType,
+          featured: false,
+          sortOrder: 0
+        };
+
+        this.galleryImages.set(galleryImage.id, galleryImage);
+        return galleryImage;
+  }
+
   // Content document operations
   async getContentDocuments(): Promise<ContentDocument[]> {
     return await db.select().from(contentDocuments);
@@ -1119,14 +1254,95 @@ class DbStorage implements IStorage {
     return await db.select().from(contactMessages);
   }
 
-  // Newsletter operations
-  async createNewsletterSubscriber(subscriber: InsertNewsletterSubscriber): Promise<NewsletterSubscriber> {
-    const [result] = await db.insert(newsletterSubscribers).values(subscriber).returning();
-    return result;
+  // Newsletter subscription management
+  async subscribeToNewsletter(data: InsertNewsletterSubscriber): Promise<NewsletterSubscriber> {
+    const [subscriber] = await db.insert(newsletterSubscribers).values(data).returning();
+    return subscriber;
   }
 
-  async getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
-    return await db.select().from(newsletterSubscribers);
+  async getNewsletterSubscriberByEmail(email: string): Promise<NewsletterSubscriber | undefined> {
+    const [subscriber] = await db.select().from(newsletterSubscribers)
+      .where(eq(newsletterSubscribers.email, email));
+    return subscriber;
+  }
+
+  async unsubscribeFromNewsletter(email: string): Promise<boolean> {
+    const result = await db.update(newsletterSubscribers)
+      .set({ active: false })
+      .where(eq(newsletterSubscribers.email, email));
+    return result.rowCount! > 0;
+  }
+
+  // Visitor uploads management
+  async createVisitorUpload(data: InsertVisitorUpload): Promise<VisitorUpload> {
+    const [upload] = await db.insert(visitorUploads).values(data).returning();
+    return upload;
+  }
+
+  async getVisitorUploads(status?: string): Promise<VisitorUpload[]> {
+    const query = db.select().from(visitorUploads);
+    if (status) {
+      return await query.where(eq(visitorUploads.status, status)).orderBy(desc(visitorUploads.createdAt));
+    }
+    return await query.orderBy(desc(visitorUploads.createdAt));
+  }
+
+  async getVisitorUploadById(id: number): Promise<VisitorUpload | undefined> {
+    const [upload] = await db.select().from(visitorUploads)
+      .where(eq(visitorUploads.id, id));
+    return upload;
+  }
+
+  async approveVisitorUpload(id: number, approvedBy: string, notes?: string): Promise<boolean> {
+    const result = await db.update(visitorUploads)
+      .set({ 
+        status: 'approved', 
+        approvedAt: new Date(),
+        approvedBy,
+        moderatorNotes: notes 
+      })
+      .where(eq(visitorUploads.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async rejectVisitorUpload(id: number, approvedBy: string, notes?: string): Promise<boolean> {
+    const result = await db.update(visitorUploads)
+      .set({ 
+        status: 'rejected', 
+        approvedBy,
+        moderatorNotes: notes 
+      })
+      .where(eq(visitorUploads.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async deleteVisitorUpload(id: number): Promise<boolean> {
+    const result = await db.delete(visitorUploads).where(eq(visitorUploads.id, id));
+    return result.rowCount! > 0;
+  }
+
+  async publishVisitorUpload(id: number): Promise<GalleryImage | null> {
+    const upload = await this.getVisitorUploadById(id);
+    if (!upload || upload.status !== 'approved') {
+      return null;
+    }
+
+    // Create gallery image from approved visitor upload
+    const galleryData = {
+      imageUrl: upload.imageUrl,
+      alt: upload.alt,
+      description: upload.description,
+      tags: upload.tags,
+      category: upload.category,
+      mediaType: upload.mediaType,
+      fileSize: upload.fileSize,
+      featured: false,
+      sortOrder: 0,
+      displaySize: 'medium' as const
+    };
+
+    const [galleryImage] = await db.insert(galleryImages).values(galleryData).returning();
+    return galleryImage;
   }
 
   // Content operations - fallback to default content for now

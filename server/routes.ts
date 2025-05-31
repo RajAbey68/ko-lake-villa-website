@@ -8,7 +8,8 @@ import {
   insertContactMessageSchema,
   insertNewsletterSubscriberSchema,
   insertGalleryImageSchema,
-  insertContentDocumentSchema
+  insertContentDocumentSchema,
+  insertVisitorUploadSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { ZodError } from "zod-validation-error";
@@ -2006,6 +2007,122 @@ Focus on luxury accommodation marketing language.`,
       if (req.file?.path && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
+    }
+  });
+
+  // Visitor uploads endpoints
+  app.get("/api/visitor-uploads", async (req, res) => {
+    const { status } = req.query;
+    try {
+      const uploads = await dataStorage.getVisitorUploads(status as string);
+      res.json(uploads);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch visitor uploads" });
+    }
+  });
+
+  app.post("/api/visitor-uploads", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image uploaded" });
+      }
+
+      const fileUrl = `/uploads/gallery/default/${req.file.filename}`;
+      const fileSize = req.file.size;
+
+      const uploadData = {
+        imageUrl: fileUrl,
+        alt: req.body.alt || req.file.originalname,
+        description: req.body.description || '',
+        tags: req.body.tags || '',
+        category: req.body.category,
+        mediaType: req.body.mediaType || 'image',
+        fileSize,
+        uploaderName: req.body.uploaderName,
+        uploaderEmail: req.body.uploaderEmail || null,
+        uploaderPhone: req.body.uploaderPhone || null
+      };
+
+      const validatedData = insertVisitorUploadSchema.parse(uploadData);
+      const visitorUpload = await dataStorage.createVisitorUpload(validatedData);
+
+      res.status(201).json({
+        message: "Upload submitted for review!",
+        data: visitorUpload
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid upload data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to submit upload" });
+    }
+  });
+
+  app.patch("/api/visitor-uploads/:id/approve", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { notes } = req.body;
+    
+    try {
+      const success = await dataStorage.approveVisitorUpload(id, 'admin', notes);
+      if (success) {
+        res.json({ message: "Upload approved successfully" });
+      } else {
+        res.status(404).json({ message: "Upload not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to approve upload" });
+    }
+  });
+
+  app.patch("/api/visitor-uploads/:id/reject", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const { notes } = req.body;
+    
+    try {
+      const success = await dataStorage.rejectVisitorUpload(id, 'admin', notes);
+      if (success) {
+        res.json({ message: "Upload rejected successfully" });
+      } else {
+        res.status(404).json({ message: "Upload not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reject upload" });
+    }
+  });
+
+  app.post("/api/visitor-uploads/:id/publish", async (req, res) => {
+    const id = parseInt(req.params.id);
+    
+    try {
+      const galleryImage = await dataStorage.publishVisitorUpload(id);
+      if (galleryImage) {
+        res.json({ 
+          message: "Upload published to gallery successfully",
+          data: galleryImage
+        });
+      } else {
+        res.status(400).json({ message: "Upload cannot be published" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to publish upload" });
+    }
+  });
+
+  app.delete("/api/visitor-uploads/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    
+    try {
+      const success = await dataStorage.deleteVisitorUpload(id);
+      if (success) {
+        res.json({ message: "Upload deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Upload not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete upload" });
     }
   });
 
