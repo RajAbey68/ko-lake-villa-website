@@ -16,6 +16,7 @@ test.describe('Enhanced Contact Form', () => {
     await expect(page.getByLabel('Contact Number')).toBeVisible();
     await expect(page.getByLabel('Timezone')).toBeVisible();
     await expect(page.getByLabel('Are you familiar with this region?')).toBeVisible();
+    await expect(page.getByLabel('Upload a photo or video of your local area')).toBeVisible();
   });
 
   test('should have correct placeholders and default values', async ({ page }) => {
@@ -136,6 +137,42 @@ test.describe('Enhanced Contact Form', () => {
     // Test interaction on mobile
     await page.getByLabel('Yes').click();
     await expect(page.getByLabel('Yes')).toBeChecked();
+  });
+
+  test('should display local media upload field with correct attributes', async ({ page }) => {
+    const fileInput = page.locator('input[type="file"][name="localMedia"]');
+    await expect(fileInput).toBeVisible();
+    
+    // Check file input attributes
+    await expect(fileInput).toHaveAttribute('accept', 'image/*,video/*');
+    await expect(fileInput).toHaveAttribute('multiple');
+    
+    // Check helper text
+    await expect(page.locator('text=Supported formats: JPG, PNG, MP4')).toBeVisible();
+  });
+
+  test('should allow local media file uploads', async ({ page }) => {
+    const fileInput = page.locator('input[type="file"][name="localMedia"]');
+    
+    // Create mock files for testing
+    await page.evaluate(() => {
+      const input = document.querySelector('input[name="localMedia"]') as HTMLInputElement;
+      if (input) {
+        const file1 = new File(['image content'], 'local-photo.jpg', { type: 'image/jpeg' });
+        const file2 = new File(['video content'], 'local-video.mp4', { type: 'video/mp4' });
+        
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file1);
+        dataTransfer.items.add(file2);
+        
+        input.files = dataTransfer.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    
+    // Verify files were selected
+    const fileCount = await fileInput.evaluate((input: HTMLInputElement) => input.files?.length || 0);
+    expect(fileCount).toBe(2);
   });
 
   test('should handle form reset correctly', async ({ page }) => {
