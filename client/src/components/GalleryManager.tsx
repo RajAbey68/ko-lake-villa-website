@@ -193,7 +193,7 @@ export default function GalleryManager() {
           {/* Upload Button */}
           <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C]">
             <UploadIcon className="h-4 w-4 mr-2" />
-            Upload Image
+            Upload Media
           </Button>
         </div>
       </div>
