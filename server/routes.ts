@@ -403,6 +403,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Deals routes
+  app.get('/api/deals', (req, res) => {
+    const deals = [
+      {
+        id: '1',
+        type: 'early-bird',
+        discount: 15,
+        minDays: 14,
+        description: 'Book 14+ days in advance',
+        active: true
+      },
+      {
+        id: '2', 
+        type: 'late-deal',
+        discount: 25,
+        minDays: 3,
+        description: 'Last-minute bookings (3 days or less)',
+        active: true
+      }
+    ];
+    res.json(deals);
+  });
+
+  app.post('/api/deals', (req, res) => {
+    const { type, discount, minDays, description } = req.body;
+    const newDeal = {
+      id: Date.now().toString(),
+      type,
+      discount,
+      minDays,
+      description,
+      active: true
+    };
+    res.json(newDeal);
+  });
+
+  app.get('/api/bookings', (req, res) => {
+    const mockBookings = [
+      {
+        id: '1',
+        guestName: 'John Smith',
+        checkIn: '2025-06-01',
+        checkOut: '2025-06-05',
+        room: 'Family Suite',
+        guests: 4,
+        status: 'confirmed',
+        totalAmount: 800
+      },
+      {
+        id: '2',
+        guestName: 'Sarah Johnson',
+        checkIn: '2025-06-03',
+        checkOut: '2025-06-07',
+        room: 'Entire Villa',
+        guests: 8,
+        status: 'pending',
+        totalAmount: 1500
+      }
+    ];
+    res.json(mockBookings);
+  });
+
+  // Analytics routes
+  app.get('/api/analytics/stats', (req, res) => {
+    // Mock stats
+    const stats = {
+      totalRevenue: 50000,
+      newCustomers: 200,
+      bookingsThisMonth: 50
+    };
+    res.json(stats);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

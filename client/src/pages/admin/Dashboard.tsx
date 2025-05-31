@@ -867,7 +867,8 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             value="url"
                             checked={field.value === "url"}
                             onChange={() => field.onChange("url")}
-                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]"
+                            className="h-5 w-5```python
+ text-[#FF914D] focus:ring-[#FF914D]"
                             />
                             <Label htmlFor="upload-url" className="font-medium ml-2 cursor-pointer flex items-center">
                             <LinkIcon className="w-4 h-4 mr-2 text-[#FF914D]" />
