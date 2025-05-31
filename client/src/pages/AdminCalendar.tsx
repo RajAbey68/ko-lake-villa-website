@@ -294,6 +294,20 @@ interface DealConfig {
   baseDiscountPercent: number;
 }
 
+interface RealTimeAvailability {
+  roomId: string;
+  available: boolean;
+  bookedDates: string[];
+  lastUpdated: string;
+}
+
+interface AutomatedSettings {
+  autoConfirmBookings: boolean;
+  paymentIntegrationEnabled: boolean;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+}
+
 export default function AdminCalendar() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [dealConfig, setDealConfig] = useState<DealConfig>({
@@ -303,12 +317,28 @@ export default function AdminCalendar() {
     lateDealDiscount: 20,
     baseDiscountPercent: 10
   });
+  const [availability, setAvailability] = useState<RealTimeAvailability[]>([]);
+  const [automatedSettings, setAutomatedSettings] = useState<AutomatedSettings>({
+    autoConfirmBookings: false,
+    paymentIntegrationEnabled: false,
+    emailNotifications: true,
+    smsNotifications: false
+  });
   const [loading, setLoading] = useState(true);
+  const [realTimeEnabled, setRealTimeEnabled] = useState(false);
 
   useEffect(() => {
     fetchBookings();
     fetchDealConfig();
-  }, []);
+    fetchAvailability();
+    fetchAutomatedSettings();
+    
+    // Set up real-time updates
+    if (realTimeEnabled) {
+      const interval = setInterval(fetchAvailability, 30000); // Update every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [realTimeEnabled]);
 
   const fetchBookings = async () => {
     try {
@@ -329,6 +359,40 @@ export default function AdminCalendar() {
       setDealConfig(config);
     } catch (error) {
       console.error('Failed to fetch deal config:', error);
+    }
+  };
+
+  const fetchAvailability = async () => {
+    try {
+      const response = await fetch('/admin/availability');
+      const data = await response.json();
+      setAvailability(data);
+    } catch (error) {
+      console.error('Failed to fetch availability:', error);
+    }
+  };
+
+  const fetchAutomatedSettings = async () => {
+    try {
+      const response = await fetch('/admin/automation-settings');
+      const settings = await response.json();
+      setAutomatedSettings(settings);
+    } catch (error) {
+      console.error('Failed to fetch automation settings:', error);
+    }
+  };
+
+  const updateAutomatedSettings = async () => {
+    try {
+      await fetch('/admin/automation-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(automatedSettings)
+      });
+      alert('Automation settings updated successfully!');
+    } catch (error) {
+      console.error('Failed to update automation settings:', error);
+      alert('Failed to update settings');
     }
   };
 
@@ -385,6 +449,100 @@ export default function AdminCalendar() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Booking Calendar & Deals</h1>
       </div>
+
+      {/* Real-Time Availability Toggle */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Real-Time Availability
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Enable Real-Time Updates</p>
+              <p className="text-sm text-gray-600">Automatically sync availability every 30 seconds</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={realTimeEnabled}
+                onChange={(e) => setRealTimeEnabled(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <Badge variant={realTimeEnabled ? 'default' : 'secondary'}>
+                {realTimeEnabled ? 'Active' : 'Inactive'}
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Automation Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Automation Settings
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={automatedSettings.autoConfirmBookings}
+                onChange={(e) => setAutomatedSettings({
+                  ...automatedSettings,
+                  autoConfirmBookings: e.target.checked
+                })}
+                className="w-4 h-4"
+              />
+              <Label className="text-sm">Auto-confirm bookings</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={automatedSettings.paymentIntegrationEnabled}
+                onChange={(e) => setAutomatedSettings({
+                  ...automatedSettings,
+                  paymentIntegrationEnabled: e.target.checked
+                })}
+                className="w-4 h-4"
+              />
+              <Label className="text-sm">Payment integration</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={automatedSettings.emailNotifications}
+                onChange={(e) => setAutomatedSettings({
+                  ...automatedSettings,
+                  emailNotifications: e.target.checked
+                })}
+                className="w-4 h-4"
+              />
+              <Label className="text-sm">Email notifications</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={automatedSettings.smsNotifications}
+                onChange={(e) => setAutomatedSettings({
+                  ...automatedSettings,
+                  smsNotifications: e.target.checked
+                })}
+                className="w-4 h-4"
+              />
+              <Label className="text-sm">SMS notifications</Label>
+            </div>
+          </div>
+          <Button onClick={updateAutomatedSettings} className="w-full">
+            Update Automation Settings
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Deal Configuration */}
       <Card>
@@ -474,6 +632,15 @@ export default function AdminCalendar() {
                           {booking.guests} guests
                         </span>
                         <span className="font-medium">{booking.room}</span>
+                        {availability.find(a => a.roomId === booking.room) && (
+                          <Badge variant={
+                            availability.find(a => a.roomId === booking.room)?.available 
+                              ? 'default' : 'destructive'
+                          }>
+                            {availability.find(a => a.roomId === booking.room)?.available 
+                              ? 'Available' : 'Booked'}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
