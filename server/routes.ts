@@ -70,7 +70,7 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static(UPLOAD_DIR));
-  
+
   console.log(`Serving uploads from: ${UPLOAD_DIR}`);
 
   // File upload endpoint
@@ -116,7 +116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
 
         const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
-        
+
         res.status(201).json({
           message: "File uploaded successfully!",
           data: galleryImage
@@ -155,12 +155,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/gallery", async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
-      
+
       if (category && category !== 'all') {
         const images = await dataStorage.getGalleryImagesByCategory(category);
         return res.json(images);
       }
-      
+
       const allImages = await dataStorage.getGalleryImages();
       res.json(allImages);
     } catch (error) {
@@ -254,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const success = await dataStorage.deleteGalleryImage(id);
       if (success) {
@@ -271,13 +271,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid gallery image ID" });
     }
-    
+
     try {
       const galleryImage = await dataStorage.getGalleryImageById(id);
       if (!galleryImage) {
         return res.status(404).json({ message: "Gallery image not found" });
       }
-      
+
       // Ensure all metadata fields are included
       const updatedData = {
         id,
@@ -290,9 +290,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         mediaType: req.body.mediaType || galleryImage.mediaType,
         imageUrl: galleryImage.imageUrl // Keep original URL
       };
-      
+
       const updatedImage = await dataStorage.updateGalleryImage(updatedData);
-      
+
       res.json({
         message: "Gallery image updated successfully!",
         data: updatedImage
@@ -300,6 +300,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Gallery update error:', error);
       res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
+  // Admin routes
+  app.get('/admin/page-images', async (req, res) => {
+    try {
+      // In a real-world scenario, you might fetch these from a database
+      const pageImages = [
+        { id: 1, page: 'home', imageUrl: '/uploads/home-banner.jpg', altText: 'Home Banner' },
+        { id: 2, page: 'rooms', imageUrl: '/uploads/rooms-banner.jpg', altText: 'Rooms Banner' },
+      ];
+      res.json(pageImages);
+    } catch (error) {
+      console.error('Error fetching page images:', error);
+      res.status(500).json({ error: 'Failed to fetch page images' });
+    }
+  });
+
+  // Deal configuration endpoints
+  app.post('/admin/deal-config', async (req, res) => {
+    try {
+      const { earlyBirdDays, earlyBirdDiscount, lateDealDays, lateDealDiscount, baseDiscountPercent } = req.body;
+
+      // Save to database or file
+      const dealConfig = {
+        earlyBirdDays: parseInt(earlyBirdDays) || 30,
+        earlyBirdDiscount: parseInt(earlyBirdDiscount) || 15,
+        lateDealDays: parseInt(lateDealDays) || 3,
+        lateDealDiscount: parseInt(lateDealDiscount) || 20,
+        baseDiscountPercent: parseInt(baseDiscountPercent) || 10,
+        updatedAt: new Date().toISOString()
+      };
+
+      // For now, save to a JSON file
+      const configPath = path.join(__dirname, '../shared/deal-config.json');
+      fs.writeFileSync(configPath, JSON.stringify(dealConfig, null, 2));
+
+      res.json({ success: true, config: dealConfig });
+    } catch (error) {
+      console.error('Error saving deal config:', error);
+      res.status(500).json({ error: 'Failed to save deal configuration' });
+    }
+  });
+
+  app.get('/admin/deal-config', async (req, res) => {
+    try {
+      const configPath = path.join(__dirname, '../shared/deal-config.json');
+
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        res.json(config);
+      } else {
+        // Default configuration
+        const defaultConfig = {
+          earlyBirdDays: 30,
+          earlyBirdDiscount: 15,
+          lateDealDays: 3,
+          lateDealDiscount: 20,
+          baseDiscountPercent: 10
+        };
+        res.json(defaultConfig);
+      }
+    } catch (error) {
+      console.error('Error loading deal config:', error);
+      res.status(500).json({ error: 'Failed to load deal configuration' });
+    }
+  });
+
+  // Booking endpoints
+  app.get('/admin/bookings', async (req, res) => {
+    try {
+      // For demo purposes, return sample bookings
+      // In production, this would query your booking database
+      const sampleBookings = [
+        {
+          id: '1',
+          room: 'KNP',
+          guestName: 'John Smith',
+          checkIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          checkOut: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+          guests: 6,
+          originalPrice: 431,
+          status: 'confirmed'
+        },
+        {
+          id: '2',
+          room: 'KNP1',
+          guestName: 'Sarah Johnson',
+          checkIn: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+          checkOut: new Date(Date.now() + 48 * 24 * 60 * 60 * 1000).toISOString(),
+          guests: 4,
+          originalPrice: 119,
+          status: 'confirmed'
+        }
+      ];
+
+      res.json(sampleBookings);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      res.status(500).json({ error: 'Failed to fetch bookings' });
     }
   });
 
