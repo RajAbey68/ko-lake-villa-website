@@ -350,13 +350,13 @@ function EditImageDialog({
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         <DialogHeader>
           <DialogTitle>Edit Image</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={onSubmit} className="space-y-4 p-2">
+          <div className="grid grid-cols-1 gap-4">
             {/* Image Preview */}
             <div className="space-y-4">
               <img
@@ -366,17 +366,17 @@ function EditImageDialog({
               />
             </div>
 
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="category">Category *</Label>
+            {/* Form Fields - Single Column for Better Mobile */}
+            <div className="space-y-6 w-full">
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-lg font-medium">Category *</Label>
                 <Select name="category" value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 text-lg">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60">
                     {GALLERY_CATEGORIES.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value}>
+                      <SelectItem key={cat.value} value={cat.value} className="text-lg py-3">
                         {cat.label}
                       </SelectItem>
                     ))}
@@ -384,68 +384,73 @@ function EditImageDialog({
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="alt">Title/Description *</Label>
+              <div className="space-y-2">
+                <Label htmlFor="alt" className="text-lg font-medium">Title/Description *</Label>
                 <Input
                   id="alt"
                   name="alt"
                   defaultValue={image.alt}
                   required
+                  className="h-12 text-lg"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="customTags">Additional Tags</Label>
+              <div className="space-y-2">
+                <Label htmlFor="customTags" className="text-lg font-medium">Additional Tags</Label>
                 <Input
                   id="customTags"
                   name="customTags"
                   value={customTags}
                   onChange={(e) => setCustomTags(e.target.value)}
                   placeholder="beach, sunset, relaxing"
+                  className="h-12 text-lg"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-2">
                   Category "{formatCategoryLabel(category)}" will be automatically included
                 </p>
               </div>
 
-              <div>
-                <Label htmlFor="sortOrder">Sort Order</Label>
+              <div className="space-y-2">
+                <Label htmlFor="sortOrder" className="text-lg font-medium">Sort Order</Label>
                 <Input
                   id="sortOrder"
                   name="sortOrder"
                   type="number"
                   defaultValue={image.sortOrder || 1}
                   min="1"
+                  className="h-12 text-lg"
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3 py-2">
                 <Switch
                   id="featured"
                   name="featured"
                   defaultChecked={image.featured}
+                  className="scale-125"
                 />
-                <Label htmlFor="featured">Featured Image</Label>
+                <Label htmlFor="featured" className="text-lg font-medium">Featured Image</Label>
               </div>
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="description">Description</Label>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-lg font-medium">Description</Label>
             <Textarea
               id="description"
               name="description"
               defaultValue={image.description || ''}
               rows={3}
+              className="text-lg p-3"
             />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <DialogFooter className="gap-3 pt-6">
+            <Button type="button" variant="outline" onClick={onClose} className="h-12 px-6 text-lg">
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Updating...' : 'Update Image'}
+            <Button type="submit" disabled={isLoading} className="h-12 px-6 text-lg bg-[#FF914D] hover:bg-[#8B5E3C]">
+              {isLoading ? 'Saving...' : 'Save Tags'}
             </Button>
           </DialogFooter>
         </form>
