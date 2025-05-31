@@ -11,7 +11,9 @@ export const GALLERY_CATEGORIES = [
   { value: "roof-garden", label: "Roof Garden" },
   { value: "front-garden", label: "Front Garden" },
   { value: "koggala-lake", label: "Koggala Lake" },
-  { value: "excursions", label: "Excursions" }
+  { value: "excursions", label: "Excursions" },
+  { value: "events", label: "Events" },
+  { value: "friends-and-crew", label: "Friends and Crew" }
 ];
 
 export interface GalleryImage {

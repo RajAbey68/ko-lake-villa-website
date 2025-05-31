@@ -81,6 +81,15 @@ const Header = () => {
             Home
           </Link>
           <Link 
+            href="/deals" 
+            className={cn(
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
+              location === '/deals' && "text-[#FF914D]"
+            )}
+          >
+            Deals
+          </Link>
+          <Link 
             href="/accommodation" 
             className={cn(
               "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
@@ -154,6 +163,16 @@ const Header = () => {
             onClick={closeMobileMenu}
           >
             Home
+          </Link>
+          <Link 
+            href="/deals" 
+            className={cn(
+              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
+              location === '/deals' && "text-[#FF914D]"
+            )}
+            onClick={closeMobileMenu}
+          >
+            Deals
           </Link>
           <Link 
             href="/accommodation" 
