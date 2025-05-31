@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
-import { storage } from "./storage";
+import { storage as dataStorage } from "./storage";
 import {
   insertBookingInquirySchema,
   insertContactMessageSchema,
@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "No file uploaded" });
         }
 
-        const file = req.files[0];
+        const file = Array.isArray(req.files) ? req.files[0] : (req.files as any)[Object.keys(req.files)[0]][0];
         const category = req.body.category || 'default';
         const title = req.body.title || file.originalname;
         const description = req.body.description || '';
