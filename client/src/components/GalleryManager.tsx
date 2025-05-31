@@ -1,25 +1,40 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  ImageIcon, 
   EditIcon, 
   TrashIcon, 
-  UploadIcon, 
+  ImageIcon,
+  StarIcon,
   EyeIcon,
-  FilterIcon,
-  ArrowUpIcon,
-  ArrowDownIcon
+  FilterIcon
 } from 'lucide-react';
+import { GalleryImage } from '@shared/schema';
+
+const GALLERY_CATEGORIES = [
+  { value: "entire-villa", label: "Entire Villa" },
+  { value: "family-suite", label: "Family Suite" },
+  { value: "group-room", label: "Group Room" },
+  { value: "triple-room", label: "Triple Room" },
+  { value: "dining-area", label: "Dining Area" },
+  { value: "pool-deck", label: "Pool Deck" },
+  { value: "lake-garden", label: "Lake Garden" },
+  { value: "roof-garden", label: "Roof Garden" },
+  { value: "front-garden", label: "Front Garden" },
+  { value: "koggala-lake", label: "Koggala Lake" },
+  { value: "excursions", label: "Excursions" },
+  { value: "events", label: "Events" },
+  { value: "friends", label: "Friends" }
+];
 
 import { 
   GalleryImage, 
@@ -336,14 +351,116 @@ export default function GalleryManager() {
 
       {/* Edit Dialog */}
       {editingImage && (
-        <EditImageDialog
-          image={editingImage}
-          onClose={() => setEditingImage(null)}
-          onSubmit={handleUpdateSubmit}
-          isLoading={updateMutation.isPending}
-          images={images}
-        />
-      )}
+          <Dialog open={!!editingImage} onOpenChange={() => setEditingImage(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Image</DialogTitle>
+              </DialogHeader>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Media Preview */}
+                <div className="space-y-4">
+                  {(editingImage.mediaType === 'video' || editingImage.imageUrl?.endsWith('.mp4') || editingImage.imageUrl?.endsWith('.mov')) ? (
+                    <video
+                      className="w-full h-64 object-cover rounded-lg border"
+                      controls
+                      preload="metadata"
+                      onError={(e) => {
+                        console.error('Failed to load video:', editingImage.imageUrl);
+                      }}
+                    >
+                      <source src={editingImage.imageUrl} type="video/mp4" />
+                      <source src={editingImage.imageUrl} type="video/quicktime" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <img 
+                      src={editingImage.imageUrl} 
+                      alt={editingImage.alt}
+                      className="w-full h-64 object-cover rounded-lg border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Form Fields */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="category">Category *</Label>
+                    <Select value={editCategory} onValueChange={setEditCategory}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GALLERY_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="title">Title/Description *</Label>
+                    <Input
+                      id="title"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      placeholder="Enter title for this media"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Enter description for this media"
+                      className="mt-1 min-h-[80px]"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="sortOrder">Sort Order</Label>
+                    <Input
+                      id="sortOrder"
+                      type="number"
+                      value={editSortOrder}
+                      onChange={(e) => setEditSortOrder(parseInt(e.target.value) || 0)}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="featured"
+                      checked={editFeatured}
+                      onCheckedChange={setEditFeatured}
+                    />
+                    <Label htmlFor="featured">Featured Image</Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button variant="secondary" onClick={() => setEditingImage(null)}>
+                  Cancel
+                </Button>
+                <Button
+                    onClick={handleSaveEdit}
+                    className="bg-[#8B5E3C] hover:bg-[#6B4B2F] text-white"
+                  >
+                    Save Changes
+                  </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirmId && (
@@ -367,540 +484,6 @@ export default function GalleryManager() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      )}
-    </div>
-  );
-}
-
-// Edit Image Dialog Component
-function EditImageDialog({ 
-  image, 
-  onClose, 
-  onSubmit, 
-  isLoading,
-  images
-}: {
-  image: GalleryImage;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  isLoading: boolean;
-  images: GalleryImage[];
-}) {
-  const [category, setCategory] = useState(image.category);
-  const [customTags, setCustomTags] = useState(
-    image.tags ? image.tags.split(',').filter(tag => tag !== image.category).join(',') : ''
-  );
-
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { refetch } = useQuery({
-    queryKey: ['/api/gallery'],
-    queryFn: () => fetchGalleryImages(undefined),
-  });
-  
-  const handleSave = async (imageData: any) => {
-    // Optimistic update
-    const previousImages = images;
-    const optimisticImages = images.map(img => 
-      img.id === imageData.id ? { ...img, ...imageData } : img
-    );
-
-    try {
-      // Update UI immediately
-      queryClient.setQueryData(['/api/gallery'], optimisticImages);
-
-      const response = await fetch(`/api/gallery/${imageData.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(imageData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update image');
-      }
-
-      // Refresh to ensure consistency
-      refetch();
-      onClose();
-
-      // Show success message
-      toast({
-        title: "Success",
-        description: "Image updated successfully",
-      });
-    } catch (error) {
-      // Rollback optimistic update
-      queryClient.setQueryData(['/api/gallery'], previousImages);
-
-      console.error('Error updating image:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update image. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-        <DialogHeader>
-          <DialogTitle>Edit Image</DialogTitle>
-        </DialogHeader>
-
-        <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const category = formData.get('category') as string;
-              const alt = formData.get('alt') as string;
-              const description = formData.get('description') as string;
-              const featured = formData.get('featured') === 'on';
-              const customTags = formData.get('customTags') as string;
-              const sortOrder = parseInt(formData.get('sortOrder') as string) || 1;
-
-              const imageData = {
-                id: image.id,
-                category,
-                alt,
-                description,
-                featured,
-                customTags,
-                sortOrder
-              };
-              handleSave(imageData);
-            }}
-            className="space-y-4 p-2"
-          >
-          <div className="grid grid-cols-1 gap-4">
-            {/* Image Preview */}
-            <div className="space-y-4">
-              <img
-                src={image.imageUrl}
-                alt={image.alt}
-                className="w-full h-48 object-cover rounded-md"
-              />
-            </div>
-
-            {/* Form Fields - Single Column for Better Mobile */}
-            <div className="space-y-6 w-full">
-              <div className="space-y-2">
-                <Label htmlFor="category" className="text-lg font-medium">Category *</Label>
-                <Select name="category" value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="h-12 text-lg">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {GALLERY_CATEGORIES.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value} className="text-lg py-3">
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="alt" className="text-lg font-medium">Title/Description *</Label>
-                <Input
-                  id="alt"
-                  name="alt"
-                  defaultValue={image.alt}
-                  required
-                  className="h-12 text-lg"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="customTags" className="text-lg font-medium">Additional Tags</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      // AI suggestion functionality
-                      setCustomTags(prev => {
-                        const suggested = "scenic, beautiful, vacation, property";
-                        return prev ? `${prev}, ${suggested}` : suggested;
-                      });
-                    }}
-                    className="text-sm"
-                  >
-                    ✨ Suggest Tags
-                  </Button>
-                </div>
-                <Input
-                  id="customTags"
-                  name="customTags"
-                  value={customTags}
-                  onChange={(e) => setCustomTags(e.target.value)}
-                  placeholder="Additional Tags"
-                  className="h-12 text-lg"
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  Category "{formatCategoryLabel(category)}" will be automatically included
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sortOrder" className="text-lg font-medium">Sort Order</Label>
-                <Input
-                  id="sortOrder"
-                  name="sortOrder"
-                  type="number"
-                  defaultValue={image.sortOrder || 1}
-                  min="1"
-                  className="h-12 text-lg"
-                />
-              </div>
-
-              <div className="flex items-center space-x-3 py-2">
-                <Switch
-                  id="featured"
-                  name="featured"
-                  defaultChecked={image.featured}
-                  className="scale-125"
-                />
-                <Label htmlFor="featured" className="text-lg font-medium">Featured Image</Label>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-lg font-medium">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              defaultValue={image.description || ''}
-              rows={3}
-              className="text-lg p-3"
-            />
-          </div>
-
-          <DialogFooter className="gap-3 pt-6">
-            <Button type="button" variant="outline" onClick={onClose} className="h-12 px-6 text-lg">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading} className="h-12 px-6 text-lg bg-[#FF914D] hover:bg-[#8B5E3C]">
-              {isLoading ? 'Saving...' : 'Save Tags'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  EditIcon, 
-  TrashIcon, 
-  ImageIcon,
-  StarIcon,
-  EyeIcon,
-  FilterIcon
-} from 'lucide-react';
-import { GalleryImage } from '@shared/schema';
-
-const GALLERY_CATEGORIES = [
-  { value: "entire-villa", label: "Entire Villa" },
-  { value: "family-suite", label: "Family Suite" },
-  { value: "group-room", label: "Group Room" },
-  { value: "triple-room", label: "Triple Room" },
-  { value: "dining-area", label: "Dining Area" },
-  { value: "pool-deck", label: "Pool Deck" },
-  { value: "lake-garden", label: "Lake Garden" },
-  { value: "roof-garden", label: "Roof Garden" },
-  { value: "front-garden", label: "Front Garden" },
-  { value: "koggala-lake", label: "Koggala Lake" },
-  { value: "excursions", label: "Excursions" },
-  { value: "events", label: "Events" },
-  { value: "friends", label: "Friends" }
-];
-
-export default function GalleryManager() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Fetch gallery images
-  const { data: images, isLoading, error } = useQuery<GalleryImage[]>({
-    queryKey: ['/api/gallery', selectedCategory],
-    queryFn: async ({ queryKey }) => {
-      const category = queryKey[1] as string | null;
-      const url = category 
-        ? `/api/gallery?category=${category}`
-        : '/api/gallery';
-
-      const response = await fetch(url, { credentials: 'include' });
-      if (!response.ok) throw new Error('Failed to fetch gallery images');
-      return response.json();
-    }
-  });
-
-  // Delete image mutation
-  const deleteImageMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/gallery/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to delete image');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      toast({
-        title: "Success",
-        description: "Image deleted successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to delete image: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Update image mutation
-  const updateImageMutation = useMutation({
-    mutationFn: async (updatedImage: Partial<GalleryImage> & { id: number }) => {
-      const response = await fetch(`/api/admin/gallery/${updatedImage.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(updatedImage)
-      });
-      if (!response.ok) throw new Error('Failed to update image');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      setEditingImage(null);
-      toast({
-        title: "Success",
-        description: "Image updated successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to update image: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  });
-
-  const handleDeleteImage = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this image?')) {
-      deleteImageMutation.mutate(id);
-    }
-  };
-
-  const handleEditImage = (image: GalleryImage) => {
-    setEditingImage(image);
-  };
-
-  const handleSaveEdit = () => {
-    if (editingImage) {
-      updateImageMutation.mutate(editingImage);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-        <p className="mt-2 text-sm text-gray-600">Loading gallery images...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-10">
-        <p className="text-red-600 mb-4">Failed to load gallery images.</p>
-        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/gallery'] })}>
-          Retry
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Filter Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <div className="flex items-center gap-2">
-          <FilterIcon className="h-4 w-4" />
-          <span className="text-sm font-medium">Filter by Category:</span>
-        </div>
-        <Select value={selectedCategory || "all"} onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {GALLERY_CATEGORIES.map(category => (
-              <SelectItem key={category.value} value={category.value}>
-                {category.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Images Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {images?.map((image) => (
-          <Card key={image.id} className="overflow-hidden">
-            <div className="relative aspect-square">
-              <img
-                src={image.imageUrl}
-                alt={image.alt}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                }}
-              />
-              {image.featured && (
-                <Badge className="absolute top-2 right-2 bg-yellow-500">
-                  <StarIcon className="h-3 w-3 mr-1" />
-                  Featured
-                </Badge>
-              )}
-            </div>
-            <CardContent className="p-4">
-              <div className="space-y-2">
-                <h3 className="font-medium text-sm truncate">{image.alt}</h3>
-                <Badge variant="outline" className="text-xs">
-                  {GALLERY_CATEGORIES.find(cat => cat.value === image.category)?.label || image.category}
-                </Badge>
-                {image.description && (
-                  <p className="text-xs text-gray-600 line-clamp-2">{image.description}</p>
-                )}
-              </div>
-              <div className="flex justify-between items-center mt-4 pt-2 border-t">
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditImage(image)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <EditIcon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDeleteImage(image.id)}
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-                <span className="text-xs text-gray-500">#{image.id}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {images?.length === 0 && (
-        <div className="text-center py-10">
-          <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No images found</h3>
-          <p className="text-gray-600">
-            {selectedCategory 
-              ? `No images in the ${GALLERY_CATEGORIES.find(cat => cat.value === selectedCategory)?.label} category.`
-              : 'Upload some images to get started.'
-            }
-          </p>
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {editingImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4">Edit Image</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Alt Text</label>
-                  <input
-                    type="text"
-                    value={editingImage.alt}
-                    onChange={(e) => setEditingImage({...editingImage, alt: e.target.value})}
-                    className="w-full px-3 py-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
-                  <Select 
-                    value={editingImage.category} 
-                    onValueChange={(value) => setEditingImage({...editingImage, category: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GALLERY_CATEGORIES.map(category => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={editingImage.description || ''}
-                    onChange={(e) => setEditingImage({...editingImage, description: e.target.value})}
-                    className="w-full px-3 py-2 border rounded-md"
-                    rows={3}
-                  />
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="featured"
-                    checked={editingImage.featured}
-                    onChange={(e) => setEditingImage({...editingImage, featured: e.target.checked})}
-                    className="mr-2"
-                  />
-                  <label htmlFor="featured" className="text-sm">Featured Image</label>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 mt-6">
-                <Button
-                  variant="outline"
-                  onClick={() => setEditingImage(null)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSaveEdit}
-                  disabled={updateImageMutation.isPending}
-                >
-                  {updateImageMutation.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       )}
     </div>
   );
