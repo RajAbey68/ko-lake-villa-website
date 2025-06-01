@@ -46,7 +46,7 @@ export async function uploadGalleryImage(
     }
     
     if (customTags) {
-      formData.append('customTags', customTags);
+      formData.append('tags', customTags);
     }
 
     const response = await fetch('/api/upload', {
