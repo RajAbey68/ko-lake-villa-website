@@ -1412,5 +1412,5 @@ class DbStorage implements IStorage {
   }
 }
 
-// Revert to memory storage to stabilize the system
-export const storage = new MemStorage();
+// Use database storage for persistence
+export const storage = new DbStorage();
