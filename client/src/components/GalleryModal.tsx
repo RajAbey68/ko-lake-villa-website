@@ -111,9 +111,18 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 key={image.id}
                 className="max-w-full max-h-full object-contain"
                 controls
-                autoPlay
                 muted
                 playsInline
+                preload="metadata"
+                onPlay={(e) => {
+                  const video = e.target as HTMLVideoElement;
+                  const playPromise = video.play();
+                  if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                      console.warn('Video autoplay prevented:', error);
+                    });
+                  }
+                }}
                 onError={(e) => {
                   console.error('Failed to load video:', image.imageUrl);
                 }}
