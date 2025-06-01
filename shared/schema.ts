@@ -120,11 +120,30 @@ export const insertBookingInquirySchema = createInsertSchema(bookingInquiries).o
 }).extend({
   email: z.string().email("Please enter a valid email address"),
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  checkInDate: z.string().refine(date => {
+    const checkIn = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return checkIn >= today;
+  }, "Check-in date must be today or in the future"),
+  checkOutDate: z.string().refine(date => {
+    const checkOut = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return checkOut >= today;
+  }, "Check-out date must be today or in the future"),
   guests: z.union([
     z.string().transform(val => parseInt(val, 10)),
     z.number()
   ]).pipe(z.number().min(1).max(20)),
   specialRequests: z.string().max(1000, "Special requests too long").optional()
+}).refine(data => {
+  const checkIn = new Date(data.checkInDate);
+  const checkOut = new Date(data.checkOutDate);
+  return checkOut > checkIn;
+}, {
+  message: "Check-out date must be after check-in date",
+  path: ["checkOutDate"]
 });
 
 export type InsertBookingInquiry = z.infer<typeof insertBookingInquirySchema>;
@@ -173,6 +192,8 @@ export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSub
   id: true,
   createdAt: true,
   active: true
+}).extend({
+  email: z.string().email("Please enter a valid email address")
 });
 
 export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
