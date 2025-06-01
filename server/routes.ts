@@ -179,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "No file uploaded" });
         }
 
-        const file = Array.isArray(req.files) ? req.files[0] : (req.files as any)[Object.keys(req.files)[0]][0];
+        const file = Array.isArray(req.files) ? req.files[0] : req.files[Object.keys(req.files)[0]];
         const category = req.body.category || 'default';
         const title = req.body.title || file.originalname;
         const description = req.body.description || '';
@@ -303,11 +303,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Booking validation error:', error.errors);
         return res.status(400).json({ 
           message: "Invalid booking data", 
-          errors: error.errors 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
         });
       }
+      console.error('Booking submission error:', error);
       res.status(500).json({ message: "Failed to submit booking inquiry" });
     }
   });
@@ -343,11 +345,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Newsletter validation error:', error.errors);
         return res.status(400).json({ 
-          message: "Invalid email", 
-          errors: error.errors 
+          message: "Invalid email format", 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
         });
       }
+      console.error('Newsletter subscription error:', error);
       res.status(500).json({ message: "Failed to subscribe to newsletter" });
     }
   });
@@ -372,6 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery deletion - admin only
   app.delete("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -387,6 +392,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: "Failed to delete gallery image" });
     }
+  });
+
+  // Handle non-admin gallery deletion attempts
+  app.delete("/api/gallery/:id", (req, res) => {
+    res.status(403).json({ message: "Gallery deletion requires admin access. Use /api/admin/gallery/:id" });
   });
 
   app.patch("/api/admin/gallery/:id", async (req, res) => {
