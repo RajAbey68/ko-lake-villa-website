@@ -180,12 +180,12 @@ export default function BulkUploader() {
         if (response.ok) {
           const analysis = await response.json();
           
-          // Update with AI suggestion
+          // Store AI suggestion but keep user's manual category selection
           setImagePreviews(prev => {
             const newPreviews = [...prev];
             newPreviews[i].status = 'pending';
             newPreviews[i].aiSuggestion = analysis.suggestedCategory || analysis.category;
-            newPreviews[i].category = analysis.suggestedCategory || analysis.category || newPreviews[i].category;
+            // Don't override user's manual category selection - only suggest
             return newPreviews;
           });
         } else {
