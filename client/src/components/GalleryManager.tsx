@@ -241,9 +241,23 @@ export default function GalleryManager() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Upload Button */}
-          <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C]">
+          <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C] text-white font-medium px-6 py-3">
             <UploadIcon className="h-4 w-4 mr-2" />
             Upload Media
+          </Button>
+        </div>
+      </div>
+      
+      {/* Secondary Upload Button for visibility */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium text-blue-900">Add New Media</h3>
+            <p className="text-blue-700">Upload images or videos to your gallery</p>
+          </div>
+          <Button onClick={() => setUploadDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <UploadIcon className="h-4 w-4 mr-2" />
+            Upload Now
           </Button>
         </div>
       </div>
