@@ -1,42 +1,46 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
-import { useEffect } from "react";
 
-export default function NotFound() {
-  useEffect(() => {
-    // Set document title for SEO
-    document.title = "404 - Page Not Found | Ko Lake Villa";
-    
-    // Set HTTP status to 404 if on server side
-    if (typeof window === 'undefined') {
-      // This would work for SSR, but since we're using client-side routing,
-      // we'll need to handle this differently
-    }
-  }, []);
+import { Link } from 'wouter';
+import { Button } from '@/components/ui/button';
 
+const NotFound = () => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
-          </div>
-
-          <p className="mt-4 text-sm text-gray-600">
-            The page you're looking for doesn't exist.
+    <div className="min-h-screen bg-[#F8F6F2] flex items-center justify-center">
+      <div className="text-center">
+        <div className="mb-8">
+          <h1 className="text-6xl font-display font-bold text-[#1E4E5F] mb-4">404</h1>
+          <h2 className="text-3xl font-display font-bold text-[#8B5E3C] mb-4">Page Not Found</h2>
+          <p className="text-lg text-[#333333] mb-8 max-w-md mx-auto">
+            Sorry, the page you're looking for doesn't exist. You might have typed the wrong address or the page may have moved.
           </p>
+        </div>
+        
+        <div className="space-y-4">
+          <Link href="/">
+            <Button className="bg-[#E8B87D] hover:bg-[#1E4E5F] text-white px-8 py-3 rounded-full text-lg transition-colors mr-4">
+              Go Home
+            </Button>
+          </Link>
           
-          <div className="mt-6">
-            <a 
-              href="/" 
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#1E4E5F] hover:bg-[#E8B87D] transition-colors"
-            >
-              Return Home
-            </a>
-          </div>
-        </CardContent>
-      </Card>
+          <Link href="/contact">
+            <Button variant="outline" className="border-[#1E4E5F] text-[#1E4E5F] hover:bg-[#1E4E5F] hover:text-white px-8 py-3 rounded-full text-lg transition-colors">
+              Contact Us
+            </Button>
+          </Link>
+        </div>
+        
+        <div className="mt-8">
+          <img 
+            src="/uploads/gallery/koggala-lake/KoggalaNinePeaks_koggala-lake_0.jpg" 
+            alt="Ko Lake Villa - Beautiful lake view" 
+            className="w-64 h-40 object-cover rounded-lg mx-auto opacity-80"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default NotFound;
