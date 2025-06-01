@@ -284,86 +284,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI media analysis endpoint for bulk upload
-  app.post("/api/analyze-media", async (req, res) => {
-    try {
-      const { imageData, filename, mediaType } = req.body;
-      
-      if (!imageData) {
-        return res.status(400).json({ error: 'No image data provided' });
-      }
 
-      if (!openai) {
-        // Fallback analysis based on filename
-        const lowerFilename = filename?.toLowerCase() || '';
-        let suggestedCategory = 'entire-villa';
-        
-        if (lowerFilename.includes('pool')) suggestedCategory = 'pool-deck';
-        else if (lowerFilename.includes('dining') || lowerFilename.includes('restaurant')) suggestedCategory = 'dining-area';
-        else if (lowerFilename.includes('suite') || lowerFilename.includes('family')) suggestedCategory = 'family-suite';
-        else if (lowerFilename.includes('room') || lowerFilename.includes('triple')) suggestedCategory = 'triple-room';
-        else if (lowerFilename.includes('garden') || lowerFilename.includes('landscape')) suggestedCategory = 'lake-garden';
-        else if (lowerFilename.includes('lake') || lowerFilename.includes('water')) suggestedCategory = 'koggala-lake';
 
-        return res.json({
-          suggestedCategory,
-          category: suggestedCategory,
-          confidence: 0.7,
-          title: `Ko Lake Villa ${suggestedCategory.replace('-', ' ')}`,
-          description: `Beautiful ${suggestedCategory.replace('-', ' ')} at Ko Lake Villa`,
-          tags: [suggestedCategory, 'ko-lake-villa', 'accommodation']
-        });
-      }
-
-      // AI analysis with OpenAI
-      const prompt = `Analyze this Ko Lake Villa property image and categorize it appropriately.
-
-Available categories:
-- entire-villa: Complete villa views
-- family-suite: Family accommodation spaces  
-- group-room: Group accommodation
-- triple-room: Triple occupancy rooms
-- dining-area: Dining and restaurant spaces
-- pool-deck: Pool and deck areas
-- lake-garden: Garden and landscaping
-- roof-garden: Rooftop garden areas
-- front-garden: Front entrance gardens
-- koggala-lake: Lake views and activities
-- excursions: Tours and activities
-
-Respond with JSON: {"category": "category-name", "title": "Engaging Title", "description": "Appealing description", "tags": ["tag1", "tag2"], "confidence": 0.9}`;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "user", 
-            content: [
-              { type: "text", text: prompt },
-              { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageData}` } }
-            ]
-          }
-        ],
-        max_tokens: 500,
-        response_format: { type: "json_object" }
-      });
-
-      const analysis = JSON.parse(response.choices[0].message.content);
-      
-      res.json({
-        suggestedCategory: analysis.category,
-        category: analysis.category,
-        confidence: analysis.confidence || 0.8,
-        title: analysis.title,
-        description: analysis.description,
-        tags: analysis.tags || [analysis.category, 'ko-lake-villa']
-      });
-
-    } catch (error) {
-      console.error('AI analysis error:', error);
-      res.status(500).json({ error: 'AI analysis failed' });
-    }
-  });
 
   // AI content generation endpoint for existing gallery images
   app.post("/api/admin/generate-gallery-content", async (req, res) => {
@@ -542,8 +464,8 @@ Respond with JSON: {"category": "category-name", "title": "Engaging Title", "des
     }
   });
 
-  // AI media analysis endpoint
-  app.post("/api/analyze-media", async (req, res) => {
+  // AI content generation endpoint for existing images
+  app.post("/api/generate-content", async (req, res) => {
     try {
       const { imageId } = req.body;
       
