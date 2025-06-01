@@ -49,7 +49,7 @@ export async function uploadGalleryImage(
       formData.append('customTags', customTags);
     }
 
-    const response = await fetch('/api/gallery', {
+    const response = await fetch('/api/upload', {
       method: 'POST',
       body: formData,
     });
