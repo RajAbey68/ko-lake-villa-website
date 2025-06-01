@@ -432,6 +432,26 @@ export class MemStorage implements IStorage {
         mediaType: "video",
         sortOrder: 2
       },
+      {
+        imageUrl: "/uploads/gallery/dining-area/KoggalaNinePeaks_dining-area_0.jpg",
+        alt: "Delicious Local Cake",
+        title: "Sri Lankan Specialty Cake",
+        description: "Traditional Sri Lankan cake served in our dining area, made with authentic local ingredients and spices.",
+        category: "dining-area",
+        mediaType: "image",
+        featured: false,
+        sortOrder: 3
+      },
+      {
+        imageUrl: "/uploads/gallery/dining-area/KoggalaNinePeaks_dining-area_1.jpg",
+        alt: "Traditional Sri Lankan Dessert",
+        title: "Authentic Local Dessert",
+        description: "Handmade traditional Sri Lankan dessert featuring coconut and local spices, served fresh in our dining area.",
+        category: "dining-area",
+        mediaType: "image",
+        featured: false,
+        sortOrder: 4
+      },
 
       // Pool Deck - Using actual uploaded images
       {
