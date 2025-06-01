@@ -436,6 +436,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin health check and route verification
+  app.get('/api/admin/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      routes: {
+        gallery: '/api/admin/gallery',
+        pricing: '/api/admin/pricing',
+        upload: '/api/admin/upload'
+      }
+    });
+  });
+
   // Admin routes
   app.get('/admin/page-images', async (req, res) => {
     try {
@@ -448,6 +461,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching page images:', error);
       res.status(500).json({ error: 'Failed to fetch page images' });
+    }
+  });
+
+  // Admin API health endpoints
+  app.get('/api/admin/gallery', async (req, res) => {
+    try {
+      const allImages = await dataStorage.getGalleryImages();
+      res.json(allImages);
+    } catch (error) {
+      console.error('Admin gallery API error:', error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
+  app.get('/api/admin/pricing', (req, res) => {
+    try {
+      // Return sample pricing data for admin
+      const pricing = {
+        rooms: {
+          KNP: { basePrice: 431, directPrice: 388 },
+          KNP1: { basePrice: 119, directPrice: 107 },
+          KNP3: { basePrice: 70, directPrice: 63 },
+          KNP6: { basePrice: 250, directPrice: 225 }
+        },
+        lastUpdated: new Date().toISOString()
+      };
+      res.json(pricing);
+    } catch (error) {
+      console.error('Admin pricing API error:', error);
+      res.status(500).json({ message: "Failed to fetch pricing data" });
     }
   });
 
