@@ -609,17 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(stats);
   });
 
-  // Error handling middleware for unsupported methods
-  app.use((req, res, next) => {
-    if (!res.headersSent) {
-      res.status(405).json({ 
-        message: `Method ${req.method} not allowed for ${req.path}`,
-        allowedMethods: ['GET', 'POST']
-      });
-    }
-  });
-
-  // Global error handler
+  // Global error handler (only for actual errors)
   app.use((err: any, req: any, res: any, next: any) => {
     console.error('Server error:', err);
     if (!res.headersSent) {
