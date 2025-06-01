@@ -240,7 +240,7 @@ export default function BulkUploader() {
         formData.append('featured', 'false');
         formData.append('sortOrder', '1');
         
-        const response = await fetch('/api/gallery/upload', {
+        const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });

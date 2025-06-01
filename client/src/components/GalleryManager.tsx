@@ -67,9 +67,10 @@ export default function GalleryManager() {
   const queryClient = useQueryClient();
 
   // Fetch gallery images
-  const { data: images = [], isLoading, error } = useQuery<GalleryImage[]>({
+  const { data: images = [], isLoading, error, refetch } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery', selectedCategory],
     queryFn: () => fetchGalleryImages(selectedCategory || undefined),
+    staleTime: 0, // Always consider data stale to force refresh
   });
 
   // Filter and sort images
