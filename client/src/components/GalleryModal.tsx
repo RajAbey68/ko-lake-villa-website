@@ -174,7 +174,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
-                  {image.title || getDisplayTitle(image)}
+                  {image.title || image.alt}
                 </h2>
 
                 <div className="flex items-center gap-3 mb-3">
@@ -190,7 +190,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 </div>
 
                 <p className="text-gray-700 mb-3 leading-relaxed">
-                  {getDisplayDescription(image)}
+                  {image.description || "Experience the beauty and tranquility of Ko Lake Villa."}
                 </p>
 
                 {tags.length > 0 && (
