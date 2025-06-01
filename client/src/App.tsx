@@ -103,31 +103,116 @@ function Router() {
     <main className="min-h-screen">
       <Switch>
         <Route path="/admin/login" component={AdminLogin} />
-        <Route path="/admin/dashboard" component={AdminDashboard} />
+        <Route path="/admin" exact>
+          <ProtectedRoute>
+            <AdminLanding />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/dashboard">
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        </Route>
         <Route path="/admin/gallery">
           <ProtectedRoute>
             <AdminGallery />
           </ProtectedRoute>
         </Route>
-        <Route path="/admin/visitor-uploads" component={VisitorUploads} />
-        <Route path="/admin/image-compression" component={ImageCompression} />
-        <Route path="/admin/content" component={ContentManager} />
-        <Route path="/admin/content-manager" component={ContentManager} />
-        <Route path="/admin/testing" component={DeploymentTesting} />
-        <Route path="/admin/statistics" component={Statistics} />
-        <Route path="/admin/calendar" component={AdminCalendar} />
-        <Route path="/admin/deals" component={Deals} />
-        <Route path="/admin/ai-validation" component={lazy(() => import('./pages/admin/AIValidationTest'))} />
-        <Route path="/admin/drive-export" component={GoogleDriveExport} />
-        <Route path="/admin/upload-images" component={UploadImages} />
-        <Route path="/admin/image-uploader" component={ImageUploader} />
-        <Route path="/admin/bulk-uploader" component={BulkUploader} />
-        <Route path="/admin/gallery-uploader" component={GalleryUploader} />
-        <Route path="/admin/video-uploader" component={VideoUploader} />
-        <Route path="/admin/page-images" component={PageImageManager} />
-        <Route path="/admin/page-image-manager" component={PageImageManager} />
-        <Route path="/admin/booking-calendar" component={AdminBookingCalendar} />
-        <Route path="/admin/roadmap" component={lazy(() => import('./pages/admin/ProjectRoadmap'))} />
+        <Route path="/admin/visitor-uploads">
+          <ProtectedRoute>
+            <VisitorUploads />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/image-compression">
+          <ProtectedRoute>
+            <ImageCompression />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/content">
+          <ProtectedRoute>
+            <ContentManager />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/content-manager">
+          <ProtectedRoute>
+            <ContentManager />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/testing">
+          <ProtectedRoute>
+            <DeploymentTesting />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/statistics">
+          <ProtectedRoute>
+            <Statistics />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/calendar">
+          <ProtectedRoute>
+            <AdminCalendar />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/deals">
+          <ProtectedRoute>
+            <Deals />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/ai-validation">
+          <ProtectedRoute>
+            {lazy(() => import('./pages/admin/AIValidationTest'))}
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/drive-export">
+          <ProtectedRoute>
+            <GoogleDriveExport />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/upload-images">
+          <ProtectedRoute>
+            <UploadImages />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/image-uploader">
+          <ProtectedRoute>
+            <ImageUploader />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/bulk-uploader">
+          <ProtectedRoute>
+            <BulkUploader />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/gallery-uploader">
+          <ProtectedRoute>
+            <GalleryUploader />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/video-uploader">
+          <ProtectedRoute>
+            <VideoUploader />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/page-images">
+          <ProtectedRoute>
+            <PageImageManager />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/page-image-manager">
+          <ProtectedRoute>
+            <PageImageManager />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/booking-calendar">
+          <ProtectedRoute>
+            <AdminBookingCalendar />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/roadmap">
+          <ProtectedRoute>
+            {lazy(() => import('./pages/admin/ProjectRoadmap'))}
+          </ProtectedRoute>
+        </Route>
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>
