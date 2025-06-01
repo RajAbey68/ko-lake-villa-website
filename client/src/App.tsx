@@ -128,7 +128,7 @@ function Router() {
         <Route path="/admin/page-images" component={PageImageManager} />
         <Route path="/admin/page-image-manager" component={PageImageManager} />
         <Route path="/admin/booking-calendar" component={AdminBookingCalendar} />
-        <Route path="/admin/roadmap" component={Roadmap} />
+        <Route path="/admin/roadmap" component={lazy(() => import('./pages/admin/ProjectRoadmap'))} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>
