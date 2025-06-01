@@ -32,6 +32,7 @@ interface ImageUploadDialogProps {
 }
 
 export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialogProps) {
+  console.log('🔷 ImageUploadDialog rendered with isOpen:', isOpen);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [category, setCategory] = useState<string>('');
@@ -41,7 +42,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
   const [featured, setFeatured] = useState<boolean>(false);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -52,9 +53,9 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
       if (!selectedFile || !category || !alt) {
         throw new Error('Missing required fields');
       }
-      
+
       console.log("Starting upload mutation...");
-      
+
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('category', category);
@@ -64,32 +65,32 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
       formData.append('tags', customTags || '');
       formData.append('featured', featured.toString());
       formData.append('mediaType', selectedFile.type.startsWith('video/') ? 'video' : 'image');
-      
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Upload failed');
       }
-      
+
       const result = await response.json();
       console.log("Upload result:", result);
-      
+
       if (!result.success) {
         throw new Error(result.message || result.error || 'Upload failed');
       }
-      
+
       return result;
     },
     onSuccess: (result) => {
       console.log("Upload successful:", result);
-      
+
       // Invalidate and refetch gallery queries
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      
+
       toast({
         title: "Success",
         description: "Image uploaded successfully",
@@ -132,11 +133,11 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
     }
 
     setSelectedFile(file);
-    
+
     // Create preview URL
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
-    
+
     // Auto-fill alt text with filename if empty
     if (!alt) {
       const fileName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
@@ -150,7 +151,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
   const tryAIAnalysis = async (file: File) => {
     try {
       setIsAnalyzing(true);
-      
+
       // Use the AI analysis endpoint we built
       const formData = new FormData();
       formData.append('file', file);
@@ -163,10 +164,10 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
 
       if (response.ok) {
         const analysis = await response.json();
-        
+
         if (analysis.suggestedCategory) {
           setAiSuggestion(analysis.suggestedCategory);
-          
+
           // Auto-fill title and description if provided
           if (analysis.title && !alt) {
             setAlt(analysis.title);
@@ -177,7 +178,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
           if (analysis.tags && !customTags) {
             setCustomTags(Array.isArray(analysis.tags) ? analysis.tags.join(', ') : analysis.tags);
           }
-          
+
           toast({
             title: "AI Analysis Complete",
             description: `Suggested: ${formatCategoryLabel(analysis.suggestedCategory)} (${Math.round(analysis.confidence * 100)}% confidence)`,
@@ -193,7 +194,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     console.log("ImageUploadDialog submit with:", {
       selectedFile: selectedFile?.name,
       category,
@@ -201,7 +202,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
       customTags,
       featured
     });
-    
+
     // Validate form data
     if (!selectedFile) {
       toast({
@@ -253,8 +254,13 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
     }
   };
 
+  console.log('🔷 Rendering Dialog with open:', isOpen);
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      console.log('🔷 Dialog onOpenChange called with:', open);
+      if (!open) onClose();
+    }}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Upload Image or Video</DialogTitle>
@@ -273,7 +279,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
               onChange={handleFileSelect}
               className="hidden"
             />
-            
+
             {previewUrl ? (
               <div className="relative">
                 {selectedFile?.type.startsWith('video/') ? (
