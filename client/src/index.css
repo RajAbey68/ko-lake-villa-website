@@ -395,3 +395,40 @@ button:hover, a:hover {
     gap: 1.5rem;
   }
 }
+
+/* Fix console overlay taking too much screen space */
+.console-overlay,
+.dev-overlay,
+[data-testid="console"],
+iframe[title*="console"],
+iframe[src*="console"] {
+  max-height: 30vh !important;
+  height: 30vh !important;
+  z-index: 10000 !important;
+}
+
+/* Ensure upload dialogs are above console and properly positioned */
+[role="dialog"],
+.upload-dialog,
+.bulk-upload-container {
+  z-index: 50000 !important;
+  position: relative !important;
+}
+
+/* Improve dialog sizing and positioning */
+.dialog-content {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  margin: auto !important;
+}
+
+/* Make sure upload buttons are accessible */
+.upload-buttons,
+.dialog-footer {
+  position: sticky !important;
+  bottom: 0 !important;
+  background: white !important;
+  padding: 1rem !important;
+  border-top: 1px solid #e5e7eb !important;
+  z-index: 10 !important;
+}
