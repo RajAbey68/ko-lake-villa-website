@@ -104,13 +104,11 @@ function Router() {
       <Switch>
         <Route path="/admin/login" component={AdminLogin} />
         <Route path="/admin/dashboard" component={AdminDashboard} />
-        <Route path="/admin/gallery" component={
-                <ProtectedRoute>
-                  <div key="admin-gallery">
-                    <AdminGallery />
-                  </div>
-                </ProtectedRoute>
-              } />
+        <Route path="/admin/gallery">
+          <ProtectedRoute>
+            <AdminGallery />
+          </ProtectedRoute>
+        </Route>
         <Route path="/admin/visitor-uploads" component={VisitorUploads} />
         <Route path="/admin/image-compression" component={ImageCompression} />
         <Route path="/admin/content" component={ContentManager} />

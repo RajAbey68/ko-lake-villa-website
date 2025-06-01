@@ -378,9 +378,10 @@ export default function GalleryManager() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Media Preview */}
                 <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-[#8B5E3C]">Preview</h3>
                   {(editingImage.mediaType === 'video' || editingImage.imageUrl?.endsWith('.mp4') || editingImage.imageUrl?.endsWith('.mov')) ? (
                     <video
-                      className="w-full h-64 object-cover rounded-lg border"
+                      className="w-full h-64 object-cover rounded-lg border shadow-md"
                       controls
                       preload="metadata"
                       onError={(e) => {
@@ -395,12 +396,21 @@ export default function GalleryManager() {
                     <img 
                       src={editingImage.imageUrl} 
                       alt={editingImage.alt}
-                      className="w-full h-64 object-cover rounded-lg border"
+                      className="w-full h-64 object-cover rounded-lg border shadow-md"
                       onError={(e) => {
+                        console.error('Failed to load image:', editingImage.imageUrl);
                         (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                      }}
+                      onLoad={() => {
+                        console.log('Image loaded successfully:', editingImage.imageUrl);
                       }}
                     />
                   )}
+                  <div className="text-sm text-gray-600">
+                    <p><strong>Current Title:</strong> {editingImage.title || editingImage.alt}</p>
+                    <p><strong>Category:</strong> {editingImage.category}</p>
+                    <p><strong>Media Type:</strong> {editingImage.mediaType}</p>
+                  </div>
                 </div>
 
                 {/* Form Fields */}
