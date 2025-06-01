@@ -343,7 +343,9 @@ export class MemStorage implements IStorage {
       // Family Suite - Using actual uploaded images
       {
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
-        alt: "Family Suite Master Bedroom",
+        alt: "Master Suite with Lake Views",
+        title: "Master Suite with Lake Views",
+        description: "Spacious master suite featuring panoramic views of Koggala Lake with modern amenities and traditional Sri Lankan design elements.",
         category: "family-suite",
         mediaType: "image",
         featured: true,
@@ -352,13 +354,17 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
         alt: "Family Suite Living Area",
+        title: "Family Suite Living Area", 
+        description: "Elegant family suite living area designed for comfort and relaxation, with direct access to private terrace overlooking the lake.",
         category: "family-suite",
         mediaType: "image",
         sortOrder: 2
       },
       {
         imageUrl: "/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg",
-        alt: "Family Suite Bathroom",
+        alt: "Private Bedroom Sanctuary",
+        title: "Private Bedroom Sanctuary",
+        description: "Beautifully appointed bedroom sanctuary offering tranquil lake views and premium bedding for the perfect rest.",
         category: "family-suite",
         mediaType: "image",
         sortOrder: 3
@@ -368,6 +374,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747332069008-457831002-20250413_131721.jpg",
         alt: "Group Room with Multiple Beds",
+        title: "Spacious Group Accommodation",
+        description: "Perfect for team retreats or extended families, featuring multiple beds and shared spaces designed for collaborative stays.",
         category: "group-room",
         mediaType: "image",
         featured: true,
@@ -376,6 +384,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
         alt: "Group Room Tour",
+        title: "Group Room Video Tour",
+        description: "Take a virtual walkthrough of our spacious group accommodation with modern amenities and lake views.",
         category: "group-room",
         mediaType: "video",
         sortOrder: 2
@@ -385,6 +395,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4",
         alt: "Triple Room Tour",
+        title: "Triple Room Video Tour",
+        description: "Explore our flexible triple rooms perfect for friends or families, with options for twin or triple bed configurations.",
         category: "triple-room",
         mediaType: "video",
         featured: true,
@@ -393,6 +405,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747347253299-598773798-20250420_170648.mp4",
         alt: "Triple Room Overview",
+        title: "Triple Room Features",
+        description: "Discover the comfortable amenities and garden views available in our flexible triple room accommodation.",
         category: "triple-room",
         mediaType: "video",
         sortOrder: 2
@@ -402,6 +416,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747348711121-217846602-20250420_170654.mp4",
         alt: "Dining Experience",
+        title: "Lakeside Dining Experience",
+        description: "Enjoy authentic Sri Lankan cuisine prepared with fresh local ingredients while overlooking Koggala Lake.",
         category: "dining-area",
         mediaType: "video",
         featured: true,
