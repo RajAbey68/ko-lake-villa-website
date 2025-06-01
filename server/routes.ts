@@ -541,6 +541,44 @@ Respond with JSON: {"category": "category-name", "title": "Engaging Title", "des
     }
   });
 
+  // AI media analysis endpoint
+  app.post("/api/analyze-media", async (req, res) => {
+    try {
+      const { imageId } = req.body;
+      
+      if (!imageId) {
+        return res.status(400).json({ error: "No image ID provided" });
+      }
+
+      const image = await dataStorage.getGalleryImageById(parseInt(imageId));
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      // Generate content using AI
+      const generatedContent = await generateImageContent(
+        image.imageUrl, 
+        image.category, 
+        image.mediaType === 'video'
+      );
+
+      // Update the image with generated content
+      await dataStorage.updateGalleryImage(image.id, {
+        title: generatedContent.title,
+        description: generatedContent.description
+      });
+
+      res.json({
+        message: "Image analyzed and updated successfully",
+        title: generatedContent.title,
+        description: generatedContent.description
+      });
+    } catch (error) {
+      console.error('Media analysis error:', error);
+      res.status(500).json({ error: "Failed to analyze media" });
+    }
+  });
+
   // Admin health check and route verification
   app.get('/api/admin/health', (req, res) => {
     res.json({ 
