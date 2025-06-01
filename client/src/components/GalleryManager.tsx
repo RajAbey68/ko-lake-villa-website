@@ -234,6 +234,25 @@ export default function GalleryManager() {
     );
   }
 
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+
+  // Debug logging for dialog state changes
+  useEffect(() => {
+    console.log('🔍 Upload dialog state changed:', showUploadDialog);
+  }, [showUploadDialog]);
+
+  const handleUploadClick = () => {
+    console.log('🔵 BLUE Upload button clicked - Opening dialog');
+    console.log('Current showUploadDialog state:', showUploadDialog);
+    setShowUploadDialog(true);
+    console.log('Set showUploadDialog to true');
+  };
+
+  const handleUploadComplete = () => {
+    console.log("Upload complete - Refreshing gallery");
+    refetch(); // Refresh the gallery data
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Upload and Filter */}
@@ -242,13 +261,13 @@ export default function GalleryManager() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Upload Button */}
-          <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C] text-white font-medium px-6 py-3">
+          <Button onClick={handleUploadClick} className="bg-[#FF914D] hover:bg-[#8B5E3C] text-white font-medium px-6 py-3">
             <UploadIcon className="h-4 w-4 mr-2" />
             Upload Media
           </Button>
         </div>
       </div>
-      
+
       {/* Secondary Upload Button for visibility */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
         <div className="flex items-center justify-between">
@@ -256,7 +275,7 @@ export default function GalleryManager() {
             <h3 className="text-lg font-medium text-blue-900">Add New Media</h3>
             <p className="text-blue-700">Upload images or videos to your gallery</p>
           </div>
-          <Button onClick={() => setUploadDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button onClick={handleUploadClick} className="bg-blue-600 hover:bg-blue-700 text-white">
             <UploadIcon className="h-4 w-4 mr-2" />
             Upload Now
           </Button>
@@ -415,7 +434,7 @@ export default function GalleryManager() {
                 <Button onClick={() => setSelectedCategory(null)} variant="outline">
                   View All Categories
                 </Button>
-                <Button onClick={() => setUploadDialogOpen(true)}>
+                <Button onClick={handleUploadClick}>
                   Upload to this Category
                 </Button>
               </div>
@@ -424,7 +443,7 @@ export default function GalleryManager() {
             <div>
               <p className="text-gray-600 mb-2">No items found</p>
               <p className="text-sm text-gray-500">Your gallery is empty</p>
-              <Button onClick={() => setUploadDialogOpen(true)} className="mt-4">
+              <Button onClick={handleUploadClick} className="mt-4">
                 Upload your first image
               </Button>
             </div>
@@ -603,10 +622,23 @@ export default function GalleryManager() {
       )}
 
       {/* Upload Dialog */}
-      <ImageUploadDialog 
-        isOpen={uploadDialogOpen} 
-        onClose={() => setUploadDialogOpen(false)} 
-      />
+      {showUploadDialog && (
+        <ImageUploadDialog
+          isOpen={showUploadDialog}
+          onClose={() => {
+            console.log('🔴 Closing upload dialog');
+            setShowUploadDialog(false);
+          }}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
+
+      {/* Debugging info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ position: 'fixed', top: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px', zIndex: 9999 }}>
+          Upload Dialog: {showUploadDialog ? 'OPEN' : 'CLOSED'}
+        </div>
+      )}
     </div>
   );
 }
