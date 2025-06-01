@@ -17,7 +17,9 @@ import {
   StarIcon,
   EyeIcon,
   FilterIcon,
-  UploadIcon
+  UploadIcon,
+  BrainIcon,
+  SparklesIcon
 } from 'lucide-react';
 import { GalleryImage } from '@shared/schema';
 
@@ -111,6 +113,35 @@ export default function GalleryManager() {
       toast({
         title: "Error",
         description: error.message || "Failed to delete image",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // AI re-analysis mutation
+  const [analyzingId, setAnalyzingId] = useState<number | null>(null);
+  const aiAnalysisMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      const response = await fetch(`/api/analyze-media/${imageId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('AI analysis failed');
+      return response.json();
+    },
+    onSuccess: (analysis, imageId) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setAnalyzingId(null);
+      toast({
+        title: "AI Analysis Complete",
+        description: `Updated: ${analysis.title} (${analysis.category})`,
+      });
+    },
+    onError: (error: any) => {
+      setAnalyzingId(null);
+      toast({
+        title: "AI Analysis Failed",
+        description: error.message || "Could not analyze image",
         variant: "destructive",
       });
     },
@@ -284,6 +315,24 @@ export default function GalleryManager() {
 
               {/* Action Buttons */}
               <div className="absolute top-2 right-2 flex gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setAnalyzingId(image.id);
+                    aiAnalysisMutation.mutate(image.id);
+                  }}
+                  disabled={analyzingId === image.id}
+                  className="h-8 w-8 p-0 bg-purple-100 hover:bg-purple-200 border-purple-300"
+                  aria-label={`AI analyze ${image.alt}`}
+                  title="AI Re-analyze Image"
+                >
+                  {analyzingId === image.id ? (
+                    <div className="h-4 w-4 animate-spin border-2 border-purple-600 border-t-transparent rounded-full" />
+                  ) : (
+                    <SparklesIcon className="h-4 w-4 text-purple-600" />
+                  )}
+                </Button>
                 <Button
                   size="sm"
                   variant="secondary"
