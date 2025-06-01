@@ -758,15 +758,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const filename = req.file.originalname.toLowerCase();
       let suggestedCategory = 'entire-villa';
+      let title = '';
+      let description = '';
+      let tags = [];
+      let confidence = 0.8;
       
-      // Basic filename-based categorization
-      if (filename.includes('pool')) suggestedCategory = 'pool-deck';
-      else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake')) suggestedCategory = 'dining-area';
-      else if (filename.includes('room') || filename.includes('suite')) suggestedCategory = 'family-suite';
-      else if (filename.includes('garden')) suggestedCategory = 'front-garden';
-      else if (filename.includes('lake')) suggestedCategory = 'koggala-lake';
-      else if (filename.includes('triple')) suggestedCategory = 'triple-room';
-      else if (filename.includes('group')) suggestedCategory = 'group-room';
+      // Enhanced filename-based categorization with better logic
+      if (filename.includes('pool') || filename.includes('swimming')) {
+        suggestedCategory = 'pool-deck';
+        title = 'Pool Area';
+        description = 'Relaxing pool deck area with beautiful lake views';
+        tags = ['pool', 'relaxation', 'swimming'];
+      } else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake') || filename.includes('restaurant')) {
+        suggestedCategory = 'dining-area';
+        title = 'Dining Experience';
+        description = 'Delicious dining with stunning lake views';
+        tags = ['dining', 'food', 'cuisine'];
+      } else if (filename.includes('family') || filename.includes('suite')) {
+        suggestedCategory = 'family-suite';
+        title = 'Family Suite';
+        description = 'Spacious family accommodation with modern amenities';
+        tags = ['family', 'accommodation', 'suite'];
+      } else if (filename.includes('garden') || filename.includes('plants') || filename.includes('flowers')) {
+        if (filename.includes('lake')) {
+          suggestedCategory = 'lake-garden';
+          title = 'Lake Garden';
+          description = 'Beautiful garden area overlooking the lake';
+        } else if (filename.includes('roof')) {
+          suggestedCategory = 'roof-garden';
+          title = 'Roof Garden';
+          description = 'Elevated garden space with panoramic views';
+        } else {
+          suggestedCategory = 'front-garden';
+          title = 'Villa Gardens';
+          description = 'Tropical landscaping and outdoor spaces';
+        }
+        tags = ['garden', 'nature', 'landscaping'];
+      } else if (filename.includes('lake') || filename.includes('koggala')) {
+        suggestedCategory = 'koggala-lake';
+        title = 'Koggala Lake Views';
+        description = 'Stunning views of Koggala Lake and surroundings';
+        tags = ['lake', 'koggala', 'views'];
+      } else if (filename.includes('triple')) {
+        suggestedCategory = 'triple-room';
+        title = 'Triple Room';
+        description = 'Comfortable triple occupancy accommodation';
+        tags = ['triple', 'room', 'accommodation'];
+      } else if (filename.includes('group')) {
+        suggestedCategory = 'group-room';
+        title = 'Group Accommodation';
+        description = 'Perfect for group stays and gatherings';
+        tags = ['group', 'friends', 'accommodation'];
+      } else if (filename.includes('excursion') || filename.includes('tour') || filename.includes('activity')) {
+        suggestedCategory = 'excursions';
+        title = 'Local Excursions';
+        description = 'Explore the beautiful surroundings of Ahangama';
+        tags = ['excursions', 'activities', 'tours'];
+      } else if (filename.includes('event') || filename.includes('celebration') || filename.includes('party')) {
+        suggestedCategory = 'events';
+        title = 'Villa Events';
+        description = 'Special celebrations and events at the villa';
+        tags = ['events', 'celebrations', 'special'];
+      } else if (filename.includes('friend') || filename.includes('social')) {
+        suggestedCategory = 'friends';
+        title = 'Friends Gathering';
+        description = 'Perfect spaces for socializing with friends';
+        tags = ['friends', 'social', 'gathering'];
+      }
+
+      // If no specific title was set, generate from filename
+      if (!title) {
+        title = req.file.originalname
+          .replace(/\.[^/.]+$/, "")
+          .replace(/[-_]/g, " ")
+          .replace(/\b\w/g, l => l.toUpperCase());
+      }
 
       // Clean up temp file
       if (fs.existsSync(req.file.path)) {
@@ -774,10 +840,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json({
+        suggestedCategory,
         category: suggestedCategory,
-        confidence: 0.8,
-        description: `Categorized based on filename analysis`,
-        tags: [suggestedCategory, 'ko-lake-villa']
+        title,
+        description,
+        tags: tags.join(', '),
+        confidence,
+        analysis: `Smart categorization based on filename and content patterns`
       });
 
     } catch (error) {

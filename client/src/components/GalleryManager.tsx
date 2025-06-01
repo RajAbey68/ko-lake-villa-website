@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { GalleryImage } from '@shared/schema';
 import ImageUploadDialog from './ImageUploadDialog';
+import BulkUploadDialog from './BulkUploadDialog';
 
 const GALLERY_CATEGORIES = [
   { value: "entire-villa", label: "Entire Villa" },
@@ -235,6 +236,7 @@ export default function GalleryManager() {
   }
 
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showBulkUploadDialog, setShowBulkUploadDialog] = useState(false);
 
   // Debug logging for dialog state changes
   useEffect(() => {
@@ -261,10 +263,16 @@ export default function GalleryManager() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Upload Button */}
-          <Button onClick={handleUploadClick} className="bg-[#FF914D] hover:bg-[#8B5E3C] text-white font-medium px-6 py-3">
-            <UploadIcon className="h-4 w-4 mr-2" />
-            Upload Media
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleUploadClick} className="bg-[#FF914D] hover:bg-[#8B5E3C] text-white font-medium px-6 py-3">
+              <UploadIcon className="h-4 w-4 mr-2" />
+              Upload Media
+            </Button>
+            <Button onClick={() => setShowBulkUploadDialog(true)} variant="outline" className="px-6 py-3">
+              <UploadIcon className="h-4 w-4 mr-2" />
+              Bulk Upload
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -629,6 +637,15 @@ export default function GalleryManager() {
             console.log('🔴 Closing upload dialog');
             setShowUploadDialog(false);
           }}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
+
+      {/* Bulk Upload Dialog */}
+      {showBulkUploadDialog && (
+        <BulkUploadDialog
+          isOpen={showBulkUploadDialog}
+          onClose={() => setShowBulkUploadDialog(false)}
           onUploadComplete={handleUploadComplete}
         />
       )}
