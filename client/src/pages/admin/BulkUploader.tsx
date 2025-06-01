@@ -37,10 +37,7 @@ const GALLERY_CATEGORIES = [
   { value: "dining-area", label: "Dining Area" },
   { value: "pool-deck", label: "Pool Deck" },
   { value: "lake-garden", label: "Lake Garden" },
-  { value: "roof-garden", label: "Roof Garden" },
-  { value: "front-garden", label: "Front Garden and Entrance" },
-  { value: "koggala-lake", label: "Koggala Lake and Surrounding" },
-  { value: "excursions", label: "Excursions" }
+  { value: "koggala-lake", label: "Koggala Lake and Surrounding" }
 ];
 
 interface ImagePreview {
