@@ -867,8 +867,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                             value="url"
                             checked={field.value === "url"}
                             onChange={() => field.onChange("url")}
-                            className="h-5 w-5```python
- text-[#FF914D] focus:ring-[#FF914D]"
+                            className="h-5 w-5 text-[#FF914D] focus:ring-[#FF914D]"
                             />
                             <Label htmlFor="upload-url" className="font-medium ml-2 cursor-pointer flex items-center">
                             <LinkIcon className="w-4 h-4 mr-2 text-[#FF914D]" />
@@ -1705,6 +1704,19 @@ function AdminDashboardContent() {
             </Tabs>
           </div>
         </div>
+      </div>
+       {/* Git link for code review - readonly */}
+       <div className="container mx-auto p-6">
+        <p className="text-gray-500 text-sm mt-4">
+          <a
+            href="https://github.com/KoLakeVilla/website"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            Git Repository: KoLakeVilla/website (Read-Only)
+          </a>
+        </p>
       </div>
     </div>
   );
