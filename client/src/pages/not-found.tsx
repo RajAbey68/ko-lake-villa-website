@@ -5,6 +5,10 @@ import { useEffect } from 'react';
 const NotFound = () => {
   useEffect(() => {
     document.title = "Page Not Found - Ko Lake Villa";
+    // Set proper HTTP status for SEO
+    if (typeof window !== 'undefined' && window.history) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   return (
