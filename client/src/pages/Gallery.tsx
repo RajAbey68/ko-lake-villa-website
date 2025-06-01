@@ -516,7 +516,7 @@ const handleCategoryChange = (category: string | null) => {
                     )}
                   </div>
                   <div className="pt-2 pb-1 px-1">
-                    <p className="text-[#8B5E3C] font-medium truncate">{image.alt}</p>
+                    <p className="text-[#8B5E3C] font-medium truncate">{image.title || image.alt}</p>
                     <p className="text-xs text-[#62C3D2] mt-1">
                       {image.category
                         .split('-')
