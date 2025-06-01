@@ -57,7 +57,10 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
     },
     onSuccess: (result) => {
       if (result.success) {
+        // Force refresh all gallery queries with different approaches
         queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+        queryClient.refetchQueries({ queryKey: ['/api/gallery'] });
+        queryClient.removeQueries({ queryKey: ['/api/gallery'] });
         toast({
           title: "Success",
           description: "Image uploaded successfully",
