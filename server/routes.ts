@@ -181,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const file = Array.isArray(req.files) ? req.files[0] : req.files[Object.keys(req.files)[0]];
         const category = req.body.category || 'default';
-        const title = req.body.title || file.originalname;
+        const title = req.body.title || req.body.alt || file.originalname;
         const description = req.body.description || '';
         const featured = req.body.featured === 'true';
         const tags = req.body.tags || '';
@@ -196,6 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const galleryImageData = {
           imageUrl: fileUrl,
+          title: title,
           alt: title,
           description,
           category,
