@@ -165,31 +165,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // File upload endpoint
   app.post("/api/upload", (req, res) => {
+    console.log("Upload endpoint hit");
+    
     upload.any()(req, res, async (err) => {
       if (err) {
         console.error("Multer error:", err);
         return res.status(500).json({ 
+          success: false,
           message: "File upload error", 
           error: err.message 
         });
       }
 
       try {
+        console.log("Files received:", req.files);
+        console.log("Body received:", req.body);
+
         if (!req.files || req.files.length === 0) {
-          return res.status(400).json({ message: "No file uploaded" });
+          console.log("No files uploaded");
+          return res.status(400).json({ 
+            success: false,
+            message: "No file uploaded" 
+          });
         }
 
         const file = Array.isArray(req.files) ? req.files[0] : req.files[Object.keys(req.files)[0]];
-        const category = req.body.category || 'default';
-        const title = req.body.title || req.body.alt || file.originalname;
+        const category = req.body.category || 'entire-villa';
+        const title = req.body.title || req.body.alt || file.originalname.replace(/\.[^/.]+$/, "");
         const description = req.body.description || '';
-        const featured = req.body.featured === 'true';
+        const featured = req.body.featured === 'true' || req.body.featured === true;
         const tags = req.body.tags || '';
+
+        console.log("Processing file:", file.originalname, "Category:", category);
 
         const isVideoFile = file.mimetype.startsWith('video/') || 
                             file.originalname.toLowerCase().endsWith('.mp4') ||
                             file.originalname.toLowerCase().endsWith('.mov') ||
-                            file.originalname.toLowerCase().endsWith('.avi');
+                            file.originalname.toLowerCase().endsWith('.avi') ||
+                            file.originalname.toLowerCase().endsWith('.webm');
 
         const mediaType = req.body.mediaType || (isVideoFile ? 'video' : 'image');
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
@@ -206,15 +219,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sortOrder: 0
         };
 
+        console.log("Creating gallery image with data:", galleryImageData);
         const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+        console.log("Gallery image created:", galleryImage.id);
 
         res.status(201).json({
+          success: true,
           message: "File uploaded successfully!",
-          data: galleryImage
+          data: {
+            imageUrl: fileUrl,
+            ...galleryImage
+          }
         });
       } catch (error: any) {
         console.error("Upload processing error:", error);
         res.status(500).json({ 
+          success: false,
           message: "Failed to process uploaded file",
           error: error?.message || 'Unknown error'
         });

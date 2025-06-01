@@ -94,11 +94,14 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
         description,
         category,
         tags,
-        featured
+        featured,
+        mediaType
       });
       
       setIsUploading(true);
+      setUploadProgress(0);
       
+      // Validation
       if (uploadMethod === 'file' && !imageFile) {
         toast({
           title: "Error",
@@ -119,136 +122,166 @@ const SimpleImageUploadDialog: React.FC<SimpleImageUploadDialogProps> = ({ open,
         return;
       }
       
-      if (!alt) {
+      if (!alt || alt.trim() === '') {
         toast({
           title: "Error",
-          description: "Please enter alt text for accessibility",
+          description: "Please enter a title for the media",
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      if (!category || category.trim() === '') {
+        toast({
+          title: "Error",
+          description: "Please select a category",
           variant: "destructive",
         });
         setIsUploading(false);
         return;
       }
       
-      // Prepare the data object
-      let uploadedImageUrl = "";
-      
-      // Check if we're using direct URL or file upload
+      // Handle file upload
       if (uploadMethod === 'file' && imageFile) {
         try {
-          // Create a FormData object to submit the file
+          setUploadProgress(10);
+          
+          // Create FormData for file upload
           const formData = new FormData();
           formData.append('file', imageFile);
           formData.append('category', category);
-          formData.append('title', alt); // Use alt text as title
-          formData.append('description', description || '');
-          
-          // Ensure tags are properly formatted
-          const tagsValue = tags || '';
-          console.log("Adding tags to FormData:", tagsValue);
-          formData.append('tags', tagsValue);
-          
-          formData.append('featured', featured ? 'true' : 'false');
+          formData.append('title', alt.trim());
+          formData.append('alt', alt.trim());
+          formData.append('description', description.trim());
+          formData.append('tags', tags.trim());
+          formData.append('featured', featured.toString());
           formData.append('mediaType', mediaType);
           
-          // Log out formData entries for debugging
-          console.log("FormData entries:");
-          console.log("tags value:", formData.get('tags'));
+          console.log("Uploading file with FormData...");
+          setUploadProgress(30);
           
-          // Upload using our server-side API
+          // Upload to server
           const uploadResponse = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
-            // No Content-Type header - browser will set it with proper boundary
           });
           
-          if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            throw new Error(`Upload error: ${uploadResponse.status} - ${errorText}`);
+          setUploadProgress(70);
+          
+          let result;
+          try {
+            result = await uploadResponse.json();
+          } catch (parseError) {
+            console.error("Failed to parse response:", parseError);
+            const textResponse = await uploadResponse.text();
+            console.error("Raw response:", textResponse);
+            throw new Error('Server returned invalid response');
           }
           
-          const uploadResult = await uploadResponse.json();
-          uploadedImageUrl = uploadResult.data.imageUrl;
+          console.log("Upload response:", result);
           
-          // Success - we'll exit early
+          if (!uploadResponse.ok || !result.success) {
+            throw new Error(result.message || result.error || 'Upload failed');
+          }
+          
+          setUploadProgress(100);
+          
+          // Success
           toast({
             title: "Success!",
             description: `${mediaType === 'video' ? 'Video' : 'Image'} uploaded successfully!`,
           });
           
-          // Reset form and close dialog
+          // Reset and close
           resetForm();
           onOpenChange(false);
           
-          // Call success callback to refresh the gallery
+          // Refresh gallery
           if (onSuccess) {
             onSuccess();
           }
-          return;
           
-        } catch (err) {
-          console.error("Error uploading file:", err);
+        } catch (uploadError: any) {
+          console.error("File upload error:", uploadError);
           toast({
-            title: "Upload Error",
-            description: "Failed to upload file. Please try again.",
+            title: "Upload Failed",
+            description: uploadError.message || "Failed to upload file. Please try again.",
             variant: "destructive",
           });
-          setIsUploading(false);
-          return;
         }
-      } else {
-        // If using a URL, use the provided URL and continue with API call
-        uploadedImageUrl = imageUrl;
-        
-        // Prepare the image data for direct URL
-        const imageData = {
-          uploadMethod,
-          imageUrl: uploadedImageUrl,
-          alt,
-          description,
-          category,
-          tags,
-          featured,
-          sortOrder: 0,
-          mediaType
-        };
-        
-        // Submit to API
-        const response = await fetch('/api/admin/gallery', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(imageData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`API error: ${response.status} - ${errorText}`);
+      } 
+      // Handle URL upload
+      else if (uploadMethod === 'url' && imageUrl) {
+        try {
+          setUploadProgress(30);
+          
+          const imageData = {
+            imageUrl: imageUrl.trim(),
+            title: alt.trim(),
+            alt: alt.trim(),
+            description: description.trim(),
+            category,
+            tags: tags.trim(),
+            featured,
+            mediaType,
+            sortOrder: 0
+          };
+          
+          console.log("Uploading URL with data:", imageData);
+          
+          const response = await fetch('/api/admin/gallery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(imageData),
+          });
+          
+          setUploadProgress(70);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to save image: ${response.status} - ${errorText}`);
+          }
+          
+          const result = await response.json();
+          console.log("URL upload result:", result);
+          
+          setUploadProgress(100);
+          
+          toast({
+            title: "Success!",
+            description: `${mediaType === 'video' ? 'Video' : 'Image'} saved successfully!`,
+          });
+          
+          // Reset and close
+          resetForm();
+          onOpenChange(false);
+          
+          // Refresh gallery
+          if (onSuccess) {
+            onSuccess();
+          }
+          
+        } catch (urlError: any) {
+          console.error("URL upload error:", urlError);
+          toast({
+            title: "Save Failed", 
+            description: urlError.message || "Failed to save image. Please try again.",
+            variant: "destructive",
+          });
         }
-      }
-      
-      // Show success message
-      toast({
-        title: "Success!",
-        description: `${mediaType === 'video' ? 'Video' : 'Image'} uploaded successfully!`,
-      });
-      
-      // Reset form and close dialog
-      resetForm();
-      onOpenChange(false);
-      
-      // Call success callback to refresh the gallery
-      if (onSuccess) {
-        onSuccess();
       }
       
     } catch (error: any) {
-      console.error("Error in handleSubmit:", error);
+      console.error("General error in handleSubmit:", error);
       toast({
         title: "Error",
-        description: `Failed to upload: ${error?.message || 'Unknown error'}`,
+        description: error?.message || 'An unexpected error occurred',
         variant: "destructive",
       });
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
   

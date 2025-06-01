@@ -604,8 +604,8 @@ export default function GalleryManager() {
 
       {/* Upload Dialog */}
       <ImageUploadDialog 
-        open={uploadDialogOpen} 
-        onOpenChange={setUploadDialogOpen} 
+        isOpen={uploadDialogOpen} 
+        onClose={() => setUploadDialogOpen(false)} 
       />
     </div>
   );
