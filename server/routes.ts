@@ -367,20 +367,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Contact form submission:', req.body);
       
-      // Clean the data before validation
+      // Clean and prepare data with all optional fields handled properly
       const cleanedData = {
-        name: req.body.name?.trim(),
-        email: req.body.email?.trim(),
+        name: req.body.name?.trim() || '',
+        email: req.body.email?.trim() || '',
         phone: req.body.phone?.trim() || undefined,
         timezone: req.body.timezone || "Asia/Colombo",
         familiarity: req.body.familiarity || undefined,
-        subject: req.body.subject?.trim(),
-        message: req.body.message?.trim()
+        subject: req.body.subject?.trim() || '',
+        message: req.body.message?.trim() || ''
       };
+
+      // Remove undefined values to avoid validation issues
+      Object.keys(cleanedData).forEach(key => {
+        if (cleanedData[key] === undefined) {
+          delete cleanedData[key];
+        }
+      });
       
       const validatedData = insertContactMessageSchema.parse(cleanedData);
       const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
+        success: true,
         message: "Message sent successfully!",
         data: contactMessage
       });
@@ -388,6 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         console.error('Contact form validation error:', error.errors);
         return res.status(400).json({ 
+          success: false,
           message: "Invalid contact form data", 
           errors: error.errors.map(e => ({ 
             field: e.path.join('.'), 
@@ -396,7 +405,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       console.error('Contact form submission error:', error);
-      res.status(500).json({ message: "Failed to send message" });
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to send message" 
+      });
     }
   });
 
@@ -406,26 +418,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Newsletter submission:', req.body);
       
       // Clean the data before validation
-      const cleanedData = {
-        email: req.body.email?.trim()
-      };
+      const email = req.body.email?.trim();
+      
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is required"
+        });
+      }
+
+      const cleanedData = { email };
       
       const validatedData = insertNewsletterSubscriberSchema.parse(cleanedData);
-      const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
-      res.status(201).json({
-        message: "Subscribed to newsletter successfully!",
-        data: subscriber
-      });
+      
+      // Check for existing subscription
+      try {
+        const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
+        res.status(201).json({
+          success: true,
+          message: "Subscribed to newsletter successfully!",
+          data: subscriber
+        });
+      } catch (dbError) {
+        // Handle duplicate email case
+        if (dbError.message?.includes('duplicate') || dbError.code === '23505') {
+          return res.status(400).json({
+            success: false,
+            message: "This email is already subscribed to our newsletter"
+          });
+        }
+        throw dbError;
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error('Newsletter validation error:', error.errors);
         return res.status(400).json({ 
+          success: false,
           message: "Invalid email format", 
           errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
         });
       }
       console.error('Newsletter subscription error:', error);
-      res.status(500).json({ message: "Failed to subscribe to newsletter" });
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to subscribe to newsletter" 
+      });
     }
   });
 
@@ -765,27 +802,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Handle 404 for API routes
   app.use('/api/*', (req, res) => {
+    console.log(`404 API route: ${req.method} ${req.path}`);
     res.status(404).json({ 
       message: 'API endpoint not found',
-      path: req.path 
+      path: req.path,
+      method: req.method
     });
   });
 
-  // Handle 404 for admin routes - let client handle routing
-  app.use('/admin/*', (req, res, next) => {
-    // For admin routes, serve the main app and let client-side routing handle it
-    if (req.accepts('html')) {
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-    } else {
-      res.status(404).json({ 
-        message: 'Admin endpoint not found',
-        path: req.path 
-      });
-    }
+  // Handle admin routes - serve main app for client-side routing
+  app.get('/admin*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 
-  // Catch-all handler for client-side routing (must be last)
+  // Catch-all handler for client-side routing
   app.get('*', (req, res) => {
+    // Check if this is a static asset request that should 404
+    if (req.path.includes('.') && !req.path.includes('/api/')) {
+      return res.status(404).json({
+        message: 'File not found',
+        path: req.path
+      });
+    }
+    
+    // Serve main app for all other routes (client-side routing)
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 
