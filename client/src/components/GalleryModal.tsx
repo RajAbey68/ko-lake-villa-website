@@ -99,7 +99,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0 overflow-hidden" aria-describedby="gallery-modal-description">
+      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0 overflow-hidden" aria-describedby={`gallery-modal-description-${image.id}`}>
         <DialogTitle className="sr-only">
           {image.alt} - Ko Lake Villa Gallery
         </DialogTitle>
@@ -179,7 +179,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           </div>
 
           {/* Image Details - Below the image */}
-          <div className="p-6 space-y-3 bg-white" id="gallery-modal-description">
+          <div className="p-6 space-y-3 bg-white" id={`gallery-modal-description-${image.id}`}>
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
@@ -199,7 +199,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 </div>
 
                 <p className="text-gray-700 mb-3 leading-relaxed">
-                  {image.description || "Experience the beauty and tranquility of Ko Lake Villa."}
+                  {image.description || getDisplayDescription(image)}
                 </p>
 
                 {tags.length > 0 && (
