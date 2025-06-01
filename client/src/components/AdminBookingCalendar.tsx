@@ -12,16 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Calendar as CalendarIcon, DollarSign, Percent, Clock, Users } from 'lucide-react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-const locales = {
-  'en-US': require('date-fns/locale/en-US'),
-};
-
 const localizer = dateFnsLocalizer({
   format,
   parse,
   startOfWeek,
   getDay,
-  locales,
+  locales: {},
 });
 
 interface BookingEvent {
