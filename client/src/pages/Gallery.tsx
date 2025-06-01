@@ -228,6 +228,7 @@ const handleCategoryChange = (category: string | null) => {
   const openImageModal = (image: GalleryImageType) => {
     if (!galleryImages) return;
 
+    console.log("Selected image for modal:", image);
     const imageIndex = galleryImages.findIndex(img => img.id === image.id);
     setCurrentImageIndex(imageIndex);
     setModalOpen(true);
