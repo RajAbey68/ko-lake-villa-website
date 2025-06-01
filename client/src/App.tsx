@@ -10,7 +10,7 @@ import { useAnalytics } from "./hooks/use-analytics";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import AccessibilityToggle from "@/components/AccessibilityToggle";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import NotFound from "@/pages/not-found";
+import NotFound from '@/pages/not-found';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -86,7 +86,7 @@ function Router() {
             <Route path="/booking" component={Booking} />
             <Route path="/checkout" component={Checkout} />
             <Route path="/faq" component={FAQ} />
-            <Route component={NotFound} />
+            <Route path="/:rest*" component={NotFound} />
           </Switch>
         </main>
         <Footer />
@@ -218,6 +218,7 @@ function Router() {
             {lazy(() => import('./pages/admin/ProjectRoadmap'))}
           </ProtectedRoute>
         </Route>
+         {/* Catch-all route for 404 - must be last */}
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>
