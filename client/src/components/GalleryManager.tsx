@@ -630,12 +630,12 @@ export default function GalleryManager() {
       )}
 
       {/* Upload Dialog */}
-      {showUploadDialog && (
+      {uploadDialogOpen && (
         <ImageUploadDialog
-          isOpen={showUploadDialog}
+          isOpen={uploadDialogOpen}
           onClose={() => {
             console.log('🔴 Closing upload dialog');
-            setShowUploadDialog(false);
+            setUploadDialogOpen(false);
           }}
           onUploadComplete={handleUploadComplete}
         />
