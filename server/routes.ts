@@ -366,7 +366,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contact", async (req, res) => {
     try {
       console.log('Contact form submission:', req.body);
-      const validatedData = insertContactMessageSchema.parse(req.body);
+      
+      // Clean the data before validation
+      const cleanedData = {
+        name: req.body.name?.trim(),
+        email: req.body.email?.trim(),
+        phone: req.body.phone?.trim() || undefined,
+        timezone: req.body.timezone || "Asia/Colombo",
+        familiarity: req.body.familiarity || undefined,
+        subject: req.body.subject?.trim(),
+        message: req.body.message?.trim()
+      };
+      
+      const validatedData = insertContactMessageSchema.parse(cleanedData);
       const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
         message: "Message sent successfully!",
@@ -392,7 +404,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/newsletter", async (req, res) => {
     try {
       console.log('Newsletter submission:', req.body);
-      const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
+      
+      // Clean the data before validation
+      const cleanedData = {
+        email: req.body.email?.trim()
+      };
+      
+      const validatedData = insertNewsletterSubscriberSchema.parse(cleanedData);
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
         message: "Subscribed to newsletter successfully!",
@@ -753,12 +771,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Handle 404 for admin routes
-  app.use('/admin/*', (req, res) => {
-    res.status(404).json({ 
-      message: 'Admin endpoint not found',
-      path: req.path 
-    });
+  // Handle 404 for admin routes - let client handle routing
+  app.use('/admin/*', (req, res, next) => {
+    // For admin routes, serve the main app and let client-side routing handle it
+    if (req.accepts('html')) {
+      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    } else {
+      res.status(404).json({ 
+        message: 'Admin endpoint not found',
+        path: req.path 
+      });
+    }
+  });
+
+  // Catch-all handler for client-side routing (must be last)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 
   // Global error handler (only for actual errors)
