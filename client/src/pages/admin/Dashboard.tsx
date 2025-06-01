@@ -134,11 +134,6 @@ function PricingManagerCard() {
 }
 
 
-// Forward declaration of components
-function AdminDashboardContent();
-function GalleryTab();
-function GalleryManager(props: GalleryManagerProps);
-
 export default function AdminDashboard() {
   return (
     <ProtectedRoute>
@@ -1344,9 +1339,11 @@ function GalleryTab() {
 }
 
 function AdminDashboardContent() {
-  const { currentUser } = useAuth();
+  const { currentUser, isAdmin } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+
+  console.log('AdminDashboardContent rendering:', { currentUser: !!currentUser, isAdmin });
 
   const handleLogout = async () => {
     try {
