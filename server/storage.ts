@@ -426,6 +426,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747359245374-177273305-20250420_170815.mp4",
         alt: "Dining Area Tour",
+        title: "Dining Area Walkthrough",
+        description: "Take a virtual tour of our elegant dining space where guests gather to enjoy delicious meals and lake views.",
         category: "dining-area",
         mediaType: "video",
         sortOrder: 2
@@ -435,6 +437,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
         alt: "Pool Deck Tour",
+        title: "Pool Deck & Lake Views",
+        description: "Experience the tranquil pool area with stunning panoramic views of Koggala Lake - perfect for relaxation and swimming.",
         category: "pool-deck",
         mediaType: "video",
         featured: true,
@@ -443,6 +447,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
         alt: "Pool Deck View",
+        title: "Poolside Paradise",
+        description: "Relax by the infinity pool while enjoying unobstructed views of the serene Koggala Lake and surrounding nature.",
         category: "pool-deck",
         mediaType: "image",
         sortOrder: 2
@@ -452,6 +458,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
         alt: "Lake Garden View",
+        title: "Lakeside Garden Sanctuary",
+        description: "Walk through our beautifully landscaped gardens that lead directly to the shores of Koggala Lake, offering peaceful meditation spots.",
         category: "lake-garden",
         mediaType: "image",
         featured: true,
@@ -460,6 +468,8 @@ export class MemStorage implements IStorage {
       {
         imageUrl: "/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg",
         alt: "Lake Garden Area",
+        title: "Tropical Garden Pathways",
+        description: "Discover winding paths through lush tropical vegetation with comfortable seating areas overlooking the tranquil lake waters.",
         category: "lake-garden",
         mediaType: "image",
         sortOrder: 2
