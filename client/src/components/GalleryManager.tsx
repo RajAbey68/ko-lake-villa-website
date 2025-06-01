@@ -72,16 +72,10 @@ export default function GalleryManager() {
     queryFn: () => fetchGalleryImages(selectedCategory || undefined),
   });
 
-  // Filter and sort images with debug logging
-  const filteredImages = selectedCategory 
-    ? images.filter(image => {
-        const matches = image.category === selectedCategory;
-        console.log(`Image ${image.id} category: ${image.category}, looking for: ${selectedCategory}, matches: ${matches}`);
-        return matches;
-      })
-    : images;
-  
-  const filteredAndSortedImages = sortGalleryImages(filteredImages);
+  // Filter and sort images
+  const filteredAndSortedImages = sortGalleryImages(
+    filterImagesByCategory(images, selectedCategory)
+  );
 
   // Update image mutation
   const updateMutation = useMutation({
