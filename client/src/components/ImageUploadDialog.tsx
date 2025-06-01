@@ -48,35 +48,58 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
 
   // Upload mutation
   const uploadMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!selectedFile || !category || !alt) {
         throw new Error('Missing required fields');
       }
       
-      return uploadGalleryImage(selectedFile, category, alt, description, featured, customTags);
+      console.log("Starting upload mutation...");
+      
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('category', category);
+      formData.append('title', alt);
+      formData.append('alt', alt);
+      formData.append('description', description || '');
+      formData.append('tags', customTags || '');
+      formData.append('featured', featured.toString());
+      formData.append('mediaType', selectedFile.type.startsWith('video/') ? 'video' : 'image');
+      
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+      
+      const result = await response.json();
+      console.log("Upload result:", result);
+      
+      if (!result.success) {
+        throw new Error(result.message || result.error || 'Upload failed');
+      }
+      
+      return result;
     },
     onSuccess: (result) => {
-      if (result.success) {
-        // Force refresh all gallery queries with different approaches
-        queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-        queryClient.refetchQueries({ queryKey: ['/api/gallery'] });
-        queryClient.removeQueries({ queryKey: ['/api/gallery'] });
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        });
-        handleClose();
-      } else {
-        toast({
-          title: "Upload Failed",
-          description: result.error || "Failed to upload image",
-          variant: "destructive",
-        });
-      }
+      console.log("Upload successful:", result);
+      
+      // Invalidate and refetch gallery queries
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+      handleClose();
     },
     onError: (error: any) => {
+      console.error("Upload error:", error);
       toast({
-        title: "Error",
+        title: "Upload Failed",
         description: error.message || "Failed to upload image",
         variant: "destructive",
       });
@@ -168,25 +191,18 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form data
-    const validation = validateImageData({ 
-      category, 
-      alt, 
-      tags: customTags 
+    console.log("ImageUploadDialog submit with:", {
+      selectedFile: selectedFile?.name,
+      category,
+      alt,
+      customTags,
+      featured
     });
     
-    if (!validation.valid) {
-      toast({
-        title: "Validation Error",
-        description: validation.errors.join(', '),
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // Validate form data
     if (!selectedFile) {
       toast({
         title: "No File Selected",
@@ -196,6 +212,25 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
       return;
     }
 
+    if (!category || category.trim() === '') {
+      toast({
+        title: "Category Required",
+        description: "Please select a category for the image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!alt || alt.trim() === '') {
+      toast({
+        title: "Title Required", 
+        description: "Please enter a title for the image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Proceed with upload
     uploadMutation.mutate();
   };
 
