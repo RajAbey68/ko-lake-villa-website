@@ -365,6 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form
   app.post("/api/contact", async (req, res) => {
     try {
+      console.log('Contact form submission:', req.body);
       const validatedData = insertContactMessageSchema.parse(req.body);
       const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
@@ -373,11 +374,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Contact form validation error:', error.errors);
         return res.status(400).json({ 
           message: "Invalid contact form data", 
-          errors: error.errors 
+          errors: error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
         });
       }
+      console.error('Contact form submission error:', error);
       res.status(500).json({ message: "Failed to send message" });
     }
   });
@@ -385,6 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Newsletter subscription
   app.post("/api/newsletter", async (req, res) => {
     try {
+      console.log('Newsletter submission:', req.body);
       const validatedData = insertNewsletterSubscriberSchema.parse(req.body);
       const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
       res.status(201).json({
@@ -736,6 +743,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       bookingsThisMonth: 50
     };
     res.json(stats);
+  });
+
+  // Handle 404 for API routes
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ 
+      message: 'API endpoint not found',
+      path: req.path 
+    });
+  });
+
+  // Handle 404 for admin routes
+  app.use('/admin/*', (req, res) => {
+    res.status(404).json({ 
+      message: 'Admin endpoint not found',
+      path: req.path 
+    });
   });
 
   // Global error handler (only for actual errors)
