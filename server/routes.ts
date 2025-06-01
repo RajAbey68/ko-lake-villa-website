@@ -259,6 +259,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST endpoint to add gallery images
+  app.post("/api/gallery", async (req, res) => {
+    try {
+      const { imageUrl, alt, title, description, category, mediaType, featured, sortOrder } = req.body;
+      
+      const galleryImageData = {
+        title: title || alt,
+        imageUrl,
+        alt,
+        description,
+        category,
+        mediaType: mediaType || 'image',
+        featured: featured || false,
+        sortOrder: sortOrder || 0
+      };
+
+      const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+      res.status(201).json(galleryImage);
+    } catch (error) {
+      console.error('Gallery POST error:', error);
+      res.status(500).json({ message: "Failed to create gallery image" });
+    }
+  });
+
   // AI media analysis endpoint for bulk upload
   app.post("/api/analyze-media", async (req, res) => {
     try {
