@@ -806,6 +806,54 @@ Respond with JSON: {"category": "category-name", "title": "Engaging Title", "des
     }
   });
 
+  // AI Media Analysis endpoint for bulk uploader
+  app.post("/api/analyze-media", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const filename = req.file.originalname.toLowerCase();
+      let suggestedCategory = 'entire-villa';
+      
+      // Basic filename-based categorization
+      if (filename.includes('pool')) suggestedCategory = 'pool-deck';
+      else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake')) suggestedCategory = 'dining-area';
+      else if (filename.includes('room') || filename.includes('suite')) suggestedCategory = 'family-suite';
+      else if (filename.includes('garden')) suggestedCategory = 'front-garden';
+      else if (filename.includes('lake')) suggestedCategory = 'koggala-lake';
+      else if (filename.includes('triple')) suggestedCategory = 'triple-room';
+      else if (filename.includes('group')) suggestedCategory = 'group-room';
+
+      // Clean up temp file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      
+      res.json({
+        category: suggestedCategory,
+        confidence: 0.8,
+        description: `Categorized based on filename analysis`,
+        tags: [suggestedCategory, 'ko-lake-villa']
+      });
+
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      
+      // Clean up temp file on error
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      
+      res.status(500).json({ 
+        error: 'Analysis failed',
+        category: 'entire-villa',
+        confidence: 0.5,
+        description: 'Default categorization due to analysis error'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
