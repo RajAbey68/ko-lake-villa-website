@@ -566,10 +566,11 @@ export default function BulkUploader() {
                 {/* Image grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {filteredImages.map((image, index) => {
-                    const originalIndex = imagePreviews.findIndex(img => img.preview === image.preview);
-                    
-                    return (
-                      <div key={image.preview} className="relative">
+                    try {
+                      const originalIndex = imagePreviews.findIndex(img => img.preview === image.preview);
+                      
+                      return (
+                        <div key={image.preview} className="relative">
                         <div className={`
                           relative rounded-md overflow-hidden border-2
                           ${image.status === 'success' ? 'border-green-500' : 
@@ -608,6 +609,10 @@ export default function BulkUploader() {
                             src={image.preview} 
                             alt={image.name}
                             className="h-32 w-full object-cover"
+                            onError={(e) => {
+                              console.warn('Image preview failed to load:', image.name);
+                              // Keep the broken image visible rather than hiding it
+                            }}
                           />
                           
                           <div className="p-2 bg-white">
@@ -652,6 +657,10 @@ export default function BulkUploader() {
                         )}
                       </div>
                     );
+                    } catch (error) {
+                      console.error('Error rendering image preview:', error);
+                      return null;
+                    }
                   })}
                 </div>
                 
