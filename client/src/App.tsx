@@ -50,6 +50,16 @@ import VideoUploader from "@/pages/admin/VideoUploader";
 import PageImageManager from "@/pages/admin/PageImageManager";
 import AdminBookingCalendar from './components/AdminBookingCalendar';
 
+// New Roadmap Component
+function Roadmap() {
+  return (
+    <div>
+      <h1>Roadmap</h1>
+      <p>This is the roadmap page.</p>
+    </div>
+  );
+}
+
 function Router() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
@@ -116,8 +126,9 @@ function Router() {
         <Route path="/admin/gallery-uploader" component={GalleryUploader} />
         <Route path="/admin/video-uploader" component={VideoUploader} />
         <Route path="/admin/page-images" component={PageImageManager} />
-        <Route path="/admin/calendar" component={AdminCalendar} />
-        <Route path="/admin" component={AdminLanding} />
+        <Route path="/admin/page-image-manager" component={PageImageManager} />
+        <Route path="/admin/booking-calendar" component={AdminBookingCalendar} />
+        <Route path="/admin/roadmap" component={Roadmap} />
         <Route path="/admin/*" component={NotFound} />
       </Switch>
     </main>
