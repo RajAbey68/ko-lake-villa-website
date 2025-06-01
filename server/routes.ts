@@ -599,6 +599,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(stats);
   });
 
+  // Error handling middleware for unsupported methods
+  app.use((req, res, next) => {
+    if (!res.headersSent) {
+      res.status(405).json({ 
+        message: `Method ${req.method} not allowed for ${req.path}`,
+        allowedMethods: ['GET', 'POST']
+      });
+    }
+  });
+
+  // Global error handler
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error('Server error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
