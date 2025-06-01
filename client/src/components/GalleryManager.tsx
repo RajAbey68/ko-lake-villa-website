@@ -22,6 +22,7 @@ import {
   SparklesIcon
 } from 'lucide-react';
 import { GalleryImage } from '@shared/schema';
+import ImageUploadDialog from './ImageUploadDialog';
 
 const GALLERY_CATEGORIES = [
   { value: "entire-villa", label: "Entire Villa" },
@@ -600,6 +601,12 @@ export default function GalleryManager() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Upload Dialog */}
+      <ImageUploadDialog 
+        open={uploadDialogOpen} 
+        onOpenChange={setUploadDialogOpen} 
+      />
     </div>
   );
 }
