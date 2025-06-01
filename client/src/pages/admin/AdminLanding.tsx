@@ -488,6 +488,28 @@ export default function AdminLanding() {
             </div>
           </Link>
           
+          <Link href="/admin/roadmap">
+            <div className="cursor-pointer transition-all hover:shadow-lg">
+              <Card className="h-full bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 hover:border-purple-300">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-purple-100 p-3 rounded-lg">
+                      <span className="text-2xl">🗺️</span>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-purple-800">Project Roadmap</h3>
+                      <p className="text-purple-700">Interactive Kanban board & backlog management</p>
+                      <div className="mt-2 text-sm text-purple-600">
+                        <div>• 11 active backlog items</div>
+                        <div>• Priority-based task tracking</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </Link>
+          
           <Link href="/admin/export">
             <div className="cursor-pointer transition-all hover:shadow-lg">
               <Card className="h-full bg-white border border-[#A0B985]/20 hover:border-[#A0B985]">
