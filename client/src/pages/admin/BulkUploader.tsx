@@ -167,29 +167,14 @@ export default function BulkUploader() {
       });
       
       try {
-        // Convert image to base64 for AI analysis
-        const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve, reject) => {
-          reader.onload = () => {
-            const result = reader.result as string;
-            const base64 = result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-            resolve(base64);
-          };
-          reader.onerror = reject;
-        });
-        
-        reader.readAsDataURL(imagePreviews[i].file);
-        const base64Image = await base64Promise;
+        // Prepare form data for AI analysis
+        const formData = new FormData();
+        formData.append('file', imagePreviews[i].file);
         
         // Call AI analysis API
         const response = await fetch('/api/analyze-media', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            imageData: base64Image,
-            filename: imagePreviews[i].name,
-            mediaType: 'image'
-          }),
+          body: formData,
         });
         
         if (response.ok) {
