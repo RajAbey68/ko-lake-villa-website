@@ -323,7 +323,7 @@ const handleCategoryChange = (category: string | null) => {
               <button
                 onClick={() => handleCategoryChange('Dining Area')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === 'Dining Area'
+                  selectedCategory === 'dining-area'
                     ? 'bg-[#8B5E3C] text-white'
                     : 'bg-white text-[#8B5E3C] hover:bg-[#A0B985]'
                 }`}
