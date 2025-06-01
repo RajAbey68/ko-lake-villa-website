@@ -127,7 +127,7 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
       
       // Use the AI analysis endpoint we built
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
       formData.append('category', category || '');
 
       const response = await fetch('/api/analyze-media', {
