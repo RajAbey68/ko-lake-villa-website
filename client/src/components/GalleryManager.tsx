@@ -466,18 +466,41 @@ export default function GalleryManager() {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="category">Category *</Label>
-                    <Select value={editCategory} onValueChange={setEditCategory}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {GALLERY_CATEGORIES.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select value={editCategory} onValueChange={setEditCategory}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {GALLERY_CATEGORIES.map((cat) => (
+                            <SelectItem key={cat.value} value={cat.value}>
+                              {cat.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (editingImage) {
+                            setAnalyzingId(editingImage.id);
+                            aiAnalysisMutation.mutate(editingImage.id);
+                          }
+                        }}
+                        disabled={!editingImage || analyzingId === editingImage?.id}
+                        className="mt-1 bg-purple-50 hover:bg-purple-100 border-purple-300"
+                        title="AI Re-analyze for better category and content"
+                      >
+                        {analyzingId === editingImage?.id ? (
+                          <div className="h-4 w-4 animate-spin border-2 border-purple-600 border-t-transparent rounded-full" />
+                        ) : (
+                          <SparklesIcon className="h-4 w-4 text-purple-600" />
+                        )}
+                        <span className="ml-1 text-xs">AI</span>
+                      </Button>
+                    </div>
                   </div>
 
                   <div>
