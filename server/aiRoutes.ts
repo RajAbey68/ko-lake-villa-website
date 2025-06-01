@@ -58,8 +58,9 @@ router.post('/analyze-media', upload.single('file'), async (req, res) => {
       });
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+    // Add timeout to prevent hanging
+    const aiAnalysisPromise = openai.chat.completions.create({
+      model: "gpt-4o", // Use newer model
       messages: [
         {
           role: "user",
@@ -80,6 +81,13 @@ router.post('/analyze-media', upload.single('file'), async (req, res) => {
       max_tokens: 300
     });
 
+    // Add 10 second timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('AI analysis timeout')), 10000);
+    });
+
+    const response = await Promise.race([aiAnalysisPromise, timeoutPromise]);
+
     const aiResponse = response.choices[0].message.content;
     const suggestedCategory = VILLA_CATEGORIES.find(cat => 
       aiResponse?.toLowerCase().includes(cat)
@@ -98,16 +106,28 @@ router.post('/analyze-media', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('AI analysis error:', error);
     
-    // Clean up temp file on error
+    // Clean up temp file if it exists
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
     
-    res.status(500).json({ 
-      error: 'AI analysis failed',
-      category: 'entire-villa', // fallback category
-      confidence: 0.5,
-      description: 'Default categorization due to analysis error'
+    // Provide fallback analysis based on filename
+    const filename = req.file?.originalname?.toLowerCase() || '';
+    let fallbackCategory = 'entire-villa';
+    
+    if (filename.includes('pool')) fallbackCategory = 'pool-deck';
+    else if (filename.includes('dining')) fallbackCategory = 'dining-area';
+    else if (filename.includes('suite')) fallbackCategory = 'family-suite';
+    else if (filename.includes('room')) fallbackCategory = 'triple-room';
+    else if (filename.includes('garden')) fallbackCategory = 'front-garden';
+    else if (filename.includes('lake')) fallbackCategory = 'koggala-lake';
+    
+    // Return fallback response instead of error
+    return res.json({
+      category: fallbackCategory,
+      confidence: 0.6,
+      description: `Fallback categorization based on filename`,
+      tags: [fallbackCategory, 'ko-lake-villa', 'fallback']
     });
   }
 });
