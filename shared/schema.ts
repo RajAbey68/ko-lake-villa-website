@@ -170,9 +170,9 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 }).extend({
   email: z.string().email("Please enter a valid email address"),
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  phone: z.string().min(10, "Please enter a valid phone number").optional(),
-  timezone: z.string().default("Asia/Colombo"),
-  familiarity: z.enum(["yes", "no"], { message: "Please select your familiarity with the region" }).optional(),
+  phone: z.string().min(7, "Please enter a valid phone number").optional(),
+  timezone: z.string().optional().default("Asia/Colombo"),
+  familiarity: z.enum(["yes", "no"]).optional(),
   message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message too long"),
   subject: z.string().min(2, "Subject must be at least 2 characters").max(200, "Subject too long"),
   localMedia: z.any().optional()
@@ -194,8 +194,7 @@ export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSub
   createdAt: true,
   active: true
 }).extend({
-  email: z.string().email("Please enter a valid email address"),
-  name: z.string().optional()
+  email: z.string().email("Please enter a valid email address")
 });
 
 export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
