@@ -183,6 +183,11 @@ function Router() {
             <BulkUploader />
           </ProtectedRoute>
         </Route>
+        <Route path="/admin/bulk-upload">
+          <ProtectedRoute>
+            <BulkUploader />
+          </ProtectedRoute>
+        </Route>
         <Route path="/admin/gallery-uploader">
           <ProtectedRoute>
             <GalleryUploader />
