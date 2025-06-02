@@ -429,15 +429,28 @@ export default function ImageUploadDialog({ isOpen, onClose }: ImageUploadDialog
           )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={handleClose}
+              disabled={uploadMutation.isPending}
+            >
               Cancel
             </Button>
             <Button 
               type="submit" 
               disabled={!selectedFile || !category || !alt || uploadMutation.isPending}
-              className="bg-[#FF914D] hover:bg-[#8B5E3C]"
+              className="bg-[#FF914D] hover:bg-[#8B5E3C] min-w-[120px]"
+              onClick={handleSubmit}
             >
-              {uploadMutation.isPending ? 'Uploading...' : 'Upload Image'}
+              {uploadMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <LoaderIcon className="h-4 w-4 animate-spin" />
+                  Uploading...
+                </div>
+              ) : (
+                'Upload Image'
+              )}
             </Button>
           </DialogFooter>
         </form>
