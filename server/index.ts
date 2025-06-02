@@ -1,7 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeWeekdayPricing } from "./weekdayPricingUpdate";
 import path from "path";
 import fs from "fs";
 
@@ -147,10 +146,7 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Add AI routes
-  // aiRoutes - temporarily commented out to fix syntax error
-  // import aiRoutes from './aiRoutes';
-  // app.use('/api', aiRoutes);
+  // AI routes will be loaded when needed
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
