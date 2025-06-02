@@ -36,15 +36,15 @@ async function generateImageContent(filename: string, category: string, isVideo:
   try {
     const mediaType = isVideo ? 'video' : 'image';
     const prompt = `You are creating content for Ko Lake Villa, a luxury lakeside retreat in Ahangama, Galle, Sri Lanka. 
-    
+
     Generate a beautiful title and description for this ${mediaType} in the "${category}" category.
-    
+
     Guidelines:
     - Title should be elegant and guest-friendly (2-6 words)
     - Description should be enticing and descriptive (1-2 sentences)
     - Focus on the luxury experience and beautiful lake setting
     - Make it sound inviting for potential guests
-    
+
     Category context:
     - family-suite: Spacious family accommodations with lake views
     - friends: Fun social spaces and experiences
@@ -52,7 +52,7 @@ async function generateImageContent(filename: string, category: string, isVideo:
     - pool-deck: Private pool and relaxation areas
     - lake-view: Stunning views of Koggala Lake
     - gardens: Tropical landscaping and outdoor spaces
-    
+
     Respond in JSON format: {"title": "Beautiful Title", "description": "Engaging description that makes guests want to visit."}`;
 
     const response = await openai.chat.completions.create({
@@ -173,7 +173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // File upload endpoint
   app.post("/api/upload", (req, res) => {
     console.log("Upload endpoint hit");
-    
+
     upload.any()(req, res, async (err) => {
       if (err) {
         console.error("Multer error:", err);
@@ -291,7 +291,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/gallery", async (req, res) => {
     try {
       const { imageUrl, alt, title, description, category, mediaType, featured, sortOrder } = req.body;
-      
+
       const galleryImageData = {
         title: title || alt,
         imageUrl,
@@ -325,13 +325,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!image.title || !image.description || image.title.trim() === '' || image.description.trim() === '') {
           const isVideo = image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov');
           const generatedContent = await generateImageContent(image.imageUrl, image.category, isVideo);
-          
+
           // Update the image with AI-generated content
           await dataStorage.updateGalleryImage(image.id, {
             title: generatedContent.title,
             description: generatedContent.description
           });
-          
+
           updatedCount++;
         }
       }
@@ -373,7 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contact", async (req, res) => {
     try {
       console.log('Contact form submission:', req.body);
-      
+
       // Clean and prepare data with all optional fields handled properly
       const cleanedData = {
         name: req.body.name?.trim() || '',
@@ -391,7 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           delete cleanedData[key];
         }
       });
-      
+
       const validatedData = insertContactMessageSchema.parse(cleanedData);
       const contactMessage = await dataStorage.createContactMessage(validatedData);
       res.status(201).json({
@@ -423,10 +423,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/newsletter", async (req, res) => {
     try {
       console.log('Newsletter submission:', req.body);
-      
+
       // Clean the data before validation
       const email = req.body.email?.trim();
-      
+
       if (!email) {
         return res.status(400).json({
           success: false,
@@ -435,9 +435,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const cleanedData = { email };
-      
+
       const validatedData = insertNewsletterSubscriberSchema.parse(cleanedData);
-      
+
       // Check for existing subscription
       try {
         const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
@@ -557,7 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/generate-content", async (req, res) => {
     try {
       const { imageId } = req.body;
-      
+
       if (!imageId) {
         return res.status(400).json({ error: "No image ID provided" });
       }
@@ -807,6 +807,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(stats);
   });
 
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      uptime: process.uptime()
+    });
+  });
+
+  // Basic API test endpoint
+  app.get('/api/status', (req, res) => {
+    res.json({
+      api: 'working',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    });
+  });
+
   // Handle 404 for API routes
   app.use('/api/*', (req, res) => {
     console.log(`404 API route: ${req.method} ${req.path}`);
@@ -831,7 +850,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         path: req.path
       });
     }
-    
+
     // Serve main app for all other routes (client-side routing)
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
@@ -860,7 +879,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let description = '';
       let tags = [];
       let confidence = 0.8;
-      
+
       // Enhanced filename-based categorization with better logic
       if (filename.includes('pool') || filename.includes('swimming')) {
         suggestedCategory = 'pool-deck';
@@ -936,7 +955,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-      
+
       res.json({
         suggestedCategory,
         category: suggestedCategory,
@@ -949,12 +968,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error('AI analysis error:', error);
-      
+
       // Clean up temp file on error
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-      
+
       res.status(500).json({ 
         error: 'Analysis failed',
         category: 'entire-villa',

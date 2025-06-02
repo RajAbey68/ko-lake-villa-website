@@ -151,9 +151,19 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    
+
     console.error('Server error:', err);
-    res.status(status).json({ message });
+    console.error('Error stack:', err.stack);
+
+    // In production, don't expose internal error details
+    if (process.env.NODE_ENV === 'production') {
+      res.status(status).json({ 
+        message: 'Something went wrong. Please try again later.',
+        error: 'Internal server error'
+      });
+    } else {
+      res.status(status).json({ message, error: err.message, stack: err.stack });
+    }
   });
 
   // Setup vite for development after other routes are set
@@ -174,7 +184,7 @@ app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
       return next();
     }
-    
+
     try {
       const indexPath = path.join(__dirname, '../client/dist/index.html');
       if (fs.existsSync(indexPath)) {
