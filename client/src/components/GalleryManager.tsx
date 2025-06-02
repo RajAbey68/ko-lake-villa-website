@@ -515,11 +515,17 @@ export default function GalleryManager() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {GALLERY_CATEGORIES.map((cat) => (
-                            <SelectItem key={cat.value} value={cat.value}>
-                              {cat.label}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value="entire-villa">Entire Villa</SelectItem>
+                          <SelectItem value="family-suite">Family Suite</SelectItem>
+                          <SelectItem value="group-room">Group Room</SelectItem>
+                          <SelectItem value="triple-room">Triple Room</SelectItem>
+                          <SelectItem value="dining-area">Dining Area</SelectItem>
+                          <SelectItem value="pool-deck">Pool & Deck</SelectItem>
+                          <SelectItem value="lake-garden">Lake Garden</SelectItem>
+                          <SelectItem value="roof-garden">Roof Garden</SelectItem>
+                          <SelectItem value="front-garden">Front Garden</SelectItem>
+                          <SelectItem value="koggala-lake">Koggala Lake</SelectItem>
+                          <SelectItem value="excursions">Excursions</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button
