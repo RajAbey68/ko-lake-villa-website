@@ -166,12 +166,18 @@ app.use((req, res, next) => {
     }
   });
 
-  // Setup vite for development after other routes are set
-  // This ensures the catch-all route doesn't interfere with API routes
-  if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
+  // Always use Vite in development - force development mode
+  try {
     await setupVite(app, server);
-  } else {
-    serveStatic(app);
+    console.log('Vite development server started successfully');
+  } catch (error) {
+    console.error('Failed to start Vite server:', error);
+    // Fallback to serving static files if they exist
+    try {
+      serveStatic(app);
+    } catch (staticError) {
+      console.error('Static serving also failed:', staticError);
+    }
   }
 
   // Health check endpoint
