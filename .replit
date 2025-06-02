@@ -20,7 +20,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Ko Lake Villa Production Start"
+runButton = "Emergency Production Fix"
 
 [[workflows.workflow]]
 name = "Project"
@@ -421,6 +421,31 @@ args = "pkill -f \"node.*5000\" || true"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pkill -f \"vite\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 2"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start"
+
+[[workflows.workflow]]
+name = "Emergency Production Fix"
+author = 42618786
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"node.*5000\" || true"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
