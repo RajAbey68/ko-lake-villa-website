@@ -227,17 +227,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
 
         console.log("Creating gallery image with data:", galleryImageData);
-        const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
-        console.log("Gallery image created:", galleryImage.id);
+        
+        try {
+          const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+          console.log("Gallery image created:", galleryImage.id);
 
-        res.status(201).json({
-          success: true,
-          message: "File uploaded successfully!",
-          data: {
-            imageUrl: fileUrl,
-            ...galleryImage
-          }
-        });
+          res.status(201).json({
+            success: true,
+            message: "File uploaded successfully!",
+            data: {
+              imageUrl: fileUrl,
+              ...galleryImage
+            }
+          });
+        } catch (dbError) {
+          console.error("Database error creating gallery image:", dbError);
+          res.status(500).json({ 
+            success: false,
+            message: "Failed to save image metadata",
+            error: dbError.message || 'Database error'
+          });
+        }
       } catch (error: any) {
         console.error("Upload processing error:", error);
         res.status(500).json({ 
@@ -378,16 +388,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cleanedData = {
         name: req.body.name?.trim() || '',
         email: req.body.email?.trim() || '',
-        phone: req.body.phone?.trim() || undefined,
+        phone: req.body.phone?.trim() || null,
         timezone: req.body.timezone || "Asia/Colombo",
-        familiarity: req.body.familiarity || undefined,
+        familiarity: req.body.familiarity || null,
         subject: req.body.subject?.trim() || '',
         message: req.body.message?.trim() || ''
       };
 
-      // Remove undefined values to avoid validation issues
+      // Validate required fields
+      if (!cleanedData.name || !cleanedData.email || !cleanedData.message) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, and message are required fields"
+        });
+      }
+
+      // Remove null values to avoid validation issues
       Object.keys(cleanedData).forEach(key => {
-        if (cleanedData[key] === undefined) {
+        if (cleanedData[key] === null || cleanedData[key] === undefined) {
           delete cleanedData[key];
         }
       });
@@ -845,15 +863,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/*', (req, res) => {
     console.log(`404 API route: ${req.method} ${req.path}`);
     res.status(404).json({ 
+      success: false,
       message: 'API endpoint not found',
       path: req.path,
-      method: req.method
+      method: req.method,
+      availableEndpoints: [
+        '/api/gallery',
+        '/api/upload',
+        '/api/contact',
+        '/api/booking',
+        '/api/newsletter'
+      ]
     });
   });
 
   // Handle admin routes - serve main app for client-side routing
   app.get('/admin*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    const indexPath = path.join(__dirname, '../client/dist/index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({
+        message: 'Admin interface not built. Run npm run build first.',
+        path: req.path
+      });
+    }
   });
 
   // Catch-all handler for client-side routing
@@ -861,13 +895,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Check if this is a static asset request that should 404
     if (req.path.includes('.') && !req.path.includes('/api/')) {
       return res.status(404).json({
-        message: 'File not found',
+        success: false,
+        message: 'Static file not found',
         path: req.path
       });
     }
 
     // Serve main app for all other routes (client-side routing)
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    const indexPath = path.join(__dirname, '../client/dist/index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(500).json({
+        message: 'Application not built. Run npm run build first.'
+      });
+    }
   });
 
   // Global error handler (only for actual errors)
