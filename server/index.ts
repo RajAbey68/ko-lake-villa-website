@@ -151,9 +151,9 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
+    
+    console.error('Server error:', err);
     res.status(status).json({ message });
-    throw err;
   });
 
   // Setup vite for development after other routes are set
@@ -167,6 +167,25 @@ app.use((req, res, next) => {
   // Health check endpoint
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // Emergency catch-all for production
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    
+    try {
+      const indexPath = path.join(__dirname, '../client/dist/index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send('Application not built. Run: npm run build');
+      }
+    } catch (error) {
+      console.error('Static file error:', error);
+      res.status(500).send('Server configuration error');
+    }
   });
 
   // ALWAYS serve the app on port 5000
