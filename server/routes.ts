@@ -894,27 +894,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Catch-all handler for client-side routing
-  app.get('*', (req, res) => {
-    // Check if this is a static asset request that should 404
-    if (req.path.includes('.') && !req.path.includes('/api/')) {
-      return res.status(404).json({
-        success: false,
-        message: 'Static file not found',
-        path: req.path
-      });
-    }
-
-    // Serve main app for all other routes (client-side routing)
-    const indexPath = path.join(__dirname, '../client/dist/index.html');
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(500).json({
-        message: 'Application not built. Run npm run build first.'
-      });
-    }
-  });
+  // Note: Catch-all route removed to allow Vite development server to handle all routes
 
   // Global error handler (only for actual errors)
   app.use((err: any, req: any, res: any, next: any) => {
