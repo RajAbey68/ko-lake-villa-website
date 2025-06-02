@@ -12,6 +12,10 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import OpenAI from "openai";
 
 // Initialize OpenAI for AI-powered content generation
