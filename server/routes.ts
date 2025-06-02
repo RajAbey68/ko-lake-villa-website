@@ -15,9 +15,16 @@ import fs from "fs";
 import OpenAI from "openai";
 
 // Initialize OpenAI for AI-powered content generation
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-}) : null;
+let openai = null;
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+} catch (error) {
+  console.log('OpenAI not available:', error.message);
+}
 
 // AI-powered content generation for gallery images
 async function generateImageContent(filename: string, category: string, isVideo: boolean = false): Promise<{title: string, description: string}> {
