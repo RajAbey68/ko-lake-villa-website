@@ -493,7 +493,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Gallery deletion - admin only
+  // Gallery deletion - both admin and public routes
+  app.delete("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      const success = await dataStorage.deleteGalleryImage(id);
+      if (success) {
+        return res.json({ message: "Gallery image deleted successfully!" });
+      }
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      console.error('Delete error:', error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // Admin gallery deletion (alias)
   app.delete("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -507,13 +526,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.status(404).json({ message: "Gallery image not found" });
     } catch (error) {
+      console.error('Admin delete error:', error);
       res.status(500).json({ message: "Failed to delete gallery image" });
     }
-  });
-
-  // Handle non-admin gallery deletion attempts
-  app.delete("/api/gallery/:id", (req, res) => {
-    res.status(403).json({ message: "Gallery deletion requires admin access. Use /api/admin/gallery/:id" });
   });
 
   app.patch("/api/admin/gallery/:id", async (req, res) => {
