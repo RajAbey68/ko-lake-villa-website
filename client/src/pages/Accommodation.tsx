@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
 import { Separator } from '@/components/ui/separator';
 import BookingModal from '@/components/BookingModal';
+import VirtualTourModal from '@/components/VirtualTourModal';
 import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -28,6 +29,8 @@ interface PricingData {
 const Accommodation = () => {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<{ name: string; price: number } | null>(null);
+  const [showVirtualTour, setShowVirtualTour] = useState(false);
+  const [selectedTourRoom, setSelectedTourRoom] = useState<string>('');
 
   // Fetch all rooms
   const { data: rooms, isLoading, error } = useQuery<Room[]>({
@@ -183,18 +186,31 @@ const Accommodation = () => {
                           <div className="text-sm text-gray-600">
                             <span>Better rates • Direct support • No booking fees</span>
                           </div>
-                          <button 
-                            onClick={() => {
-                              setSelectedRoom({
-                                name: room.name,
-                                price: getCurrentPrice(room.name)
-                              });
-                              setShowBookingModal(true);
-                            }}
-                            className="bg-[#E8B87D] text-white px-6 py-3 rounded hover:bg-[#1E4E5F] transition-colors font-medium"
-                          >
-                            Book Direct
-                          </button>
+                          <div className="flex gap-3">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedTourRoom(room.name);
+                                setShowVirtualTour(true);
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <Eye className="w-4 h-4" />
+                              Virtual Tour
+                            </Button>
+                            <button 
+                              onClick={() => {
+                                setSelectedRoom({
+                                  name: room.name,
+                                  price: getCurrentPrice(room.name)
+                                });
+                                setShowBookingModal(true);
+                              }}
+                              className="bg-[#E8B87D] text-white px-6 py-3 rounded hover:bg-[#1E4E5F] transition-colors font-medium"
+                            >
+                              Book Direct
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -297,6 +313,13 @@ const Accommodation = () => {
           }}
         />
       )}
+
+      {/* Virtual Tour Modal */}
+      <VirtualTourModal
+        isOpen={showVirtualTour}
+        onClose={() => setShowVirtualTour(false)}
+        roomName={selectedTourRoom}
+      />
     </>
   );
 };
