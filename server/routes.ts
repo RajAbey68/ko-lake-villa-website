@@ -878,7 +878,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         '/api/upload',
         '/api/contact',
         '/api/booking',
-        '/api/newsletter'
+        '/api/newsletter',
+        '/api/virtual-tours'
       ]
     });
   });
