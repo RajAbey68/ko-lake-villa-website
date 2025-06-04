@@ -185,24 +185,7 @@ app.use((req, res, next) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // Emergency catch-all for production
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api/')) {
-      return next();
-    }
-
-    try {
-      const indexPath = path.join(__dirname, '../client/dist/index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).send('Application not built. Run: npm run build');
-      }
-    } catch (error) {
-      console.error('Static file error:', error);
-      res.status(500).send('Server configuration error');
-    }
-  });
+  // Removed problematic fallback route that was causing the "Application not built" message
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
