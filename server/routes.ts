@@ -6,7 +6,9 @@ import {
   insertBookingInquirySchema,
   insertContactMessageSchema,
   insertNewsletterSubscriberSchema,
-  insertGalleryImageSchema
+  insertGalleryImageSchema,
+  virtualTours,
+  insertVirtualTourSchema
 } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -1021,6 +1023,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         confidence: 0.5,
         description: 'Default categorization due to analysis error'
       });
+    }
+  });
+
+  // Virtual Tours API endpoints
+  app.get('/api/virtual-tours', async (req, res) => {
+    try {
+      const tours = await db.select()
+        .from(virtualTours)
+        .where(eq(virtualTours.isActive, true))
+        .orderBy(asc(virtualTours.sortOrder));
+      
+      res.json(tours);
+    } catch (error) {
+      console.error('Error fetching virtual tours:', error);
+      res.status(500).json({ error: 'Failed to fetch virtual tours' });
+    }
+  });
+
+  app.get('/api/virtual-tours/:roomId', async (req, res) => {
+    try {
+      const { roomId } = req.params;
+      const tour = await db.select()
+        .from(virtualTours)
+        .where(and(
+          eq(virtualTours.roomId, roomId),
+          eq(virtualTours.isActive, true)
+        ))
+        .limit(1);
+      
+      if (tour.length === 0) {
+        return res.status(404).json({ error: 'Virtual tour not found' });
+      }
+      
+      res.json(tour[0]);
+    } catch (error) {
+      console.error('Error fetching virtual tour:', error);
+      res.status(500).json({ error: 'Failed to fetch virtual tour' });
+    }
+  });
+
+  app.post('/api/virtual-tours', async (req, res) => {
+    try {
+      const validatedData = insertVirtualTourSchema.parse(req.body);
+      const newTour = await db.insert(virtualTours).values(validatedData).returning();
+      res.json(newTour[0]);
+    } catch (error) {
+      console.error('Error creating virtual tour:', error);
+      res.status(500).json({ error: 'Failed to create virtual tour' });
     }
   });
 
