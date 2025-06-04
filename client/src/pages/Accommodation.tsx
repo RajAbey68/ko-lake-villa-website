@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
 import { Separator } from '@/components/ui/separator';
 import BookingModal from '@/components/BookingModal';
+import { Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface PricingData {
   updated: string;
