@@ -123,21 +123,21 @@ export class DynamicPricingEngine {
       let nightDiscountedPrice = basePrice;
       const nightDiscounts: string[] = [];
 
-      // Apply availability offer (affects all nights)
+      // Apply availability offer (15% off all nights)
       if (availabilityOfferApplies) {
-        nightDiscountedPrice *= 0.85; // 15% off for next 3 weekdays offer
+        nightDiscountedPrice = basePrice * 0.85; // 15% off
         nightDiscounts.push('Next 3 Weekdays Offer: 15% off');
       }
 
       // Apply midweek bonus (additional 5% for nights 3+, total 20%)
       if (midweekBonusApplies && nightNumber > 2) {
         if (availabilityOfferApplies) {
-          // Already have 15% off, add 5% more for total 20%
+          // Replace 15% with 20% total for nights 3+
           nightDiscountedPrice = basePrice * 0.80; // Total 20% off
           nightDiscounts[nightDiscounts.length - 1] = 'Combined Midweek Offer: 20% off (15% + 5% bonus)';
         } else {
-          // Just the 5% midweek bonus
-          nightDiscountedPrice *= 0.95;
+          // Just the 5% midweek bonus for nights 3+
+          nightDiscountedPrice = basePrice * 0.95; // 5% off
           nightDiscounts.push('3+ Night Midweek Bonus: 5% off');
         }
       }
