@@ -50,6 +50,7 @@ import GalleryUploader from "@/pages/admin/GalleryUploader";
 import VideoUploader from "@/pages/admin/VideoUploader";
 import PageImageManager from "@/pages/admin/PageImageManager";
 import AdminBookingCalendar from './components/AdminBookingCalendar';
+import AuditLogs from '@/pages/admin/AuditLogs';
 
 // New Roadmap Component
 function Roadmap() {
