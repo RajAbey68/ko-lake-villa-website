@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import AdminNavigation from '@/components/AdminNavigation';
 import { 
   ImageIcon, 
   CheckIcon, 
@@ -153,13 +154,16 @@ export default function VisitorUploads() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-[#8B5E3C]">Visitor Uploads</h1>
-          <p className="text-gray-600 mt-2">Review and moderate user-submitted content</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <AdminNavigation title="Visitor Uploads" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-[#8B5E3C]">Visitor Uploads</h1>
+              <p className="text-gray-600 mt-2">Review and moderate user-submitted content</p>
+            </div>
+          </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -372,6 +376,8 @@ export default function VisitorUploads() {
           </DialogContent>
         </Dialog>
       )}
+        </div>
+      </div>
     </div>
   );
 }

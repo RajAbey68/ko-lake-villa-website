@@ -218,6 +218,11 @@ function Router() {
             <ProjectRoadmap />
           </ProtectedRoute>
         </Route>
+        <Route path="/admin/audit-logs">
+          <ProtectedRoute>
+            <AuditLogs />
+          </ProtectedRoute>
+        </Route>
          {/* Catch-all route for 404 - must be last */}
         <Route path="/admin/*" component={NotFound} />
       </Switch>
