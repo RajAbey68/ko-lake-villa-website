@@ -114,6 +114,8 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                 muted
                 playsInline
                 preload="metadata"
+                controlsList="nodownload"
+                style={{ maxWidth: '100%', maxHeight: '100%' }}
                 onPlay={(e) => {
                   const video = e.target as HTMLVideoElement;
                   const playPromise = video.play();
@@ -121,6 +123,16 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                     playPromise.catch(error => {
                       console.warn('Video autoplay prevented:', error);
                     });
+                  }
+                }}
+                onDoubleClick={(e) => {
+                  const video = e.target as HTMLVideoElement;
+                  if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                  } else if ((video as any).webkitRequestFullscreen) {
+                    (video as any).webkitRequestFullscreen();
+                  } else if ((video as any).msRequestFullscreen) {
+                    (video as any).msRequestFullscreen();
                   }
                 }}
                 onError={(e) => {
@@ -176,6 +188,13 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
             <div className="absolute bottom-4 left-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
               {currentIndex + 1} of {images.length}
             </div>
+
+            {/* Video Fullscreen Hint */}
+            {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) && (
+              <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                Double-click for fullscreen
+              </div>
+            )}
           </div>
 
           {/* Image Details - Below the image */}
@@ -183,7 +202,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
-                  {image.title}
+                  {getDisplayTitle(image)}
                 </h2>
 
                 <div className="flex items-center gap-3 mb-3">
@@ -196,10 +215,16 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                       Featured
                     </Badge>
                   )}
+                  
+                  {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) && (
+                    <Badge className="bg-purple-600 text-white">
+                      Video
+                    </Badge>
+                  )}
                 </div>
 
                 <p className="text-gray-700 mb-3 leading-relaxed">
-                  {image.description}
+                  {getDisplayDescription(image)}
                 </p>
 
                 {tags.length > 0 && (
