@@ -343,3 +343,36 @@ export const insertVirtualTourSchema = createInsertSchema(virtualTours).omit({
 
 export type VirtualTour = typeof virtualTours.$inferSelect;
 export type InsertVirtualTour = z.infer<typeof insertVirtualTourSchema>;
+
+// Admin audit log table
+export const adminAuditLogs = pgTable("admin_audit_logs", {
+  id: serial("id").primaryKey(),
+  adminId: text("admin_id").notNull(),
+  adminEmail: text("admin_email").notNull(),
+  action: text("action").notNull(),
+  resource: text("resource").notNull(),
+  resourceId: text("resource_id"),
+  details: jsonb("details"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  status: text("status").notNull().default("success"),
+});
+
+export const insertAdminAuditLogSchema = createInsertSchema(adminAuditLogs).omit({
+  id: true,
+  timestamp: true
+}).extend({
+  adminId: z.string().min(1, "Admin ID is required"),
+  adminEmail: z.string().email("Valid admin email is required"),
+  action: z.string().min(1, "Action is required"),
+  resource: z.string().min(1, "Resource is required"),
+  resourceId: z.string().optional(),
+  details: z.any().optional(),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
+  status: z.enum(["success", "failed", "partial"]).default("success")
+});
+
+export type InsertAdminAuditLog = z.infer<typeof insertAdminAuditLogSchema>;
+export type AdminAuditLog = typeof adminAuditLogs.$inferSelect;
