@@ -75,6 +75,31 @@ const Accommodation = () => {
            roomName.includes('KLV6') ? 250 : 431;
   };
 
+  const getAirbnbUrl = (roomName: string) => {
+    if (roomName.includes('KLV1')) {
+      return 'https://www.airbnb.com/rooms/1174350095806477772';
+    } else if (roomName.includes('KLV3')) {
+      return 'https://www.airbnb.com/rooms/1174388403896068608';
+    } else if (roomName.includes('KLV6')) {
+      return 'https://www.airbnb.com/rooms/1174415860020182016';
+    } else {
+      return 'https://www.airbnb.com/rooms/1174301478806060032';
+    }
+  };
+
+  // Validate that our prices are always cheaper than Airbnb
+  const validatePricingAdvantage = (roomName: string) => {
+    const directPrice = getCurrentPrice(roomName);
+    const airbnbPrice = getAirbnbRate(roomName);
+    const savings = airbnbPrice - directPrice;
+    
+    if (savings <= 0) {
+      console.warn(`Pricing Alert: ${roomName} - Direct rate ($${directPrice}) should be lower than Airbnb ($${airbnbPrice})`);
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     document.title = "Accommodation - Ko Lake Villa";
   }, []);
@@ -162,12 +187,22 @@ const Accommodation = () => {
                         <span className="bg-[#E6D9C7] text-[#333333] px-3 py-1 rounded-full text-sm mr-2 mb-2">{room.size}m²</span>
                       </div>
                       <div className="mt-6">
-                        {/* Dynamic Pricing Comparison - Now connected to your admin pricing! */}
+                        {/* Dynamic Pricing Comparison with Airbnb Links */}
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-gray-600 line-through">
-                              Airbnb Rate: ${getAirbnbRate(room.name)}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600 line-through">
+                                Airbnb Rate: ${getAirbnbRate(room.name)}
+                              </span>
+                              <a 
+                                href={getAirbnbUrl(room.name)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 text-sm underline"
+                              >
+                                View on Airbnb
+                              </a>
+                            </div>
                             <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">
                               Book Direct & Save
                             </span>
@@ -176,9 +211,18 @@ const Accommodation = () => {
                             <span className="text-[#1E4E5F] font-bold text-xl">
                               Direct Rate: ${getCurrentPrice(room.name)}
                             </span>
-                            <span className="text-green-600 font-bold">
-                              Save ${(getAirbnbRate(room.name) - getCurrentPrice(room.name)).toFixed(2)}
-                            </span>
+                            {validatePricingAdvantage(room.name) ? (
+                              <span className="text-green-600 font-bold">
+                                Save ${(getAirbnbRate(room.name) - getCurrentPrice(room.name)).toFixed(2)}
+                              </span>
+                            ) : (
+                              <span className="text-red-600 font-bold text-sm">
+                                Price Alert: Review needed
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-2 text-xs text-gray-500">
+                            Prices compared to actual Airbnb listings • Updated regularly
                           </div>
                         </div>
                         
