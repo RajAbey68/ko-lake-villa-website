@@ -865,6 +865,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Missing API endpoints from test logs
+  
+  // Content API
+  app.get('/api/content', (req, res) => {
+    const content = {
+      pages: {
+        homepage: {
+          heroTitle: "Ko Lake Villa",
+          heroSubtitle: "Luxury lakeside retreat in Ahangama, Galle",
+          description: "Experience authentic Sri Lankan hospitality with modern comfort"
+        },
+        about: {
+          title: "About Ko Lake Villa",
+          description: "Nestled on the shores of beautiful Koggala Lake, Ko Lake Villa offers a unique blend of traditional Sri Lankan architecture and modern luxury amenities."
+        }
+      },
+      lastUpdated: new Date().toISOString()
+    };
+    res.json(content);
+  });
+
+  // Pricing API
+  app.get('/api/pricing', (req, res) => {
+    const pricing = {
+      rooms: {
+        "KLV1": {
+          basePrice: 107,
+          directPrice: 107,
+          airbnbPrice: 119,
+          savings: 12
+        },
+        "KLV3": {
+          basePrice: 63,
+          directPrice: 63,
+          airbnbPrice: 70,
+          savings: 7
+        },
+        "KLV6": {
+          basePrice: 225,
+          directPrice: 225,
+          airbnbPrice: 250,
+          savings: 25
+        },
+        "KNP": {
+          basePrice: 388,
+          directPrice: 388,
+          airbnbPrice: 431,
+          savings: 43
+        }
+      },
+      currency: "USD",
+      lastUpdated: new Date().toISOString()
+    };
+    res.json(pricing);
+  });
+
+  // Admin pricing endpoint
+  app.get('/api/admin/pricing', (req, res) => {
+    const pricing = {
+      rooms: {
+        "KLV1": {
+          basePrice: 107,
+          directPrice: 107,
+          airbnbPrice: 119,
+          savings: 12,
+          rates: {
+            sun: 107,
+            mon: 107,
+            tue: 107,
+            wed: 107,
+            thu: 107,
+            fri: 107,
+            sat: 107
+          }
+        },
+        "KLV3": {
+          basePrice: 63,
+          directPrice: 63,
+          airbnbPrice: 70,
+          savings: 7,
+          rates: {
+            sun: 63,
+            mon: 63,
+            tue: 63,
+            wed: 63,
+            thu: 63,
+            fri: 63,
+            sat: 63
+          }
+        },
+        "KLV6": {
+          basePrice: 225,
+          directPrice: 225,
+          airbnbPrice: 250,
+          savings: 25,
+          rates: {
+            sun: 225,
+            mon: 225,
+            tue: 225,
+            wed: 225,
+            thu: 225,
+            fri: 225,
+            sat: 225
+          }
+        },
+        "KNP": {
+          basePrice: 388,
+          directPrice: 388,
+          airbnbPrice: 431,
+          savings: 43,
+          rates: {
+            sun: 388,
+            mon: 388,
+            tue: 388,
+            wed: 388,
+            thu: 388,
+            fri: 388,
+            sat: 388
+          }
+        }
+      },
+      currency: "USD",
+      lastUpdated: new Date().toISOString()
+    };
+    res.json(pricing);
+  });
+
   // Handle 404 for API routes
   app.use('/api/*', (req, res) => {
     console.log(`404 API route: ${req.method} ${req.path}`);
@@ -879,7 +1006,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         '/api/contact',
         '/api/booking',
         '/api/newsletter',
-        '/api/virtual-tours'
+        '/api/virtual-tours',
+        '/api/content',
+        '/api/pricing',
+        '/api/admin/pricing'
       ]
     });
   });
