@@ -12,7 +12,7 @@ import {
   InfoIcon
 } from 'lucide-react';
 
-import GalleryManager from '@/components/GalleryManager';
+import SimpleGalleryManager from '@/components/SimpleGalleryManager';
 import ImageUploadDialog from '@/components/ImageUploadDialog';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -155,7 +155,7 @@ export default function AdminGallery() {
 
       {/* Main Gallery Management Component */}
       <ErrorBoundary>
-        <GalleryManager />
+        <SimpleGalleryManager />
       </ErrorBoundary>
 
       {/* Upload Dialog */}
