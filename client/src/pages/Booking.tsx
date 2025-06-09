@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useQuery } from '@tanstack/react-query';
 import { Room } from '@shared/schema';
+import DynamicPricingDisplay from '@/components/DynamicPricingDisplay';
 
 // Ready for Beds24 or Questy integration
 
@@ -37,6 +38,7 @@ type BookingFormValues = z.infer<typeof bookingFormSchema>;
 const Booking = () => {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   
   // Fetch rooms for the room type dropdown
   const { data: rooms, isLoading: roomsLoading } = useQuery<Room[]>({
@@ -114,10 +116,33 @@ const Booking = () => {
   const checkInDate = form.watch('checkInDate');
   const checkOutMinDate = getCheckOutMinDate(checkInDate);
   
-  // Watch guest count for validation
+  // Watch form fields for validation and pricing
   const guestCount = form.watch('guests');
   const roomType = form.watch('roomType');
+  const checkOutDate = form.watch('checkOutDate');
   const showAgeBreakdownNotice = roomType === 'Entire Villa (KLV)' && parseInt(guestCount) >= 19;
+
+  // Update selected room when room type changes
+  useEffect(() => {
+    if (roomType && rooms) {
+      const room = rooms.find(r => r.name === roomType);
+      setSelectedRoom(room || null);
+    }
+  }, [roomType, rooms]);
+
+  // Get pricing parameters
+  const getPricingParams = () => {
+    if (!checkInDate || !checkOutDate || !selectedRoom) return null;
+    
+    return {
+      checkIn: new Date(checkInDate),
+      checkOut: new Date(checkOutDate),
+      roomType: selectedRoom.name.includes('Villa') ? 'villa' as const : 
+                selectedRoom.name.includes('Suite') ? 'suite' as const : 'room' as const,
+      basePrice: selectedRoom.price || 100,
+      roomName: selectedRoom.name
+    };
+  };
 
   // Room capacity validation logic
   const validateRoomCapacity = (guests: string, room: string) => {
