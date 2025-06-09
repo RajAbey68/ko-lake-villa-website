@@ -14,6 +14,7 @@ export function AdminNavigation({ title = "Admin Panel" }: AdminNavigationProps)
     { path: '/admin/content', label: 'Content', icon: FileText },
     { path: '/admin/booking-calendar', label: 'Bookings', icon: Calendar },
     { path: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    { path: '/admin/audit-logs', label: 'Audit Logs', icon: Settings },
     { path: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
