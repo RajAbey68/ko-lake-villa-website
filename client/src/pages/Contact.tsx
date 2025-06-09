@@ -19,6 +19,7 @@ const contactFormSchema = z.object({
   phone: z.string().min(10, { message: "Please enter a valid phone number" }),
   timezone: z.string().default("Asia/Colombo"),
   familiarity: z.enum(["yes", "no"], { message: "Please select your familiarity with the region" }),
+  messageType: z.enum(["message", "feedback", "testimonial"], { message: "Please select the type of message" }),
   subject: z.string().min(2, { message: "Subject must be at least 2 characters" }),
   message: z.string().min(10, { message: "Message must be at least 10 characters" }),
   localMedia: z.any().optional()
@@ -42,6 +43,7 @@ const Contact = () => {
       phone: '',
       timezone: 'Asia/Colombo',
       familiarity: undefined,
+      messageType: undefined,
       subject: '',
       message: '',
       localMedia: undefined
@@ -225,7 +227,7 @@ const Contact = () => {
 
             {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-display font-bold text-[#1E4E5F] mb-6">Send Us a Message</h2>
+              <h2 className="text-2xl font-display font-bold text-[#1E4E5F] mb-6">Send us a message, Feedback or Testimonial we can use on our publicity</h2>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
@@ -331,6 +333,37 @@ const Contact = () => {
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="no" id="familiar-no" />
                               <Label htmlFor="familiar-no" className="text-[#333333] cursor-pointer">No</Label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="messageType"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-[#333333]">What type of message are you sending?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-3"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="message" id="type-message" />
+                              <Label htmlFor="type-message" className="text-[#333333] cursor-pointer">General Message</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="feedback" id="type-feedback" />
+                              <Label htmlFor="type-feedback" className="text-[#333333] cursor-pointer">Feedback</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="testimonial" id="type-testimonial" />
+                              <Label htmlFor="type-testimonial" className="text-[#333333] cursor-pointer">Testimonial we can use on our publicity</Label>
                             </div>
                           </RadioGroup>
                         </FormControl>
