@@ -436,6 +436,26 @@ const Booking = () => {
                   />
                 </div>
 
+                {/* Dynamic Pricing Display */}
+                {(() => {
+                  const pricingParams = getPricingParams();
+                  if (pricingParams) {
+                    return (
+                      <div className="mt-8">
+                        <DynamicPricingDisplay
+                          checkIn={pricingParams.checkIn}
+                          checkOut={pricingParams.checkOut}
+                          roomType={pricingParams.roomType}
+                          basePrice={pricingParams.basePrice}
+                          roomName={pricingParams.roomName}
+                          onBookingClick={() => form.handleSubmit(onSubmit)()}
+                        />
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <div className="text-center pt-4">
                   <Button 
                     type="submit" 
