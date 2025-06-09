@@ -8,7 +8,9 @@ import {
   insertNewsletterSubscriberSchema,
   insertGalleryImageSchema,
   virtualTours,
-  insertVirtualTourSchema
+  insertVirtualTourSchema,
+  adminAuditLogs,
+  insertAdminAuditLogSchema
 } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -991,6 +993,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
       lastUpdated: new Date().toISOString()
     };
     res.json(pricing);
+  });
+
+  // Admin audit log endpoints
+  app.get('/api/admin/audit-logs', async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const action = req.query.action as string;
+      const adminEmail = req.query.adminEmail as string;
+      
+      // Mock audit logs for now - in production, query from database
+      const mockLogs = [
+        {
+          id: 1,
+          adminId: 'admin1',
+          adminEmail: 'admin@kolakevilla.com',
+          action: 'gallery_upload',
+          resource: 'gallery_image',
+          resourceId: '123',
+          details: { filename: 'villa-exterior.jpg', size: 1024000 },
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          timestamp: new Date().toISOString(),
+          status: 'success'
+        },
+        {
+          id: 2,
+          adminId: 'admin1',
+          adminEmail: 'admin@kolakevilla.com',
+          action: 'content_update',
+          resource: 'content_page',
+          resourceId: 'homepage',
+          details: { section: 'hero', changes: ['title', 'description'] },
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          status: 'success'
+        }
+      ];
+      
+      let filteredLogs = mockLogs;
+      
+      if (action) {
+        filteredLogs = filteredLogs.filter(log => log.action.includes(action));
+      }
+      
+      if (adminEmail) {
+        filteredLogs = filteredLogs.filter(log => log.adminEmail.includes(adminEmail));
+      }
+      
+      const startIndex = (page - 1) * limit;
+      const paginatedLogs = filteredLogs.slice(startIndex, startIndex + limit);
+      
+      res.json({
+        logs: paginatedLogs,
+        pagination: {
+          page,
+          limit,
+          total: filteredLogs.length,
+          totalPages: Math.ceil(filteredLogs.length / limit)
+        }
+      });
+    } catch (error) {
+      console.error('Failed to fetch audit logs:', error);
+      res.status(500).json({ message: 'Failed to fetch audit logs' });
+    }
+  });
+
+  // Log admin action endpoint
+  app.post('/api/admin/audit-logs', async (req, res) => {
+    try {
+      const auditData = {
+        adminId: req.body.adminId || 'unknown',
+        adminEmail: req.body.adminEmail || 'unknown@admin.com',
+        action: req.body.action,
+        resource: req.body.resource,
+        resourceId: req.body.resourceId,
+        details: req.body.details,
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || 'unknown',
+        status: req.body.status || 'success'
+      };
+      
+      const validatedData = insertAdminAuditLogSchema.parse(auditData);
+      
+      // In production, save to database
+      // await db.insert(adminAuditLogs).values(validatedData);
+      
+      console.log(`[AUDIT] ${auditData.adminEmail} performed ${auditData.action} on ${auditData.resource}`);
+      
+      res.status(201).json({ message: 'Audit log created successfully', data: validatedData });
+    } catch (error) {
+      console.error('Failed to create audit log:', error);
+      res.status(500).json({ message: 'Failed to create audit log' });
+    }
   });
 
   // Handle 404 for API routes
