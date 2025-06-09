@@ -166,17 +166,26 @@ app.use((req, res, next) => {
     }
   });
 
-  // Always use Vite in development - force development mode
-  try {
-    await setupVite(app, server);
-    console.log('Vite development server started successfully');
-  } catch (error) {
-    console.error('Failed to start Vite server:', error);
-    // Fallback to serving static files if they exist
+  // Use appropriate server mode based on environment
+  if (process.env.NODE_ENV === 'production') {
     try {
       serveStatic(app);
-    } catch (staticError) {
-      console.error('Static serving also failed:', staticError);
+      console.log('Production static server started successfully');
+    } catch (error) {
+      console.error('Failed to start production server:', error);
+    }
+  } else {
+    try {
+      await setupVite(app, server);
+      console.log('Vite development server started successfully');
+    } catch (error) {
+      console.error('Failed to start Vite server:', error);
+      // Fallback to serving static files if they exist
+      try {
+        serveStatic(app);
+      } catch (staticError) {
+        console.error('Static serving also failed:', staticError);
+      }
     }
   }
 
