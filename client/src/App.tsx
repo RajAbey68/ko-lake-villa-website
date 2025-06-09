@@ -86,7 +86,7 @@ function Router() {
             <Route path="/booking" component={Booking} />
             <Route path="/checkout" component={Checkout} />
             <Route path="/faq" component={FAQ} />
-            <Route path="/:rest*" component={NotFound} />
+            <Route component={NotFound} />
           </Switch>
         </main>
         <Footer />

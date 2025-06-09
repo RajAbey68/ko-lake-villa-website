@@ -157,6 +157,7 @@ export const contactMessages = pgTable("contact_messages", {
   phone: text("phone"),
   timezone: text("timezone"),
   familiarity: text("familiarity"),
+  messageType: text("message_type"),
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -170,9 +171,10 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).om
 }).extend({
   email: z.string().email("Please enter a valid email address"),
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  phone: z.string().min(7, "Please enter a valid phone number").optional().or(z.literal("")),
-  timezone: z.string().optional(),
-  familiarity: z.enum(["yes", "no"]).optional(),
+  phone: z.string().min(7, "Please enter a valid phone number").optional().or(z.literal("")).nullable(),
+  timezone: z.string().optional().nullable(),
+  familiarity: z.enum(["yes", "no"]).optional().nullable(),
+  messageType: z.enum(["message", "feedback", "testimonial"]).optional().nullable(),
   message: z.string().min(10, "Message must be at least 10 characters").max(2000, "Message too long"),
   subject: z.string().min(2, "Subject must be at least 2 characters").max(200, "Subject too long")
 });
