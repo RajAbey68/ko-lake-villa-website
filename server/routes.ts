@@ -397,6 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phone: req.body.phone?.trim() || null,
         timezone: req.body.timezone || "Asia/Colombo",
         familiarity: req.body.familiarity || null,
+        messageType: req.body.messageType || null,
         subject: req.body.subject?.trim() || '',
         message: req.body.message?.trim() || ''
       };

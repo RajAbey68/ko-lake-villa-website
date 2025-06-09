@@ -103,7 +103,7 @@ function Router() {
     <main className="min-h-screen">
       <Switch>
         <Route path="/admin/login" component={AdminLogin} />
-        <Route path="/admin" exact>
+        <Route path="/admin">
           <ProtectedRoute>
             <AdminLanding />
           </ProtectedRoute>
@@ -160,7 +160,7 @@ function Router() {
         </Route>
         <Route path="/admin/ai-validation">
           <ProtectedRoute>
-            {lazy(() => import('./pages/admin/AIValidationTest'))}
+            <AIValidationTest />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/drive-export">
@@ -215,7 +215,7 @@ function Router() {
         </Route>
         <Route path="/admin/roadmap">
           <ProtectedRoute>
-            {lazy(() => import('./pages/admin/ProjectRoadmap'))}
+            <ProjectRoadmap />
           </ProtectedRoute>
         </Route>
          {/* Catch-all route for 404 - must be last */}
