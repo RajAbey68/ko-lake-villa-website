@@ -868,6 +868,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Activities API endpoints
+  app.get('/api/activities', async (req, res) => {
+    try {
+      const activities = await dataStorage.getActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+      res.status(500).json({ message: "Failed to fetch activities" });
+    }
+  });
+
+  app.get('/api/activities/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const activity = await dataStorage.getActivityById(id);
+      
+      if (!activity) {
+        return res.status(404).json({ message: "Activity not found" });
+      }
+      
+      res.json(activity);
+    } catch (error) {
+      console.error('Error fetching activity:', error);
+      res.status(500).json({ message: "Failed to fetch activity" });
+    }
+  });
+
+  app.post('/api/activities', async (req, res) => {
+    try {
+      // Validate request body structure
+      const activityData = req.body;
+      
+      if (!activityData.name || !activityData.description) {
+        return res.status(400).json({ message: "Name and description are required" });
+      }
+      
+      const newActivity = await dataStorage.createActivity(activityData);
+      res.status(201).json(newActivity);
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      res.status(500).json({ message: "Failed to create activity" });
+    }
+  });
+
   // Missing API endpoints from test logs
   
   // Content API
