@@ -5,6 +5,7 @@ import { Room } from '@shared/schema';
 import { Separator } from '@/components/ui/separator';
 import BookingModal from '@/components/BookingModal';
 import VirtualTourModal from '@/components/VirtualTourModal';
+import RoomDetailsModal from '@/components/RoomDetailsModal';
 import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -31,6 +32,8 @@ const Accommodation = () => {
   const [selectedRoom, setSelectedRoom] = useState<{ name: string; price: number } | null>(null);
   const [showVirtualTour, setShowVirtualTour] = useState(false);
   const [selectedTourRoom, setSelectedTourRoom] = useState<string>('');
+  const [showRoomDetails, setShowRoomDetails] = useState(false);
+  const [selectedRoomForDetails, setSelectedRoomForDetails] = useState<Room | null>(null);
 
   // Fetch all rooms
   const { data: rooms, isLoading, error } = useQuery<Room[]>({
@@ -41,6 +44,26 @@ const Accommodation = () => {
   const { data: pricing } = useQuery<PricingData>({
     queryKey: ['/api/admin/pricing'],
   });
+
+  // Helper function to get authentic room images
+  const getAuthenticRoomImage = (roomName: string) => {
+    if (roomName.includes('KLV1') || roomName.includes('Family Suite')) {
+      return '/uploads/gallery/family-suite/KoLakeHouse_family-suite_0.jpg';
+    } else if (roomName.includes('KLV3') || roomName.includes('Triple')) {
+      return '/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_0.jpg';
+    } else if (roomName.includes('KLV6') || roomName.includes('Group')) {
+      return '/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg';
+    } else if (roomName.includes('Villa') || roomName.includes('KLV')) {
+      return '/uploads/gallery/entire-villa/KoggalaNinePeaks_entire-villa_0.jpg';
+    }
+    return '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
+  };
+
+  // Handle image click for detailed exploration
+  const handleImageClick = (room: Room) => {
+    setSelectedRoomForDetails(room);
+    setShowRoomDetails(true);
+  };
 
   // Helper function to get current price for a room
   const getCurrentPrice = (roomName: string) => {
@@ -165,17 +188,23 @@ const Accommodation = () => {
               {rooms?.map((room, index) => (
                 <div key={room.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover-scale">
                   <div className="md:flex">
-                    <div className="md:w-2/5">
+                    <div className="md:w-2/5 relative group cursor-pointer" onClick={() => handleImageClick(room)}>
                       <img 
-                        src={room.imageUrl} 
+                        src={getAuthenticRoomImage(room.name)} 
                         alt={`${room.name} - ${room.capacity} guests, ${room.size}m² with ${room.features.join(', ')} at Ko Lake Villa Ahangama`} 
-                        className="w-full h-64 md:h-full object-cover" 
+                        className="w-full h-64 md:h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80';
-                          console.log(`Image failed to load: ${room.imageUrl}`);
+                          target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
+                          console.log(`Image failed to load: ${getAuthenticRoomImage(room.name)}`);
                         }}
                       />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-center">
+                          <Eye className="w-8 h-8 mx-auto mb-2" />
+                          <p className="text-sm font-medium">Click to explore</p>
+                        </div>
+                      </div>
                     </div>
                     <div className="md:w-3/5 p-6">
                       <h3 className="text-2xl font-display font-bold text-[#1E4E5F] mb-3">{room.name}</h3>
@@ -363,6 +392,23 @@ const Accommodation = () => {
         isOpen={showVirtualTour}
         onClose={() => setShowVirtualTour(false)}
         roomName={selectedTourRoom}
+      />
+
+      {/* Room Details Modal */}
+      <RoomDetailsModal
+        room={selectedRoomForDetails}
+        isOpen={showRoomDetails}
+        onClose={() => setShowRoomDetails(false)}
+        onBookNow={(room) => {
+          setSelectedRoom(room);
+          setShowRoomDetails(false);
+          setShowBookingModal(true);
+        }}
+        onVirtualTour={(roomName) => {
+          setSelectedTourRoom(roomName);
+          setShowRoomDetails(false);
+          setShowVirtualTour(true);
+        }}
       />
     </>
   );
