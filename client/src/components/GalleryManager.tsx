@@ -151,6 +151,7 @@ export default function GalleryManager() {
   });
 
   const handleEdit = (image: GalleryImage) => {
+    console.log('Edit button clicked for image:', image.id);
     setEditingImage(image);
   };
 
@@ -379,9 +380,15 @@ export default function GalleryManager() {
                 <Button
                   size="sm"
                   variant="secondary"
-                  onClick={() => handleEdit(image)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Edit button clicked for image:', image.id);
+                    handleEdit(image);
+                  }}
                   className="h-8 w-8 p-0"
                   aria-label={`Edit ${image.alt}`}
+                  title="Edit this image"
                 >
                   <EditIcon className="h-4 w-4" />
                 </Button>
@@ -460,8 +467,12 @@ export default function GalleryManager() {
       )}
 
       {/* Edit Dialog */}
-      {editingImage && (
-          <Dialog open={!!editingImage} onOpenChange={() => setEditingImage(null)}>
+      <Dialog open={editingImage !== null} onOpenChange={(open) => {
+        if (!open) {
+          setEditingImage(null);
+        }
+      }}>
+        {editingImage && (
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit Image</DialogTitle>
@@ -608,8 +619,8 @@ export default function GalleryManager() {
                   </Button>
               </div>
             </DialogContent>
-          </Dialog>
         )}
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirmId && (

@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Edit as EditIcon, 
@@ -13,6 +19,8 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import TaggingDialog from './TaggingDialog';
+import { GalleryImage } from '@shared/schema';
+import { updateGalleryImage } from '@/lib/galleryApi';
 
 interface GalleryImage {
   id: number;
@@ -58,6 +66,27 @@ export default function SimpleGalleryManager() {
       return response.json();
     }
   });
+
+    // Update image mutation
+    const updateMutation = useMutation({
+      mutationFn: ({ id, updates }: { id: number; updates: any }) => 
+        updateGalleryImage(id, updates),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+        setEditingImage(null);
+        toast({
+          title: "Success",
+          description: "Image updated successfully",
+        });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update image",
+          variant: "destructive",
+        });
+      },
+    });
 
   // Delete image mutation
   const deleteMutation = useMutation({
@@ -132,6 +161,11 @@ export default function SimpleGalleryManager() {
     }
   });
 
+  const handleEdit = (image: GalleryImage) => {
+    console.log('Edit button clicked for image:', image.id);
+    setEditingImage(image);
+  };
+
   const confirmDelete = () => {
     if (deleteConfirmId) {
       deleteMutation.mutate(deleteConfirmId);
@@ -163,6 +197,39 @@ export default function SimpleGalleryManager() {
       }
     });
   };
+
+    // State for edit dialog
+    const [editCategory, setEditCategory] = useState<string>('');
+    const [editTitle, setEditTitle] = useState<string>('');
+    const [editDescription, setEditDescription] = useState<string>('');
+    const [editSortOrder, setEditSortOrder] = useState<number>(1);
+    const [editFeatured, setEditFeatured] = useState<boolean>(false);
+  
+    // Initialize edit dialog when editing image changes
+    useEffect(() => {
+      if (editingImage) {
+        setEditCategory(editingImage.category || '');
+        setEditTitle(editingImage.alt || '');
+        setEditDescription(editingImage.description || '');
+        setEditSortOrder(editingImage.sortOrder || 1);
+        setEditFeatured(editingImage.featured || false);
+      }
+    }, [editingImage]);
+  
+    const handleSaveEdit = () => {
+      if (!editingImage) return;
+  
+      updateMutation.mutate({
+        id: editingImage.id,
+        updates: {
+          category: editCategory,
+          alt: editTitle,
+          description: editDescription,
+          featured: editFeatured,
+          sortOrder: editSortOrder
+        }
+      });
+    };
 
   // Filter images by category
   const filteredImages = selectedCategory 
@@ -269,9 +336,15 @@ export default function SimpleGalleryManager() {
               <div className="absolute top-2 right-2 flex gap-1">
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => handleEditImage(image)}
-                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleEdit(image);
+                  }}
+                  className="h-8 w-8 p-0"
+                  aria-label={`Edit ${image.alt}`}
+                  title="Edit this image"
                 >
                   <EditIcon className="h-4 w-4" />
                 </Button>
@@ -288,7 +361,7 @@ export default function SimpleGalleryManager() {
 
             <CardContent className="p-4">
               <h3 className="font-medium text-[#8B5E3C] mb-2">{image.alt}</h3>
-              
+
               <Badge variant="outline" className="mb-2">
                 {GALLERY_CATEGORIES.find(c => c.value === image.category)?.label || image.category}
               </Badge>
@@ -323,33 +396,133 @@ export default function SimpleGalleryManager() {
           </Button>
         </div>
       )}
+      
+      {/* Edit Dialog */}
+      <Dialog open={editingImage !== null} onOpenChange={(open) => {
+        if (!open) {
+          setEditingImage(null);
+        }
+      }}>
+        {editingImage && (
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Image</DialogTitle>
+            </DialogHeader>
 
-      {/* Delete Confirmation Dialog */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium mb-4">Confirm Deletion</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this image? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button 
-                variant="outline" 
-                onClick={() => setDeleteConfirmId(null)}
-              >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Media Preview */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[#8B5E3C]">Preview</h3>
+                <img 
+                  src={editingImage.imageUrl} 
+                  alt={editingImage.alt}
+                  className="w-full h-64 object-cover rounded-lg border shadow-md"
+                />
+                <div className="text-sm text-gray-600">
+                  <p><strong>Current Title:</strong> {editingImage.alt}</p>
+                  <p><strong>Category:</strong> {editingImage.category}</p>
+                </div>
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={editCategory} onValueChange={setEditCategory}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GALLERY_CATEGORIES.map(category => (
+                        <SelectItem key={category.value} value={category.value}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="title">Title/Description *</Label>
+                  <Input
+                    id="title"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Enter title for this media"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    placeholder="Enter description for this media"
+                    className="mt-1 min-h-[80px]"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="sortOrder">Sort Order</Label>
+                  <Input
+                    id="sortOrder"
+                    type="number"
+                    value={editSortOrder}
+                    onChange={(e) => setEditSortOrder(parseInt(e.target.value) || 0)}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="featured"
+                    checked={editFeatured}
+                    onCheckedChange={setEditFeatured}
+                  />
+                  <Label htmlFor="featured">Featured Image</Label>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="mt-6">
+              <Button variant="secondary" onClick={() => setEditingImage(null)}>
                 Cancel
               </Button>
-              <Button 
-                variant="destructive" 
-                onClick={confirmDelete}
-                disabled={deleteMutation.isPending}
+              <Button
+                onClick={handleSaveEdit}
+                className="bg-[#8B5E3C] hover:bg-[#6B4B2F] text-white"
+                disabled={updateMutation.isPending}
               >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to delete this image? This action cannot be undone.</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete All Confirmation Dialog */}
       {showDeleteAllConfirm && (
