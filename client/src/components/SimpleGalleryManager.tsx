@@ -401,7 +401,14 @@ export default function SimpleGalleryManager() {
 
           const handleEditClick = () => {
             console.log('Edit clicked for:', image.id, image.alt);
+            console.log('Editing image initialized:', {
+              id: image.id,
+              category: image.category,
+              title: image.alt,
+              description: image.description
+            });
             setEditingImage(image);
+            setShowTaggingDialog(true);
           };
 
           return (
