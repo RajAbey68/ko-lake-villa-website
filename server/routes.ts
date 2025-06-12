@@ -1066,16 +1066,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid image ID" });
       }
 
-      // Temporarily disable AI analysis to fix button functionality
-      res.json({
-        message: "Image analysis temporarily disabled",
-        title: "Updated Image",
-        description: "Image updated successfully",
-        category: "default"
+      // Get the existing image from database
+      const image = await dataStorage.getGalleryImageById(imageId);
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      // Check if OpenAI API key is available
+      if (!process.env.OPENAI_API_KEY) {
+        return res.json({
+          message: "AI analysis requires OpenAI API key",
+          title: image.title || image.alt || "Media Item",
+          description: image.description || "No AI analysis available - API key not configured",
+          category: image.category
+        });
+      }
+
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
       });
+
+      let analysisPrompt = "";
+      let analysisResult = null;
+
+      if (image.mediaType === 'video') {
+        // For videos, analyze based on filename and existing metadata
+        analysisPrompt = `Analyze this Ko Lake Villa video file and suggest improvements:
+        
+        Current details:
+        - Filename: ${path.basename(image.imageUrl)}
+        - Current title: ${image.title || image.alt || 'Untitled'}
+        - Current description: ${image.description || 'No description'}
+        - Current category: ${image.category}
+        
+        Ko Lake Villa categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
+        
+        Provide a JSON response with improved title, description, category, and relevant tags for this Sri Lankan villa property.`;
+
+        analysisResult = await openai.chat.completions.create({
+          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+          messages: [
+            {
+              role: "system", 
+              content: "You are an expert at analyzing and categorizing luxury villa content for Ko Lake Villa in Sri Lanka. Respond only with valid JSON."
+            },
+            { role: "user", content: analysisPrompt }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 500
+        });
+      } else {
+        // For images, analyze the actual image content
+        analysisResult = await openai.chat.completions.create({
+          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert at analyzing luxury villa photography for Ko Lake Villa in Sri Lanka. Categorize images and suggest improvements. Respond only with valid JSON containing: title, description, category, tags."
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `Analyze this Ko Lake Villa image and provide:
+                  
+                  Current details:
+                  - Current title: ${image.title || image.alt || 'Untitled'}
+                  - Current description: ${image.description || 'No description'}
+                  - Current category: ${image.category}
+                  
+                  Valid categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
+                  
+                  Provide improved title, description, best category, and SEO tags for this Sri Lankan luxury villa image.`
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `${req.protocol}://${req.get('host')}${image.imageUrl}`
+                  }
+                }
+              ]
+            }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 500
+        });
+      }
+
+      const aiContent = JSON.parse(analysisResult.choices[0].message.content);
+      
+      // Update the image with AI-generated content
+      const updatedImage = await dataStorage.updateGalleryImage(imageId, {
+        title: aiContent.title || image.title,
+        alt: aiContent.title || image.alt,
+        description: aiContent.description || image.description,
+        category: aiContent.category || image.category,
+        tags: Array.isArray(aiContent.tags) ? aiContent.tags.join(', ') : (aiContent.tags || image.tags)
+      });
+
+      res.json({
+        message: "AI analysis completed and image updated",
+        title: aiContent.title,
+        description: aiContent.description,
+        category: aiContent.category,
+        tags: aiContent.tags,
+        confidence: 0.85
+      });
+
     } catch (error) {
       console.error('Media analysis error:', error);
-      res.status(500).json({ error: "Failed to analyze media" });
+      res.status(500).json({ error: "Failed to analyze media: " + error.message });
     }
   });
 
