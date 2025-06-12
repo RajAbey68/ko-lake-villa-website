@@ -79,18 +79,15 @@ export default function SimpleGalleryManager() {
 
   useEffect(() => {
     if (editingImage) {
-      console.log('Edit dialog should open for:', editingImage.alt);
-      console.log('showTaggingDialog state:', showTaggingDialog);
+      console.log('Custom edit dialog opening for:', editingImage.alt);
       // Initialize edit form with current image data
       setEditCategory(editingImage.category || '');
       setEditTitle(editingImage.alt || '');
       setEditDescription(editingImage.description || '');
       setEditSortOrder(editingImage.sortOrder || 1);
       setEditFeatured(editingImage.featured || false);
-    } else {
-      console.log('Edit dialog closed');
     }
-  }, [editingImage, showTaggingDialog]);
+  }, [editingImage]);
 
   useEffect(() => {
     if (viewingMedia) {
