@@ -350,6 +350,7 @@ export default function GalleryManager() {
   const [editFeatured, setEditFeatured] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log('editingImage state changed:', editingImage);
     if (editingImage) {
       setEditCategory(editingImage.category || 'family-suite');
       setEditTitle(editingImage.title || editingImage.alt || '');
@@ -358,6 +359,9 @@ export default function GalleryManager() {
       setEditSortOrder(editingImage.sortOrder || 1);
       setEditFeatured(editingImage.featured || false);
       console.log('Edit dialog opening for image:', editingImage.id);
+      console.log('Dialog should be visible now');
+    } else {
+      console.log('Edit dialog closed');
     }
   }, [editingImage]);
 
@@ -680,7 +684,9 @@ export default function GalleryManager() {
                       e.preventDefault();
                       e.stopPropagation();
                       console.log('Edit button clicked for image:', image.id);
+                      console.log('Setting editingImage to:', image);
                       setEditingImage(image);
+                      console.log('editingImage state should be set');
                     }}
                     title="Edit"
                   >
