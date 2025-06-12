@@ -6,21 +6,13 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 
 interface PricingData {
-  updated: string;
-  rates: {
+  rooms: {
     [roomId: string]: {
-      sun: number;
-      mon: number;
-      tue: number;
+      basePrice: number;
+      directPrice: number;
     };
   };
-  overrides?: {
-    [roomId: string]: {
-      customPrice: number;
-      setDate: string;
-      autoPrice: number;
-    };
-  };
+  lastUpdated: string;
 }
 
 export default function AdminCalendar() {
@@ -154,22 +146,18 @@ export default function AdminCalendar() {
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Room</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Sunday</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Monday</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Tuesday</th>
-                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Your Direct Rate</th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Base Price</th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Discount</th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Direct Price</th>
+                    <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Edit Price</th>
                     <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pricing && Object.entries(pricing.rates).map(([roomId, days]) => {
-                    const avgRate = Math.round((days.sun + days.mon + days.tue) / 3);
-                    const autoDirectRate = Math.round(avgRate * 0.9); // 10% discount
-                    
-                    // Check if there's a custom override
-                    const override = pricing.overrides?.[roomId];
-                    const displayRate = override ? override.customPrice : autoDirectRate;
-                    const isCustom = !!override;
+                  {pricing?.rooms && Object.entries(pricing.rooms).map(([roomId, roomData]) => {
+                    const basePrice = roomData.basePrice;
+                    const directPrice = roomData.directPrice;
+                    const discountPercent = Math.round(((basePrice - directPrice) / basePrice) * 100);
                     
                     return (
                       <tr key={roomId} className="hover:bg-gray-50">
@@ -177,13 +165,13 @@ export default function AdminCalendar() {
                           {roomId.toUpperCase()}
                         </td>
                         <td className="border border-gray-300 px-4 py-3 text-center">
-                          ${days.sun}
+                          ${basePrice}
                         </td>
                         <td className="border border-gray-300 px-4 py-3 text-center">
-                          ${days.mon}
+                          -{discountPercent}%
                         </td>
                         <td className="border border-gray-300 px-4 py-3 text-center">
-                          ${days.tue}
+                          ${directPrice}
                         </td>
                         <td className="border border-gray-300 px-4 py-3 text-center">
                           {editingRoom === roomId ? (
