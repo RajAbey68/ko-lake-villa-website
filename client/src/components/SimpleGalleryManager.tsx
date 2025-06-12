@@ -428,7 +428,18 @@ export default function SimpleGalleryManager() {
                       <video
                         controls={false}
                         preload="metadata"
+                        muted
+                        loop
                         className="w-full h-full object-cover pointer-events-none"
+                        onMouseEnter={(e) => {
+                          const video = e.target as HTMLVideoElement;
+                          video.play().catch(() => {});
+                        }}
+                        onMouseLeave={(e) => {
+                          const video = e.target as HTMLVideoElement;
+                          video.pause();
+                          video.currentTime = 0;
+                        }}
                         onError={(e) => {
                           console.error('Video failed to load:', image.imageUrl);
                         }}
@@ -900,17 +911,9 @@ export default function SimpleGalleryManager() {
                   controls
                   autoPlay
                   playsInline
-                  muted={false}
-                  preload="auto"
                   className="max-w-full max-h-full object-contain"
                   onError={(e) => {
                     console.error('Fullscreen video failed to load:', viewingMedia.url);
-                  }}
-                  onLoadStart={() => {
-                    console.log('Video loading started:', viewingMedia.url);
-                  }}
-                  onCanPlay={() => {
-                    console.log('Video ready to play:', viewingMedia.url);
                   }}
                 >
                   <source src={viewingMedia.url} type="video/mp4" />
