@@ -159,11 +159,6 @@ function Router() {
             <Deals />
           </ProtectedRoute>
         </Route>
-        <Route path="/admin/ai-validation">
-          <ProtectedRoute>
-            <AIValidationTest />
-          </ProtectedRoute>
-        </Route>
         <Route path="/admin/drive-export">
           <ProtectedRoute>
             <GoogleDriveExport />
@@ -216,7 +211,7 @@ function Router() {
         </Route>
         <Route path="/admin/roadmap">
           <ProtectedRoute>
-            <ProjectRoadmap />
+            <AdminRoadmap />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/audit-logs">
