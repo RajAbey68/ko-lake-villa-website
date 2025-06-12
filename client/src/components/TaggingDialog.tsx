@@ -86,9 +86,12 @@ export default function TaggingDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="dialog-description">
         <DialogHeader>
           <DialogTitle>Tag Your Photo</DialogTitle>
+          <p id="dialog-description" className="text-sm text-gray-600">
+            Edit the title, description, category, and tags for this image
+          </p>
         </DialogHeader>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
