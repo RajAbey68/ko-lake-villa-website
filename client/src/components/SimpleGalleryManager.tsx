@@ -12,6 +12,7 @@ import {
   Trash2Icon
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
+import TaggingDialog from './TaggingDialog';
 
 interface GalleryImage {
   id: number;
@@ -43,6 +44,8 @@ export default function SimpleGalleryManager() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  const [showTaggingDialog, setShowTaggingDialog] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -104,10 +107,61 @@ export default function SimpleGalleryManager() {
     }
   });
 
+  // Update image metadata mutation
+  const updateImageMutation = useMutation({
+    mutationFn: async (data: { id: number; metadata: any }) => {
+      const response = await apiRequest('PATCH', `/api/gallery/${data.id}`, data.metadata);
+      if (!response.ok) throw new Error('Failed to update image metadata');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({
+        title: "Success",
+        description: "Image metadata updated successfully"
+      });
+      setShowTaggingDialog(false);
+      setEditingImage(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error", 
+        description: "Failed to update image metadata",
+        variant: "destructive"
+      });
+    }
+  });
+
   const confirmDelete = () => {
     if (deleteConfirmId) {
       deleteMutation.mutate(deleteConfirmId);
     }
+  };
+
+  const handleEditImage = (image: GalleryImage) => {
+    setEditingImage(image);
+    setShowTaggingDialog(true);
+  };
+
+  const handleSaveTagging = (tagData: {
+    title: string;
+    description: string;
+    category: string;
+    tags: string;
+    featured: boolean;
+  }) => {
+    if (!editingImage) return;
+
+    updateImageMutation.mutate({
+      id: editingImage.id,
+      metadata: {
+        alt: tagData.title,
+        description: tagData.description,
+        category: tagData.category,
+        tags: tagData.tags,
+        featured: tagData.featured
+      }
+    });
   };
 
   // Filter images by category
@@ -215,6 +269,14 @@ export default function SimpleGalleryManager() {
               <div className="absolute top-2 right-2 flex gap-1">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => handleEditImage(image)}
+                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                >
+                  <EditIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
                   variant="destructive"
                   onClick={() => setDeleteConfirmId(image.id)}
                   className="h-8 w-8 p-0"
@@ -315,6 +377,24 @@ export default function SimpleGalleryManager() {
           </div>
         </div>
       )}
+
+      {/* Edit Image TaggingDialog */}
+      <TaggingDialog
+        isOpen={showTaggingDialog}
+        onClose={() => {
+          setShowTaggingDialog(false);
+          setEditingImage(null);
+        }}
+        onSave={handleSaveTagging}
+        initialData={{
+          title: editingImage?.alt || '',
+          description: editingImage?.description || '',
+          category: editingImage?.category || '',
+          tags: editingImage?.tags || '',
+          featured: editingImage?.featured || false
+        }}
+        imagePreview={editingImage?.imageUrl}
+      />
     </div>
   );
 }
