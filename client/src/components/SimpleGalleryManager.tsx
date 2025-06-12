@@ -356,7 +356,7 @@ export default function SimpleGalleryManager() {
             </Button>
           )}
           <Button 
-            onClick={() => window.location.href = '/admin/upload'}
+            onClick={() => setShowUploadDialog(true)}
             className="bg-[#FF914D] hover:bg-[#8B5E3C]"
           >
             <UploadIcon className="h-4 w-4 mr-2" />
@@ -390,8 +390,11 @@ export default function SimpleGalleryManager() {
       {/* Gallery Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredImages.map((image) => {
-          const handleMediaClick = () => {
+          const handleMediaClick = (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
             console.log(`${image.mediaType} clicked:`, image.alt);
+            console.log('Opening fullscreen for:', image.imageUrl);
             setViewingMedia({ 
               type: image.mediaType as 'image' | 'video', 
               url: image.imageUrl, 
@@ -716,6 +719,156 @@ export default function SimpleGalleryManager() {
         </div>
       )}
 
+      {/* Upload Dialog */}
+      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Upload Media Files</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* File Input */}
+            <div>
+              <Label htmlFor="file-upload">Select Files</Label>
+              <input
+                ref={fileInputRef}
+                id="file-upload"
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  const uploads = files.map(file => ({
+                    file,
+                    title: file.name.replace(/\.[^/.]+$/, ""),
+                    description: '',
+                    category: 'default',
+                    tags: '',
+                    featured: false
+                  }));
+                  setSelectedFiles(uploads);
+                }}
+                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF914D] file:text-white hover:file:bg-[#8B5E3C]"
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                Supports images (JPG, PNG, GIF) and videos (MP4, MOV)
+              </p>
+            </div>
+
+            {/* File Preview */}
+            {selectedFiles.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium">Files to Upload ({selectedFiles.length})</h3>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {selectedFiles.map((upload, index) => (
+                    <div key={index} className="border rounded p-3 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-sm">{upload.file.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {(upload.file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const newFiles = selectedFiles.filter((_, i) => i !== index);
+                            setSelectedFiles(newFiles);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Title</Label>
+                          <Input
+                            value={upload.title}
+                            onChange={(e) => {
+                              const newFiles = [...selectedFiles];
+                              newFiles[index].title = e.target.value;
+                              setSelectedFiles(newFiles);
+                            }}
+                            className="text-xs"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Category</Label>
+                          <Select
+                            value={upload.category}
+                            onValueChange={(value) => {
+                              const newFiles = [...selectedFiles];
+                              newFiles[index].category = value;
+                              setSelectedFiles(newFiles);
+                            }}
+                          >
+                            <SelectTrigger className="text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {GALLERY_CATEGORIES.map(cat => (
+                                <SelectItem key={cat.value} value={cat.value}>
+                                  {cat.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upload Progress */}
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Uploading...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-[#FF914D] h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Upload Actions */}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowUploadDialog(false);
+                  setSelectedFiles([]);
+                  setUploadProgress(0);
+                }}
+                disabled={isUploading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selectedFiles.length > 0) {
+                    setIsUploading(true);
+                    uploadMutation.mutate(selectedFiles);
+                  }
+                }}
+                disabled={selectedFiles.length === 0 || isUploading}
+                className="bg-[#FF914D] hover:bg-[#8B5E3C]"
+              >
+                {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} File(s)`}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Image TaggingDialog */}
       <TaggingDialog
         isOpen={showTaggingDialog}
@@ -735,73 +888,65 @@ export default function SimpleGalleryManager() {
       />
 
       {/* Fullscreen Media Viewer */}
-      <Dialog open={viewingMedia !== null} onOpenChange={() => setViewingMedia(null)}>
-        <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black border-0" aria-describedby="fullscreen-media-description">
-          <div className="relative w-full h-screen flex items-center justify-center bg-black">
-            {viewingMedia && (
-              <>
-                {viewingMedia.type === 'video' ? (
-                  <video
-                    controls
-                    autoPlay
-                    playsInline
-                    muted={false}
-                    preload="auto"
-                    className="w-[90vw] h-[90vh] object-contain"
-                    style={{ maxWidth: '90vw', maxHeight: '90vh' }}
-                    onError={(e) => {
-                      console.error('Fullscreen video failed to load:', viewingMedia.url);
-                      console.error('Video error details:', e.target.error);
-                    }}
-                    onLoadStart={() => {
-                      console.log('Video loading started:', viewingMedia.url);
-                    }}
-                    onLoadedData={() => {
-                      console.log('Video loaded successfully:', viewingMedia.url);
-                    }}
-                    onCanPlay={() => {
-                      console.log('Video can start playing:', viewingMedia.url);
-                    }}
-                  >
-                    <source src={viewingMedia.url} type="video/mp4" />
-                    <source src={viewingMedia.url} type="video/quicktime" />
-                    <source src={viewingMedia.url} type="video/mov" />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <img
-                    src={viewingMedia.url}
-                    alt={viewingMedia.title}
-                    className="w-[90vw] h-[90vh] object-contain"
-                    style={{ maxWidth: '90vw', maxHeight: '90vh' }}
-                    onError={(e) => {
-                      console.error('Fullscreen image failed to load:', viewingMedia.url);
-                    }}
-                  />
-                )}
-                
-                {/* Close button */}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="absolute top-4 right-4 bg-white/20 hover:bg-white/40"
-                  onClick={() => setViewingMedia(null)}
+      {viewingMedia && (
+        <Dialog open={true} onOpenChange={() => setViewingMedia(null)}>
+          <DialogContent className="max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh] p-0 bg-black border-0">
+            <div className="relative w-full h-full flex items-center justify-center bg-black">
+              {viewingMedia.type === 'video' ? (
+                <video
+                  controls
+                  autoPlay
+                  playsInline
+                  muted={false}
+                  preload="auto"
+                  className="max-w-full max-h-full object-contain"
+                  onError={(e) => {
+                    console.error('Fullscreen video failed to load:', viewingMedia.url);
+                  }}
+                  onLoadStart={() => {
+                    console.log('Video loading started:', viewingMedia.url);
+                  }}
+                  onCanPlay={() => {
+                    console.log('Video ready to play:', viewingMedia.url);
+                  }}
                 >
-                  ✕
-                </Button>
-                
-                {/* Title overlay */}
-                <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-3 rounded">
-                  <h3 className="font-medium">{viewingMedia.title}</h3>
-                  <div id="fullscreen-media-description" className="sr-only">
-                    Fullscreen view of {viewingMedia.type}: {viewingMedia.title}. Press Escape or click the close button to exit.
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+                  <source src={viewingMedia.url} type="video/mp4" />
+                  <source src={viewingMedia.url} type="video/quicktime" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <img
+                  src={viewingMedia.url}
+                  alt={viewingMedia.title}
+                  className="max-w-full max-h-full object-contain"
+                  onError={(e) => {
+                    console.error('Fullscreen image failed to load:', viewingMedia.url);
+                  }}
+                  onLoad={() => {
+                    console.log('Fullscreen image loaded:', viewingMedia.url);
+                  }}
+                />
+              )}
+              
+              {/* Close button */}
+              <Button
+                variant="secondary"
+                size="sm"
+                className="absolute top-4 right-4 bg-white/90 hover:bg-white z-50"
+                onClick={() => setViewingMedia(null)}
+              >
+                ✕ Close
+              </Button>
+              
+              {/* Title overlay */}
+              <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white p-3 rounded z-40">
+                <h3 className="font-medium">{viewingMedia.title}</h3>
+                <p className="text-sm opacity-80 capitalize">{viewingMedia.type}</p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
