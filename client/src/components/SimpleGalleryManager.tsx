@@ -80,7 +80,8 @@ export default function SimpleGalleryManager() {
 
   useEffect(() => {
     if (viewingMedia) {
-      console.log('Fullscreen viewer should open for:', viewingMedia.type, viewingMedia.title);
+      console.log('Fullscreen viewer opening for:', viewingMedia.type, viewingMedia.title);
+      console.log('Modal state should be open:', viewingMedia !== null);
     } else {
       console.log('Fullscreen viewer closed');
     }
@@ -728,8 +729,8 @@ export default function SimpleGalleryManager() {
 
       {/* Fullscreen Media Viewer */}
       <Dialog open={viewingMedia !== null} onOpenChange={() => setViewingMedia(null)}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black" aria-describedby="fullscreen-media-description">
-          <div className="relative w-full h-full flex items-center justify-center">
+        <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black border-0" aria-describedby="fullscreen-media-description">
+          <div className="relative w-full h-screen flex items-center justify-center bg-black">
             {viewingMedia && (
               <>
                 {viewingMedia.type === 'video' ? (
@@ -739,7 +740,8 @@ export default function SimpleGalleryManager() {
                     playsInline
                     muted={false}
                     preload="auto"
-                    className="max-w-full max-h-[90vh] object-contain"
+                    className="w-[90vw] h-[90vh] object-contain"
+                    style={{ maxWidth: '90vw', maxHeight: '90vh' }}
                     onError={(e) => {
                       console.error('Fullscreen video failed to load:', viewingMedia.url);
                       console.error('Video error details:', e.target.error);
@@ -763,7 +765,8 @@ export default function SimpleGalleryManager() {
                   <img
                     src={viewingMedia.url}
                     alt={viewingMedia.title}
-                    className="max-w-full max-h-[90vh] object-contain"
+                    className="w-[90vw] h-[90vh] object-contain"
+                    style={{ maxWidth: '90vw', maxHeight: '90vh' }}
                     onError={(e) => {
                       console.error('Fullscreen image failed to load:', viewingMedia.url);
                     }}
