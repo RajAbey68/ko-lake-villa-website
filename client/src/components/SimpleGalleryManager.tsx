@@ -63,6 +63,7 @@ export default function SimpleGalleryManager() {
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [showTaggingDialog, setShowTaggingDialog] = useState(false);
+  const [viewingMedia, setViewingMedia] = useState<{ type: 'image' | 'video', url: string, title: string } | null>(null);
   
   // Upload functionality state
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -373,44 +374,32 @@ export default function SimpleGalleryManager() {
                 <video
                   controls
                   preload="metadata"
-                  className="w-full h-full object-cover bg-gray-100"
-                  muted
-                  playsInline
+                  className="w-full h-full object-cover bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    // Open video in fullscreen modal
+                    setViewingMedia({ type: 'video', url: image.imageUrl, title: image.alt });
+                  }}
                   onError={(e) => {
                     console.error('Video failed to load:', image.imageUrl);
-                    const target = e.target as HTMLVideoElement;
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `
-                        <div class="w-full h-full flex items-center justify-center bg-red-50 text-red-600 text-sm">
-                          <div class="text-center">
-                            <div class="mb-2">🎥</div>
-                            <div>Video not available</div>
-                            <div class="text-xs mt-1">${image.alt}</div>
-                            <button class="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded" onclick="window.open('${image.imageUrl}', '_blank')">
-                              Try Direct Link
-                            </button>
-                          </div>
-                        </div>
-                      `;
-                    }
                   }}
-                  onLoadedMetadata={() => {
-                    console.log('Video metadata loaded:', image.imageUrl);
-                  }}
-                  onCanPlay={() => {
-                    console.log('Video ready to play:', image.imageUrl);
+                  onLoadedData={() => {
+                    console.log('Video loaded and ready:', image.imageUrl);
                   }}
                 >
                   <source src={image.imageUrl} type="video/mp4" />
+                  <source src={image.imageUrl} type="video/quicktime" />
                   Your browser does not support the video tag.
                 </video>
               ) : (
                 <img
                   src={image.imageUrl}
                   alt={image.alt}
-                  className="w-full h-full object-contain bg-gray-100"
+                  className="w-full h-full object-cover bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
                   loading="lazy"
+                  onClick={() => {
+                    // Open image in fullscreen modal
+                    setViewingMedia({ type: 'image', url: image.imageUrl, title: image.alt });
+                  }}
                   onError={(e) => {
                     console.error('Image failed to load:', image.imageUrl);
                     const target = e.target as HTMLImageElement;
@@ -427,9 +416,6 @@ export default function SimpleGalleryManager() {
                         </div>
                       `;
                     }
-                  }}
-                  onLoad={(e) => {
-                    console.log('Image loaded successfully:', image.imageUrl);
                   }}
                 />
               )}
@@ -699,6 +685,57 @@ export default function SimpleGalleryManager() {
         }}
         imagePreview={editingImage?.imageUrl}
       />
+
+      {/* Fullscreen Media Viewer */}
+      <Dialog open={viewingMedia !== null} onOpenChange={() => setViewingMedia(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {viewingMedia && (
+              <>
+                {viewingMedia.type === 'video' ? (
+                  <video
+                    controls
+                    autoPlay
+                    className="max-w-full max-h-[90vh] object-contain"
+                    src={viewingMedia.url}
+                    onError={(e) => {
+                      console.error('Fullscreen video failed to load:', viewingMedia.url);
+                    }}
+                  >
+                    <source src={viewingMedia.url} type="video/mp4" />
+                    <source src={viewingMedia.url} type="video/quicktime" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <img
+                    src={viewingMedia.url}
+                    alt={viewingMedia.title}
+                    className="max-w-full max-h-[90vh] object-contain"
+                    onError={(e) => {
+                      console.error('Fullscreen image failed to load:', viewingMedia.url);
+                    }}
+                  />
+                )}
+                
+                {/* Close button */}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="absolute top-4 right-4 bg-white/20 hover:bg-white/40"
+                  onClick={() => setViewingMedia(null)}
+                >
+                  ✕
+                </Button>
+                
+                {/* Title overlay */}
+                <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-3 rounded">
+                  <h3 className="font-medium">{viewingMedia.title}</h3>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
