@@ -40,6 +40,11 @@ export default function GalleryImage({
   const shouldLoadImmediately = className?.includes('accommodation') || className?.includes('hero') || !src.includes('/uploads/');
   const imageSrc = (shouldLoadImmediately || isInView) ? src : placeholder;
 
+  // Debug logging for accommodation images
+  if (className?.includes('accommodation')) {
+    console.log('Accommodation image loading:', { src, imageSrc, shouldLoadImmediately, isInView });
+  }
+
   return (
     <img 
       ref={imgRef}
@@ -52,13 +57,22 @@ export default function GalleryImage({
         setHasError(false);
       }}
       onError={(e) => {
-        console.error(`Failed to load image: ${src}`);
+        console.error(`Failed to load image: ${src}`, e);
         setHasError(true);
+        const target = e.currentTarget;
+        
         // Try loading without cache first
-        if (!e.currentTarget.src.includes('?nocache=')) {
-          e.currentTarget.src = `${src}?nocache=${Date.now()}`;
+        if (!target.src.includes('?nocache=')) {
+          console.log('Retrying image with cache bust:', src);
+          target.src = `${src}?nocache=${Date.now()}`;
+        } else if (src !== '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg') {
+          // If not already using default, try default image
+          console.log('Falling back to default image');
+          target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
         } else {
-          e.currentTarget.src = placeholder;
+          // Final fallback to placeholder
+          console.log('Using placeholder as final fallback');
+          target.src = placeholder;
         }
       }}
     />
