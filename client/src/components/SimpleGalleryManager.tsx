@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,12 +48,30 @@ const GALLERY_CATEGORIES = [
   { value: "events", label: "Events" }
 ];
 
+interface FileUpload {
+  file: File;
+  preview: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string;
+  featured: boolean;
+}
+
 export default function SimpleGalleryManager() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [showTaggingDialog, setShowTaggingDialog] = useState(false);
+  
+  // Upload functionality state
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<FileUpload[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -156,6 +174,49 @@ export default function SimpleGalleryManager() {
       toast({
         title: "Error", 
         description: "Failed to update image metadata",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Upload mutation
+  const uploadMutation = useMutation({
+    mutationFn: async (uploads: FileUpload[]) => {
+      const formData = new FormData();
+      
+      uploads.forEach((upload, index) => {
+        formData.append('images', upload.file);
+        formData.append(`metadata[${index}]`, JSON.stringify({
+          title: upload.title,
+          description: upload.description,
+          category: upload.category,
+          tags: upload.tags,
+          featured: upload.featured,
+          alt: upload.title || upload.file.name
+        }));
+      });
+
+      const response = await apiRequest('POST', '/api/gallery/upload', formData);
+      if (!response.ok) throw new Error('Upload failed');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({
+        title: "Success",
+        description: `${selectedFiles.length} file(s) uploaded successfully`
+      });
+      setSelectedFiles([]);
+      setUploadProgress(0);
+      setShowUploadDialog(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload files",
         variant: "destructive"
       });
     }

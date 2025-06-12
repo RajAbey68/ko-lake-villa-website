@@ -181,12 +181,12 @@ export default function AdminCalendar() {
                                 value={editPrice}
                                 onChange={(e) => setEditPrice(e.target.value)}
                                 className="w-20 px-2 py-1 border rounded text-center"
-                                placeholder={displayRate.toString()}
+                                placeholder={directPrice.toString()}
                                 min="1"
-                                max={Math.round(avgRate * 0.95)}
+                                max={basePrice}
                               />
                               <button
-                                onClick={() => handleSavePrice(roomId, autoDirectRate)}
+                                onClick={() => handleSavePrice(roomId, directPrice)}
                                 className="bg-green-600 text-white hover:bg-green-800 px-3 py-1 rounded text-sm font-bold"
                                 title="Save"
                               >
@@ -205,14 +205,9 @@ export default function AdminCalendar() {
                             </div>
                           ) : (
                             <div className="flex items-center justify-center gap-2">
-                              <span className={`font-bold ${isCustom ? 'text-blue-600' : 'text-green-600'}`}>
-                                ${displayRate}
+                              <span className="font-bold text-green-600">
+                                ${directPrice}
                               </span>
-                              {isCustom && (
-                                <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
-                                  Custom
-                                </span>
-                              )}
                             </div>
                           )}
                         </td>
