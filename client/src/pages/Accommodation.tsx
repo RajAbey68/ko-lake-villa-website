@@ -54,7 +54,7 @@ const Accommodation = () => {
     } else if (roomName.includes('KLV6') || roomName.includes('Group')) {
       return '/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg';
     } else if (roomName.includes('Villa') || roomName.includes('KLV')) {
-      return '/uploads/gallery/entire-villa/KoggalaNinePeaks_entire-villa_0.jpg';
+      return '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
     }
     return '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
   };
