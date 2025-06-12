@@ -44,11 +44,37 @@ export default function ContentManager() {
                 id: `${pageName}-${key}`,
                 page: pageName,
                 section: key === 'title' ? 'hero' : 'content',
-                title: key.charAt(0).toUpperCase() + key.slice(1),
+                title: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
                 content: value as string,
                 lastUpdated: data.lastUpdated || new Date().toISOString()
               });
             });
+          });
+          
+          // Add default sections for pages that need more content
+          const pagesWithDefaults = ['home', 'accommodation', 'dining', 'experiences', 'gallery', 'contact'];
+          pagesWithDefaults.forEach(pageName => {
+            const existingContent = contentArray.filter(item => item.page === pageName);
+            if (existingContent.length === 0) {
+              contentArray.push(
+                {
+                  id: `${pageName}-title`,
+                  page: pageName,
+                  section: 'hero',
+                  title: 'Page Title',
+                  content: `${pageName.charAt(0).toUpperCase() + pageName.slice(1)} Page`,
+                  lastUpdated: new Date().toISOString()
+                },
+                {
+                  id: `${pageName}-description`,
+                  page: pageName,
+                  section: 'content',
+                  title: 'Page Description',
+                  content: `Edit the description for your ${pageName} page here. You can use **bold**, *italic*, bullet points, and [links](url).`,
+                  lastUpdated: new Date().toISOString()
+                }
+              );
+            }
           });
           setContent(contentArray);
         } else {
@@ -192,6 +218,30 @@ export default function ContentManager() {
 
   // Convert PageContent to ContentSection format for EnhancedContentManager
   const convertToContentSections = (pageContent: PageContent[]) => {
+    if (!Array.isArray(pageContent) || pageContent.length === 0) {
+      // Return default sections if no content exists
+      return [
+        {
+          id: 'hero-title',
+          title: 'Page Title',
+          content: 'Add your page title here',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'hero-subtitle', 
+          title: 'Page Subtitle',
+          content: 'Add your page subtitle or description here',
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'main-content',
+          title: 'Main Content',
+          content: 'Add your main page content here. You can use **bold text**, *italic text*, bullet points, and [links](https://example.com).',
+          lastUpdated: new Date().toISOString()
+        }
+      ];
+    }
+    
     return pageContent.map(item => ({
       id: item.id,
       title: item.title,
