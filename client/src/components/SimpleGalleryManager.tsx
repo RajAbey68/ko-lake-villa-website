@@ -388,71 +388,79 @@ export default function SimpleGalleryManager() {
 
       {/* Gallery Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredImages.map((image) => (
-          <Card key={image.id} className="overflow-hidden">
-            <div className="relative aspect-square">
-              {image.mediaType === 'video' ? (
-                <div 
-                  className="relative w-full h-full bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    console.log('Video clicked, opening fullscreen for:', image.alt);
-                    setViewingMedia({ type: 'video', url: image.imageUrl, title: image.alt });
-                  }}
-                >
-                  <video
-                    controls={false}
-                    preload="metadata"
-                    className="w-full h-full object-cover pointer-events-none"
-                    onError={(e) => {
-                      console.error('Video failed to load:', image.imageUrl);
-                    }}
-                    onLoadedData={() => {
-                      console.log('Video loaded and ready:', image.imageUrl);
-                    }}
+        {filteredImages.map((image) => {
+          const handleMediaClick = () => {
+            console.log(`${image.mediaType} clicked:`, image.alt);
+            setViewingMedia({ 
+              type: image.mediaType as 'image' | 'video', 
+              url: image.imageUrl, 
+              title: image.alt 
+            });
+          };
+
+          const handleEditClick = () => {
+            console.log('Edit clicked for:', image.id, image.alt);
+            setEditingImage(image);
+          };
+
+          return (
+            <Card key={image.id} className="overflow-hidden">
+              <div className="relative aspect-square">
+                {image.mediaType === 'video' ? (
+                  <button 
+                    className="relative w-full h-full bg-gray-100 cursor-pointer border-0 p-0"
+                    onClick={handleMediaClick}
+                    type="button"
                   >
-                    <source src={image.imageUrl} type="video/mp4" />
-                    <source src={image.imageUrl} type="video/quicktime" />
-                    Your browser does not support the video tag.
-                  </video>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-black/50 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                      ▶ Click to play fullscreen
+                    <video
+                      controls={false}
+                      preload="metadata"
+                      className="w-full h-full object-cover pointer-events-none"
+                      onError={(e) => {
+                        console.error('Video failed to load:', image.imageUrl);
+                      }}
+                    >
+                      <source src={image.imageUrl} type="video/mp4" />
+                      <source src={image.imageUrl} type="video/quicktime" />
+                      Your browser does not support the video tag.
+                    </video>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-black/50 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        ▶ Click to play fullscreen
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div 
-                  className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => {
-                    console.log('Image clicked, opening fullscreen for:', image.alt);
-                    setViewingMedia({ type: 'image', url: image.imageUrl, title: image.alt });
-                  }}
-                >
-                  <img
-                    src={image.imageUrl}
-                    alt={image.alt}
-                    className="w-full h-full object-cover bg-gray-100 pointer-events-none"
-                    loading="lazy"
-                  onError={(e) => {
-                    console.error('Image failed to load:', image.imageUrl);
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `
-                        <div class="w-full h-full flex items-center justify-center bg-red-50 text-red-600 text-sm">
-                          <div class="text-center">
-                            <div class="mb-2">⚠️</div>
-                            <div>Image not found</div>
-                            <div class="text-xs mt-1">${image.alt}</div>
-                          </div>
-                        </div>
-                      `;
-                    }
-                  }}
-                />
-                </div>
-              )}
+                  </button>
+                ) : (
+                  <button 
+                    className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity border-0 p-0"
+                    onClick={handleMediaClick}
+                    type="button"
+                  >
+                    <img
+                      src={image.imageUrl}
+                      alt={image.alt}
+                      className="w-full h-full object-cover bg-gray-100 pointer-events-none"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error('Image failed to load:', image.imageUrl);
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `
+                            <div class="w-full h-full flex items-center justify-center bg-red-50 text-red-600 text-sm">
+                              <div class="text-center">
+                                <div class="mb-2">⚠️</div>
+                                <div>Image not found</div>
+                                <div class="text-xs mt-1">${image.alt}</div>
+                              </div>
+                            </div>
+                          `;
+                        }
+                      }}
+                    />
+                  </button>
+                )}
 
               {/* Featured Badge */}
               {image.featured && (
@@ -461,31 +469,30 @@ export default function SimpleGalleryManager() {
                 </Badge>
               )}
 
-              {/* Action Buttons */}
-              <div className="absolute top-2 right-2 flex gap-1">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    console.log('Edit clicked for:', image.id, image.alt);
-                    setEditingImage(image);
-                  }}
-                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-                  aria-label={`Edit ${image.alt}`}
-                  title="Edit this image"
-                >
-                  <EditIcon className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => setDeleteConfirmId(image.id)}
-                  className="h-8 w-8 p-0"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </Button>
+                {/* Action Buttons */}
+                <div className="absolute top-2 right-2 flex gap-1 z-10">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleEditClick}
+                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                    aria-label={`Edit ${image.alt}`}
+                    title="Edit this image"
+                    type="button"
+                  >
+                    <EditIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setDeleteConfirmId(image.id)}
+                    className="h-8 w-8 p-0 bg-white/90 hover:bg-red-600"
+                    type="button"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
 
             <CardContent className="p-4">
               <h3 className="font-medium text-[#8B5E3C] mb-2">{image.alt}</h3>
@@ -504,7 +511,8 @@ export default function SimpleGalleryManager() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {/* Empty State */}
