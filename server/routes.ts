@@ -1347,6 +1347,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Handle admin routes - serve React app for any /admin/* routes
+  app.get('/admin*', (req, res, next) => {
+    // In development, let Vite handle it
+    if (process.env.NODE_ENV === 'development') {
+      return next();
+    }
+    
+    // In production, serve the built React app
+    const indexPath = path.join(process.cwd(), 'dist', 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      next();
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
