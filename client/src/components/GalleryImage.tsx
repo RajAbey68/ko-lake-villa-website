@@ -36,9 +36,10 @@ export default function GalleryImage({
     return () => observer.disconnect();
   }, []);
 
-  // For accommodation pages and critical images, load immediately
-  const shouldLoadImmediately = className?.includes('accommodation') || className?.includes('hero') || !src.includes('/uploads/');
-  const imageSrc = (shouldLoadImmediately || isInView) ? src : placeholder;
+  // For accommodation pages, always load the actual image immediately
+  const isAccommodationPage = className?.includes('accommodation');
+  const shouldLoadImmediately = isAccommodationPage || className?.includes('hero') || !src.includes('/uploads/');
+  const imageSrc = src; // Always use the actual image source for better quality
 
   // Debug logging for accommodation images
   if (className?.includes('accommodation')) {
@@ -52,6 +53,11 @@ export default function GalleryImage({
       alt={alt} 
       className={`${className} ${isLoaded && !hasError ? 'opacity-100' : 'opacity-90'} transition-opacity duration-200`}
       loading={shouldLoadImmediately ? "eager" : "lazy"}
+      style={{
+        imageRendering: isAccommodationPage ? 'high-quality' : 'auto',
+        backfaceVisibility: 'hidden',
+        transform: 'translateZ(0)'
+      }}
       onLoad={() => {
         setIsLoaded(true);
         setHasError(false);
