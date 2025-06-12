@@ -372,16 +372,64 @@ export default function SimpleGalleryManager() {
               {image.mediaType === 'video' ? (
                 <video
                   controls
-                  className="w-full h-full object-cover"
-                  src={image.imageUrl}
-                />
+                  preload="metadata"
+                  className="w-full h-full object-cover bg-gray-100"
+                  muted
+                  playsInline
+                  onError={(e) => {
+                    console.error('Video failed to load:', image.imageUrl);
+                    const target = e.target as HTMLVideoElement;
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center bg-red-50 text-red-600 text-sm">
+                          <div class="text-center">
+                            <div class="mb-2">🎥</div>
+                            <div>Video not available</div>
+                            <div class="text-xs mt-1">${image.alt}</div>
+                            <button class="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded" onclick="window.open('${image.imageUrl}', '_blank')">
+                              Try Direct Link
+                            </button>
+                          </div>
+                        </div>
+                      `;
+                    }
+                  }}
+                  onLoadedMetadata={() => {
+                    console.log('Video metadata loaded:', image.imageUrl);
+                  }}
+                  onCanPlay={() => {
+                    console.log('Video ready to play:', image.imageUrl);
+                  }}
+                >
+                  <source src={image.imageUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               ) : (
                 <img
                   src={image.imageUrl}
                   alt={image.alt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain bg-gray-100"
+                  loading="lazy"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    console.error('Image failed to load:', image.imageUrl);
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center bg-red-50 text-red-600 text-sm">
+                          <div class="text-center">
+                            <div class="mb-2">⚠️</div>
+                            <div>Image not found</div>
+                            <div class="text-xs mt-1">${image.alt}</div>
+                          </div>
+                        </div>
+                      `;
+                    }
+                  }}
+                  onLoad={(e) => {
+                    console.log('Image loaded successfully:', image.imageUrl);
                   }}
                 />
               )}
