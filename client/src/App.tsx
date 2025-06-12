@@ -51,6 +51,7 @@ import VideoUploader from "@/pages/admin/VideoUploader";
 import PageImageManager from "@/pages/admin/PageImageManager";
 import AdminBookingCalendar from './components/AdminBookingCalendar';
 import AuditLogs from '@/pages/admin/AuditLogs';
+import Upload from "@/pages/admin/Upload";
 
 // New Roadmap Component
 function Roadmap() {
@@ -117,6 +118,11 @@ function Router() {
         <Route path="/admin/gallery">
           <ProtectedRoute>
             <AdminGallery />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/upload">
+          <ProtectedRoute>
+            <Upload />
           </ProtectedRoute>
         </Route>
         <Route path="/admin/visitor-uploads">
