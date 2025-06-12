@@ -812,6 +812,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete all gallery images and videos
+  app.delete("/api/gallery/all", async (req, res) => {
+    try {
+      // Get all gallery images
+      const images = await dataStorage.getGalleryImages();
+      
+      if (images.length === 0) {
+        return res.json({ message: "No images to delete" });
+      }
+
+      // Delete each image from database
+      let deletedCount = 0;
+      for (const image of images) {
+        try {
+          const success = await dataStorage.deleteGalleryImage(image.id);
+          if (success) {
+            deletedCount++;
+          }
+        } catch (error) {
+          console.error(`Failed to delete image ${image.id}:`, error);
+        }
+      }
+
+      res.json({ 
+        message: `Successfully deleted ${deletedCount} images and videos`,
+        deleted: deletedCount,
+        total: images.length
+      });
+    } catch (error) {
+      console.error('Delete all error:', error);
+      res.status(500).json({ message: "Failed to delete all gallery images" });
+    }
+  });
+
   // Admin gallery deletion (alias)
   app.delete("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);

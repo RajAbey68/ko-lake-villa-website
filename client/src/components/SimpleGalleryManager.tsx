@@ -8,7 +8,8 @@ import {
   EditIcon, 
   TrashIcon, 
   ImageIcon,
-  UploadIcon
+  UploadIcon,
+  Trash2Icon
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -41,6 +42,7 @@ const GALLERY_CATEGORIES = [
 export default function SimpleGalleryManager() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -73,6 +75,30 @@ export default function SimpleGalleryManager() {
       toast({
         title: "Error", 
         description: "Failed to delete image",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Delete all images mutation
+  const deleteAllMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('DELETE', '/api/gallery/all');
+      if (!response.ok) throw new Error('Failed to delete all images');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setShowDeleteAllConfirm(false);
+      toast({
+        title: "Success",
+        description: "All images and videos deleted successfully"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error", 
+        description: "Failed to delete all images",
         variant: "destructive"
       });
     }
@@ -114,13 +140,24 @@ export default function SimpleGalleryManager() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-[#8B5E3C]">Gallery Management</h2>
-        <Button 
-          onClick={() => window.location.href = '/admin/upload'}
-          className="bg-[#FF914D] hover:bg-[#8B5E3C]"
-        >
-          <UploadIcon className="h-4 w-4 mr-2" />
-          Upload Media
-        </Button>
+        <div className="flex gap-2">
+          {images.length > 0 && (
+            <Button 
+              onClick={() => setShowDeleteAllConfirm(true)}
+              variant="destructive"
+            >
+              <Trash2Icon className="h-4 w-4 mr-2" />
+              Delete All
+            </Button>
+          )}
+          <Button 
+            onClick={() => window.location.href = '/admin/upload'}
+            className="bg-[#FF914D] hover:bg-[#8B5E3C]"
+          >
+            <UploadIcon className="h-4 w-4 mr-2" />
+            Upload Media
+          </Button>
+        </div>
       </div>
 
       {/* Category Filter */}
@@ -246,6 +283,33 @@ export default function SimpleGalleryManager() {
                 disabled={deleteMutation.isPending}
               >
                 {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete All Confirmation Dialog */}
+      {showDeleteAllConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium mb-4">Delete All Images & Videos</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete ALL {images.length} images and videos? This action cannot be undone and will permanently remove all gallery content.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDeleteAllConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => deleteAllMutation.mutate()}
+                disabled={deleteAllMutation.isPending}
+              >
+                {deleteAllMutation.isPending ? 'Deleting All...' : 'Delete All'}
               </Button>
             </div>
           </div>
