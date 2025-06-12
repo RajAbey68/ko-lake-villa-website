@@ -11,35 +11,19 @@ export default function GalleryImage({
   src, 
   alt, 
   className, 
-  placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='100%25' height='100%25' fill='%23f0f0f0'/%3E%3C/svg%3E"
+  placeholder = ""
 }: GalleryImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [isInView, setIsInView] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  // For accommodation pages, always load the actual image immediately
+  // For critical pages, load images immediately without lazy loading
   const isAccommodationPage = className?.includes('accommodation');
-  const shouldLoadImmediately = isAccommodationPage || className?.includes('hero') || !src.includes('/uploads/');
-  const imageSrc = src; // Always use the actual image source for better quality
+  const isHeroImage = className?.includes('hero');
+  const shouldLoadImmediately = isAccommodationPage || isHeroImage;
+  
+  // Always use actual image source - no placeholders that degrade quality
+  const imageSrc = src;
 
   // Debug logging for accommodation images
   if (className?.includes('accommodation')) {
@@ -51,12 +35,14 @@ export default function GalleryImage({
       ref={imgRef}
       src={imageSrc}
       alt={alt} 
-      className={`${className} ${isLoaded && !hasError ? 'opacity-100' : 'opacity-90'} transition-opacity duration-200`}
-      loading={shouldLoadImmediately ? "eager" : "lazy"}
+      className={`${className} ${isLoaded && !hasError ? 'opacity-100' : 'opacity-100'}`}
+      loading="eager"
       style={{
-        imageRendering: isAccommodationPage ? 'high-quality' : 'auto',
+        imageRendering: 'high-quality',
         backfaceVisibility: 'hidden',
-        transform: 'translateZ(0)'
+        transform: 'translateZ(0)',
+        filter: 'none',
+        WebkitFilter: 'none'
       }}
       onLoad={() => {
         setIsLoaded(true);
