@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  EditIcon, 
-  TrashIcon, 
-  ImageIcon,
-  UploadIcon,
-  Trash2Icon
+  Edit as EditIcon, 
+  Trash as TrashIcon, 
+  Image as ImageIcon,
+  Upload as UploadIcon,
+  Trash2 as Trash2Icon
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import TaggingDialog from './TaggingDialog';
