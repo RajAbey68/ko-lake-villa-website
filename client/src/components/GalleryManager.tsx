@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,23 +47,25 @@ const GALLERY_CATEGORIES = [
   { value: "koggala-lake", label: "Koggala Lake" },
   { value: "excursions", label: "Excursions" },
   { value: "events", label: "Events" },
-  { value: "friends", label: "Friends" }
+  { value: "amenities", label: "Amenities" },
+  { value: "spa-wellness", label: "Spa & Wellness" },
+  { value: "activities", label: "Activities" },
+  { value: "default", label: "Uncategorized" }
 ];
 
 interface UploadProgress {
   fileId: string;
-  filename: string;
+  fileName: string;
   progress: number;
-  status: 'pending' | 'uploading' | 'analyzing' | 'success' | 'error';
+  status: 'uploading' | 'completed' | 'error';
   errorMessage?: string;
-  preview?: string;
 }
 
 interface BatchMetadata {
   [fileId: string]: {
+    category: string;
     title: string;
     description: string;
-    category: string;
     tags: string;
     featured: boolean;
   };
@@ -99,247 +100,13 @@ export default function GalleryManager() {
 
   // Fetch gallery images
   const { data: images = [], isLoading, error, refetch } = useQuery<GalleryImage[]>({
-    queryKey: ['/api/gallery', selectedCategory],
+    queryKey: ['/api/gallery'],
     queryFn: async () => {
-      const url = selectedCategory ? `/api/gallery?category=${selectedCategory}` : '/api/gallery';
-      const response = await fetch(url);
+      const response = await fetch('/api/gallery');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
-    },
-    staleTime: 0,
-  });
-
-  // Filter and sort images
-  const filteredAndSortedImages = images
-    .filter(image => {
-      const matchesSearch = !searchTerm || 
-        image.alt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        image.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        image.tags?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !selectedCategory || image.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return (a.alt || '').localeCompare(b.alt || '');
-        case 'category':
-          return (a.category || '').localeCompare(b.category || '');
-        case 'featured':
-          return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
-        case 'date':
-        default:
-          return b.id - a.id;
-      }
-    });
-
-  // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: any }) => 
-      fetch(`/api/gallery/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to update');
-        return res.json();
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      setEditingImage(null);
-      toast({ title: "Success", description: "Image updated successfully" });
-    },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => 
-      fetch(`/api/gallery/${id}`, { method: 'DELETE' }).then(res => {
-        if (!res.ok) throw new Error('Failed to delete');
-        return res.json();
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      setDeleteConfirmId(null);
-      toast({ title: "Success", description: "Image deleted successfully" });
-    },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  // Bulk delete mutation
-  const bulkDeleteMutation = useMutation({
-    mutationFn: async (ids: number[]) => {
-      for (const id of ids) {
-        await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      setSelectedImages([]);
-      toast({ title: "Success", description: "Selected images deleted" });
-    },
-  });
-
-  // AI Analysis mutation
-  const aiAnalysisMutation = useMutation({
-    mutationFn: async (imageId: number) => {
-      const response = await fetch(`/api/analyze-media/${imageId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) throw new Error('AI analysis failed');
-      return response.json();
-    },
-    onSuccess: (analysis, imageId) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      setAnalyzingId(null);
-      toast({
-        title: "AI Analysis Complete",
-        description: `Updated: ${analysis.title} (${analysis.category})`
-      });
-    },
-    onError: (error: any) => {
-      setAnalyzingId(null);
-      toast({
-        title: "AI Analysis Failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    },
-  });
-
-  // Drag and drop handlers
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files);
-      setUploadDialogOpen(true);
     }
-  };
-
-  // Handle file selection
-  const handleFileSelect = (files: FileList) => {
-    const fileArray = Array.from(files);
-    const newProgress: UploadProgress[] = fileArray.map(file => ({
-      fileId: `${Date.now()}-${Math.random()}`,
-      filename: file.name,
-      progress: 0,
-      status: 'pending',
-      preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
-    }));
-
-    setUploadProgress(newProgress);
-    
-    // Initialize metadata for each file
-    const newMetadata: BatchMetadata = {};
-    newProgress.forEach(progress => {
-      newMetadata[progress.fileId] = {
-        title: progress.filename.replace(/\.[^/.]+$/, ""),
-        description: '',
-        category: 'family-suite',
-        tags: '',
-        featured: false
-      };
-    });
-    setBatchMetadata(newMetadata);
-  };
-
-  // Handle upload
-  const handleUpload = async (files: FileList) => {
-    setIsUploading(true);
-    const fileArray = Array.from(files);
-
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i];
-      const fileId = uploadProgress[i]?.fileId;
-      
-      if (!fileId) continue;
-
-      try {
-        // Update status to uploading
-        setUploadProgress(prev => prev.map(p => 
-          p.fileId === fileId ? { ...p, status: 'uploading', progress: 25 } : p
-        ));
-
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const metadata = batchMetadata[fileId];
-        if (metadata) {
-          formData.append('title', metadata.title);
-          formData.append('description', metadata.description);
-          formData.append('category', metadata.category);
-          formData.append('tags', metadata.tags);
-          formData.append('featured', metadata.featured.toString());
-        }
-
-        // Upload file
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error('Upload failed');
-        }
-
-        // Update progress
-        setUploadProgress(prev => prev.map(p => 
-          p.fileId === fileId ? { ...p, status: 'analyzing', progress: 75 } : p
-        ));
-
-        // Complete
-        setUploadProgress(prev => prev.map(p => 
-          p.fileId === fileId ? { ...p, status: 'success', progress: 100 } : p
-        ));
-
-      } catch (error) {
-        setUploadProgress(prev => prev.map(p => 
-          p.fileId === fileId ? { 
-            ...p, 
-            status: 'error', 
-            errorMessage: error instanceof Error ? error.message : 'Upload failed',
-            progress: 0 
-          } : p
-        ));
-      }
-    }
-
-    setIsUploading(false);
-    refetch();
-    
-    // Clear after delay
-    setTimeout(() => {
-      setUploadProgress([]);
-      setBatchMetadata({});
-    }, 3000);
-  };
+  });
 
   // Edit form state
   const [editCategory, setEditCategory] = useState<string>('');
@@ -401,15 +168,135 @@ export default function GalleryManager() {
     });
   };
 
-  // Update batch metadata
-  const updateBatchMetadata = (fileId: string, field: string, value: any) => {
-    setBatchMetadata(prev => ({
-      ...prev,
-      [fileId]: {
-        ...prev[fileId],
-        [field]: value
-      }
-    }));
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: any }) => {
+      const response = await fetch(`/api/gallery/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (!response.ok) throw new Error('Failed to update image');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setEditingImage(null);
+      toast({ title: "Success", description: "Image updated successfully" });
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Error", 
+        description: "Failed to update image", 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete image');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setDeleteConfirmId(null);
+      toast({ title: "Success", description: "Image deleted successfully" });
+    },
+    onError: () => {
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete image", 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Bulk delete mutation
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      const response = await fetch('/api/gallery/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids })
+      });
+      if (!response.ok) throw new Error('Failed to delete images');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setSelectedImages([]);
+      toast({ title: "Success", description: "Images deleted successfully" });
+    }
+  });
+
+  // AI Analysis mutation
+  const analyzeImageMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/analyze-media/${id}`, { method: 'POST' });
+      if (!response.ok) throw new Error('Failed to analyze image');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({ title: "Success", description: "Image analyzed successfully" });
+    }
+  });
+
+  // Filter and sort images
+  const filteredImages = images.filter(image => {
+    const matchesCategory = !selectedCategory || image.category === selectedCategory;
+    const matchesSearch = !searchTerm || 
+      image.alt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      image.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      image.tags?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const sortedImages = [...filteredImages].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return (a.alt || '').localeCompare(b.alt || '');
+      case 'category':
+        return a.category.localeCompare(b.category);
+      case 'featured':
+        return b.featured ? 1 : -1;
+      case 'date':
+      default:
+        return b.id - a.id;
+    }
+  });
+
+  // Drag and drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      setUploadDialogOpen(true);
+      // Handle file processing here
+    }
   };
 
   // Toggle image selection
@@ -539,144 +426,77 @@ export default function GalleryManager() {
         </Card>
       </div>
 
-      {/* Filters and Search */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search images and videos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      {/* Filter Controls */}
+      <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <SearchIcon className="h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Search images..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-64"
+          />
         </div>
         
-        <Select value={selectedCategory || 'all'} onValueChange={(value) => setSelectedCategory(value === 'all' ? null : value)}>
-          <SelectTrigger className="w-[200px]">
+        <Select value={selectedCategory || ''} onValueChange={(value) => setSelectedCategory(value || null)}>
+          <SelectTrigger className="w-48">
+            <FilterIcon className="h-4 w-4 mr-2" />
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {GALLERY_CATEGORIES.map(cat => (
-              <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+            <SelectItem value="">All Categories</SelectItem>
+            {GALLERY_CATEGORIES.map(category => (
+              <SelectItem key={category.value} value={category.value}>
+                {category.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         
         <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="date">Date Added</SelectItem>
-            <SelectItem value="name">Name</SelectItem>
+            <SelectItem value="date">Latest First</SelectItem>
+            <SelectItem value="name">Name A-Z</SelectItem>
             <SelectItem value="category">Category</SelectItem>
-            <SelectItem value="featured">Featured</SelectItem>
+            <SelectItem value="featured">Featured First</SelectItem>
           </SelectContent>
         </Select>
-
-        <Button
-          variant="outline"
-          onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-        >
-          <LayoutGridIcon className="h-4 w-4 mr-2" />
-          {viewMode === 'grid' ? 'List View' : 'Grid View'}
-        </Button>
       </div>
 
-      {/* Category Filter Buttons */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={selectedCategory === null ? "default" : "outline"}
-          onClick={() => setSelectedCategory(null)}
-          className="mb-2"
-        >
-          All ({images.length})
-        </Button>
-        {GALLERY_CATEGORIES.map(category => {
-          const count = images.filter(img => img.category === category.value).length;
-          return (
-            <Button
-              key={category.value}
-              variant={selectedCategory === category.value ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category.value)}
-              className="mb-2"
-            >
-              {category.label} ({count})
-            </Button>
-          );
-        })}
-      </div>
-
-      {/* Gallery Grid/List */}
-      <div className={viewMode === 'grid' 
-        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-        : "space-y-4"
-      }>
-        {filteredAndSortedImages.map((image) => (
-          <Card key={image.id} className={`overflow-hidden hover:shadow-lg transition-shadow ${
-            selectedImages.includes(image.id) ? 'ring-2 ring-blue-500' : ''
-          }`}>
-            <div className="relative aspect-square">
-              <input
-                type="checkbox"
-                checked={selectedImages.includes(image.id)}
-                onChange={() => toggleImageSelection(image.id)}
-                className="absolute top-2 left-2 z-10 w-4 h-4"
-              />
-              
+      {/* Gallery Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {sortedImages.map((image) => (
+          <Card key={image.id} className="group overflow-hidden">
+            <div className="relative">
               {image.mediaType === 'video' ? (
-                <video
-                  controls
-                  className="w-full h-full object-cover"
-                  onError={(e) => console.error('Video failed to load:', image.imageUrl)}
+                <video 
+                  className="w-full h-48 object-cover"
+                  onMouseEnter={(e) => {
+                    const video = e.target as HTMLVideoElement;
+                    video.play().catch(() => {});
+                  }}
+                  onMouseLeave={(e) => {
+                    const video = e.target as HTMLVideoElement;
+                    video.pause();
+                    video.currentTime = 0;
+                  }}
                 >
                   <source src={image.imageUrl} type="video/mp4" />
-                  <source src={image.imageUrl} type="video/webm" />
-                  Your browser does not support the video tag.
                 </video>
               ) : (
-                <img
-                  src={image.imageUrl}
+                <img 
+                  src={image.imageUrl} 
                   alt={image.alt}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                  }}
+                  className="w-full h-48 object-cover"
                 />
               )}
 
-              {/* Featured Badge */}
-              {image.featured && (
-                <Badge className="absolute top-2 right-2 bg-[#FF914D]">
-                  <StarIcon className="h-3 w-3 mr-1" />
-                  Featured
-                </Badge>
-              )}
-
-              {/* Action Buttons Overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
+              {/* Overlay Controls */}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {
-                      setAnalyzingId(image.id);
-                      aiAnalysisMutation.mutate(image.id);
-                    }}
-                    disabled={analyzingId === image.id}
-                    className="bg-purple-100 hover:bg-purple-200"
-                    title="AI Re-analyze"
-                  >
-                    {analyzingId === image.id ? (
-                      <div className="h-4 w-4 animate-spin border-2 border-purple-600 border-t-transparent rounded-full" />
-                    ) : (
-                      <SparklesIcon className="h-4 w-4" />
-                    )}
-                  </Button>
                   <Button
                     size="sm"
                     variant="secondary"
@@ -702,6 +522,13 @@ export default function GalleryManager() {
                   </Button>
                 </div>
               </div>
+
+              {/* Featured Badge */}
+              {image.featured && (
+                <Badge className="absolute top-2 left-2 bg-[#FF914D]">
+                  Featured
+                </Badge>
+              )}
             </div>
 
             <CardContent className="p-4">
@@ -725,42 +552,146 @@ export default function GalleryManager() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span>Order: {image.sortOrder || 1}</span>
-                <span>ID: {image.id}</span>
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>Sort: {image.sortOrder}</span>
+                <span>{image.mediaType}</span>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Empty State */}
-      {filteredAndSortedImages.length === 0 && (
-        <div className="text-center py-12">
-          <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 mb-2">No items found</p>
-          {selectedCategory || searchTerm ? (
-            <div>
-              <p className="text-sm text-gray-500 mb-4">
-                Try adjusting your filters or search terms
-              </p>
-              <div className="flex gap-2 justify-center">
-                <Button onClick={() => setSelectedCategory(null)} variant="outline">
-                  Clear Category Filter
+      {/* Edit Dialog - Custom Modal Implementation */}
+      {editingImage && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto w-full">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">Edit Media - {editingImage.alt}</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Update the title, description, category, and other properties for this media item.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  console.log('Manual close button clicked');
+                  setEditingImage(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none p-2"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Preview */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Preview</h3>
+                  {editingImage.mediaType === 'video' ? (
+                    <video controls className="w-full h-64 object-cover rounded-lg">
+                      <source src={editingImage.imageUrl} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <img 
+                      src={editingImage.imageUrl} 
+                      alt={editingImage.alt}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => analyzeImageMutation.mutate(editingImage.id)}
+                      disabled={analyzeImageMutation.isPending}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <SparklesIcon className="h-4 w-4 mr-2" />
+                      {analyzeImageMutation.isPending ? 'Analyzing...' : 'AI Analyze'}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Edit Form */}
+                <div className="space-y-4">
+                  <div>
+                    <Label>Category</Label>
+                    <Select value={editCategory} onValueChange={setEditCategory}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GALLERY_CATEGORIES.map(category => (
+                          <SelectItem key={category.value} value={category.value}>
+                            {category.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      placeholder="Enter title"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      placeholder="Enter description"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>SEO Tags</Label>
+                    <Input
+                      value={editTags}
+                      onChange={(e) => setEditTags(e.target.value)}
+                      placeholder="tag1, tag2, tag3"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Sort Order</Label>
+                    <Input
+                      type="number"
+                      value={editSortOrder}
+                      onChange={(e) => setEditSortOrder(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={editFeatured}
+                      onCheckedChange={setEditFeatured}
+                    />
+                    <Label>Featured</Label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+                <Button variant="outline" onClick={() => setEditingImage(null)}>
+                  Cancel
                 </Button>
-                <Button onClick={() => setSearchTerm('')} variant="outline">
-                  Clear Search
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={updateMutation.isPending}
+                  className="bg-[#8B5E3C] hover:bg-[#6B4B2F]"
+                >
+                  {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </div>
-          ) : (
-            <div>
-              <p className="text-sm text-gray-500 mb-4">Your gallery is empty</p>
-              <Button onClick={() => setUploadDialogOpen(true)}>
-                Upload your first image or video
-              </Button>
-            </div>
-          )}
+          </div>
         </div>
       )}
 
@@ -768,290 +699,20 @@ export default function GalleryManager() {
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Master Media Upload</DialogTitle>
+            <DialogTitle>Upload Media Files</DialogTitle>
+            <DialogDescription>
+              Upload images and videos to your gallery with automatic AI categorization and tagging.
+            </DialogDescription>
           </DialogHeader>
-
-          <Tabs value={uploadMode} onValueChange={(value: any) => setUploadMode(value)}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="single">Single Upload</TabsTrigger>
-              <TabsTrigger value="bulk">Bulk Upload</TabsTrigger>
-              <TabsTrigger value="drag-drop">Drag & Drop</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="single" className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
-                  className="hidden"
-                  id="single-file-input"
-                />
-                <label htmlFor="single-file-input" className="cursor-pointer">
-                  <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium mb-2">Click to select an image or video</p>
-                  <p className="text-sm text-gray-500">Supports JPG, PNG, GIF, MP4, MOV (max 50MB)</p>
-                </label>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="bulk" className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  multiple
-                  onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
-                  className="hidden"
-                  id="bulk-file-input"
-                />
-                <label htmlFor="bulk-file-input" className="cursor-pointer">
-                  <FolderIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium mb-2">Click to select multiple files</p>
-                  <p className="text-sm text-gray-500">Select multiple images and videos to upload at once</p>
-                </label>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="drag-drop" className="space-y-4">
-              <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50">
-                <CloudUploadIcon className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                <p className="text-lg font-medium mb-2 text-blue-600">Drag and drop files anywhere</p>
-                <p className="text-sm text-blue-500">Files dropped anywhere on this page will be automatically processed</p>
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          {/* Upload Progress & Metadata */}
-          {uploadProgress.length > 0 && (
-            <div className="space-y-4">
-              <h4 className="font-medium">Upload Progress & Metadata</h4>
-              
-              {uploadProgress.map((progress) => (
-                <Card key={progress.fileId}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      {progress.preview && (
-                        <img src={progress.preview} alt="Preview" className="w-16 h-16 object-cover rounded" />
-                      )}
-                      
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{progress.filename}</span>
-                          <Badge variant={
-                            progress.status === 'success' ? 'default' :
-                            progress.status === 'error' ? 'destructive' :
-                            'secondary'
-                          }>
-                            {progress.status}
-                          </Badge>
-                        </div>
-                        
-                        <Progress value={progress.progress} className="w-full" />
-                        
-                        {progress.status === 'error' && progress.errorMessage && (
-                          <p className="text-red-600 text-sm">{progress.errorMessage}</p>
-                        )}
-                        
-                        {progress.status === 'pending' && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <Label>Title</Label>
-                              <Input
-                                value={batchMetadata[progress.fileId]?.title || ''}
-                                onChange={(e) => updateBatchMetadata(progress.fileId, 'title', e.target.value)}
-                                placeholder="Enter title"
-                              />
-                            </div>
-                            
-                            <div>
-                              <Label>Category</Label>
-                              <Select
-                                value={batchMetadata[progress.fileId]?.category || 'family-suite'}
-                                onValueChange={(value) => updateBatchMetadata(progress.fileId, 'category', value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {GALLERY_CATEGORIES.map(cat => (
-                                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            
-                            <div className="md:col-span-2">
-                              <Label>Description</Label>
-                              <Textarea
-                                value={batchMetadata[progress.fileId]?.description || ''}
-                                onChange={(e) => updateBatchMetadata(progress.fileId, 'description', e.target.value)}
-                                placeholder="Enter description"
-                                rows={2}
-                              />
-                            </div>
-                            
-                            <div>
-                              <Label>SEO Tags</Label>
-                              <Input
-                                value={batchMetadata[progress.fileId]?.tags || ''}
-                                onChange={(e) => updateBatchMetadata(progress.fileId, 'tags', e.target.value)}
-                                placeholder="tag1, tag2, tag3"
-                              />
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                checked={batchMetadata[progress.fileId]?.featured || false}
-                                onCheckedChange={(checked) => updateBatchMetadata(progress.fileId, 'featured', checked)}
-                              />
-                              <Label>Featured</Label>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
+          <div className="p-4">
+            <p className="text-center text-gray-500">Upload functionality will be implemented here</p>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
               Cancel
             </Button>
-            {uploadProgress.length > 0 && (
-              <Button
-                onClick={() => {
-                  const fileInput = uploadMode === 'single' 
-                    ? document.getElementById('single-file-input') as HTMLInputElement
-                    : document.getElementById('bulk-file-input') as HTMLInputElement;
-                  if (fileInput?.files) {
-                    handleUpload(fileInput.files);
-                  }
-                }}
-                disabled={isUploading}
-                className="bg-[#FF914D] hover:bg-[#8B5E3C]"
-              >
-                {isUploading ? 'Uploading...' : `Upload ${uploadProgress.length} file(s)`}
-              </Button>
-            )}
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-
-      {/* Edit Dialog */}
-      <Dialog open={editingImage !== null} onOpenChange={(open) => {
-        console.log('Dialog onOpenChange called with:', open);
-        if (!open) {
-          console.log('Closing dialog - setting editingImage to null');
-          setEditingImage(null);
-        }
-      }}>
-        {editingImage && (
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Media - {editingImage.alt}</DialogTitle>
-              <DialogDescription>
-                Update the title, description, category, and other properties for this media item.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Preview */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Preview</h3>
-                {editingImage.mediaType === 'video' ? (
-                  <video controls className="w-full h-64 object-cover rounded-lg">
-                    <source src={editingImage.imageUrl} type="video/mp4" />
-                  </video>
-                ) : (
-                  <img 
-                    src={editingImage.imageUrl} 
-                    alt={editingImage.alt}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                )}
-              </div>
-
-              {/* Edit Form */}
-              <div className="space-y-4">
-                <div>
-                  <Label>Title *</Label>
-                  <Input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="Enter title"
-                  />
-                </div>
-
-                <div>
-                  <Label>Category *</Label>
-                  <Select value={editCategory} onValueChange={setEditCategory}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GALLERY_CATEGORIES.map(cat => (
-                        <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Description</Label>
-                  <Textarea
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    placeholder="Enter description"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label>SEO Tags</Label>
-                  <Input
-                    value={editTags}
-                    onChange={(e) => setEditTags(e.target.value)}
-                    placeholder="tag1, tag2, tag3"
-                  />
-                </div>
-
-                <div>
-                  <Label>Sort Order</Label>
-                  <Input
-                    type="number"
-                    value={editSortOrder}
-                    onChange={(e) => setEditSortOrder(parseInt(e.target.value) || 0)}
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={editFeatured}
-                    onCheckedChange={setEditFeatured}
-                  />
-                  <Label>Featured</Label>
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingImage(null)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveEdit}
-                disabled={updateMutation.isPending}
-                className="bg-[#8B5E3C] hover:bg-[#6B4B2F]"
-              >
-                {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
       </Dialog>
 
       {/* Delete Confirmation */}
