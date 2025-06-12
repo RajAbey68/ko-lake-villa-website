@@ -175,6 +175,7 @@ export default function ContentManager() {
   const saveAllContent = () => saveContent();
 
   const getContentByPage = (page: string) => {
+    if (!Array.isArray(content)) return [];
     return content.filter(item => item.page === page);
   };
 
