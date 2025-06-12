@@ -528,7 +528,7 @@ export default function MasterGalleryManager() {
           </div>
         </div>
         
-        <Select value={selectedCategory || ''} onValueChange={(value) => setSelectedCategory(value || null)}>
+        <Select value={selectedCategory || 'all'} onValueChange={(value) => setSelectedCategory(value === 'all' ? null : value)}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
