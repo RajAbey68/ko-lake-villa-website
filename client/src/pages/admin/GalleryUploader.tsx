@@ -71,7 +71,9 @@ export default function GalleryUploader() {
   const [uploading, setUploading] = useState<boolean>(false);
   const [clearing, setClearing] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<{url: string; name: string}[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{url: string; name: string; id?: number}[]>([]);
+  const [showTaggingDialog, setShowTaggingDialog] = useState<boolean>(false);
+  const [currentImageForTagging, setCurrentImageForTagging] = useState<{url: string; name: string; id?: number} | null>(null);
   
   // Authentication check
   useEffect(() => {
@@ -202,6 +204,7 @@ export default function GalleryUploader() {
                     resolve({
                       url: data.data.imageUrl,
                       name: file.name,
+                      id: data.data.id,
                       success: true
                     });
                   } else {
@@ -254,7 +257,8 @@ export default function GalleryUploader() {
             if (typedResult.success && typedResult.url && typedResult.name) {
               uploadedFiles.push({
                 url: typedResult.url,
-                name: typedResult.name
+                name: typedResult.name,
+                id: typedResult.id
               });
             } else {
               // Report failed uploads to the user
@@ -280,8 +284,14 @@ export default function GalleryUploader() {
       setUploadedImages(uploadedFiles);
       setMessage({ 
         type: 'success', 
-        text: `Successfully uploaded ${totalFiles} image${totalFiles > 1 ? 's' : ''} to the ${category} category.` 
+        text: `Successfully uploaded ${totalFiles} image${totalFiles > 1 ? 's' : ''} to the ${category} category. Click on any image to add SEO tags.` 
       });
+      
+      // Show the first uploaded image for SEO tagging if only one image was uploaded
+      if (uploadedFiles.length === 1) {
+        setCurrentImageForTagging(uploadedFiles[0]);
+        setShowTaggingDialog(true);
+      }
       
       // Reset form
       setSelectedFiles(null);
@@ -301,6 +311,58 @@ export default function GalleryUploader() {
     } finally {
       setUploading(false);
     }
+  };
+
+  // Handle SEO tagging dialog save
+  const handleSaveTagging = async (tagData: {
+    title: string;
+    description: string;
+    category: string;
+    tags: string;
+    featured: boolean;
+  }) => {
+    if (!currentImageForTagging?.id) return;
+
+    try {
+      const response = await fetch(`/api/gallery/${currentImageForTagging.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          alt: tagData.title,
+          description: tagData.description,
+          category: tagData.category,
+          tags: tagData.tags,
+          featured: tagData.featured
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update image metadata');
+      }
+
+      setMessage({
+        type: 'success',
+        text: `SEO metadata saved for ${currentImageForTagging.name}`
+      });
+
+    } catch (error) {
+      console.error('Error saving SEO metadata:', error);
+      setMessage({
+        type: 'error',
+        text: 'Failed to save SEO metadata'
+      });
+    }
+
+    setShowTaggingDialog(false);
+    setCurrentImageForTagging(null);
+  };
+
+  // Handle clicking on uploaded image to add SEO tags
+  const handleImageClick = (image: {url: string; name: string; id?: number}) => {
+    setCurrentImageForTagging(image);
+    setShowTaggingDialog(true);
   };
   
   // If still loading, show loading state
@@ -560,16 +622,21 @@ export default function GalleryUploader() {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-2">
                       {uploadedImages.map((image, index) => (
-                        <div key={index} className="relative group">
+                        <div 
+                          key={index} 
+                          className="relative group cursor-pointer"
+                          onClick={() => handleImageClick(image)}
+                        >
                           <img 
                             src={image.url} 
                             alt={image.name}
                             className="h-24 w-full object-cover rounded-md"
                           />
                           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all rounded-md flex items-center justify-center">
-                            <p className="text-white text-xs opacity-0 group-hover:opacity-100 text-center px-1">
-                              {image.name}
-                            </p>
+                            <div className="text-white text-xs opacity-0 group-hover:opacity-100 text-center px-1">
+                              <p className="font-medium">{image.name}</p>
+                              <p className="text-xs mt-1">Click to add SEO tags</p>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -615,6 +682,24 @@ export default function GalleryUploader() {
           </p>
         </div>
       </div>
+
+      {/* SEO Tagging Dialog */}
+      <TaggingDialog
+        isOpen={showTaggingDialog}
+        onClose={() => {
+          setShowTaggingDialog(false);
+          setCurrentImageForTagging(null);
+        }}
+        onSave={handleSaveTagging}
+        initialData={{
+          title: currentImageForTagging?.name?.split('.')[0] || '',
+          description: description,
+          category: category,
+          tags: '',
+          featured: isFeatured
+        }}
+        imagePreview={currentImageForTagging?.url}
+      />
     </div>
   );
 }
