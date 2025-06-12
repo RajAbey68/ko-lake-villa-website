@@ -64,6 +64,27 @@ export default function SimpleGalleryManager() {
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [showTaggingDialog, setShowTaggingDialog] = useState(false);
   const [viewingMedia, setViewingMedia] = useState<{ type: 'image' | 'video', url: string, title: string } | null>(null);
+
+  // Debug logging for state changes
+  useEffect(() => {
+    console.log('Gallery Manager mounted, states initialized');
+  }, []);
+
+  useEffect(() => {
+    if (editingImage) {
+      console.log('Edit dialog should open for:', editingImage.alt);
+    } else {
+      console.log('Edit dialog closed');
+    }
+  }, [editingImage]);
+
+  useEffect(() => {
+    if (viewingMedia) {
+      console.log('Fullscreen viewer should open for:', viewingMedia.type, viewingMedia.title);
+    } else {
+      console.log('Fullscreen viewer closed');
+    }
+  }, [viewingMedia]);
   
   // Upload functionality state
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -371,33 +392,46 @@ export default function SimpleGalleryManager() {
           <Card key={image.id} className="overflow-hidden">
             <div className="relative aspect-square">
               {image.mediaType === 'video' ? (
-                <video
-                  controls
-                  preload="metadata"
-                  className="w-full h-full object-cover bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    // Open video in fullscreen modal
-                    setViewingMedia({ type: 'video', url: image.imageUrl, title: image.alt });
-                  }}
-                  onError={(e) => {
-                    console.error('Video failed to load:', image.imageUrl);
-                  }}
-                  onLoadedData={() => {
-                    console.log('Video loaded and ready:', image.imageUrl);
-                  }}
-                >
-                  <source src={image.imageUrl} type="video/mp4" />
-                  <source src={image.imageUrl} type="video/quicktime" />
-                  Your browser does not support the video tag.
-                </video>
+                <div className="relative w-full h-full bg-gray-100">
+                  <video
+                    controls
+                    preload="metadata"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error('Video failed to load:', image.imageUrl);
+                    }}
+                    onLoadedData={() => {
+                      console.log('Video loaded and ready:', image.imageUrl);
+                    }}
+                  >
+                    <source src={image.imageUrl} type="video/mp4" />
+                    <source src={image.imageUrl} type="video/quicktime" />
+                    Your browser does not support the video tag.
+                  </video>
+                  <div 
+                    className="absolute inset-0 bg-transparent cursor-pointer flex items-center justify-center"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Video clicked, opening fullscreen for:', image.alt);
+                      setViewingMedia({ type: 'video', url: image.imageUrl, title: image.alt });
+                    }}
+                  >
+                    <div className="bg-black/20 text-white px-3 py-1 rounded text-sm opacity-0 hover:opacity-100 transition-opacity">
+                      Click to play fullscreen
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <img
                   src={image.imageUrl}
                   alt={image.alt}
                   className="w-full h-full object-cover bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
                   loading="lazy"
-                  onClick={() => {
-                    // Open image in fullscreen modal
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Image clicked, opening fullscreen for:', image.alt);
                     setViewingMedia({ type: 'image', url: image.imageUrl, title: image.alt });
                   }}
                   onError={(e) => {
@@ -688,7 +722,7 @@ export default function SimpleGalleryManager() {
 
       {/* Fullscreen Media Viewer */}
       <Dialog open={viewingMedia !== null} onOpenChange={() => setViewingMedia(null)}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black">
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black" aria-describedby="fullscreen-media-description">
           <div className="relative w-full h-full flex items-center justify-center">
             {viewingMedia && (
               <>
@@ -730,6 +764,9 @@ export default function SimpleGalleryManager() {
                 {/* Title overlay */}
                 <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-3 rounded">
                   <h3 className="font-medium">{viewingMedia.title}</h3>
+                  <div id="fullscreen-media-description" className="sr-only">
+                    Fullscreen view of {viewingMedia.type}: {viewingMedia.title}. Press Escape or click the close button to exit.
+                  </div>
                 </div>
               </>
             )}
