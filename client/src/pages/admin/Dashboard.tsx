@@ -1549,7 +1549,7 @@ function AdminDashboardContent() {
                             const avgRate = Math.round((sunRate + monRate + tueRate) / 3);
                             const autoDirectRate = Math.round(avgRate * 0.9);
                             const override = pricing.overrides?.[roomId as keyof typeof pricing.overrides];
-                            const displayRate = override ? override.customPrice : autoDirectRate;
+                            const displayRate = override ? (override as any).customPrice : autoDirectRate;
                             const isCustom = !!override;
                             const roomNames: Record<string, string> = { 
                               knp: "Entire Villa KLV", 
