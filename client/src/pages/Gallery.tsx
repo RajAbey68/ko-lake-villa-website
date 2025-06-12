@@ -228,9 +228,10 @@ const handleCategoryChange = (category: string | null) => {
   const openImageModal = (image: GalleryImageType) => {
     if (!galleryImages) return;
 
-    console.log("Selected image for modal:", image);
+    console.log("Opening modal for image:", image);
     const imageIndex = galleryImages.findIndex(img => img.id === image.id);
-    setCurrentImageIndex(imageIndex);
+    console.log("Image index:", imageIndex);
+    setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
     setModalOpen(true);
   };
 
@@ -439,8 +440,10 @@ const handleCategoryChange = (category: string | null) => {
                     ${image.displaySize === 'medium' ? 'col-span-1 md:col-span-1 lg:col-span-1' : ''}
                     ${image.displaySize === 'small' ? 'col-span-1' : ''}`
                   }
-                  onClick={() => {
-                    console.log('Opening image modal for:', image);
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Clicked image:', image.id, image.alt);
                     openImageModal(image);
                   }}
                 >
@@ -514,6 +517,9 @@ const handleCategoryChange = (category: string | null) => {
                   </div>
                   <div className="pt-2 pb-1 px-1">
                     <p className="text-[#8B5E3C] font-medium truncate">{image.title || image.alt}</p>
+                    {image.description && (
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{image.description}</p>
+                    )}
                     <p className="text-xs text-[#62C3D2] mt-1">
                       {image.category
                         .split('-')
