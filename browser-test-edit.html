@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gallery Edit Test</title>
+</head>
+<body>
+    <h1>Gallery Edit Button Test</h1>
+    <p>Open browser console and navigate to /admin/gallery, then run this test:</p>
+    
+    <script>
+    // Test script to run in browser console on /admin/gallery page
+    function testEditButton() {
+        console.log('=== TESTING EDIT BUTTON ===');
+        
+        // Find edit buttons
+        const editButtons = document.querySelectorAll('button[title*="Edit"]');
+        console.log(`Found ${editButtons.length} edit buttons`);
+        
+        if (editButtons.length > 0) {
+            console.log('Clicking first edit button...');
+            editButtons[0].click();
+            
+            // Check for dialog after 1 second
+            setTimeout(() => {
+                const dialogs = document.querySelectorAll('[role="dialog"]');
+                console.log(`Dialogs found: ${dialogs.length}`);
+                
+                if (dialogs.length > 0) {
+                    console.log('✓ EDIT DIALOG OPENED SUCCESSFULLY');
+                    dialogs.forEach((dialog, i) => {
+                        console.log(`Dialog ${i+1}:`, dialog.getAttribute('aria-describedby'));
+                    });
+                    
+                    // Close dialog
+                    const closeBtn = dialogs[0].querySelector('button');
+                    if (closeBtn) closeBtn.click();
+                } else {
+                    console.log('✗ NO DIALOG APPEARED');
+                }
+            }, 1000);
+        }
+    }
+    
+    // Instructions for manual testing
+    console.log('To test edit functionality:');
+    console.log('1. Navigate to /admin/gallery');
+    console.log('2. Run: testEditButton()');
+    </script>
+</body>
+</html>
