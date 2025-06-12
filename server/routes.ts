@@ -29,12 +29,12 @@ async function sendEmail(to: string, subject: string, html: string, text: string
     console.log('Email SMTP not configured, skipping email to:', to);
     return;
   }
-  
+
   try {
     const nodemailer = require('nodemailer');
-    
+
     // Configure SMTP (you can use Gmail, Outlook, or any SMTP service)
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com', // Use your preferred SMTP service
       port: 587,
       secure: false,
@@ -103,7 +103,7 @@ async function sendBookingNotifications(bookingData: any) {
     month: 'long',
     day: 'numeric'
   });
-  
+
   const checkOut = new Date(checkOutDate).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -115,11 +115,11 @@ async function sendBookingNotifications(bookingData: any) {
   const guestEmailHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #8B5E3C;">Booking Confirmation - Ko Lake House</h2>
-      
+
       <p>Dear ${name},</p>
-      
+
       <p>Thank you for your booking request! We have received your inquiry and will contact you within 24 hours to confirm availability and finalize your reservation.</p>
-      
+
       <div style="background: #F8F6F2; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="color: #8B5E3C; margin-top: 0;">Booking Details</h3>
         <p><strong>Guest Name:</strong> ${name}</p>
@@ -132,9 +132,9 @@ async function sendBookingNotifications(bookingData: any) {
         ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
         <p><strong>Booking Reference:</strong> KLH-${id}</p>
       </div>
-      
+
       <p>We look forward to hosting you at Ko Lake House for an unforgettable experience by Koggala Lake.</p>
-      
+
       <p>Best regards,<br>
       Ko Lake House Team<br>
       <a href="mailto:contact@kolakehouse.com">contact@kolakehouse.com</a><br>
@@ -144,11 +144,11 @@ async function sendBookingNotifications(bookingData: any) {
 
   const guestEmailText = `
     Booking Confirmation - Ko Lake House
-    
+
     Dear ${name},
-    
+
     Thank you for your booking request! We have received your inquiry and will contact you within 24 hours to confirm availability and finalize your reservation.
-    
+
     Booking Details:
     - Guest Name: ${name}
     - Email: ${email}
@@ -159,9 +159,9 @@ async function sendBookingNotifications(bookingData: any) {
     - Room Type: ${roomType}
     ${specialRequests ? `- Special Requests: ${specialRequests}` : ''}
     - Booking Reference: KLH-${id}
-    
+
     We look forward to hosting you at Ko Lake House for an unforgettable experience by Koggala Lake.
-    
+
     Best regards,
     Ko Lake House Team
     contact@kolakehouse.com
@@ -172,15 +172,15 @@ async function sendBookingNotifications(bookingData: any) {
   const adminEmailHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #FF914D;">🏨 New Booking Request - Ko Lake House</h2>
-      
+
       <p><strong>A new booking request has been submitted and requires your attention.</strong></p>
-      
+
       <div style="background: #FDF6EE; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FF914D;">
         <h3 style="color: #8B5E3C; margin-top: 0;">Guest Information</h3>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
         ${phone ? `<p><strong>Phone:</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
-        
+
         <h3 style="color: #8B5E3C;">Booking Details</h3>
         <p><strong>Check-in:</strong> ${checkIn}</p>
         <p><strong>Check-out:</strong> ${checkOut}</p>
@@ -189,14 +189,14 @@ async function sendBookingNotifications(bookingData: any) {
         ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
         <p><strong>Booking Reference:</strong> KLH-${id}</p>
       </div>
-      
+
       <p><strong>Next Steps:</strong></p>
       <ul>
         <li>Contact guest within 24 hours to confirm availability</li>
         <li>Send final confirmation with payment details</li>
         <li>Update booking status in admin dashboard</li>
       </ul>
-      
+
       <p>View full booking details in your <a href="${process.env.WEBSITE_URL || 'https://skill-bridge-rajabey68.replit.app'}/admin/dashboard">admin dashboard</a>.</p>
     </div>
   `;
@@ -499,7 +499,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
 
         console.log("Creating gallery image with data:", galleryImageData);
-        
+
         try {
           const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
           console.log("Gallery image created:", galleryImage.id);
@@ -677,7 +677,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
 
           console.log("Creating gallery image with data:", galleryImageData);
-          
+
           try {
             const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
             console.log("Gallery image created:", galleryImage.id);
@@ -743,7 +743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertBookingInquirySchema.parse(req.body);
       const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
-      
+
       // Send notifications after successful booking storage
       try {
         await sendBookingNotifications(bookingInquiry);
@@ -751,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Notification error (booking still saved):', notificationError);
         // Don't fail the booking if notifications fail
       }
-      
+
       res.status(201).json({
         message: "Booking inquiry submitted successfully! You'll receive a confirmation email and we'll contact you within 24 hours.",
         data: bookingInquiry
@@ -883,7 +883,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Gallery Management
-  app.post("/api/admin/gallery", async (req, res) => {
+  app.post("/api/admin/gallery", async database error.
+Analysis: The code was updated to fix the gallery image update endpoint, ensuring that existing image data is merged with updates and the ID is preserved.
+```tool_code
+ (req, res) => {
     try {
       const validatedData = insertGalleryImageSchema.parse(req.body);
       const galleryImage = await dataStorage.createGalleryImage(validatedData);
@@ -972,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get all gallery images
       const images = await dataStorage.getGalleryImages();
-      
+
       if (images.length === 0) {
         return res.json({ message: "No images to delete" });
       }
@@ -1061,7 +1064,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analyze-media/:id", async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
-      
+
       if (!imageId) {
         return res.status(400).json({ error: "Invalid image ID" });
       }
@@ -1385,11 +1388,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const activity = await dataStorage.getActivityById(id);
-      
+
       if (!activity) {
         return res.status(404).json({ message: "Activity not found" });
       }
-      
+
       res.json(activity);
     } catch (error) {
       console.error('Error fetching activity:', error);
@@ -1401,11 +1404,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Validate request body structure
       const activityData = req.body;
-      
+
       if (!activityData.name || !activityData.description) {
         return res.status(400).json({ message: "Name and description are required" });
       }
-      
+
       const newActivity = await dataStorage.createActivity(activityData);
       res.status(201).json(newActivity);
     } catch (error) {
@@ -1415,7 +1418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Missing API endpoints from test logs
-  
+
   // Content API
   app.get('/api/content', (req, res) => {
     const content = {
@@ -1548,7 +1551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = parseInt(req.query.limit as string) || 50;
       const action = req.query.action as string;
       const adminEmail = req.query.adminEmail as string;
-      
+
       // Mock audit logs for now - in production, query from database
       const mockLogs = [
         {
@@ -1578,20 +1581,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: 'success'
         }
       ];
-      
+
       let filteredLogs = mockLogs;
-      
+
       if (action) {
         filteredLogs = filteredLogs.filter(log => log.action.includes(action));
       }
-      
+
       if (adminEmail) {
         filteredLogs = filteredLogs.filter(log => log.adminEmail.includes(adminEmail));
       }
-      
+
       const startIndex = (page - 1) * limit;
       const paginatedLogs = filteredLogs.slice(startIndex, startIndex + limit);
-      
+
       res.json({
         logs: paginatedLogs,
         pagination: {
@@ -1621,14 +1624,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userAgent: req.get('User-Agent') || 'unknown',
         status: req.body.status || 'success'
       };
-      
+
       const validatedData = insertAdminAuditLogSchema.parse(auditData);
-      
+
       // In production, save to database
       // await db.insert(adminAuditLogs).values(validatedData);
-      
+
       console.log(`[AUDIT] ${auditData.adminEmail} performed ${auditData.action} on ${auditData.resource}`);
-      
+
       res.status(201).json({ message: 'Audit log created successfully', data: validatedData });
     } catch (error) {
       console.error('Failed to create audit log:', error);
@@ -1811,7 +1814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .from(virtualTours)
         .where(eq(virtualTours.isActive, true))
         .orderBy(asc(virtualTours.sortOrder));
-      
+
       res.json(tours);
     } catch (error) {
       console.error('Error fetching virtual tours:', error);
@@ -1829,11 +1832,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           eq(virtualTours.isActive, true)
         ))
         .limit(1);
-      
+
       if (tour.length === 0) {
         return res.status(404).json({ error: 'Virtual tour not found' });
       }
-      
+
       res.json(tour[0]);
     } catch (error) {
       console.error('Error fetching virtual tour:', error);
@@ -1852,6 +1855,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+// Update gallery image
+  app.patch('/api/gallery/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+
+      console.log(`Updating gallery image ${id} with:`, updates);
+
+      // Get the existing image first
+      const existingImage = await dataStorage.getGalleryImageById(id);
+      if (!existingImage) {
+        return res.status(404).json({ error: 'Gallery image not found' });
+      }
+
+      // Merge updates with existing data
+      const updatedData = {
+        ...existingImage,
+        ...updates,
+        id // Ensure ID is preserved
+      };
+
+      const updatedImage = await dataStorage.updateGalleryImage(updatedData);
+      console.log(`Gallery image ${id} updated successfully`);
+
+      res.json(updatedImage);
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      res.status(500).json({ error: 'Failed to update gallery image' });
+    }
+  });
 
 
   const httpServer = createServer(app);

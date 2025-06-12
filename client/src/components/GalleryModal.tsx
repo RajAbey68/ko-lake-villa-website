@@ -126,13 +126,31 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                   }
                 }}
                 onDoubleClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   const video = e.target as HTMLVideoElement;
-                  if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                  } else if ((video as any).webkitRequestFullscreen) {
-                    (video as any).webkitRequestFullscreen();
-                  } else if ((video as any).msRequestFullscreen) {
-                    (video as any).msRequestFullscreen();
+                  
+                  try {
+                    if (video.requestFullscreen) {
+                      video.requestFullscreen().catch(console.error);
+                    } else if ((video as any).webkitRequestFullscreen) {
+                      (video as any).webkitRequestFullscreen();
+                    } else if ((video as any).mozRequestFullScreen) {
+                      (video as any).mozRequestFullScreen();
+                    } else if ((video as any).msRequestFullscreen) {
+                      (video as any).msRequestFullscreen();
+                    }
+                  } catch (error) {
+                    console.warn('Fullscreen not supported:', error);
+                  }
+                }}
+                onClick={(e) => {
+                  // Toggle play/pause on single click
+                  const video = e.target as HTMLVideoElement;
+                  if (video.paused) {
+                    video.play().catch(console.error);
+                  } else {
+                    video.pause();
                   }
                 }}
                 onError={(e) => {
