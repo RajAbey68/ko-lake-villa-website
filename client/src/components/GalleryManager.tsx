@@ -942,7 +942,13 @@ export default function GalleryManager() {
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={editingImage !== null} onOpenChange={(open) => !open && setEditingImage(null)}>
+      <Dialog open={editingImage !== null} onOpenChange={(open) => {
+        console.log('Dialog onOpenChange called with:', open);
+        if (!open) {
+          console.log('Closing dialog - setting editingImage to null');
+          setEditingImage(null);
+        }
+      }}>
         {editingImage && (
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
