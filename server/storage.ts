@@ -1167,7 +1167,7 @@ class DbStorage implements IStorage {
 
   async updateGalleryImage(id: number, updates: Partial<GalleryImage>): Promise<GalleryImage> {
     try {
-      const [updatedImage] = await this.db
+      const [updatedImage] = await db
         .update(galleryImages)
         .set({
           ...updates,
@@ -1189,7 +1189,7 @@ class DbStorage implements IStorage {
 
   async getGalleryImageById(id: number): Promise<GalleryImage | null> {
     try {
-      const [image] = await this.db
+      const [image] = await db
         .select()
         .from(galleryImages)
         .where(eq(galleryImages.id, id))
