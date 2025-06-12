@@ -73,10 +73,11 @@ export default function SimpleGalleryManager() {
   useEffect(() => {
     if (editingImage) {
       console.log('Edit dialog should open for:', editingImage.alt);
+      console.log('showTaggingDialog state:', showTaggingDialog);
     } else {
       console.log('Edit dialog closed');
     }
-  }, [editingImage]);
+  }, [editingImage, showTaggingDialog]);
 
   useEffect(() => {
     if (viewingMedia) {
