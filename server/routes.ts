@@ -883,10 +883,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin Gallery Management
-  app.post("/api/admin/gallery", async database error.
-Analysis: The code was updated to fix the gallery image update endpoint, ensuring that existing image data is merged with updates and the ID is preserved.
-```tool_code
- (req, res) => {
+  app.post("/api/admin/gallery", async (req, res) => {
     try {
       const validatedData = insertGalleryImageSchema.parse(req.body);
       const galleryImage = await dataStorage.createGalleryImage(validatedData);
