@@ -1619,7 +1619,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       },
       currency: "USD",
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      rates: {
+        "knp": { "sun": 431, "mon": 431, "tue": 431 },
+        "knp1": { "sun": 119, "mon": 119, "tue": 119 },
+        "knp3": { "sun": 70, "mon": 70, "tue": 70 },
+        "knp6": { "sun": 250, "mon": 250, "tue": 250 }
+      },
+      updated: new Date().toISOString()
     };
     res.json(pricing);
   });
