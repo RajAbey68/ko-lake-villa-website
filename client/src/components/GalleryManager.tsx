@@ -493,20 +493,35 @@ export default function GalleryManager() {
           <Card key={image.id} className="group overflow-hidden">
             <div className="relative">
               {image.mediaType === 'video' ? (
-                <video 
-                  className="w-full h-48 object-cover"
-                  onMouseEnter={(e) => {
-                    const video = e.target as HTMLVideoElement;
-                    video.play().catch(() => {});
-                  }}
-                  onMouseLeave={(e) => {
-                    const video = e.target as HTMLVideoElement;
-                    video.pause();
-                    video.currentTime = 0;
-                  }}
-                >
-                  <source src={image.imageUrl} type="video/mp4" />
-                </video>
+                <div className="relative w-full h-48">
+                  <video 
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                    loop
+                    preload="metadata"
+                    onMouseEnter={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      video.play().catch(() => {});
+                    }}
+                    onMouseLeave={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      video.pause();
+                      video.currentTime = 0;
+                    }}
+                    onError={(e) => {
+                      console.error('Failed to load video:', image.imageUrl);
+                    }}
+                  >
+                    <source src={image.imageUrl} type="video/mp4" />
+                    <source src={image.imageUrl} type="video/quicktime" />
+                  </video>
+                  <div className="absolute top-2 right-2">
+                    <svg className="w-6 h-6 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
               ) : (
                 <img 
                   src={image.imageUrl} 
