@@ -351,27 +351,53 @@ export default function MasterGalleryManager() {
 
   useEffect(() => {
     if (editingImage) {
-      setEditCategory(editingImage.category || '');
-      setEditTitle(editingImage.alt || '');
+      setEditCategory(editingImage.category || 'family-suite');
+      setEditTitle(editingImage.title || editingImage.alt || '');
       setEditDescription(editingImage.description || '');
       setEditTags(editingImage.tags || '');
       setEditSortOrder(editingImage.sortOrder || 1);
       setEditFeatured(editingImage.featured || false);
+      console.log('Editing image initialized:', {
+        id: editingImage.id,
+        category: editingImage.category,
+        title: editingImage.title || editingImage.alt,
+        description: editingImage.description
+      });
     }
   }, [editingImage]);
 
   const handleSaveEdit = () => {
     if (!editingImage) return;
 
+    // Validate required fields
+    if (!editTitle.trim()) {
+      toast({ 
+        title: "Error", 
+        description: "Title is required", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    if (!editCategory) {
+      toast({ 
+        title: "Error", 
+        description: "Category is required", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     updateMutation.mutate({
       id: editingImage.id,
       updates: {
         category: editCategory,
-        alt: editTitle,
-        description: editDescription,
-        tags: editTags,
+        alt: editTitle.trim(),
+        title: editTitle.trim(),
+        description: editDescription.trim(),
+        tags: editTags.trim(),
         featured: editFeatured,
-        sortOrder: editSortOrder
+        sortOrder: editSortOrder || 1
       }
     });
   };
@@ -655,7 +681,12 @@ export default function MasterGalleryManager() {
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={() => setEditingImage(image)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Edit button clicked for image:', image.id);
+                      setEditingImage(image);
+                    }}
                     title="Edit"
                   >
                     <EditIcon className="h-4 w-4" />
