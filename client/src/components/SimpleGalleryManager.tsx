@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -563,13 +563,13 @@ export default function SimpleGalleryManager() {
           setEditingImage(null);
         }
       }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="edit-dialog-description">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit {editingImage?.mediaType === 'video' ? 'Video' : 'Image'}</DialogTitle>
+            <DialogDescription>
+              Update the title, description, and category for this media item
+            </DialogDescription>
           </DialogHeader>
-          <p id="edit-dialog-description" className="text-sm text-gray-600 -mt-2 mb-4">
-            Update the title, description, and category for this media item
-          </p>
           
           {editingImage && (
 
