@@ -19,7 +19,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
   // Get all available images for this room type
   const getRoomImages = (roomName: string) => {
     const images = [];
-    
+
     if (roomName.includes('KLV1') || roomName.includes('Family Suite')) {
       images.push(
         '/uploads/gallery/family-suite/KoLakeHouse_family-suite_0.jpg',
@@ -44,7 +44,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
         '/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg'
       );
     }
-    
+
     return images.length > 0 ? images : ['/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg'];
   };
 
@@ -149,7 +149,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
               }}
             />
           </div>
-          
+
           {images.length > 1 && (
             <>
               <button
@@ -207,7 +207,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
             <div>
               <div className="bg-gray-50 rounded-lg p-6 mb-6">
                 <h3 className="text-lg font-semibold text-[#1E4E5F] mb-4">Room Details</h3>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <Users className="w-5 h-5 text-[#E8B87D]" />
@@ -245,7 +245,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
                   <Eye className="w-4 h-4" />
                   <span>360° Virtual Tour</span>
                 </Button>
-                
+
                 <Button
                   onClick={() => onBookNow({ name: room.name, price: room.price })}
                   className="w-full bg-[#E8B87D] hover:bg-[#1E4E5F] text-white"
