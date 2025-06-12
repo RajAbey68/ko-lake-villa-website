@@ -8,6 +8,7 @@ import VirtualTourModal from '@/components/VirtualTourModal';
 import RoomDetailsModal from '@/components/RoomDetailsModal';
 import { Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import GalleryImage from '@/components/GalleryImage';
 
 interface PricingData {
   updated: string;
@@ -115,7 +116,7 @@ const Accommodation = () => {
     const directPrice = getCurrentPrice(roomName);
     const airbnbPrice = getAirbnbRate(roomName);
     const savings = airbnbPrice - directPrice;
-    
+
     if (savings <= 0) {
       console.warn(`Pricing Alert: ${roomName} - Direct rate ($${directPrice}) should be lower than Airbnb ($${airbnbPrice})`);
       return false;
@@ -189,15 +190,10 @@ const Accommodation = () => {
                 <div key={room.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover-scale">
                   <div className="md:flex">
                     <div className="md:w-2/5 relative group cursor-pointer" onClick={() => handleImageClick(room)}>
-                      <img 
+                      <GalleryImage 
                         src={getAuthenticRoomImage(room.name)} 
-                        alt={`${room.name} - ${room.capacity} guests, ${room.size}m² with ${room.features.join(', ')} at Ko Lake Villa Ahangama`} 
-                        className="w-full h-64 md:h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
-                          console.log(`Image failed to load: ${getAuthenticRoomImage(room.name)}`);
-                        }}
+                        alt={`${room.name} - ${room.capacity} guests, ${room.size}m² with ${room.features.join(', ')} at Ko Lake Villa Ahangama`}
+                        className="w-full h-64 md:h-full object-cover transition-transform duration-300 group-hover:scale-105 accommodation"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-center">
@@ -254,7 +250,7 @@ const Accommodation = () => {
                             Prices compared to actual Airbnb listings • Updated regularly
                           </div>
                         </div>
-                        
+
                         <div className="flex justify-between items-center">
                           <div className="text-sm text-gray-600">
                             <span>Better rates • Direct support • No booking fees</span>
