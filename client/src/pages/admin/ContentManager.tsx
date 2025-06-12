@@ -35,7 +35,25 @@ export default function ContentManager() {
       const response = await fetch('/api/content');
       if (response.ok) {
         const data = await response.json();
-        setContent(data);
+        // Convert object structure to array format
+        if (data.pages) {
+          const contentArray: PageContent[] = [];
+          Object.entries(data.pages).forEach(([pageName, pageData]: [string, any]) => {
+            Object.entries(pageData).forEach(([key, value]: [string, any]) => {
+              contentArray.push({
+                id: `${pageName}-${key}`,
+                page: pageName,
+                section: key === 'title' ? 'hero' : 'content',
+                title: key.charAt(0).toUpperCase() + key.slice(1),
+                content: value as string,
+                lastUpdated: data.lastUpdated || new Date().toISOString()
+              });
+            });
+          });
+          setContent(contentArray);
+        } else {
+          initializeDefaultContent();
+        }
       } else {
         initializeDefaultContent();
       }
