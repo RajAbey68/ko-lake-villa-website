@@ -230,6 +230,7 @@ export default function SimpleGalleryManager() {
       });
       setSelectedFiles([]);
       setUploadProgress(0);
+      setIsUploading(false);
       setShowUploadDialog(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -250,6 +251,7 @@ export default function SimpleGalleryManager() {
   };
 
   const confirmDelete = () => {
+    console.log('Confirming delete for ID:', deleteConfirmId);
     if (deleteConfirmId) {
       deleteMutation.mutate(deleteConfirmId);
     }
@@ -417,36 +419,31 @@ export default function SimpleGalleryManager() {
           return (
             <Card key={image.id} className="overflow-hidden">
               <div className="relative aspect-square">
-                {image.mediaType === 'video' ? (
-                  <button 
-                    className="relative w-full h-full bg-gray-100 cursor-pointer border-0 p-0"
-                    onClick={handleMediaClick}
-                    type="button"
-                  >
-                    <video
-                      controls={false}
-                      preload="metadata"
-                      className="w-full h-full object-cover pointer-events-none"
-                      onError={(e) => {
-                        console.error('Video failed to load:', image.imageUrl);
-                      }}
-                    >
-                      <source src={image.imageUrl} type="video/mp4" />
-                      <source src={image.imageUrl} type="video/quicktime" />
-                      Your browser does not support the video tag.
-                    </video>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-black/50 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                        ▶ Click to play fullscreen
+                <div 
+                  className="relative w-full h-full bg-gray-100 cursor-pointer"
+                  onClick={handleMediaClick}
+                >
+                  {image.mediaType === 'video' ? (
+                    <>
+                      <video
+                        controls={false}
+                        preload="metadata"
+                        className="w-full h-full object-cover pointer-events-none"
+                        onError={(e) => {
+                          console.error('Video failed to load:', image.imageUrl);
+                        }}
+                      >
+                        <source src={image.imageUrl} type="video/mp4" />
+                        <source src={image.imageUrl} type="video/quicktime" />
+                        Your browser does not support the video tag.
+                      </video>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="bg-black/50 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                          ▶ Click to play fullscreen
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ) : (
-                  <button 
-                    className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity border-0 p-0"
-                    onClick={handleMediaClick}
-                    type="button"
-                  >
+                    </>
+                  ) : (
                     <img
                       src={image.imageUrl}
                       alt={image.alt}
@@ -470,8 +467,8 @@ export default function SimpleGalleryManager() {
                         }
                       }}
                     />
-                  </button>
-                )}
+                  )}
+                </div>
 
               {/* Featured Badge */}
               {image.featured && (
@@ -482,26 +479,32 @@ export default function SimpleGalleryManager() {
 
                 {/* Action Buttons */}
                 <div className="absolute top-2 right-2 flex gap-1 z-10">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={handleEditClick}
-                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-                    aria-label={`Edit ${image.alt}`}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Edit button clicked for image:', image.id);
+                      setEditingImage(image);
+                      setShowTaggingDialog(true);
+                    }}
+                    className="h-8 w-8 bg-white/90 hover:bg-white rounded border flex items-center justify-center"
                     title="Edit this image"
                     type="button"
                   >
                     <EditIcon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => setDeleteConfirmId(image.id)}
-                    className="h-8 w-8 p-0 bg-white/90 hover:bg-red-600"
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Delete button clicked for image:', image.id);
+                      setDeleteConfirmId(image.id);
+                    }}
+                    className="h-8 w-8 bg-white/90 hover:bg-red-100 rounded border flex items-center justify-center"
                     type="button"
                   >
-                    <TrashIcon className="h-4 w-4" />
-                  </Button>
+                    <TrashIcon className="h-4 w-4 text-red-600" />
+                  </button>
                 </div>
               </div>
 
