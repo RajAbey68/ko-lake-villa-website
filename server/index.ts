@@ -144,27 +144,31 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    const server = await registerRoutes(app);
 
-  // AI routes will be loaded when needed
+    // AI routes will be loaded when needed
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
 
-    console.error('Server error:', err);
-    console.error('Error stack:', err.stack);
+      console.error('Server error:', err);
+      console.error('Error stack:', err.stack);
 
-    // In production, don't expose internal error details
-    if (process.env.NODE_ENV === 'production') {
-      res.status(status).json({ 
-        message: 'Something went wrong. Please try again later.',
-        error: 'Internal server error'
-      });
-    } else {
-      res.status(status).json({ message, error: err.message, stack: err.stack });
-    }
-  });
+      // Prevent crash on response errors
+      if (!res.headersSent) {
+        // In production, don't expose internal error details
+        if (process.env.NODE_ENV === 'production') {
+          res.status(status).json({ 
+            message: 'Something went wrong. Please try again later.',
+            error: 'Internal server error'
+          });
+        } else {
+          res.status(status).json({ message, error: err.message, stack: err.stack });
+        }
+      }
+    });
 
   // Use appropriate server mode based on environment
   if (process.env.NODE_ENV === 'production') {
@@ -207,4 +211,23 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Handle uncaught exceptions to prevent crashes
+  process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // Don't exit in development, just log the error
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit in development, just log the error
+  });
+
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 })();
