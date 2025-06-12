@@ -405,9 +405,15 @@ export default function SimpleGalleryManager() {
           const handleEditClick = (e: React.MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Edit clicked for:', image.id, image.alt);
+            console.log('Edit button clicked for image:', image.id);
+            console.log('Editing image initialized:', {
+              id: image.id,
+              category: image.category,
+              title: image.alt,
+              description: image.description
+            });
             setEditingImage(image);
-            setShowTaggingDialog(true);
+            // Don't use TaggingDialog, use the built-in dialog instead
           };
 
           const handleDeleteClick = (e: React.MouseEvent) => {
@@ -879,23 +885,7 @@ export default function SimpleGalleryManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Image TaggingDialog */}
-      <TaggingDialog
-        isOpen={showTaggingDialog}
-        onClose={() => {
-          setShowTaggingDialog(false);
-          setEditingImage(null);
-        }}
-        onSave={handleSaveTagging}
-        initialData={{
-          title: editingImage?.alt || '',
-          description: editingImage?.description || '',
-          category: editingImage?.category || '',
-          tags: editingImage?.tags || '',
-          featured: editingImage?.featured || false
-        }}
-        imagePreview={editingImage?.imageUrl}
-      />
+
 
       {/* Fullscreen Media Viewer */}
       {viewingMedia && (

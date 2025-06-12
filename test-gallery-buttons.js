@@ -1,52 +1,78 @@
 /**
- * Direct Gallery Button Test
- * Tests actual button functionality on the live page
+ * Real-time gallery button test - paste this in browser console on /admin/gallery
  */
 
-console.log('Testing gallery buttons...');
+console.log('=== GALLERY BUTTON TEST ===');
 
-// Wait for page to load
+// Test after a moment to ensure page is loaded
 setTimeout(() => {
-  // Test upload button
-  console.log('Testing upload button...');
-  const uploadBtn = document.querySelector('button:has(.lucide-upload)');
-  if (uploadBtn) {
-    console.log('Upload button found, clicking...');
-    uploadBtn.click();
+  // Test edit button
+  const editButtons = document.querySelectorAll('button[title*="Edit"], button:has(.lucide-edit)');
+  console.log(`Edit buttons found: ${editButtons.length}`);
+  
+  if (editButtons.length > 0) {
+    console.log('Testing edit button click...');
+    editButtons[0].click();
+    
+    // Check for dialog after click
     setTimeout(() => {
-      const uploadDialog = document.querySelector('input[type="file"]');
-      console.log('Upload dialog opened:', !!uploadDialog);
-    }, 500);
-  } else {
-    console.log('Upload button not found');
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      const visibleDialogs = Array.from(dialogs).filter(d => 
+        window.getComputedStyle(d).display !== 'none' && 
+        window.getComputedStyle(d).visibility !== 'hidden'
+      );
+      
+      console.log(`Total dialogs: ${dialogs.length}, Visible: ${visibleDialogs.length}`);
+      
+      if (visibleDialogs.length > 0) {
+        console.log('✓ EDIT DIALOG WORKS');
+        // Close the dialog
+        const closeBtn = visibleDialogs[0].querySelector('button[type="button"]');
+        if (closeBtn) closeBtn.click();
+      } else {
+        console.log('✗ EDIT DIALOG FAILED');
+        
+        // Debug state
+        const galleryManager = document.querySelector('[data-testid="gallery-manager"], .space-y-6');
+        if (galleryManager) {
+          console.log('Gallery manager element found');
+          
+          // Check for React props/state
+          const reactKey = Object.keys(galleryManager).find(key => 
+            key.startsWith('__reactInternalInstance') || key.startsWith('_reactInternals')
+          );
+          if (reactKey) {
+            console.log('React component found');
+          }
+        }
+      }
+    }, 1000);
   }
-
-  // Test edit buttons  
-  console.log('Testing edit buttons...');
-  const editBtns = document.querySelectorAll('button[title*="Edit"]');
-  console.log('Edit buttons found:', editBtns.length);
-  if (editBtns.length > 0) {
-    editBtns[0].click();
-    setTimeout(() => {
-      const editDialog = document.querySelector('[role="dialog"]');
-      console.log('Edit dialog opened:', !!editDialog);
-    }, 500);
-  }
-
-  // Test video click
-  console.log('Testing video click...');
-  const videos = document.querySelectorAll('video');
-  if (videos.length > 0) {
-    const videoContainer = videos[0].closest('.cursor-pointer');
-    if (videoContainer) {
-      videoContainer.click();
-      setTimeout(() => {
-        const fullscreen = document.querySelector('.fixed.inset-0');
-        console.log('Video fullscreen opened:', !!fullscreen);
-      }, 500);
+  
+  // Test video functionality
+  setTimeout(() => {
+    console.log('\n=== VIDEO TEST ===');
+    const videos = document.querySelectorAll('video');
+    console.log(`Videos found: ${videos.length}`);
+    
+    if (videos.length > 0) {
+      const videoContainer = videos[0].closest('.cursor-pointer');
+      if (videoContainer) {
+        console.log('Testing video click...');
+        videoContainer.click();
+        
+        setTimeout(() => {
+          const fullscreen = document.querySelector('.fixed.inset-0.z-50');
+          if (fullscreen) {
+            console.log('✓ VIDEO FULLSCREEN WORKS');
+            const closeBtn = fullscreen.querySelector('button');
+            if (closeBtn) closeBtn.click();
+          } else {
+            console.log('✗ VIDEO FULLSCREEN FAILED');
+          }
+        }, 500);
+      }
     }
-  }
-
-}, 2000);
-
-console.log('Button test scheduled...');
+  }, 3000);
+  
+}, 1500);
