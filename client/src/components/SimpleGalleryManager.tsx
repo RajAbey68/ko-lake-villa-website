@@ -566,10 +566,10 @@ export default function SimpleGalleryManager() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="edit-dialog-description">
           <DialogHeader>
             <DialogTitle>Edit {editingImage?.mediaType === 'video' ? 'Video' : 'Image'}</DialogTitle>
-            <p id="edit-dialog-description" className="text-sm text-gray-600">
-              Update the title, description, and category for this media item
-            </p>
           </DialogHeader>
+          <p id="edit-dialog-description" className="text-sm text-gray-600 -mt-2 mb-4">
+            Update the title, description, and category for this media item
+          </p>
           
           {editingImage && (
 
