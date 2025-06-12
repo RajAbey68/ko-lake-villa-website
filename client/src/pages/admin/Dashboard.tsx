@@ -1468,6 +1468,15 @@ function AdminDashboardContent() {
                 </button>
               </Link>
 
+              <Link href="/admin/content">
+                <button 
+                  className="flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left text-blue-700 hover:bg-blue-50 border-l-4 border-blue-500"
+                >
+                  <span className="text-lg">📝</span>
+                  <span>Content Manager</span>
+                </button>
+              </Link>
+
               <Link href="/admin/roadmap">
                 <button 
                   className="flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left text-purple-700 hover:bg-purple-50 border-l-4 border-purple-500"
