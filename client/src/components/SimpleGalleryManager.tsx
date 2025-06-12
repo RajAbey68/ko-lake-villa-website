@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import TaggingDialog from './TaggingDialog';
-import { GalleryImage } from '@shared/schema';
 import { updateGalleryImage } from '@/lib/galleryApi';
 
 interface GalleryImage {
@@ -286,6 +285,7 @@ export default function SimpleGalleryManager() {
           category: editCategory,
           alt: editTitle,
           description: editDescription,
+          tags: editingImage.tags || '',
           featured: editFeatured,
           sortOrder: editSortOrder
         }
@@ -523,6 +523,26 @@ export default function SimpleGalleryManager() {
                     placeholder="Enter description for this media"
                     className="mt-1 min-h-[80px]"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="seoTags">SEO Tags</Label>
+                  <Input
+                    id="seoTags"
+                    value={editingImage?.tags || ''}
+                    onChange={(e) => {
+                      if (editingImage) {
+                        // Update the tags in the editing image state
+                        const updatedImage = { ...editingImage, tags: e.target.value };
+                        setEditingImage(updatedImage);
+                      }
+                    }}
+                    placeholder="Enter SEO tags separated by commas (e.g., luxury villa, koggala lake, sri lanka)"
+                    className="mt-1"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Add relevant keywords for better search engine visibility
+                  </p>
                 </div>
 
                 <div>
