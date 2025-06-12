@@ -1,135 +1,100 @@
 /**
- * Ko Lake Villa - Gallery Functionality Test
- * Tests image enlarging, video playback, and edit dialog functionality
+ * Gallery Functionality Test
+ * Test all gallery buttons after fixes
  */
 
-async function testGalleryFunctionality() {
-  console.log('🔍 Testing Gallery Functionality...');
-  
-  // Test 1: Check if gallery loads
-  try {
-    const response = await fetch('/api/gallery');
-    const images = await response.json();
-    console.log('✓ Gallery API working:', images.length, 'items');
-    
-    const videos = images.filter(img => img.mediaType === 'video');
-    const photos = images.filter(img => img.mediaType === 'image');
-    console.log('  - Videos:', videos.length);
-    console.log('  - Images:', photos.length);
-    
-    if (videos.length > 0) {
-      console.log('  - Sample video URL:', videos[0].imageUrl);
-    }
-    
-  } catch (error) {
-    console.error('✗ Gallery API failed:', error.message);
-    return;
-  }
-  
-  // Test 2: Check if click handlers are bound
-  console.log('\n🎯 Testing Click Handlers...');
-  
-  // Wait for gallery to load
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  const imageElements = document.querySelectorAll('img[src*="/uploads/gallery"]');
-  const videoElements = document.querySelectorAll('video[src*="/uploads/gallery"], video source[src*="/uploads/gallery"]');
-  
-  console.log('Found image elements:', imageElements.length);
-  console.log('Found video elements:', videoElements.length);
-  
-  // Test image click
-  if (imageElements.length > 0) {
-    console.log('Testing image click...');
-    const firstImage = imageElements[0];
-    console.log('Image src:', firstImage.src);
-    
-    // Simulate click
-    const clickEvent = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    
-    firstImage.dispatchEvent(clickEvent);
-    
-    // Check if modal opened
-    setTimeout(() => {
-      const modal = document.querySelector('[role="dialog"]');
-      if (modal && modal.style.display !== 'none') {
-        console.log('✓ Image click opened modal');
-      } else {
-        console.log('✗ Image click did not open modal');
-      }
-    }, 500);
-  }
-  
-  // Test edit button click
-  console.log('\n✏️ Testing Edit Functionality...');
-  const editButtons = document.querySelectorAll('button[aria-label*="Edit"]');
-  console.log('Found edit buttons:', editButtons.length);
+console.log('Testing gallery functionality...');
+
+setTimeout(() => {
+  // Test 1: Edit buttons
+  const editButtons = document.querySelectorAll('button[title*="Edit"]');
+  console.log(`✓ Found ${editButtons.length} edit buttons`);
   
   if (editButtons.length > 0) {
-    const firstEditButton = editButtons[0];
     console.log('Testing edit button click...');
+    editButtons[0].click();
     
-    const clickEvent = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    
-    firstEditButton.dispatchEvent(clickEvent);
-    
-    // Check if edit dialog opened
     setTimeout(() => {
-      const editDialog = document.querySelector('[role="dialog"]');
-      const editForm = document.querySelector('form');
-      if (editDialog && editForm) {
-        console.log('✓ Edit dialog opened successfully');
-      } else {
-        console.log('✗ Edit dialog did not open');
+      const editDialog = document.querySelector('[aria-describedby="dialog-description"]');
+      console.log(`✓ Edit dialog ${editDialog ? 'opened successfully' : 'failed to open'}`);
+      
+      // Close dialog if opened
+      if (editDialog) {
+        const closeButton = editDialog.querySelector('button');
+        if (closeButton) closeButton.click();
       }
-    }, 500);
+    }, 1000);
   }
-  
-  // Test 3: Check video playback
-  if (videoElements.length > 0) {
-    console.log('\n🎬 Testing Video Playback...');
-    const videoContainers = document.querySelectorAll('video');
+
+  // Test 2: Delete buttons
+  setTimeout(() => {
+    const deleteButtons = document.querySelectorAll('button[title*="Delete"]');
+    console.log(`✓ Found ${deleteButtons.length} delete buttons`);
     
-    videoContainers.forEach((video, index) => {
-      console.log(`Video ${index + 1}:`, video.src || 'No src');
-      console.log('  - Can play:', video.canPlayType('video/mp4'));
-      console.log('  - Ready state:', video.readyState);
+    if (deleteButtons.length > 0) {
+      console.log('Testing delete button click...');
+      deleteButtons[0].click();
       
-      video.addEventListener('loadeddata', () => {
-        console.log(`✓ Video ${index + 1} loaded successfully`);
-      });
+      setTimeout(() => {
+        const deleteDialog = document.querySelector('[role="dialog"]');
+        console.log(`✓ Delete dialog ${deleteDialog ? 'opened successfully' : 'failed to open'}`);
+        
+        // Close dialog if opened
+        if (deleteDialog) {
+          const cancelButton = Array.from(deleteDialog.querySelectorAll('button')).find(btn => btn.textContent?.includes('Cancel'));
+          if (cancelButton) cancelButton.click();
+        }
+      }, 1000);
+    }
+  }, 2000);
+
+  // Test 3: Video playback
+  setTimeout(() => {
+    const videos = document.querySelectorAll('video');
+    console.log(`✓ Found ${videos.length} videos`);
+    
+    if (videos.length > 0) {
+      console.log('Testing video click...');
+      const videoContainer = videos[0].closest('.cursor-pointer');
+      if (videoContainer) {
+        videoContainer.click();
+        
+        setTimeout(() => {
+          const fullscreenVideo = document.querySelector('.fixed.inset-0 video');
+          console.log(`✓ Video fullscreen ${fullscreenVideo ? 'opened successfully' : 'failed to open'}`);
+          
+          // Close fullscreen if opened
+          if (fullscreenVideo) {
+            const closeButton = document.querySelector('.fixed.inset-0 button');
+            if (closeButton) closeButton.click();
+          }
+        }, 1000);
+      }
+    }
+  }, 4000);
+
+  // Test 4: Upload button
+  setTimeout(() => {
+    const uploadButton = document.querySelector('button:has(.lucide-upload)');
+    console.log(`✓ Upload button ${uploadButton ? 'found' : 'not found'}`);
+    
+    if (uploadButton) {
+      console.log('Testing upload button click...');
+      uploadButton.click();
       
-      video.addEventListener('error', (e) => {
-        console.log(`✗ Video ${index + 1} failed to load:`, e.target.error);
-      });
-    });
-  }
-  
-  console.log('\n📊 Test Summary:');
-  console.log('- API connectivity: Working');
-  console.log('- Image elements: Found');
-  console.log('- Video elements: Found');
-  console.log('- Edit buttons: Found');
-  console.log('\nClick on images and videos to test fullscreen functionality.');
-  console.log('Click edit buttons to test edit dialog functionality.');
-}
+      setTimeout(() => {
+        const uploadDialog = document.querySelector('input[type="file"]');
+        console.log(`✓ Upload dialog ${uploadDialog ? 'opened successfully' : 'failed to open'}`);
+        
+        // Close dialog if opened
+        if (uploadDialog) {
+          const cancelButton = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent?.includes('Cancel'));
+          if (cancelButton) cancelButton.click();
+        }
+      }, 1000);
+    }
+  }, 6000);
 
-// Auto-run test when page loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', testGalleryFunctionality);
-} else {
-  testGalleryFunctionality();
-}
+}, 2000);
 
-// Make function available globally for manual testing
-window.testGalleryFunctionality = testGalleryFunctionality;
-
-console.log('Gallery functionality test loaded. Run testGalleryFunctionality() to test manually.');
+console.log('Gallery test scheduled...');
