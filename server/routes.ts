@@ -1157,7 +1157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const aiContent = JSON.parse(analysisResult.choices[0].message.content);
       
       // Update the image with AI-generated content
-      const updatedImage = await dataStorage.updateGalleryImage(imageId, {
+      await dataStorage.updateGalleryImage(imageId, {
         title: aiContent.title || image.title,
         alt: aiContent.title || image.alt,
         description: aiContent.description || image.description,
