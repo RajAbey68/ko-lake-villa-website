@@ -449,7 +449,8 @@ export default function SimpleGalleryManager() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    handleEdit(image);
+                    console.log('Edit clicked for:', image.id, image.alt);
+                    setEditingImage(image);
                   }}
                   className="h-8 w-8 p-0"
                   aria-label={`Edit ${image.alt}`}
@@ -512,11 +513,12 @@ export default function SimpleGalleryManager() {
           setEditingImage(null);
         }
       }}>
-        {editingImage && (
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Image</DialogTitle>
-            </DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit {editingImage?.mediaType === 'video' ? 'Video' : 'Image'}</DialogTitle>
+          </DialogHeader>
+          
+          {editingImage && (
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Media Preview */}
