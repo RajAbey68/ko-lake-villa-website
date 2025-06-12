@@ -392,11 +392,8 @@ export default function SimpleGalleryManager() {
       {/* Gallery Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredImages.map((image) => {
-          const handleMediaClick = (e: React.MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
+          const handleMediaClick = () => {
             console.log(`${image.mediaType} clicked:`, image.alt);
-            console.log('Opening fullscreen for:', image.imageUrl);
             setViewingMedia({ 
               type: image.mediaType as 'image' | 'video', 
               url: image.imageUrl, 
@@ -404,16 +401,19 @@ export default function SimpleGalleryManager() {
             });
           };
 
-          const handleEditClick = () => {
+          const handleEditClick = (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
             console.log('Edit clicked for:', image.id, image.alt);
-            console.log('Editing image initialized:', {
-              id: image.id,
-              category: image.category,
-              title: image.alt,
-              description: image.description
-            });
             setEditingImage(image);
             setShowTaggingDialog(true);
+          };
+
+          const handleDeleteClick = (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Delete clicked for:', image.id);
+            setDeleteConfirmId(image.id);
           };
 
           return (
@@ -489,33 +489,25 @@ export default function SimpleGalleryManager() {
               )}
 
                 {/* Action Buttons */}
-                <div className="absolute top-2 right-2 flex gap-1 z-10">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('Edit button clicked for image:', image.id);
-                      setEditingImage(image);
-                      setShowTaggingDialog(true);
-                    }}
-                    className="h-8 w-8 bg-white/90 hover:bg-white rounded border flex items-center justify-center"
+                <div className="absolute top-2 right-2 flex gap-1 z-20">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={handleEditClick}
+                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white border"
                     title="Edit this image"
-                    type="button"
                   >
                     <EditIcon className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('Delete button clicked for image:', image.id);
-                      setDeleteConfirmId(image.id);
-                    }}
-                    className="h-8 w-8 bg-white/90 hover:bg-red-100 rounded border flex items-center justify-center"
-                    type="button"
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={handleDeleteClick}
+                    className="h-8 w-8 p-0 bg-white/90 hover:bg-red-100 border"
+                    title="Delete this image"
                   >
                     <TrashIcon className="h-4 w-4 text-red-600" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -903,55 +895,44 @@ export default function SimpleGalleryManager() {
 
       {/* Fullscreen Media Viewer */}
       {viewingMedia && (
-        <Dialog open={true} onOpenChange={() => setViewingMedia(null)}>
-          <DialogContent className="max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh] p-0 bg-black border-0">
-            <div className="relative w-full h-full flex items-center justify-center bg-black">
-              {viewingMedia.type === 'video' ? (
-                <video
-                  controls
-                  autoPlay
-                  playsInline
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => {
-                    console.error('Fullscreen video failed to load:', viewingMedia.url);
-                  }}
-                >
-                  <source src={viewingMedia.url} type="video/mp4" />
-                  <source src={viewingMedia.url} type="video/quicktime" />
-                  Your browser does not support the video tag.
-                </video>
-              ) : (
-                <img
-                  src={viewingMedia.url}
-                  alt={viewingMedia.title}
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => {
-                    console.error('Fullscreen image failed to load:', viewingMedia.url);
-                  }}
-                  onLoad={() => {
-                    console.log('Fullscreen image loaded:', viewingMedia.url);
-                  }}
-                />
-              )}
-              
-              {/* Close button */}
-              <Button
-                variant="secondary"
-                size="sm"
-                className="absolute top-4 right-4 bg-white/90 hover:bg-white z-50"
-                onClick={() => setViewingMedia(null)}
-              >
-                ✕ Close
-              </Button>
-              
-              {/* Title overlay */}
-              <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white p-3 rounded z-40">
-                <h3 className="font-medium">{viewingMedia.title}</h3>
-                <p className="text-sm opacity-80 capitalize">{viewingMedia.type}</p>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+          {viewingMedia.type === 'video' ? (
+            <video
+              key={viewingMedia.url}
+              controls
+              autoPlay
+              playsInline
+              className="max-w-[90vw] max-h-[90vh] object-contain"
+              style={{ width: 'auto', height: 'auto' }}
+              onLoadStart={() => console.log('Video loading:', viewingMedia.url)}
+              onCanPlay={() => console.log('Video can play:', viewingMedia.url)}
+              onError={(e) => console.error('Video error:', e)}
+            >
+              <source src={viewingMedia.url} type="video/mp4" />
+              <source src={viewingMedia.url} type="video/quicktime" />
+              <source src={viewingMedia.url} type="video/webm" />
+            </video>
+          ) : (
+            <img
+              src={viewingMedia.url}
+              alt={viewingMedia.title}
+              className="max-w-[90vw] max-h-[90vh] object-contain"
+              onError={(e) => console.error('Image error:', e)}
+            />
+          )}
+          
+          <button
+            onClick={() => setViewingMedia(null)}
+            className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded hover:bg-gray-100"
+          >
+            Close
+          </button>
+          
+          <div className="absolute bottom-4 left-4 bg-black/70 text-white p-3 rounded">
+            <h3 className="font-medium">{viewingMedia.title}</h3>
+            <p className="text-sm opacity-80">{viewingMedia.type}</p>
+          </div>
+        </div>
       )}
     </div>
   );
