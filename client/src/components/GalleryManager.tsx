@@ -239,9 +239,30 @@ export default function GalleryManager() {
       if (!response.ok) throw new Error('Failed to analyze image');
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result, imageId) => {
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      toast({ title: "Success", description: "Image analyzed successfully" });
+      
+      // Update the edit dialog with AI-generated content if it's open for this image
+      if (editingImage && editingImage.id === imageId) {
+        setEditTitle(result.title || editTitle);
+        setEditDescription(result.description || editDescription);
+        setEditCategory(result.category || editCategory);
+        if (result.tags) {
+          setEditTags(Array.isArray(result.tags) ? result.tags.join(', ') : result.tags);
+        }
+      }
+      
+      toast({ 
+        title: "AI Analysis Complete", 
+        description: result.message || "Image analyzed and updated successfully" 
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "AI Analysis Failed",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   });
 
