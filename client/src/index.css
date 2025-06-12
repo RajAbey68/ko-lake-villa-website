@@ -33,6 +33,37 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* High-quality image rendering for accommodation pages */
+.accommodation img,
+img[class*="accommodation"] {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
+  -ms-interpolation-mode: bicubic;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Prevent image blur on transform/scale */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Force high-quality scaling */
+.w-full img,
+.h-64 img,
+.md\\:h-full img {
+  image-rendering: high-quality;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+}
+
 /* Ensure dialogs are properly sized for mobile */
 @media (max-width: 768px) {
   [role="dialog"] {
