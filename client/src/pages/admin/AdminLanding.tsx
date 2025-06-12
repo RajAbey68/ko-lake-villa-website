@@ -40,6 +40,14 @@ export default function AdminLanding() {
   const [messageDetailsOpen, setMessageDetailsOpen] = useState(false);
   
   useEffect(() => {
+    // Development bypass for testing
+    const isDevelopment = import.meta.env.DEV;
+    
+    if (isDevelopment) {
+      // Skip authentication in development
+      return;
+    }
+    
     // If user is not authenticated and we're done loading, redirect to login
     if (!isLoading && !currentUser) {
       navigate('/admin/login');
@@ -63,8 +71,11 @@ export default function AdminLanding() {
     );
   }
   
-  // If not logged in, don't render anything (redirect will happen)
-  if (!currentUser || !isAdmin) {
+  // Development bypass for testing
+  const isDevelopment = import.meta.env.DEV;
+  
+  // If not logged in and not in development, don't render anything (redirect will happen)
+  if (!isDevelopment && (!currentUser || !isAdmin)) {
     return null;
   }
   
@@ -113,7 +124,7 @@ export default function AdminLanding() {
           
           <div className="mt-4 md:mt-0 flex items-center">
             <div className="mr-4 text-right">
-              <p className="font-medium text-[#8B5E3C]">Welcome, {currentUser.email}</p>
+              <p className="font-medium text-[#8B5E3C]">Welcome, {currentUser?.email || 'Development Admin'}</p>
               <p className="text-sm text-[#8B5E3C]/70">Admin User</p>
             </div>
             <Button 
