@@ -556,7 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const category = req.query.category as string | undefined;
 
-      if (category && category !== 'all') {
+      if (category && category !== 'all' && category !== '') {
         const images = await dataStorage.getGalleryImagesByCategory(category);
         return res.json(images);
       }
@@ -565,7 +565,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(allImages);
     } catch (error) {
       console.error('Gallery API error:', error);
-      res.status(500).json({ message: "Failed to fetch gallery images" });
+      res.status(500).json({ 
+        message: "Failed to fetch gallery images",
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      });
     }
   });
 
@@ -1054,7 +1057,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI content generation endpoint for existing images
+  // AI analysis endpoint for individual images
+  app.post("/api/analyze-media/:id", async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      
+      if (!imageId) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
+
+      const image = await dataStorage.getGalleryImageById(imageId);
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      // Generate content using AI
+      const generatedContent = await generateImageContent(
+        image.imageUrl, 
+        image.category, 
+        image.mediaType === 'video'
+      );
+
+      // Update the image with generated content
+      const updatedImage = await dataStorage.updateGalleryImage(imageId, {
+        alt: generatedContent.title,
+        description: generatedContent.description
+      });
+
+      res.json({
+        message: "Image analyzed and updated successfully",
+        title: generatedContent.title,
+        description: generatedContent.description,
+        category: image.category,
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error('Media analysis error:', error);
+      res.status(500).json({ error: "Failed to analyze media" });
+    }
+  });
+
+  // Legacy endpoint for backward compatibility
   app.post("/api/generate-content", async (req, res) => {
     try {
       const { imageId } = req.body;
@@ -1077,7 +1120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update the image with generated content
       await dataStorage.updateGalleryImage(image.id, {
-        title: generatedContent.title,
+        alt: generatedContent.title,
         description: generatedContent.description
       });
 
