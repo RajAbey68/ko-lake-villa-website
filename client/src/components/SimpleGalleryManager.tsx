@@ -586,23 +586,25 @@ export default function SimpleGalleryManager() {
         </div>
       )}
       
-      {/* Edit Dialog */}
-      <Dialog open={editingImage !== null} onOpenChange={(open) => {
-        if (!open) {
-          setEditingImage(null);
-        }
-      }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit {editingImage?.mediaType === 'video' ? 'Video' : 'Image'}</DialogTitle>
-            <DialogDescription>
-              Update the title, description, and category for this media item
-            </DialogDescription>
-          </DialogHeader>
+      {/* Edit Dialog - Custom Implementation */}
+      {editingImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Edit {editingImage?.mediaType === 'video' ? 'Video' : 'Image'}</h2>
+                <button
+                  onClick={() => setEditingImage(null)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 mb-6">
+                Update the title, description, and category for this media item
+              </p>
           
-          {editingImage && (
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Media Preview */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#8B5E3C]">Preview</h3>
@@ -699,21 +701,22 @@ export default function SimpleGalleryManager() {
               </div>
             </div>
 
-            <DialogFooter className="mt-6">
-              <Button variant="secondary" onClick={() => setEditingImage(null)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveEdit}
-                className="bg-[#8B5E3C] hover:bg-[#6B4B2F] text-white"
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
-      </Dialog>
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <Button variant="secondary" onClick={() => setEditingImage(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveEdit}
+                  className="bg-[#8B5E3C] hover:bg-[#6B4B2F] text-white"
+                  disabled={updateMutation.isPending}
+                >
+                  {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
