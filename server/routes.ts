@@ -812,6 +812,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Handle OPTIONS requests for CORS
+  app.options("/api/gallery/:id", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.sendStatus(200);
+  });
+
+  // Update gallery image metadata (for SEO tagging)
+  app.patch("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      const galleryImage = await dataStorage.getGalleryImageById(id);
+      if (!galleryImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+
+      // Update with provided metadata
+      const updatedData = {
+        id,
+        alt: req.body.alt || galleryImage.alt,
+        description: req.body.description || galleryImage.description,
+        category: req.body.category || galleryImage.category,
+        tags: req.body.tags || galleryImage.tags,
+        featured: req.body.featured !== undefined ? req.body.featured : galleryImage.featured,
+        sortOrder: req.body.sortOrder !== undefined ? req.body.sortOrder : galleryImage.sortOrder,
+        mediaType: req.body.mediaType || galleryImage.mediaType,
+        imageUrl: galleryImage.imageUrl
+      };
+
+      const updatedImage = await dataStorage.updateGalleryImage(updatedData);
+
+      res.json({
+        message: "Gallery image metadata updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error('Gallery metadata update error:', error);
+      res.status(500).json({ message: "Failed to update gallery image metadata" });
+    }
+  });
+
   // Delete all gallery images and videos
   app.delete("/api/gallery/all", async (req, res) => {
     try {
