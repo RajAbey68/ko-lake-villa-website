@@ -1165,20 +1165,46 @@ class DbStorage implements IStorage {
     });
   }
 
-  async getGalleryImageById(id: number): Promise<GalleryImage | undefined> {
-    const results = await db.select().from(galleryImages).where(eq(galleryImages.id, id));
-    return results[0];
+  async updateGalleryImage(id: number, updates: Partial<GalleryImage>): Promise<GalleryImage> {
+    try {
+      const [updatedImage] = await this.db
+        .update(galleryImages)
+        .set({
+          ...updates,
+          updatedAt: new Date()
+        })
+        .where(eq(galleryImages.id, id))
+        .returning();
+
+      if (!updatedImage) {
+        throw new Error('Image not found');
+      }
+
+      return updatedImage;
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      throw error;
+    }
+  }
+
+  async getGalleryImageById(id: number): Promise<GalleryImage | null> {
+    try {
+      const [image] = await this.db
+        .select()
+        .from(galleryImages)
+        .where(eq(galleryImages.id, id))
+        .limit(1);
+
+      return image || null;
+    } catch (error) {
+      console.error('Error fetching gallery image by ID:', error);
+      throw error;
+    }
   }
 
   async createGalleryImage(insertGalleryImage: InsertGalleryImage): Promise<GalleryImage> {
     const [galleryImage] = await db.insert(galleryImages).values(insertGalleryImage).returning();
     return galleryImage;
-  }
-
-  async updateGalleryImage(updateData: Partial<GalleryImage> & { id: number }): Promise<GalleryImage> {
-    const { id, ...data } = updateData;
-    const [updated] = await db.update(galleryImages).set(data).where(eq(galleryImages.id, id)).returning();
-    return updated;
   }
 
   async updateGalleryImageCategory(id: number, category: string): Promise<GalleryImage> {
