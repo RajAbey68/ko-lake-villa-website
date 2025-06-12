@@ -20,7 +20,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Ko Lake Villa Stable Start"
+runButton = "Ko Lake Villa Production Ready"
 
 [[workflows.workflow]]
 name = "Project"
