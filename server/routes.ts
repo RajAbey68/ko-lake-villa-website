@@ -22,6 +22,270 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import OpenAI from "openai";
 
+// Email and WhatsApp notification services
+async function sendEmail(to: string, subject: string, html: string, text: string) {
+  // Skip email in development if SMTP not configured
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+    console.log('Email SMTP not configured, skipping email to:', to);
+    return;
+  }
+  
+  try {
+    const nodemailer = require('nodemailer');
+    
+    // Configure SMTP (you can use Gmail, Outlook, or any SMTP service)
+    const transporter = nodemailer.createTransporter({
+      host: 'smtp.gmail.com', // Use your preferred SMTP service
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+      }
+    });
+
+    await transporter.sendMail({
+      from: '"Ko Lake House" <contact@kolakehouse.com>',
+      to,
+      subject,
+      text,
+      html
+    });
+    console.log(`Email sent successfully to ${to}`);
+  } catch (error) {
+    console.error('Email sending failed:', error);
+    throw error;
+  }
+}
+
+async function sendWhatsAppMessage(to: string, message: string) {
+  // Using Twilio WhatsApp API
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    console.log('Twilio credentials not configured, skipping WhatsApp message');
+    return;
+  }
+
+  try {
+    const twilio = require('twilio')(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
+    );
+
+    await twilio.messages.create({
+      from: 'whatsapp:+14155238886', // Twilio WhatsApp sandbox number
+      to: `whatsapp:${to}`,
+      body: message
+    });
+    console.log(`WhatsApp message sent successfully to ${to}`);
+  } catch (error) {
+    console.error('WhatsApp sending failed:', error);
+    throw error;
+  }
+}
+
+async function sendBookingNotifications(bookingData: any) {
+  const {
+    name,
+    email,
+    phone,
+    checkInDate,
+    checkOutDate,
+    guests,
+    roomType,
+    specialRequests,
+    id
+  } = bookingData;
+
+  // Format dates nicely
+  const checkIn = new Date(checkInDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  
+  const checkOut = new Date(checkOutDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  // 1. Send confirmation email to guest
+  const guestEmailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #8B5E3C;">Booking Confirmation - Ko Lake House</h2>
+      
+      <p>Dear ${name},</p>
+      
+      <p>Thank you for your booking request! We have received your inquiry and will contact you within 24 hours to confirm availability and finalize your reservation.</p>
+      
+      <div style="background: #F8F6F2; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #8B5E3C; margin-top: 0;">Booking Details</h3>
+        <p><strong>Guest Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
+        <p><strong>Check-in:</strong> ${checkIn}</p>
+        <p><strong>Check-out:</strong> ${checkOut}</p>
+        <p><strong>Guests:</strong> ${guests}</p>
+        <p><strong>Room Type:</strong> ${roomType}</p>
+        ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+        <p><strong>Booking Reference:</strong> KLH-${id}</p>
+      </div>
+      
+      <p>We look forward to hosting you at Ko Lake House for an unforgettable experience by Koggala Lake.</p>
+      
+      <p>Best regards,<br>
+      Ko Lake House Team<br>
+      <a href="mailto:contact@kolakehouse.com">contact@kolakehouse.com</a><br>
+      +94 071 173 0345</p>
+    </div>
+  `;
+
+  const guestEmailText = `
+    Booking Confirmation - Ko Lake House
+    
+    Dear ${name},
+    
+    Thank you for your booking request! We have received your inquiry and will contact you within 24 hours to confirm availability and finalize your reservation.
+    
+    Booking Details:
+    - Guest Name: ${name}
+    - Email: ${email}
+    ${phone ? `- Phone: ${phone}` : ''}
+    - Check-in: ${checkIn}
+    - Check-out: ${checkOut}
+    - Guests: ${guests}
+    - Room Type: ${roomType}
+    ${specialRequests ? `- Special Requests: ${specialRequests}` : ''}
+    - Booking Reference: KLH-${id}
+    
+    We look forward to hosting you at Ko Lake House for an unforgettable experience by Koggala Lake.
+    
+    Best regards,
+    Ko Lake House Team
+    contact@kolakehouse.com
+    +94 071 173 0345
+  `;
+
+  // 2. Send notification email to admin
+  const adminEmailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #FF914D;">🏨 New Booking Request - Ko Lake House</h2>
+      
+      <p><strong>A new booking request has been submitted and requires your attention.</strong></p>
+      
+      <div style="background: #FDF6EE; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FF914D;">
+        <h3 style="color: #8B5E3C; margin-top: 0;">Guest Information</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+        ${phone ? `<p><strong>Phone:</strong> <a href="tel:${phone}">${phone}</a></p>` : ''}
+        
+        <h3 style="color: #8B5E3C;">Booking Details</h3>
+        <p><strong>Check-in:</strong> ${checkIn}</p>
+        <p><strong>Check-out:</strong> ${checkOut}</p>
+        <p><strong>Guests:</strong> ${guests}</p>
+        <p><strong>Room Type:</strong> ${roomType}</p>
+        ${specialRequests ? `<p><strong>Special Requests:</strong> ${specialRequests}</p>` : ''}
+        <p><strong>Booking Reference:</strong> KLH-${id}</p>
+      </div>
+      
+      <p><strong>Next Steps:</strong></p>
+      <ul>
+        <li>Contact guest within 24 hours to confirm availability</li>
+        <li>Send final confirmation with payment details</li>
+        <li>Update booking status in admin dashboard</li>
+      </ul>
+      
+      <p>View full booking details in your <a href="${process.env.WEBSITE_URL || 'https://skill-bridge-rajabey68.replit.app'}/admin/dashboard">admin dashboard</a>.</p>
+    </div>
+  `;
+
+  // 3. WhatsApp message to admin
+  const adminWhatsAppMessage = `
+🏨 NEW BOOKING REQUEST - Ko Lake House
+
+Guest: ${name}
+📧 ${email}
+${phone ? `📱 ${phone}` : ''}
+
+📅 ${checkIn} → ${checkOut}
+👥 ${guests} guests
+🏠 ${roomType}
+
+${specialRequests ? `📝 Special Requests: ${specialRequests}` : ''}
+
+Booking Ref: KLH-${id}
+
+⏰ Please contact guest within 24 hours to confirm.
+  `;
+
+  // 4. WhatsApp message to guest (if phone provided)
+  let guestWhatsAppMessage = '';
+  if (phone) {
+    guestWhatsAppMessage = `
+🏨 Ko Lake House - Booking Confirmation
+
+Hello ${name}! 
+
+Thank you for your booking request. We've received your inquiry for:
+
+📅 ${checkIn} to ${checkOut}
+👥 ${guests} guests
+🏠 ${roomType}
+
+We'll contact you within 24 hours to confirm availability and finalize your reservation.
+
+Booking Reference: KLH-${id}
+
+Looking forward to hosting you! 🌊
+
+Ko Lake House Team
+contact@kolakehouse.com
+    `;
+  }
+
+  // Send all notifications
+  const notifications = [];
+
+  // Send guest confirmation email
+  notifications.push(
+    sendEmail(
+      email,
+      'Booking Confirmation - Ko Lake House',
+      guestEmailHtml,
+      guestEmailText
+    ).catch(err => console.error('Guest email failed:', err))
+  );
+
+  // Send admin notification email
+  notifications.push(
+    sendEmail(
+      'contact@kolakehouse.com',
+      `New Booking Request - ${name} (KLH-${id})`,
+      adminEmailHtml,
+      adminWhatsAppMessage
+    ).catch(err => console.error('Admin email failed:', err))
+  );
+
+  // Send admin WhatsApp
+  notifications.push(
+    sendWhatsAppMessage('+940711730345', adminWhatsAppMessage)
+      .catch(err => console.error('Admin WhatsApp failed:', err))
+  );
+
+  // Send guest WhatsApp if phone provided
+  if (phone && guestWhatsAppMessage) {
+    notifications.push(
+      sendWhatsAppMessage(phone, guestWhatsAppMessage)
+        .catch(err => console.error('Guest WhatsApp failed:', err))
+    );
+  }
+
+  // Wait for all notifications to complete
+  await Promise.allSettled(notifications);
+}
+
 // Initialize OpenAI for AI-powered content generation
 let openai = null;
 try {
@@ -365,13 +629,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Booking inquiry
+  // Booking inquiry with notifications
   app.post("/api/booking", async (req, res) => {
     try {
       const validatedData = insertBookingInquirySchema.parse(req.body);
       const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
+      
+      // Send notifications after successful booking storage
+      try {
+        await sendBookingNotifications(bookingInquiry);
+      } catch (notificationError) {
+        console.error('Notification error (booking still saved):', notificationError);
+        // Don't fail the booking if notifications fail
+      }
+      
       res.status(201).json({
-        message: "Booking inquiry submitted successfully!",
+        message: "Booking inquiry submitted successfully! You'll receive a confirmation email and we'll contact you within 24 hours.",
         data: bookingInquiry
       });
     } catch (error) {
