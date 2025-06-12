@@ -99,23 +99,24 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-[98vw] w-[98vw] h-[98vh] p-0 overflow-hidden bg-black">
         <DialogTitle className="sr-only">
           {image.title || image.alt} - Ko Lake Villa Gallery
         </DialogTitle>
-        <div className="relative w-full h-full bg-white rounded-lg">
-          {/* Main Image - Takes up 60% of screen */}
-          <div className="relative h-[60vh] bg-black flex items-center justify-center">
+        <div className="relative w-full h-full bg-black">
+          {/* Main Media - Takes up most of the screen */}
+          <div className="relative h-[80vh] bg-black flex items-center justify-center">
             {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? (
               <video
                 key={image.id}
-                className="max-w-full max-h-full object-contain"
+                className="w-full h-full object-contain"
                 controls
+                autoPlay
                 muted
                 playsInline
                 preload="metadata"
                 controlsList="nodownload"
-                style={{ maxWidth: '100%', maxHeight: '100%' }}
+                style={{ width: '100%', height: '100%', minHeight: '70vh' }}
                 onPlay={(e) => {
                   const video = e.target as HTMLVideoElement;
                   const playPromise = video.play();
@@ -215,11 +216,11 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
             )}
           </div>
 
-          {/* Image Details - Below the image */}
-          <div className="p-6 space-y-3 bg-white">
+          {/* Media Details - Compact info for videos, full details for images */}
+          <div className={`p-4 space-y-2 ${(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? 'bg-black/80 text-white' : 'bg-white'}`}>
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h2 className="text-2xl font-semibold text-[#8B5E3C] mb-2">
+                <h2 className={`text-xl font-semibold mb-2 ${(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? 'text-white' : 'text-[#8B5E3C]'}`}>
                   {getDisplayTitle(image)}
                 </h2>
 
@@ -241,7 +242,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                   )}
                 </div>
 
-                <p className="text-gray-700 mb-3 leading-relaxed">
+                <p className={`mb-3 leading-relaxed ${(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? 'text-gray-200' : 'text-gray-700'}`}>
                   {getDisplayDescription(image)}
                 </p>
 
