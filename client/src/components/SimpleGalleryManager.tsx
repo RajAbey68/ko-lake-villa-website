@@ -64,6 +64,13 @@ export default function SimpleGalleryManager() {
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [showTaggingDialog, setShowTaggingDialog] = useState(false);
   const [viewingMedia, setViewingMedia] = useState<{ type: 'image' | 'video', url: string, title: string } | null>(null);
+  
+  // Edit form state
+  const [editCategory, setEditCategory] = useState<string>('');
+  const [editTitle, setEditTitle] = useState<string>('');
+  const [editDescription, setEditDescription] = useState<string>('');
+  const [editSortOrder, setEditSortOrder] = useState<number>(1);
+  const [editFeatured, setEditFeatured] = useState<boolean>(false);
 
   // Debug logging for state changes
   useEffect(() => {
@@ -74,6 +81,12 @@ export default function SimpleGalleryManager() {
     if (editingImage) {
       console.log('Edit dialog should open for:', editingImage.alt);
       console.log('showTaggingDialog state:', showTaggingDialog);
+      // Initialize edit form with current image data
+      setEditCategory(editingImage.category || '');
+      setEditTitle(editingImage.alt || '');
+      setEditDescription(editingImage.description || '');
+      setEditSortOrder(editingImage.sortOrder || 1);
+      setEditFeatured(editingImage.featured || false);
     } else {
       console.log('Edit dialog closed');
     }
@@ -176,6 +189,22 @@ export default function SimpleGalleryManager() {
       });
     }
   });
+
+  // Handle save edit function
+  const handleSaveEdit = () => {
+    if (!editingImage) return;
+
+    updateMutation.mutate({
+      id: editingImage.id,
+      updates: {
+        category: editCategory,
+        alt: editTitle,
+        description: editDescription,
+        featured: editFeatured,
+        sortOrder: editSortOrder
+      }
+    });
+  };
 
   // Update image metadata mutation
   const updateImageMutation = useMutation({
