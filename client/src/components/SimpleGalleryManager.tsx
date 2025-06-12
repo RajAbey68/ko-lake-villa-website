@@ -736,14 +736,27 @@ export default function SimpleGalleryManager() {
                   <video
                     controls
                     autoPlay
+                    playsInline
+                    muted={false}
+                    preload="auto"
                     className="max-w-full max-h-[90vh] object-contain"
-                    src={viewingMedia.url}
                     onError={(e) => {
                       console.error('Fullscreen video failed to load:', viewingMedia.url);
+                      console.error('Video error details:', e.target.error);
+                    }}
+                    onLoadStart={() => {
+                      console.log('Video loading started:', viewingMedia.url);
+                    }}
+                    onLoadedData={() => {
+                      console.log('Video loaded successfully:', viewingMedia.url);
+                    }}
+                    onCanPlay={() => {
+                      console.log('Video can start playing:', viewingMedia.url);
                     }}
                   >
                     <source src={viewingMedia.url} type="video/mp4" />
                     <source src={viewingMedia.url} type="video/quicktime" />
+                    <source src={viewingMedia.url} type="video/mov" />
                     Your browser does not support the video tag.
                   </video>
                 ) : (
