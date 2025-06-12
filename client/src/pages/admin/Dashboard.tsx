@@ -1506,98 +1506,107 @@ function AdminDashboardContent() {
               <TabsContent value="overview" className="space-y-6">
                 <h2 className="text-2xl font-semibold text-[#8B5E3C]">Welcome back, {currentUser?.displayName?.split(' ')[0] || 'Admin'}</h2>
 
-                {/* PRICING MANAGER - Now Working! */}
-                <div style={{ background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', marginBottom: '2rem', border: '2px solid #4CAF50' }}>
-                  <h3 style={{ color: '#2E7D32', fontSize: '1.5rem', marginBottom: '0.5rem' }}>💸 Pricing Manager - LIVE</h3>
-                  <p style={{ fontStyle: 'italic', marginBottom: '0.5rem' }}>
-                    Last updated: {new Date(pricing.updated).toLocaleString()}
-                  </p>
-                  {/* Full Pricing Management Interface - Same as Console */}
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-                      <thead>
-                        <tr style={{ backgroundColor: '#f5f5f5' }}>
-                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Room</th>
-                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Sunday</th>
-                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Monday</th>
-                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Tuesday</th>
-                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Your Direct Rate</th>
-                          <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(pricing.rates).map(([roomId, days]) => {
-                          // Ensure we have valid numbers
-                          const sunRate = days.sun || 0;
-                          const monRate = days.mon || days.sun || 0;
-                          const tueRate = days.tue || days.sun || 0;
+                {/* PRICING MANAGER */}
+                <Card className="mb-6 border-2 border-green-200 bg-green-50">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-green-800 flex items-center gap-2">
+                      💸 Pricing Manager
+                      <Badge className="bg-green-600 text-white">LIVE</Badge>
+                    </CardTitle>
+                    <CardDescription className="text-green-700">
+                      Last updated: {new Date(pricing.updated).toLocaleString()}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse border border-gray-300">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="border border-gray-300 px-4 py-3 text-left font-bold">Room</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center font-bold">Sunday</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center font-bold">Monday</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center font-bold">Tuesday</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center font-bold">Your Direct Rate</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center font-bold">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(pricing.rates).map(([roomId, days]) => {
+                            const sunRate = days.sun || 0;
+                            const monRate = days.mon || days.sun || 0;
+                            const tueRate = days.tue || days.sun || 0;
 
-                          const avgRate = Math.round((sunRate + monRate + tueRate) / 3);
-                          const autoDirectRate = Math.round(avgRate * 0.9);
-                          const override = pricing.overrides?.[roomId as keyof typeof pricing.overrides];
-                          const displayRate = override ? override.customPrice : autoDirectRate;
-                          const isCustom = !!override;
-                          const roomNames: Record<string, string> = { knp: "KNP", knp1: "KNP1", knp3: "KNP3", knp6: "KNP6" };
+                            const avgRate = Math.round((sunRate + monRate + tueRate) / 3);
+                            const autoDirectRate = Math.round(avgRate * 0.9);
+                            const override = pricing.overrides?.[roomId as keyof typeof pricing.overrides];
+                            const displayRate = override ? override.customPrice : autoDirectRate;
+                            const isCustom = !!override;
+                            const roomNames: Record<string, string> = { 
+                              knp: "Entire Villa KLV", 
+                              knp1: "Family Suite (KLV1)", 
+                              knp3: "Twin/Triple Room (KLV3)", 
+                              knp6: "Group Room (KLV6)" 
+                            };
 
-                          return (
-                            <tr key={roomId} style={{ backgroundColor: '#fff' }}>
-                              <td style={{ border: '1px solid #ddd', padding: '12px', fontWeight: 'bold' }}>
-                                {roomNames[roomId]}
-                              </td>
-                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                ${sunRate}
-                              </td>
-                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                ${monRate}
-                              </td>
-                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                ${tueRate}
-                              </td>
-                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                  <span style={{ fontWeight: 'bold', color: isCustom ? '#2563eb' : '#16a34a' }}>
-                                    ${displayRate}
-                                  </span>
-                                  {isCustom && (
-                                    <span style={{ fontSize: '12px', backgroundColor: '#dbeafe', color: '#2563eb', padding: '2px 8px', borderRadius: '4px' }}>
-                                      Custom
+                            return (
+                              <tr key={roomId} className="bg-white hover:bg-gray-50">
+                                <td className="border border-gray-300 px-4 py-3 font-bold">
+                                  {roomNames[roomId] || roomId}
+                                </td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">
+                                  ${sunRate}
+                                </td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">
+                                  ${monRate}
+                                </td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">
+                                  ${tueRate}
+                                </td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <span className={`font-bold ${isCustom ? 'text-blue-600' : 'text-green-600'}`}>
+                                      ${displayRate}
                                     </span>
-                                  )}
-                                </div>
-                              </td>
-                              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                                <a href="/admin/calendar" style={{ textDecoration: 'none' }}>
-                                  <button style={{ 
-                                    color: '#2563eb', 
-                                    backgroundColor: 'transparent',
-                                    border: '1px solid #2563eb', 
-                                    padding: '6px 12px', 
-                                    borderRadius: '4px', 
-                                    fontSize: '14px',
-                                    cursor: 'pointer'
-                                  }}>
-                                    ✏️ Edit
-                                  </button>
-                                </a>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                    <button 
-                      onClick={() => window.location.reload()}
-                      style={{ background: "#469458", color: "white", padding: "0.75rem 1.5rem", borderRadius: "5px", border: "none", cursor: "pointer" }}
-                    >
-                      🔁 Refresh Pricing
-                    </button>
-                    <a href="/accommodation" target="_blank">
-                      <button style={{ background: "#ccc", padding: "0.5rem 1rem", borderRadius: "5px", border: "none" }}>👁 Preview Live Rates</button>
-                    </a>
-                  </div>
-                </div>
+                                    {isCustom && (
+                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">
+                                        Custom
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="border border-gray-300 px-4 py-3 text-center">
+                                  <Link href="/admin/calendar">
+                                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-600 hover:bg-blue-50">
+                                      ✏️ Edit
+                                    </Button>
+                                  </Link>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="flex gap-4 mt-6">
+                      <Button 
+                        onClick={() => window.location.reload()}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        🔁 Refresh Pricing
+                      </Button>
+                      <Link href="/accommodation" target="_blank">
+                        <Button variant="outline" className="text-gray-700 border-gray-300 hover:bg-gray-50">
+                          👁 Preview Live Rates
+                        </Button>
+                      </Link>
+                      <Link href="/admin/calendar">
+                        <Button className="bg-[#FF914D] hover:bg-[#e67e3d] text-white">
+                          🗓️ Open Pricing Calendar
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Management Blocks */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
