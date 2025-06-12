@@ -435,14 +435,9 @@ export default function SimpleGalleryManager() {
             e.preventDefault();
             e.stopPropagation();
             console.log('Edit button clicked for image:', image.id);
-            console.log('Editing image initialized:', {
-              id: image.id,
-              category: image.category,
-              title: image.alt,
-              description: image.description
-            });
+            console.log('Setting editingImage state to:', image);
             setEditingImage(image);
-            // Don't use TaggingDialog, use the built-in dialog instead
+            console.log('Custom dialog should now be visible');
           };
 
           const handleDeleteClick = (e: React.MouseEvent) => {
@@ -588,14 +583,22 @@ export default function SimpleGalleryManager() {
       
       {/* Edit Dialog - Custom Implementation */}
       {editingImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingImage(null);
+          }}
+        >
           <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto w-full mx-4">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Edit {editingImage?.mediaType === 'video' ? 'Video' : 'Image'}</h2>
                 <button
-                  onClick={() => setEditingImage(null)}
-                  className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                  onClick={() => {
+                    console.log('Closing edit dialog');
+                    setEditingImage(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 text-2xl leading-none p-1"
                 >
                   ×
                 </button>
