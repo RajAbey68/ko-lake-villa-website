@@ -124,34 +124,7 @@ export default function AdminGallery() {
         </Card>
       </div>
 
-      {/* Gallery Categories */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-[#8B5E3C]">Available Categories</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {[
-              { value: "entire-villa", label: "Entire Villa", color: "bg-purple-100 text-purple-800" },
-              { value: "family-suite", label: "Family Suite", color: "bg-blue-100 text-blue-800" },
-              { value: "group-room", label: "Group Room", color: "bg-green-100 text-green-800" },
-              { value: "triple-room", label: "Triple Room", color: "bg-yellow-100 text-yellow-800" },
-              { value: "dining-area", label: "Dining Area", color: "bg-red-100 text-red-800" },
-              { value: "pool-deck", label: "Pool Deck", color: "bg-cyan-100 text-cyan-800" },
-              { value: "lake-garden", label: "Lake Garden", color: "bg-emerald-100 text-emerald-800" },
-              { value: "koggala-lake", label: "Koggala Lake", color: "bg-indigo-100 text-indigo-800" }
-            ].map(category => (
-              <Badge 
-                key={category.value} 
-                variant="secondary" 
-                className={`${category.color} text-xs text-center justify-center py-1`}
-              >
-                {category.label}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Main Gallery Management Component */}
       <ErrorBoundary>
