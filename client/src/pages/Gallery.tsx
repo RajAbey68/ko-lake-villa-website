@@ -468,38 +468,34 @@ const handleCategoryChange = (category: string | null) => {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-full h-40 md:h-56 bg-gray-100 flex flex-col items-center justify-center relative">
-                        {/* Show title and loading indicator while image is loading */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
-                          <div className="w-12 h-12 mb-2 flex items-center justify-center rounded-full bg-gray-200">
-                            <svg className="animate-pulse" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8B5E3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                              <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                          </div>
-                          <p className="text-[#8B5E3C] text-center text-sm px-2">{image.alt || "Ko Lake Villa Image"}</p>
-                        </div>
-
-                        {/* Using a simple img tag with direct URL for maximum compatibility */}
-                        <div className="w-full h-full relative z-10 overflow-hidden">
-                          <img 
-                            src={`${image.imageUrl}?t=${Date.now()}`}
-                            alt={image.alt || "Ko Lake Villa Image"}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                            onError={(e) => {
-                              console.error(`Error loading image: ${image.imageUrl}`);
-                              (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                            }}
-                          />
-                          {/* Elegant hover overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#8B5E3C]/60 via-transparent to-transparent 
-                                        opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out
-                                        flex items-end justify-center pb-4">
-                            <div className="text-white text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                              <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
-                                Click to view
-                              </div>
+                      <div className="w-full h-40 md:h-56 relative overflow-hidden bg-gray-50">
+                        <img 
+                          src={image.imageUrl}
+                          alt={image.title || image.alt || "Ko Lake Villa"}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                          loading="lazy"
+                          onError={(e) => {
+                            console.error(`Error loading image: ${image.imageUrl}`);
+                            // Try fallback to default image
+                            const target = e.target as HTMLImageElement;
+                            if (!target.src.includes('default')) {
+                              target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
+                            }
+                          }}
+                          onLoad={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.opacity = '1';
+                          }}
+                          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+                        />
+                        
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent 
+                                      opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                                      flex items-end justify-center pb-4">
+                          <div className="text-white text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
+                              Click to view
                             </div>
                           </div>
                         </div>
