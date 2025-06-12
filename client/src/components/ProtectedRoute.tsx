@@ -15,13 +15,23 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     setMounted(true);
   }, []);
 
+  // Development bypass for admin access - remove in production
+  const isDevelopment = import.meta.env.DEV;
+  
   console.log('ProtectedRoute - Auth state:', { 
     currentUser: !!currentUser, 
     isLoading, 
     isAdmin, 
     mounted, 
-    location 
+    location,
+    isDevelopment
   });
+
+  // In development, allow direct admin access for testing
+  if (isDevelopment) {
+    console.log('ProtectedRoute - Development mode: bypassing auth');
+    return <>{children}</>;
+  }
 
   // Show loading spinner while auth is being determined
   if (!mounted || isLoading) {
