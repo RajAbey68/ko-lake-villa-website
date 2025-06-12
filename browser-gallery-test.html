@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gallery Test</title>
+</head>
+<body>
+    <h1>Gallery Edit & Video Test</h1>
+    <p>Open browser console and navigate to /admin/gallery, then run: <code>runGalleryTests()</code></p>
+    
+    <script>
+        // Browser-based gallery test
+        async function runGalleryTests() {
+            console.log('🚀 Testing Gallery Edit & Video Functionality...');
+            
+            // Test 1: API Access
+            try {
+                const response = await fetch('/api/gallery');
+                const data = await response.json();
+                console.log('✅ Gallery API:', data.length, 'items loaded');
+                
+                const videos = data.filter(item => item.mediaType === 'video');
+                console.log('📹 Videos found:', videos.length);
+                
+                // Test video access
+                if (videos.length > 0) {
+                    const testVideo = videos[0];
+                    const videoResponse = await fetch(testVideo.imageUrl, { method: 'HEAD' });
+                    console.log('🎥 Video accessible:', videoResponse.ok, testVideo.imageUrl);
+                }
+                
+            } catch (error) {
+                console.error('❌ API Error:', error);
+            }
+            
+            // Test 2: Edit Buttons
+            const editButtons = document.querySelectorAll('[aria-label*="Edit"]');
+            console.log('✏️ Edit buttons found:', editButtons.length);
+            
+            // Test 3: Video Elements  
+            const videos = document.querySelectorAll('video');
+            console.log('🎬 Video elements:', videos.length);
+            
+            videos.forEach((video, i) => {
+                console.log(`Video ${i+1}:`, {
+                    src: video.src,
+                    controls: video.controls,
+                    preload: video.preload,
+                    readyState: video.readyState
+                });
+            });
+            
+            // Test 4: Simulate Edit Click
+            if (editButtons.length > 0) {
+                console.log('🖱️ Clicking first edit button...');
+                editButtons[0].click();
+                
+                setTimeout(() => {
+                    const dialog = document.querySelector('[role="dialog"]');
+                    console.log('📝 Edit dialog opened:', !!dialog);
+                    if (dialog) {
+                        const inputs = dialog.querySelectorAll('input, textarea, select');
+                        console.log('📝 Form fields in dialog:', inputs.length);
+                    }
+                }, 500);
+            }
+        }
+        
+        window.runGalleryTests = runGalleryTests;
+    </script>
+</body>
+</html>
