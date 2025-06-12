@@ -1463,18 +1463,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Handle admin routes - serve main app for client-side routing
-  app.get('/admin*', (req, res) => {
-    const indexPath = path.join(__dirname, '../client/dist/index.html');
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(404).json({
-        message: 'Admin interface not built. Run npm run build first.',
-        path: req.path
-      });
-    }
-  });
+  // Handle admin routes - allow Vite dev server to handle in development
+  // In production, this would serve the built files
+  if (process.env.NODE_ENV === 'production') {
+    app.get('/admin*', (req, res) => {
+      const indexPath = path.join(__dirname, '../client/dist/index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).json({
+          message: 'Admin interface not built. Run npm run build first.',
+          path: req.path
+        });
+      }
+    });
+  }
 
   // Note: Catch-all route removed to allow Vite development server to handle all routes
 
