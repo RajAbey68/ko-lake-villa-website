@@ -392,11 +392,17 @@ export default function SimpleGalleryManager() {
           <Card key={image.id} className="overflow-hidden">
             <div className="relative aspect-square">
               {image.mediaType === 'video' ? (
-                <div className="relative w-full h-full bg-gray-100">
+                <div 
+                  className="relative w-full h-full bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    console.log('Video clicked, opening fullscreen for:', image.alt);
+                    setViewingMedia({ type: 'video', url: image.imageUrl, title: image.alt });
+                  }}
+                >
                   <video
-                    controls
+                    controls={false}
                     preload="metadata"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover pointer-events-none"
                     onError={(e) => {
                       console.error('Video failed to load:', image.imageUrl);
                     }}
@@ -408,32 +414,25 @@ export default function SimpleGalleryManager() {
                     <source src={image.imageUrl} type="video/quicktime" />
                     Your browser does not support the video tag.
                   </video>
-                  <div 
-                    className="absolute inset-0 bg-transparent cursor-pointer flex items-center justify-center"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('Video clicked, opening fullscreen for:', image.alt);
-                      setViewingMedia({ type: 'video', url: image.imageUrl, title: image.alt });
-                    }}
-                  >
-                    <div className="bg-black/20 text-white px-3 py-1 rounded text-sm opacity-0 hover:opacity-100 transition-opacity">
-                      Click to play fullscreen
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-black/50 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                      ▶ Click to play fullscreen
                     </div>
                   </div>
                 </div>
               ) : (
-                <img
-                  src={image.imageUrl}
-                  alt={image.alt}
-                  className="w-full h-full object-cover bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                  loading="lazy"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                <div 
+                  className="w-full h-full cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => {
                     console.log('Image clicked, opening fullscreen for:', image.alt);
                     setViewingMedia({ type: 'image', url: image.imageUrl, title: image.alt });
                   }}
+                >
+                  <img
+                    src={image.imageUrl}
+                    alt={image.alt}
+                    className="w-full h-full object-cover bg-gray-100 pointer-events-none"
+                    loading="lazy"
                   onError={(e) => {
                     console.error('Image failed to load:', image.imageUrl);
                     const target = e.target as HTMLImageElement;
@@ -452,6 +451,7 @@ export default function SimpleGalleryManager() {
                     }
                   }}
                 />
+                </div>
               )}
 
               {/* Featured Badge */}
@@ -466,13 +466,11 @@ export default function SimpleGalleryManager() {
                 <Button
                   size="sm"
                   variant="secondary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                  onClick={() => {
                     console.log('Edit clicked for:', image.id, image.alt);
                     setEditingImage(image);
                   }}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
                   aria-label={`Edit ${image.alt}`}
                   title="Edit this image"
                 >
