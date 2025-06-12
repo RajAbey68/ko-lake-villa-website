@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -357,12 +357,7 @@ export default function MasterGalleryManager() {
       setEditTags(editingImage.tags || '');
       setEditSortOrder(editingImage.sortOrder || 1);
       setEditFeatured(editingImage.featured || false);
-      console.log('Editing image initialized:', {
-        id: editingImage.id,
-        category: editingImage.category,
-        title: editingImage.title || editingImage.alt,
-        description: editingImage.description
-      });
+      console.log('Edit dialog opening for image:', editingImage.id);
     }
   }, [editingImage]);
 
