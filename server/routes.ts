@@ -593,8 +593,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery upload endpoint with metadata handling
+  app.post("/api/gallery/upload", (req, res) => {
+    console.log("Gallery upload endpoint hit");
 
+    upload.any()(req, res, async (err) => {
+      if (err) {
+        console.error("Multer error:", err);
+        return res.status(500).json({ 
+          success: false,
+          message: "File upload error", 
+          error: err.message 
+        });
+      }
 
+      try {
+        console.log("Files received:", req.files);
+        console.log("Body received:", req.body);
+
+        if (!req.files || req.files.length === 0) {
+          console.log("No files uploaded");
+          return res.status(400).json({ 
+            success: false,
+            message: "No files uploaded" 
+          });
+        }
+
+        const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+        const results = [];
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          let metadata;
+
+          try {
+            // Handle metadata for each file
+            if (req.body[`metadata[${i}]`]) {
+              metadata = JSON.parse(req.body[`metadata[${i}]`]);
+            } else {
+              // Fallback to single file metadata
+              metadata = {
+                title: req.body.title || file.originalname.replace(/\.[^/.]+$/, ""),
+                description: req.body.description || '',
+                category: req.body.category || 'entire-villa',
+                tags: req.body.tags || '',
+                featured: req.body.featured === 'true' || req.body.featured === true,
+                alt: req.body.alt || req.body.title || file.originalname.replace(/\.[^/.]+$/, "")
+              };
+            }
+          } catch (parseError) {
+            console.error("Error parsing metadata:", parseError);
+            metadata = {
+              title: file.originalname.replace(/\.[^/.]+$/, ""),
+              description: '',
+              category: 'entire-villa',
+              tags: '',
+              featured: false,
+              alt: file.originalname.replace(/\.[^/.]+$/, "")
+            };
+          }
+
+          const isVideoFile = file.mimetype.startsWith('video/') || 
+                            file.originalname.toLowerCase().endsWith('.mp4') ||
+                            file.originalname.toLowerCase().endsWith('.mov') ||
+                            file.originalname.toLowerCase().endsWith('.avi');
+
+          const mediaType = isVideoFile ? 'video' : 'image';
+          const fileUrl = `/uploads/gallery/default/${file.filename}`;
+
+          const galleryImageData = {
+            imageUrl: fileUrl,
+            alt: metadata.alt,
+            title: metadata.title,
+            description: metadata.description,
+            category: metadata.category,
+            tags: metadata.tags,
+            featured: metadata.featured,
+            mediaType,
+            sortOrder: 0
+          };
+
+          console.log("Creating gallery image with data:", galleryImageData);
+          
+          try {
+            const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+            console.log("Gallery image created:", galleryImage.id);
+            results.push(galleryImage);
+          } catch (dbError) {
+            console.error("Database error creating gallery image:", dbError);
+            throw new Error(`Failed to save image metadata: ${dbError.message}`);
+          }
+        }
+
+        res.status(201).json({
+          success: true,
+          message: `${results.length} file(s) uploaded successfully!`,
+          data: results
+        });
+
+      } catch (error: any) {
+        console.error("Upload processing error:", error);
+        res.status(500).json({ 
+          success: false,
+          message: "Failed to process uploaded files",
+          error: error?.message || 'Unknown error'
+        });
+      }
+    });
+  });
 
   // AI content generation endpoint for existing gallery images
   app.post("/api/admin/generate-gallery-content", async (req, res) => {
