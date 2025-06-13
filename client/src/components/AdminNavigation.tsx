@@ -1,84 +1,186 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Home, ArrowLeft, User, Settings, Image, Calendar, FileText, BarChart3 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  Home, 
+  Settings, 
+  Image, 
+  BarChart3, 
+  FileText, 
+  Calendar,
+  Upload,
+  Users,
+  Menu,
+  X,
+  LogOut
+} from 'lucide-react';
 
-interface AdminNavigationProps {
-  title?: string;
-}
-
-export function AdminNavigation({ title = "Admin Panel" }: AdminNavigationProps) {
+const AdminNavigation = () => {
   const [location] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { logout } = useAuth();
 
-  const navigationItems = [
-    { path: '/admin', label: 'Dashboard', icon: Home },
-    { path: '/admin/gallery', label: 'Gallery', icon: Image },
-    { path: '/admin/content', label: 'Content', icon: FileText },
-    { path: '/admin/booking-calendar', label: 'Bookings', icon: Calendar },
-    { path: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { path: '/admin/audit-logs', label: 'Audit Logs', icon: Settings },
-    { path: '/admin/settings', label: 'Settings', icon: Settings },
+  const adminMenuItems = [
+    { href: '/admin', label: 'Dashboard', icon: Home },
+    { href: '/admin/gallery', label: 'Gallery', icon: Image },
+    { href: '/admin/statistics', label: 'Analytics', icon: BarChart3 },
+    { href: '/admin/content-manager', label: 'Content', icon: FileText },
+    { href: '/admin/calendar', label: 'Bookings', icon: Calendar },
+    { href: '/admin/bulk-uploader', label: 'Upload', icon: Upload },
+    { href: '/admin/visitor-uploads', label: 'Visitor Media', icon: Users },
   ];
 
+  const publicMenuItems = [
+    { href: '/', label: 'Home' },
+    { href: '/accommodation', label: 'Accommodation' },
+    { href: '/gallery', label: 'Gallery' },
+    { href: '/experiences', label: 'Experiences' },
+    { href: '/dining', label: 'Dining' },
+    { href: '/contact', label: 'Contact' },
+  ];
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
   return (
-    <div className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left side - Navigation */}
-          <div className="flex items-center space-x-4">
-            {/* Home button */}
-            <Link href="/" className="flex items-center text-gray-600 hover:text-[#8B5E3C] transition-colors">
-              <Home className="h-5 w-5 mr-2" />
-              <span className="hidden sm:inline">Website</span>
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/admin" className="flex items-center">
+              <h1 className="text-xl font-bold text-gray-900">Ko Lake Villa Admin</h1>
             </Link>
-            
-            {/* Back to Admin Dashboard */}
-            {location !== '/admin' && (
-              <Link href="/admin" className="flex items-center text-gray-600 hover:text-[#8B5E3C] transition-colors">
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                <span className="hidden sm:inline">Dashboard</span>
-              </Link>
-            )}
-
-            {/* Page title */}
-            <div className="flex items-center">
-              <div className="h-6 border-l border-gray-300 mx-4"></div>
-              <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
-            </div>
           </div>
 
-          {/* Right side - Quick navigation */}
-          <div className="flex items-center space-x-2">
-            {navigationItems.map((item) => {
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {adminMenuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location === item.path;
-              
               return (
                 <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-[#8B5E3C] text-white'
-                      : 'text-gray-600 hover:text-[#8B5E3C] hover:bg-gray-100'
-                  }`}
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    location === item.href
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  )}
                 >
-                  <Icon className="h-4 w-4 mr-2" />
-                  <span className="hidden md:inline">{item.label}</span>
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
-            
-            {/* User menu */}
-            <div className="flex items-center ml-4 pl-4 border-l border-gray-300">
-              <button className="flex items-center text-gray-600 hover:text-[#8B5E3C] transition-colors">
-                <User className="h-5 w-5 mr-2" />
-                <span className="hidden sm:inline">Admin</span>
-              </button>
+          </nav>
+
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="relative">
+              <select 
+                className="text-sm border border-gray-300 rounded-md px-3 py-1 bg-white"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    window.location.href = e.target.value;
+                  }
+                }}
+                value=""
+              >
+                <option value="">View Site</option>
+                {publicMenuItems.map((item) => (
+                  <option key={item.href} value={item.href}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
             </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={toggleMobileMenu}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 py-4">
+            <div className="space-y-2">
+              {adminMenuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      location === item.href
+                        ? "bg-blue-100 text-blue-700"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    )}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+              
+              <div className="border-t border-gray-200 pt-2 mt-2">
+                <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  View Site
+                </div>
+                {publicMenuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block px-6 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="border-t border-gray-200 pt-2 mt-2">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 w-full px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </header>
   );
-}
+};
 
 export default AdminNavigation;

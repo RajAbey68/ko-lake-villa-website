@@ -554,8 +554,8 @@ const handleCategoryChange = (category: string | null) => {
                 
                 return isVideo ? (
                   <FullscreenVideoModal 
-                    image={currentImage}
-                    images={galleryImages}
+                    image={currentImage as any}
+                    images={galleryImages as any[]}
                     isOpen={modalOpen}
                     currentIndex={currentImageIndex}
                     onClose={closeImageModal}
@@ -563,7 +563,7 @@ const handleCategoryChange = (category: string | null) => {
                   />
                 ) : (
                   <GalleryModal 
-                    images={galleryImages}
+                    images={galleryImages as any[]}
                     isOpen={modalOpen}
                     currentIndex={currentImageIndex}
                     onClose={closeImageModal}
