@@ -175,12 +175,18 @@ export default function GalleryManager() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: any }) => {
-      const response = await fetch(`/api/gallery/${id}`, {
+      console.log('Updating image:', id, 'with data:', updates);
+      const response = await fetch(`/api/admin/gallery/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
-      if (!response.ok) throw new Error('Failed to update image');
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Update failed:', response.status, errorText);
+        throw new Error(`Failed to update image: ${response.status}`);
+      }
       return response.json();
     },
     onSuccess: () => {
