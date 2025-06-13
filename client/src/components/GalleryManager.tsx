@@ -504,7 +504,7 @@ export default function GalleryManager() {
           {selectedImages.length > 0 && (
             <Button 
               variant="destructive" 
-              onClick={() => bulkDeleteMutation.mutate(selectedImages)}
+              onClick={() => setShowDeleteAllConfirm(true)}
             >
               <Trash2Icon className="h-4 w-4 mr-2" />
               Delete Selected ({selectedImages.length})
@@ -668,7 +668,12 @@ export default function GalleryManager() {
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => setDeleteConfirmId(image.id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Delete button clicked for image:', image.id);
+                      setDeleteConfirmId(image.id);
+                    }}
                     title="Delete"
                   >
                     <TrashIcon className="h-4 w-4" />
@@ -957,23 +962,121 @@ export default function GalleryManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* Single Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle className="text-red-600">Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this image? This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
-          <p>Are you sure you want to delete this item? This action cannot be undone.</p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+          
+          {deleteConfirmId && (
+            <div className="py-4">
+              <p className="text-sm text-gray-600 mb-2">
+                You are about to delete image ID: <strong>{deleteConfirmId}</strong>
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded p-3">
+                <p className="text-red-800 text-sm font-medium">⚠️ Warning</p>
+                <p className="text-red-700 text-sm">This will permanently remove the image from your gallery.</p>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                console.log('Delete cancelled');
+                setDeleteConfirmId(null);
+              }}
+              disabled={deleteMutation.isPending}
+            >
               Cancel
             </Button>
             <Button 
               variant="destructive" 
-              onClick={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
+              onClick={() => {
+                if (deleteConfirmId) {
+                  console.log('Confirming delete for image:', deleteConfirmId);
+                  deleteMutation.mutate(deleteConfirmId);
+                }
+              }}
               disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
             >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <TrashIcon className="h-4 w-4 mr-2" />
+                  Delete Permanently
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={showDeleteAllConfirm} onOpenChange={setShowDeleteAllConfirm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Confirm Bulk Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedImages.length} selected images? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="text-sm text-gray-600 mb-2">
+              You are about to delete <strong>{selectedImages.length}</strong> images.
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <p className="text-red-800 text-sm font-medium">⚠️ Warning</p>
+              <p className="text-red-700 text-sm">This will permanently remove all selected images from your gallery.</p>
+            </div>
+            <div className="mt-3 text-xs text-gray-500">
+              Selected image IDs: {selectedImages.join(', ')}
+            </div>
+          </div>
+          
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                console.log('Bulk delete cancelled');
+                setShowDeleteAllConfirm(false);
+              }}
+              disabled={bulkDeleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                console.log('Confirming bulk delete for images:', selectedImages);
+                bulkDeleteMutation.mutate(selectedImages);
+                setShowDeleteAllConfirm(false);
+              }}
+              disabled={bulkDeleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {bulkDeleteMutation.isPending ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  Deleting {selectedImages.length} images...
+                </>
+              ) : (
+                <>
+                  <Trash2Icon className="h-4 w-4 mr-2" />
+                  Delete {selectedImages.length} Images
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
