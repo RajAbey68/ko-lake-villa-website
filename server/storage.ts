@@ -1182,10 +1182,7 @@ class DbStorage implements IStorage {
     try {
       const [updatedImage] = await db
         .update(galleryImages)
-        .set({
-          ...updates,
-          updatedAt: new Date()
-        })
+        .set(updates)
         .where(eq(galleryImages.id, id))
         .returning();
 
