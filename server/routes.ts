@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage as dataStorage } from "./storage";
+import { serverCache, CACHE_KEYS, CACHE_TTL } from "./cache";
 import {
   insertBookingInquirySchema,
   insertContactMessageSchema,
@@ -531,19 +532,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // API Routes
+  // API Routes with caching
   app.get("/api/rooms", async (req, res) => {
-    const rooms = await dataStorage.getRooms();
+    // Check cache first
+    let rooms = serverCache.get(CACHE_KEYS.ROOMS);
+    if (!rooms) {
+      rooms = await dataStorage.getRooms();
+      serverCache.set(CACHE_KEYS.ROOMS, rooms, CACHE_TTL.MEDIUM);
+    }
     res.json(rooms);
   });
 
   app.get("/api/testimonials", async (req, res) => {
-    const testimonials = await dataStorage.getTestimonials();
+    // Check cache first
+    let testimonials = serverCache.get(CACHE_KEYS.TESTIMONIALS);
+    if (!testimonials) {
+      testimonials = await dataStorage.getTestimonials();
+      serverCache.set(CACHE_KEYS.TESTIMONIALS, testimonials, CACHE_TTL.MEDIUM);
+    }
     res.json(testimonials);
   });
 
   app.get("/api/activities", async (req, res) => {
-    const activities = await dataStorage.getActivities();
+    // Check cache first
+    let activities = serverCache.get(CACHE_KEYS.ACTIVITIES);
+    if (!activities) {
+      activities = await dataStorage.getActivities();
+      serverCache.set(CACHE_KEYS.ACTIVITIES, activities, CACHE_TTL.MEDIUM);
+    }
     res.json(activities);
   });
 
@@ -557,11 +573,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const category = req.query.category as string | undefined;
 
       if (category && category !== 'all' && category !== '') {
-        const images = await dataStorage.getGalleryImagesByCategory(category);
+        // Check cache for category-specific images
+        const cacheKey = CACHE_KEYS.GALLERY_CATEGORY(category);
+        let images = serverCache.get(cacheKey);
+        
+        if (!images) {
+          images = await dataStorage.getGalleryImagesByCategory(category);
+          serverCache.set(cacheKey, images, CACHE_TTL.SHORT);
+        }
+        
         return res.json(images);
       }
 
-      const allImages = await dataStorage.getGalleryImages();
+      // Check cache for all gallery images
+      let allImages = serverCache.get(CACHE_KEYS.GALLERY_ALL);
+      if (!allImages) {
+        allImages = await dataStorage.getGalleryImages();
+        serverCache.set(CACHE_KEYS.GALLERY_ALL, allImages, CACHE_TTL.SHORT);
+      }
+      
       res.json(allImages);
     } catch (error) {
       console.error('Gallery API error:', error);
@@ -589,6 +619,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+      
+      // Invalidate gallery cache after creating new image
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+      
       res.status(201).json(galleryImage);
     } catch (error) {
       console.error('Gallery POST error:', error);
@@ -912,6 +947,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const success = await dataStorage.deleteGalleryImage(id);
       if (success) {
+        // Invalidate gallery cache after delete
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+        
         return res.json({ message: "Gallery image deleted successfully!" });
       }
       res.status(404).json({ message: "Gallery image not found" });
@@ -989,6 +1028,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error(`Failed to delete image ${image.id}:`, error);
         }
       }
+
+      // Invalidate gallery cache after bulk delete
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
 
       res.json({ 
         message: `Successfully deleted ${deletedCount} images and videos`,
@@ -1083,6 +1126,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const updatedImage = await dataStorage.updateGalleryImage(id, updates);
+
+      // Invalidate gallery cache after update
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
 
       res.json({
         message: "Gallery image updated successfully!",
