@@ -846,6 +846,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Gallery management API endpoints
+  app.get('/api/admin/gallery', async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      res.json(images);
+    } catch (error) {
+      console.error('Error fetching gallery images:', error);
+      res.status(500).json({ error: 'Failed to fetch gallery images' });
+    }
+  });
+
+  app.put('/api/admin/gallery/:id', async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const updatedImage = await dataStorage.updateGalleryImage(imageId, updates);
+      res.json({ success: true, data: updatedImage });
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      res.status(500).json({ success: false, error: 'Failed to update image' });
+    }
+  });
+
+  app.delete('/api/admin/gallery/:id', async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      await dataStorage.deleteGalleryImage(imageId);
+      res.json({ success: true, message: 'Image deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting gallery image:', error);
+      res.status(500).json({ success: false, error: 'Failed to delete image' });
+    }
+  });
+
   // AI content generation endpoint for existing gallery images
   app.post("/api/admin/generate-gallery-content", async (req, res) => {
     try {
