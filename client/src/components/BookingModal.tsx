@@ -35,7 +35,8 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
   };
 
   const nights = calculateNights();
-  const totalAmount = basePrice * nights;
+  const safeBasePrice = basePrice || 0;
+  const totalAmount = safeBasePrice * nights;
 
   // Generate suggested available dates (sample dates)
   const getAvailableDates = () => {
@@ -78,13 +79,23 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[#E8B87D]" />
-            Book {roomName}
+      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#E8B87D]" />
+              Book
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 text-xl"
+            >
+              ×
+            </button>
           </CardTitle>
-          <CardDescription>Select your dates and guest count</CardDescription>
+          <CardDescription className="text-lg font-medium text-[#8B5E3C]">
+            {roomName}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -125,32 +136,33 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
             </div>
           </div>
 
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-[#E8B87D]/10 border border-[#E8B87D]/30 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600">Rate per night:</span>
-              <span className="font-medium">${basePrice}</span>
+              <span className="font-semibold text-[#8B5E3C]">${safeBasePrice}</span>
             </div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-600">Nights:</span>
-              <span className="font-medium">{nights}</span>
+              <span className="font-semibold text-[#8B5E3C]">{nights}</span>
             </div>
-            <div className="flex items-center justify-between text-lg font-bold text-[#1E4E5F]">
+            <hr className="my-3 border-[#E8B87D]/30" />
+            <div className="flex items-center justify-between text-xl font-bold text-[#8B5E3C]">
               <span>Total:</span>
               <span className="flex items-center gap-1">
-                <DollarSign className="w-4 h-4" />
+                <DollarSign className="w-5 h-5" />
                 {totalAmount}
               </span>
             </div>
           </div>
 
           {!showAlternatives ? (
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button variant="outline" onClick={onClose} className="flex-1">
                 Cancel
               </Button>
               <Button 
                 onClick={handleBookNow}
-                className="flex-1 bg-[#E8B87D] hover:bg-[#1E4E5F]"
+                className="flex-1 bg-[#FF914D] hover:bg-[#FF914D]/90 text-white"
               >
                 Book Now
               </Button>
