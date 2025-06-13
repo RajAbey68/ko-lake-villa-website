@@ -203,6 +203,8 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(undefined);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [bulkUpdateMode, setBulkUpdateMode] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
 
   // Load gallery images
   const { data: allImages = [], isLoading, isError } = useQuery<GalleryImage[]>({
@@ -642,6 +644,73 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     }
   };
 
+  // Toggle featured status for individual image
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: async ({ id, featured }: { id: number; featured: boolean }) => {
+      const response = await apiRequest("PATCH", `/api/gallery/${id}`, { featured });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({
+        title: "Success",
+        description: "Featured status updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update featured status",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle bulk featured status updates
+  const handleBulkFeaturedUpdate = (featured: boolean) => {
+    if (selectedImages.size === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select images to update",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    selectedImages.forEach(id => {
+      toggleFeaturedMutation.mutate({ id, featured });
+    });
+    
+    setSelectedImages(new Set());
+    setBulkUpdateMode(false);
+  };
+
+  // Handle individual image selection
+  const toggleImageSelection = (id: number) => {
+    const newSelection = new Set(selectedImages);
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+    setSelectedImages(newSelection);
+  };
+
+  // Handle select all toggle
+  const handleSelectAll = () => {
+    if (selectedImages.size === images.length) {
+      setSelectedImages(new Set());
+    } else {
+      setSelectedImages(new Set(images.map(img => img.id)));
+    }
+  };
+
+  // Get unique categories from all images
+  const categories = React.useMemo(() => {
+    const cats = new Set(allImages.map(img => img.category).filter(Boolean));
+    return Array.from(cats).sort();
+  }, [allImages]);
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -728,6 +797,60 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
             {category.label}
           </Button>
         ))}
+        
+        {/* Bulk operations panel */}
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant={bulkUpdateMode ? "default" : "outline"}
+                onClick={() => {
+                  setBulkUpdateMode(!bulkUpdateMode);
+                  setSelectedImages(new Set());
+                }}
+                size="sm"
+                className={bulkUpdateMode ? "bg-blue-600 hover:bg-blue-700" : ""}
+              >
+                {bulkUpdateMode ? "Exit Selection Mode" : "Select Multiple Items"}
+              </Button>
+              
+              {bulkUpdateMode && (
+                <>
+                  <Button
+                    onClick={handleSelectAll}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {selectedImages.size === images.length ? "Deselect All" : `Select All Visible (${images.length})`}
+                  </Button>
+                  
+                  <span className="text-sm text-gray-600">
+                    {selectedImages.size} item{selectedImages.size !== 1 ? 's' : ''} selected
+                  </span>
+                </>
+              )}
+            </div>
+            
+            {bulkUpdateMode && selectedImages.size > 0 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => handleBulkFeaturedUpdate(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  size="sm"
+                >
+                  Mark as Featured ({selectedImages.size})
+                </Button>
+                <Button
+                  onClick={() => handleBulkFeaturedUpdate(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white"
+                  size="sm"
+                >
+                  Remove Featured
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Gallery grid */}
@@ -742,7 +865,17 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
       ) : images && images.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {images.map((image: GalleryImage) => (
-            <div key={image.id} className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 flex flex-col">
+            <div key={image.id} className="bg-white rounded-lg overflow-hidden shadow-md border border-gray-200 flex flex-col relative">
+              {bulkUpdateMode && (
+                <div className="absolute top-2 left-2 z-10">
+                  <input
+                    type="checkbox"
+                    checked={selectedImages.has(image.id)}
+                    onChange={() => toggleImageSelection(image.id)}
+                    className="w-4 h-4 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                </div>
+              )}
               <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                 {image.mediaType === 'video' ? (
                   <div className="flex h-full w-full items-center justify-center">
