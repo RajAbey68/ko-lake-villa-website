@@ -448,7 +448,14 @@ const handleCategoryChange = (category: string | null) => {
                   }}
                 >
                   <div className="relative overflow-hidden rounded-md">
-                    {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? (
+                    {(image.mediaType === 'video' || 
+                      image.imageUrl?.toLowerCase().endsWith('.mp4') || 
+                      image.imageUrl?.toLowerCase().endsWith('.mov') ||
+                      image.imageUrl?.toLowerCase().endsWith('.webm') ||
+                      image.imageUrl?.toLowerCase().endsWith('.avi') ||
+                      image.imageUrl?.toLowerCase().endsWith('.mkv') ||
+                      image.imageUrl?.toLowerCase().endsWith('.m4v') ||
+                      image.imageUrl?.toLowerCase().endsWith('.ogv')) ? (
                       <div className="relative w-full h-full">
                         <video
                           className="w-full h-full object-cover"
