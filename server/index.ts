@@ -27,8 +27,16 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// Add cache-busting headers to force browser refresh
+// Add cache-busting headers only for HTML, allow caching for static assets
 app.use((req, res, next) => {
+  // Don't apply no-cache headers to uploads or static assets
+  if (req.path.startsWith('/uploads') || req.path.match(/\.(jpg|jpeg|png|gif|mp4|mov|webm|css|js|svg)$/i)) {
+    // Allow caching for static assets
+    res.header('Cache-Control', 'public, max-age=86400'); // 24 hours
+    return next();
+  }
+  
+  // Apply no-cache headers to HTML and API responses
   res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.header('Pragma', 'no-cache');
   res.header('Expires', '0');
@@ -95,11 +103,10 @@ app.use('/uploads', (req, res, next) => {
         }
       } 
       else {
-        // For images and other content, set no-cache headers
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
+        // For images and other content, set proper caching headers
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hours
         res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Length', stats.size);
 
         // Stream the file
         return fs.createReadStream(filePath).pipe(res);
