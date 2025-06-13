@@ -99,13 +99,13 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[98vw] w-[98vw] h-[98vh] p-0 overflow-hidden bg-black">
+      <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] p-0 overflow-hidden bg-black border-none">
         <DialogTitle className="sr-only">
           {image.title || image.alt} - Ko Lake Villa Gallery
         </DialogTitle>
         <div className="relative w-full h-full bg-black">
           {/* Main Media - Takes up most of the screen */}
-          <div className="relative h-[80vh] bg-black flex items-center justify-center">
+          <div className="relative h-[85vh] bg-black flex items-center justify-center">
             {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? (
               <video
                 key={image.id}
