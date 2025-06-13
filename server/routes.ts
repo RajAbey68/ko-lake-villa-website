@@ -2058,6 +2058,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
+  // Cache monitoring and management endpoints
+  app.get("/api/cache/stats", async (req, res) => {
+    res.json({
+      stats: serverCache.getStats(),
+      performance: {
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+      }
+    });
+  });
+
+  app.post("/api/cache/clear", async (req, res) => {
+    serverCache.clear();
+    res.json({ message: "Cache cleared successfully" });
+  });
+
+  app.post("/api/cache/invalidate/:pattern", async (req, res) => {
+    const pattern = req.params.pattern;
+    serverCache.invalidatePattern(pattern);
+    res.json({ message: `Cache invalidated for pattern: ${pattern}` });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
