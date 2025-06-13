@@ -3,8 +3,8 @@
  * Finds and restores ALL authentic property images and videos
  */
 
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 async function apiRequest(method, endpoint, body = null) {
   const response = await fetch(`http://localhost:5000${endpoint}`, {
@@ -148,12 +148,14 @@ async function completeMediaRecovery() {
       
       const mediaData = {
         title: title,
+        alt: `${title} - Ko Lake Villa accommodation in Ahangama`,
         description: description,
         category: category,
-        tags: generateTags(media.filename, category, media.type),
-        type: media.type,
+        tags: generateTags(media.filename, category, media.type).join(','),
+        mediaType: media.type,
         featured: category === 'property' || category === 'scenic',
-        published: true
+        sortOrder: 0,
+        displaySize: 'medium'
       };
       
       if (media.type === 'image') {
