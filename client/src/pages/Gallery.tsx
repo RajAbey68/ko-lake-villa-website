@@ -483,20 +483,20 @@ const handleCategoryChange = (category: string | null) => {
                           src={image.imageUrl}
                           alt={image.title || image.alt || "Ko Lake Villa"}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                          loading="lazy"
+                          loading="eager"
+                          fetchPriority="high"
+                          decoding="async"
                           onError={(e) => {
                             console.error(`Error loading image: ${image.imageUrl}`);
-                            // Try fallback to default image
                             const target = e.target as HTMLImageElement;
-                            if (!target.src.includes('default')) {
-                              target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
-                            }
+                            target.style.opacity = '0.3';
+                            target.style.backgroundColor = '#f3f4f6';
                           }}
                           onLoad={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.style.opacity = '1';
                           }}
-                          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+                          style={{ opacity: 1, transition: 'opacity 0.3s ease' }}
                         />
 
                         {/* Hover overlay */}
