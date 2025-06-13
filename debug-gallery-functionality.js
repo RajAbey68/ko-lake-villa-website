@@ -3,134 +3,131 @@
  * Run this in browser console to test gallery functionality
  */
 
-console.log('🔍 Starting Gallery Functionality Debug...');
-
-// Test 1: Check if gallery loads
 async function testGalleryLoad() {
+  console.log('🔍 Testing Gallery Data Load...');
+  
   try {
     const response = await fetch('/api/gallery');
     const data = await response.json();
-    console.log('✓ Gallery API Response:', data.length, 'items');
-    return data;
+    console.log(`✅ Gallery loaded: ${data.length} items`);
+    
+    const videos = data.filter(item => 
+      item.mediaType === 'video' || 
+      item.imageUrl?.toLowerCase().includes('.mp4') ||
+      item.imageUrl?.toLowerCase().includes('.mov')
+    );
+    console.log(`📹 Videos found: ${videos.length}`);
+    
+    if (videos.length > 0) {
+      console.log('First video:', videos[0]);
+      return videos[0];
+    }
   } catch (error) {
-    console.error('✗ Gallery API Failed:', error);
-    return [];
+    console.error('❌ Gallery load failed:', error);
+  }
+  return null;
+}
+
+function testVideoElements() {
+  console.log('🎥 Testing Video Elements...');
+  
+  const videoElements = document.querySelectorAll('video');
+  console.log(`Found ${videoElements.length} video elements`);
+  
+  videoElements.forEach((video, index) => {
+    console.log(`Video ${index + 1}:`, {
+      src: video.src,
+      currentSrc: video.currentSrc,
+      readyState: video.readyState,
+      paused: video.paused,
+      muted: video.muted,
+      controls: video.controls
+    });
+  });
+  
+  return videoElements;
+}
+
+function testButtonClicks() {
+  console.log('🖱️ Testing Gallery Item Clicks...');
+  
+  const galleryItems = document.querySelectorAll('[data-testid="gallery-item"], .group.overflow-hidden.rounded-lg.cursor-pointer');
+  console.log(`Found ${galleryItems.length} gallery items`);
+  
+  if (galleryItems.length > 0) {
+    console.log('Simulating click on first item...');
+    galleryItems[0].click();
+    
+    setTimeout(() => {
+      const modal = document.querySelector('[data-modal-size="fullscreen"]');
+      if (modal) {
+        console.log('✅ Modal opened successfully');
+        console.log('Modal content:', modal.innerHTML.substring(0, 200) + '...');
+      } else {
+        console.log('❌ Modal did not open');
+      }
+    }, 500);
   }
 }
 
-// Test 2: Test video elements
-function testVideoElements() {
-  const videos = document.querySelectorAll('video');
-  console.log('Found video elements:', videos.length);
+function testMediaClicks() {
+  console.log('🎬 Testing Media Element Clicks...');
   
-  videos.forEach((video, index) => {
-    console.log(`Video ${index + 1}:`, {
-      src: video.src,
-      readyState: video.readyState,
-      networkState: video.networkState,
-      controls: video.controls,
-      muted: video.muted
-    });
-    
-    // Try to play each video
-    video.play().then(() => {
-      console.log(`✓ Video ${index + 1} playing`);
-    }).catch(error => {
-      console.log(`✗ Video ${index + 1} failed:`, error.message);
+  const mediaElements = document.querySelectorAll('img[src*="/uploads"], video');
+  console.log(`Found ${mediaElements.length} media elements`);
+  
+  mediaElements.forEach((element, index) => {
+    element.addEventListener('click', (e) => {
+      console.log(`Media element ${index + 1} clicked:`, {
+        tagName: element.tagName,
+        src: element.src,
+        event: e
+      });
     });
   });
 }
 
-// Test 3: Test button functionality
-function testButtonClicks() {
-  console.log('Testing button functionality...');
-  
-  // Find edit buttons
-  const editButtons = document.querySelectorAll('button[title*="Edit"], button:has(.lucide-edit)');
-  console.log('Edit buttons found:', editButtons.length);
-  
-  // Find delete buttons  
-  const deleteButtons = document.querySelectorAll('button:has(.lucide-trash)');
-  console.log('Delete buttons found:', deleteButtons.length);
-  
-  // Find upload button
-  const uploadButtons = document.querySelectorAll('button:has(.lucide-upload)');
-  console.log('Upload buttons found:', uploadButtons.length);
-  
-  // Test first edit button
-  if (editButtons.length > 0) {
-    console.log('Testing first edit button...');
-    editButtons[0].click();
-    setTimeout(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      console.log('Edit dialog appeared:', !!dialog);
-    }, 500);
-  }
-}
-
-// Test 4: Test media click handlers
-function testMediaClicks() {
-  console.log('Testing media click handlers...');
-  
-  const mediaElements = document.querySelectorAll('[class*="cursor-pointer"]');
-  console.log('Clickable media elements:', mediaElements.length);
-  
-  if (mediaElements.length > 0) {
-    console.log('Testing first media element click...');
-    mediaElements[0].click();
-    setTimeout(() => {
-      const fullscreenDialog = document.querySelector('.max-w-\\[95vw\\]');
-      console.log('Fullscreen dialog appeared:', !!fullscreenDialog);
-    }, 500);
-  }
-}
-
-// Test 5: Check React state
 function checkReactState() {
-  console.log('Checking React component state...');
+  console.log('⚛️ Checking React State...');
   
-  // Look for React fiber
-  const galleryContainer = document.querySelector('[class*="grid"]');
-  if (galleryContainer && galleryContainer._reactInternalFiber) {
-    console.log('React fiber found');
-  } else if (galleryContainer && galleryContainer._reactInternalInstance) {
-    console.log('React instance found');
+  // Look for React DevTools data
+  const reactRoot = document.querySelector('#root');
+  if (reactRoot && reactRoot._reactInternalFiber) {
+    console.log('React Fiber detected');
+  } else if (reactRoot && reactRoot._reactInternalInstance) {
+    console.log('React Instance detected');
   } else {
-    console.log('No React state accessible');
+    console.log('React state not directly accessible');
+  }
+  
+  // Check for any React error boundaries
+  const errorElements = document.querySelectorAll('[data-reactroot] [data-error], .error-boundary');
+  if (errorElements.length > 0) {
+    console.log('❌ React errors found:', errorElements);
+  } else {
+    console.log('✅ No visible React errors');
   }
 }
 
-// Run all tests
 async function runFullDebug() {
-  console.log('=== STARTING COMPREHENSIVE GALLERY DEBUG ===');
+  console.log('🚀 Starting Full Gallery Debug...\n');
   
-  // Test API
-  const galleryData = await testGalleryLoad();
+  const testVideo = await testGalleryLoad();
+  testVideoElements();
+  testButtonClicks();
+  testMediaClicks();
+  checkReactState();
   
-  // Wait for page to render
-  setTimeout(() => {
-    // Test DOM elements
-    testVideoElements();
-    testButtonClicks();
-    testMediaClicks();
-    checkReactState();
-    
-    console.log('=== DEBUG COMPLETE ===');
-    console.log('Check above for any ✗ failures');
-  }, 2000);
+  console.log('\n📋 MANUAL TESTING STEPS:');
+  console.log('1. Navigate to /gallery page');
+  console.log('2. Look for any console errors');
+  console.log('3. Click on any gallery item');
+  console.log('4. Verify modal opens');
+  console.log('5. If video, check playback controls');
+  console.log('\n🔧 Run this in browser console: runFullDebug()');
 }
 
-// Auto-run debug
-runFullDebug();
-
-// Make functions available globally for manual testing
-window.debugGallery = {
-  testGalleryLoad,
-  testVideoElements,
-  testButtonClicks,
-  testMediaClicks,
-  checkReactState,
-  runFullDebug
-};
-
-console.log('Debug functions available at: window.debugGallery');
+// Auto-run if in browser
+if (typeof window !== 'undefined') {
+  runFullDebug();
+}
