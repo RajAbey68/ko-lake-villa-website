@@ -43,82 +43,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enhanced static file serving for uploads to prevent disappearing images
-app.use('/uploads', (req, res, next) => {
-  const filePath = path.join(UPLOADS_DIR, req.path);
-
-  // Check if the file exists
-  try {
-    if (fs.existsSync(filePath)) {
-      const stats = fs.statSync(filePath);
-
-      // Verify file is not empty
-      if (stats.size === 0) {
-        console.error(`Empty file detected: ${filePath}`);
-        return res.status(404).send('Empty file');
-      }
-
-      // Determine content type
-      let contentType = 'application/octet-stream';
-      if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) contentType = 'image/jpeg';
-      else if (filePath.endsWith('.png')) contentType = 'image/png';
-      else if (filePath.endsWith('.gif')) contentType = 'image/gif';
-      else if (filePath.endsWith('.mp4')) contentType = 'video/mp4';
-
-      // Set appropriate headers based on content type
-      if (contentType.startsWith('video/')) {
-        // For video files, set headers that support range requests and streaming
-        res.setHeader('Accept-Ranges', 'bytes');
-
-        // Get the range header from the request
-        const range = req.headers.range;
-
-        if (range) {
-          // Range request handling for video streaming
-          const fileSize = stats.size;
-          const parts = range.replace(/bytes=/, '').split('-');
-          const start = parseInt(parts[0], 10);
-          const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-          const chunkSize = (end - start) + 1;
-
-          console.log(`Video streaming request: Range: ${range}, Size: ${fileSize}, Start: ${start}, End: ${end}`);
-
-          const fileStream = fs.createReadStream(filePath, { start, end });
-
-          // Set appropriate headers for the range request
-          res.writeHead(206, {
-            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
-            'Content-Length': chunkSize,
-            'Content-Type': contentType
-          });
-
-          return fileStream.pipe(res);
-        } 
-        else {
-          // If no range header, serve the whole video but with headers that enable browser to make range requests
-          res.setHeader('Content-Length', stats.size);
-          res.setHeader('Content-Type', contentType);
-          return fs.createReadStream(filePath).pipe(res);
-        }
-      } 
-      else {
-        // For images and other content, set proper caching headers
-        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hours
-        res.setHeader('Content-Type', contentType);
-        res.setHeader('Content-Length', stats.size);
-
-        // Stream the file
-        return fs.createReadStream(filePath).pipe(res);
-      }
+// Static file serving for uploads with proper caching
+app.use('/uploads', express.static(UPLOADS_DIR, {
+  maxAge: '24h', // 24 hour cache
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // Set proper content types and caching
+    if (path.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+      res.setHeader('Content-Type', path.endsWith('.png') ? 'image/png' : 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else if (path.match(/\.(mp4|mov|webm|avi)$/i)) {
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
     }
-  } catch (error) {
-    console.error(`Error serving upload: ${req.path}`, error);
   }
-
-  // If we get here, continue to the next middleware
-  next();
-}, express.static(UPLOADS_DIR));
+}));
 
 app.use((req, res, next) => {
   const start = Date.now();
