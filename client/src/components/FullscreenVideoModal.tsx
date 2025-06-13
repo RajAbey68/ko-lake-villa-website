@@ -20,12 +20,12 @@ type GalleryImageFromDB = {
 import { formatCategoryLabel, formatTagsForDisplay } from '@/lib/galleryUtils';
 
 interface FullscreenVideoModalProps {
-  image: GalleryImage;
+  image: GalleryImageFromDB;
   isOpen: boolean;
   onClose: () => void;
   onNavigate: (direction: 'prev' | 'next') => void;
   currentIndex: number;
-  images: GalleryImage[];
+  images: GalleryImageFromDB[];
 }
 
 export const FullscreenVideoModal: React.FC<FullscreenVideoModalProps> = ({

@@ -1360,13 +1360,13 @@ function AdminDashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF6EE]">
-      {/* Admin Header */}
-      <header className="bg-[#8B5E3C] text-white py-4 px-6 shadow-md">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <LayoutDashboardIcon className="w-6 h-6" />
-            <h1 className="text-xl font-semibold">Ko Lake Villa Admin</h1>
+    <div className="min-h-screen bg-gray-50">
+      <AdminNavigation />
+      <div className="bg-[#FDF6EE]">
+        <div className="container mx-auto px-6 py-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <LayoutDashboardIcon className="w-6 h-6 text-[#8B5E3C]" />
+            <h1 className="text-3xl font-bold text-[#8B5E3C]">Dashboard Overview</h1>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -1394,7 +1394,7 @@ function AdminDashboardContent() {
             </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Admin Content */}
       <div className="container mx-auto p-6">
