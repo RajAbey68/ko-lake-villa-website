@@ -24,6 +24,7 @@ import Gallery from "@/pages/Gallery";
 import Contact from "@/pages/Contact";
 import Booking from "@/pages/Booking";
 import Checkout from "@/pages/Checkout";
+import CardValidation from "@/pages/CardValidation";
 import Deals from "@/pages/Deals";
 import Friends from "@/pages/Friends";
 import FAQ from "@/pages/FAQ";
@@ -89,6 +90,7 @@ function Router() {
             <Route path="/contact" component={Contact} />
             <Route path="/booking" component={Booking} />
             <Route path="/checkout" component={Checkout} />
+            <Route path="/card-validation" component={CardValidation} />
             <Route path="/faq" component={FAQ} />
             <Route component={NotFound} />
           </Switch>
