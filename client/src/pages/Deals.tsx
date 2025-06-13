@@ -289,11 +289,15 @@ export default function Deals() {
 
       {showBookingModal && (
         <BookingModal
-          isOpen={showBookingModal}
+          roomName={dealPricing.find(p => p.room === selectedRoom)?.roomName || 'Room'}
+          basePrice={dealPricing.find(p => p.room === selectedRoom) ? getCurrentPrice(dealPricing.find(p => p.room === selectedRoom)!) : 0}
           onClose={() => setShowBookingModal(false)}
-          preselectedRoom={selectedRoom}
-          preselectedDate={selectedDate}
-          preselectedGuests={guests}
+          onBook={(bookingData) => {
+            console.log('Booking data:', bookingData);
+            // Handle booking logic here
+            alert(`Booking confirmed for ${bookingData.roomName}! Total: $${bookingData.amount}`);
+            setShowBookingModal(false);
+          }}
         />
       )}
     </div>
