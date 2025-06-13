@@ -3,6 +3,34 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage as dataStorage } from "./storage";
 import { serverCache, CACHE_KEYS, CACHE_TTL } from "./cache";
+
+// Media processing utility function
+function processMediaItem(item: any) {
+  if (!item.imageUrl) return item;
+  
+  const fileExtension = item.imageUrl.toLowerCase().split('.').pop() || '';
+  const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv', 'm4v', 'ogv'];
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tiff', 'ico'];
+  
+  let mediaType = 'image';
+  if (videoExtensions.includes(fileExtension)) {
+    mediaType = 'video';
+  } else if (item.mediaType === 'video') {
+    mediaType = 'video';
+  }
+
+  return {
+    ...item,
+    mediaType,
+    loading: 'lazy',
+    decoding: 'async',
+    mimeType: mediaType === 'video' ? `video/${fileExtension}` : `image/${fileExtension}`,
+    // Enhanced alt text for accessibility
+    alt: item.alt || item.title || `${item.category} at Ko Lake Villa`,
+    // Responsive image sizing
+    sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+  };
+}
 import {
   insertBookingInquirySchema,
   insertContactMessageSchema,
@@ -579,9 +607,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (!images) {
           images = await dataStorage.getGalleryImagesByCategory(category);
+          // Process images with proper media type detection
+          images = images.map(processMediaItem);
           serverCache.set(cacheKey, images, CACHE_TTL.SHORT);
         }
         
+        res.setHeader('Cache-Control', 'public, max-age=300');
         return res.json(images);
       }
 
@@ -589,9 +620,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let allImages = serverCache.get(CACHE_KEYS.GALLERY_ALL);
       if (!allImages) {
         allImages = await dataStorage.getGalleryImages();
+        // Process images with proper media type detection
+        allImages = allImages.map(processMediaItem);
         serverCache.set(CACHE_KEYS.GALLERY_ALL, allImages, CACHE_TTL.SHORT);
       }
       
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.setHeader('X-Cache', allImages === serverCache.get(CACHE_KEYS.GALLERY_ALL) ? 'HIT' : 'MISS');
       res.json(allImages);
     } catch (error) {
       console.error('Gallery API error:', error);

@@ -106,7 +106,14 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
         <div className="relative w-full h-full bg-black">
           {/* Main Media - Takes up most of the screen */}
           <div className="relative h-[85vh] bg-black flex items-center justify-center">
-            {(image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov')) ? (
+            {(image.mediaType === 'video' || 
+              image.imageUrl?.toLowerCase().endsWith('.mp4') || 
+              image.imageUrl?.toLowerCase().endsWith('.mov') ||
+              image.imageUrl?.toLowerCase().endsWith('.webm') ||
+              image.imageUrl?.toLowerCase().endsWith('.avi') ||
+              image.imageUrl?.toLowerCase().endsWith('.mkv') ||
+              image.imageUrl?.toLowerCase().endsWith('.m4v') ||
+              image.imageUrl?.toLowerCase().endsWith('.ogv')) ? (
               <video
                 key={image.id}
                 className="w-full h-full object-contain"
