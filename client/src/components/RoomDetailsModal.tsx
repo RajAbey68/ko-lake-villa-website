@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, MapPin, Users, Square, Wifi, Bath, Coffee, Car, Eye } from 'lucide-react';
 import { Room } from '@shared/schema';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 
 interface RoomDetailsModalProps {
   room: Room | null;
@@ -14,49 +15,52 @@ interface RoomDetailsModalProps {
 export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTour }: RoomDetailsModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  if (!isOpen || !room) return null;
-
-  // Get all available images for this room type
-  const getRoomImages = (roomName: string) => {
-    const images = [];
-
-    if (roomName.includes('KLV1') || roomName.includes('Family Suite')) {
-      images.push(
-        '/uploads/gallery/family-suite/KoLakeHouse_family-suite_0.jpg',
-        '/uploads/gallery/family-suite/KoggalaNinePeaks_family-suite_0.png',
-        '/uploads/gallery/family-suite/KoggalaNinePeaks_family-suite_1.png'
-      );
-    } else if (roomName.includes('KLV3') || roomName.includes('Triple')) {
-      images.push(
-        '/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_0.jpg',
-        '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg'
-      );
-    } else if (roomName.includes('KLV6') || roomName.includes('Group')) {
-      images.push(
-        '/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg',
-        '/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg'
-      );
-    } else if (roomName.includes('Villa')) {
-      images.push(
-        '/uploads/gallery/entire-villa/KoggalaNinePeaks_entire-villa_0.jpg',
-        '/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg',
-        '/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_1.jpg',
-        '/uploads/gallery/default/1747318402896-391223206-20250420_170226.jpg'
-      );
-    }
-
-    return images.length > 0 ? images : ['/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg'];
+  // Map room names to gallery categories
+  const getRoomCategory = (roomName: string) => {
+    if (roomName.includes('KLV1') || roomName.includes('Family Suite')) return 'family-suite';
+    if (roomName.includes('KLV3') || roomName.includes('Triple')) return 'triple-room';
+    if (roomName.includes('KLV6') || roomName.includes('Group')) return 'group-room';
+    if (roomName.includes('Villa')) return 'entire-villa';
+    return 'family-suite'; // default
   };
 
-  const images = getRoomImages(room.name);
+  // Fetch gallery images for this room category
+  const { data: galleryImages = [] } = useQuery({
+    queryKey: ['/api/gallery', getRoomCategory(room?.name || '')],
+    queryFn: async () => {
+      if (!room) return [];
+      const category = getRoomCategory(room.name);
+      const response = await fetch(`/api/gallery?category=${category}`);
+      if (!response.ok) throw new Error('Failed to fetch gallery images');
+      return response.json();
+    },
+    enabled: isOpen && !!room
+  });
+
+  if (!isOpen || !room) return null;
+
+  // Extract image URLs from gallery data
+  const images = galleryImages
+    .filter(item => item.mediaType === 'image')
+    .map(item => item.imageUrl)
+    .filter(url => url && !url.includes('/test/')) // Exclude test images
+    .slice(0, 6); // Limit to 6 images for performance
+
+  // Fallback to a default image if no images available
+  const finalImages = images.length > 0 ? images : ['/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg'];
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % finalImages.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev) => (prev - 1 + finalImages.length) % finalImages.length);
   };
+
+  // Reset image index when modal opens or room changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [room?.id, isOpen]);
 
   const getFeatureIcon = (feature: string) => {
     const lowerFeature = feature.toLowerCase();
@@ -140,7 +144,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
         <div className="relative">
           <div className="aspect-video bg-gray-200">
             <img
-              src={images[currentImageIndex]}
+              src={finalImages[currentImageIndex]}
               alt={`${room.name} - Image ${currentImageIndex + 1}`}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -150,7 +154,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
             />
           </div>
 
-          {images.length > 1 && (
+          {finalImages.length > 1 && (
             <>
               <button
                 onClick={prevImage}
@@ -168,9 +172,9 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
           )}
 
           {/* Image indicators */}
-          {images.length > 1 && (
+          {finalImages.length > 1 && (
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {images.map((_, index) => (
+              {finalImages.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
