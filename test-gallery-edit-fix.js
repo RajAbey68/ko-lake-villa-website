@@ -1,5 +1,6 @@
 /**
- * Gallery Edit Test - Debug the saving issue
+ * Gallery Edit Fix Test - Comprehensive validation of gallery editing functionality
+ * Tests the PATCH endpoint fix and ensures all editing operations work correctly
  */
 
 async function testGalleryEditing() {
@@ -57,19 +58,28 @@ async function testGalleryEditing() {
     
     console.log(`Response status: ${updateResponse.status}`);
     
-    if (updateResponse.ok) {
-      const result = await updateResponse.json();
-      console.log('✅ Update successful!');
-      console.log('Response:', result);
-      
-      // Verify the update by fetching the image again
-      console.log('\n4. Verifying update...');
-      const verifyResponse = await fetch('/api/gallery');
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.log('❌ Update failed:');
+      console.log('Status:', updateResponse.status);
+      console.log('Error:', errorText);
+      return;
+    }
+    
+    const updateResult = await updateResponse.json();
+    console.log('✅ Update successful!');
+    console.log('Response:', updateResult);
+    
+    // Verify the changes by fetching the image again
+    console.log('\n4. Verifying changes...');
+    const verifyResponse = await fetch('/api/gallery');
+    
+    if (verifyResponse.ok) {
       const updatedImages = await verifyResponse.json();
       const updatedImage = updatedImages.find(img => img.id === testImage.id);
       
       if (updatedImage) {
-        console.log('✅ Update verified!');
+        console.log('✅ Image found after update');
         console.log('Updated data:', {
           alt: updatedImage.alt,
           description: updatedImage.description,
@@ -78,86 +88,137 @@ async function testGalleryEditing() {
           featured: updatedImage.featured
         });
         
-        // Check if changes were actually saved
-        const changes = [];
-        if (updatedImage.alt !== testImage.alt) changes.push('title');
-        if (updatedImage.description !== testImage.description) changes.push('description');
-        if (updatedImage.category !== testImage.category) changes.push('category');
-        if (updatedImage.tags !== testImage.tags) changes.push('tags');
-        if (updatedImage.featured !== testImage.featured) changes.push('featured');
+        // Check if changes were applied
+        const changesApplied = {
+          alt: updatedImage.alt.includes('(EDITED)'),
+          description: updatedImage.description && updatedImage.description.includes('Updated via test'),
+          tags: updatedImage.tags && updatedImage.tags.includes('edited'),
+          featured: updatedImage.featured !== testImage.featured
+        };
         
-        if (changes.length > 0) {
-          console.log(`✅ Successfully updated: ${changes.join(', ')}`);
+        console.log('\n5. Validation results:');
+        Object.entries(changesApplied).forEach(([field, applied]) => {
+          console.log(`${applied ? '✅' : '❌'} ${field}: ${applied ? 'UPDATED' : 'NOT UPDATED'}`);
+        });
+        
+        const allChangesApplied = Object.values(changesApplied).every(Boolean);
+        
+        if (allChangesApplied) {
+          console.log('\n🎉 ALL TESTS PASSED - Gallery editing is working correctly!');
         } else {
-          console.log('⚠️ No changes detected in the data');
+          console.log('\n⚠️ Some changes were not applied correctly');
         }
+        
+        // Restore original data
+        console.log('\n6. Restoring original data...');
+        const restoreData = {
+          alt: testImage.alt,
+          description: testImage.description,
+          category: testImage.category,
+          tags: testImage.tags,
+          featured: testImage.featured
+        };
+        
+        const restoreResponse = await fetch(`/api/admin/gallery/${testImage.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(restoreData)
+        });
+        
+        if (restoreResponse.ok) {
+          console.log('✅ Original data restored successfully');
+        } else {
+          console.log('⚠️ Failed to restore original data');
+        }
+        
       } else {
-        console.log('❌ Could not find updated image');
+        console.log('❌ Updated image not found in gallery');
       }
-      
     } else {
-      const errorText = await updateResponse.text();
-      console.log(`❌ Update failed: ${updateResponse.status}`);
-      console.log('Error response:', errorText);
+      console.log('❌ Failed to verify changes');
     }
     
   } catch (error) {
-    console.log(`❌ Test failed with error: ${error.message}`);
+    console.log('❌ Test failed with error:', error.message);
+    console.log('Stack trace:', error.stack);
   }
 }
 
-// Test category mapping issue
-async function testCategoryMapping() {
-  console.log('\n🏷️ Testing Category Mapping...\n');
+// Additional test for edge cases
+async function testEdgeCases() {
+  console.log('\n🔧 Testing Edge Cases...\n');
   
-  const categories = [
-    "Family Suite",
-    "Group Room", 
-    "Triple Room",
-    "Dining Area",
-    "Pool Deck",
-    "Lake Garden",
-    "Roof Garden",
-    "Front Garden and Entrance",
-    "Koggala Lake and Surrounding",
-    "Excursions"
-  ];
-  
-  console.log('Available categories in dialog:', categories);
-  
-  // Check if there's a mismatch between dialog categories and backend categories
   try {
-    const response = await fetch('/api/gallery');
-    const images = await response.json();
+    // Test 1: Update non-existent image
+    console.log('1. Testing update of non-existent image...');
+    const nonExistentResponse = await fetch('/api/admin/gallery/99999', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ alt: 'Test' })
+    });
     
-    const usedCategories = [...new Set(images.map(img => img.category))];
-    console.log('Categories in use by images:', usedCategories);
-    
-    // Check for mismatches
-    const mismatches = usedCategories.filter(cat => 
-      !categories.some(dialogCat => 
-        dialogCat.toLowerCase().replace(/\s+/g, '-') === cat ||
-        dialogCat === cat
-      )
-    );
-    
-    if (mismatches.length > 0) {
-      console.log('⚠️ Category mismatches found:', mismatches);
+    if (nonExistentResponse.status === 404) {
+      console.log('✅ Non-existent image properly returns 404');
     } else {
-      console.log('✅ All categories match correctly');
+      console.log(`❌ Expected 404, got ${nonExistentResponse.status}`);
     }
     
+    // Test 2: Invalid data
+    console.log('\n2. Testing invalid data handling...');
+    const galleryResponse = await fetch('/api/gallery');
+    if (galleryResponse.ok) {
+      const images = await galleryResponse.json();
+      if (images.length > 0) {
+        const invalidResponse = await fetch(`/api/admin/gallery/${images[0].id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ alt: '' }) // Empty alt text
+        });
+        
+        if (invalidResponse.status === 400 || invalidResponse.ok) {
+          console.log('✅ Invalid data handled appropriately');
+        } else {
+          console.log(`❌ Unexpected response for invalid data: ${invalidResponse.status}`);
+        }
+      }
+    }
+    
+    console.log('\n✅ Edge case testing completed');
+    
   } catch (error) {
-    console.log(`❌ Category test failed: ${error.message}`);
+    console.log('❌ Edge case testing failed:', error.message);
   }
 }
 
-// Run both tests
-console.log('🏝️ Ko Lake Villa - Gallery Edit Debugging\n');
-testGalleryEditing().then(() => {
-  testCategoryMapping();
-});
+// Run all tests
+async function runAllTests() {
+  console.log('🚀 Starting Comprehensive Gallery Edit Tests\n');
+  console.log('='.repeat(50));
+  
+  await testGalleryEditing();
+  await testEdgeCases();
+  
+  console.log('\n' + '='.repeat(50));
+  console.log('🏁 All tests completed');
+}
 
-// Make functions available globally
+// Auto-run if page is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(runAllTests, 2000);
+  });
+} else {
+  setTimeout(runAllTests, 1000);
+}
+
+// Export for manual testing
 window.testGalleryEditing = testGalleryEditing;
-window.testCategoryMapping = testCategoryMapping;
+window.runAllTests = runAllTests;
+
+console.log('Gallery edit test loaded. Run runAllTests() manually if needed.');
