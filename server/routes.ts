@@ -1241,6 +1241,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery function test page
+  app.get("/test/gallery", (req, res) => {
+    const testHTML = fs.readFileSync(path.join(process.cwd(), 'admin-gallery-function-test.html'), 'utf8');
+    res.send(testHTML);
+  });
+
   // Admin gallery deletion (alias)
   app.delete("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
