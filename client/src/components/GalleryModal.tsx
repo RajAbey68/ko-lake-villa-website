@@ -99,7 +99,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] p-0 overflow-hidden bg-black border-none">
+      <DialogContent className="bg-black border-none" data-modal-size="fullscreen">
         <DialogTitle className="sr-only">
           {image.title || image.alt} - Ko Lake Villa Gallery
         </DialogTitle>
