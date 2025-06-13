@@ -1584,22 +1584,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Missing API endpoints from test logs
 
   // Content API
-  app.get('/api/content', (req, res) => {
-    const content = {
-      pages: {
-        homepage: {
-          heroTitle: "Ko Lake Villa",
-          heroSubtitle: "Luxury lakeside retreat in Ahangama, Galle",
-          description: "Experience authentic Sri Lankan hospitality with modern comfort"
-        },
-        about: {
-          title: "About Ko Lake Villa",
-          description: "Nestled on the shores of beautiful Koggala Lake, Ko Lake Villa offers a unique blend of traditional Sri Lankan architecture and modern luxury amenities."
-        }
-      },
-      lastUpdated: new Date().toISOString()
-    };
-    res.json(content);
+  app.get('/api/content', async (req, res) => {
+    try {
+      const content = await dataStorage.getAllContent();
+      res.json(content);
+    } catch (error) {
+      console.error('Content API error:', error);
+      res.status(500).json({ message: "Failed to fetch content" });
+    }
+  });
+
+  app.post('/api/content', async (req, res) => {
+    try {
+      const { content } = req.body;
+      if (!Array.isArray(content)) {
+        return res.status(400).json({ message: "Content must be an array" });
+      }
+      await dataStorage.saveContent(content);
+      res.json({ message: "Content saved successfully" });
+    } catch (error) {
+      console.error('Content save error:', error);
+      res.status(500).json({ message: "Failed to save content" });
+    }
+  });
+
+  // Dining API
+  app.get('/api/dining', async (req, res) => {
+    try {
+      const diningOptions = await dataStorage.getDiningOptions();
+      res.json(diningOptions);
+    } catch (error) {
+      console.error('Dining API error:', error);
+      res.status(500).json({ message: "Failed to fetch dining options" });
+    }
   });
 
   // Pricing API

@@ -1416,12 +1416,71 @@ class DbStorage implements IStorage {
   }
 
   // Content operations - fallback to default content for now
-  async getContent(): Promise<any[]> {
-    return []; // Content will be handled separately
+  async getAllContent(): Promise<any[]> {
+    // Return default content structure for now
+    return [
+      {
+        id: 'home-hero-title',
+        page: 'home',
+        section: 'hero',
+        title: 'Hero Title',
+        content: 'Ko Lake Villa',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'home-hero-subtitle',
+        page: 'home',
+        section: 'hero',
+        title: 'Hero Subtitle',
+        content: 'Luxury lakeside retreat in Ahangama, Galle',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'accommodation-title',
+        page: 'accommodation',
+        section: 'hero',
+        title: 'Page Title',
+        content: 'Luxury Accommodations',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'dining-title',
+        page: 'dining',
+        section: 'hero',
+        title: 'Page Title',
+        content: 'Culinary Excellence',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'experiences-title',
+        page: 'experiences',
+        section: 'hero',
+        title: 'Page Title',
+        content: 'Unique Experiences',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'gallery-title',
+        page: 'gallery',
+        section: 'hero',
+        title: 'Page Title',
+        content: 'Photo Gallery',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'contact-title',
+        page: 'contact',
+        section: 'hero',
+        title: 'Page Title',
+        content: 'Get in Touch',
+        lastUpdated: new Date().toISOString()
+      }
+    ];
   }
 
   async saveContent(content: any[]): Promise<void> {
-    // Content will be handled separately
+    // Content will be handled separately for now
+    console.log('Content save requested for', content.length, 'items');
   }
 
   // Special request operations
