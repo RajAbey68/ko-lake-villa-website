@@ -1020,6 +1020,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk delete endpoint for admin
+  app.post("/api/admin/gallery/bulk-delete", async (req, res) => {
+    try {
+      const { ids } = req.body;
+      
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: "Invalid or empty image IDs array" });
+      }
+
+      let deletedCount = 0;
+      const errors: string[] = [];
+
+      for (const id of ids) {
+        try {
+          const success = await dataStorage.deleteGalleryImage(parseInt(id));
+          if (success) {
+            deletedCount++;
+          } else {
+            errors.push(`Image ${id} not found`);
+          }
+        } catch (error) {
+          console.error(`Failed to delete image ${id}:`, error);
+          errors.push(`Failed to delete image ${id}`);
+        }
+      }
+
+      res.json({
+        message: `Successfully deleted ${deletedCount} of ${ids.length} images`,
+        deleted: deletedCount,
+        total: ids.length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      res.status(500).json({ message: "Failed to perform bulk delete" });
+    }
+  });
+
   app.patch("/api/admin/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
@@ -1032,9 +1070,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Gallery image not found" });
       }
 
-      // Ensure all metadata fields are included
-      const updatedData = {
-        id,
+      // Prepare update data (without ID in the updates object)
+      const updates = {
         alt: req.body.alt || galleryImage.alt,
         description: req.body.description || galleryImage.description,
         category: req.body.category || galleryImage.category,
@@ -1042,10 +1079,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         featured: req.body.featured !== undefined ? req.body.featured : galleryImage.featured,
         sortOrder: req.body.sortOrder !== undefined ? req.body.sortOrder : galleryImage.sortOrder,
         mediaType: req.body.mediaType || galleryImage.mediaType,
-        imageUrl: galleryImage.imageUrl // Keep original URL
+        title: req.body.title || galleryImage.title || galleryImage.alt
       };
 
-      const updatedImage = await dataStorage.updateGalleryImage(updatedData);
+      const updatedImage = await dataStorage.updateGalleryImage(id, updates);
 
       res.json({
         message: "Gallery image updated successfully!",
