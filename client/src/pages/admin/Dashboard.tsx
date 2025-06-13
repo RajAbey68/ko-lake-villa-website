@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '../../contexts/AuthContext';
+import AdminNavigation from '../../components/AdminNavigation';
 import { logOut } from '../../lib/firebase';
 import { uploadFile } from '../../lib/firebaseStorage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
