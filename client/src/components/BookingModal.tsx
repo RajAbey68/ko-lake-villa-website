@@ -156,16 +156,56 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
           </div>
 
           {!showAlternatives ? (
-            <div className="flex gap-3 pt-2">
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleBookNow}
-                className="flex-1 bg-[#FF914D] hover:bg-[#FF914D]/90 text-white"
-              >
-                Book Now
-              </Button>
+            <div className="space-y-4 pt-2">
+              {/* Payment Options */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 mb-3">Choose Your Booking Method</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Card Validation Option */}
+                  <div className="border-2 border-green-200 bg-green-50 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <span className="font-medium text-green-800">Recommended</span>
+                    </div>
+                    <h5 className="font-semibold text-green-800 mb-1">Validate Card (No Charge)</h5>
+                    <p className="text-sm text-green-700 mb-3">
+                      Secure your booking by validating your payment method. No charge today - payment collected per our terms.
+                    </p>
+                    <Button 
+                      onClick={() => handleValidateCard()}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
+                      size="sm"
+                    >
+                      Validate Card & Book
+                    </Button>
+                  </div>
+
+                  {/* Immediate Payment Option */}
+                  <div className="border-2 border-orange-200 bg-orange-50 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                      <span className="font-medium text-orange-800">Pay Now</span>
+                    </div>
+                    <h5 className="font-semibold text-orange-800 mb-1">Immediate Payment</h5>
+                    <p className="text-sm text-orange-700 mb-3">
+                      Pay the full amount now to complete your booking immediately.
+                    </p>
+                    <Button 
+                      onClick={handleBookNow}
+                      className="w-full bg-[#FF914D] hover:bg-[#FF914D]/90 text-white text-sm"
+                      size="sm"
+                    >
+                      Pay ${totalAmount} Now
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={onClose} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">

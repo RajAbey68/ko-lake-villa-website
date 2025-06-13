@@ -2246,6 +2246,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe setup intent for card validation without charging
+  app.post("/api/create-setup-intent", async (req, res) => {
+    try {
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(500).json({ error: "Stripe not configured" });
+      }
+
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      const { booking } = req.body;
+      
+      // Create setup intent for card validation
+      const setupIntent = await stripe.setupIntents.create({
+        payment_method_types: ['card'],
+        usage: 'off_session', // For future payments
+        metadata: {
+          booking_room: booking?.roomName || 'Unknown',
+          booking_checkin: booking?.checkIn || '',
+          booking_checkout: booking?.checkOut || '',
+          booking_guests: booking?.guests?.toString() || '0',
+          validation_type: 'ko_lake_villa_booking'
+        }
+      });
+      
+      res.json({ 
+        clientSecret: setupIntent.client_secret,
+        setupIntentId: setupIntent.id
+      });
+    } catch (error: any) {
+      console.error('Setup intent creation error:', error);
+      res
+        .status(500)
+        .json({ message: "Error creating setup intent: " + error.message });
+    }
+  });
+
   // Virtual Tours API endpoints
   app.get('/api/virtual-tours', async (req, res) => {
     try {
