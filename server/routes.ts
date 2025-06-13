@@ -1116,7 +1116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[ADMIN PATCH] Merged update data:`, updates);
 
-      const updatedImage = await dataStorage.updateGalleryImage(updates);
+      const updatedImage = await dataStorage.updateGalleryImage(id, req.body);
       
       // Invalidate gallery cache after update
       serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
