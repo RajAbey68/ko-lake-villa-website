@@ -710,19 +710,32 @@ export class MemStorage implements IStorage {
 
   async updateGalleryImage(partialGalleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage> {
     const { id } = partialGalleryImage;
+    console.log(`[STORAGE] Updating gallery image ${id} with:`, partialGalleryImage);
+    
     const existingImage = this.galleryImages.get(id);
 
     if (!existingImage) {
+      console.error(`[STORAGE] Gallery image with ID ${id} not found`);
       throw new Error(`Gallery image with ID ${id} not found`);
     }
+
+    console.log(`[STORAGE] Existing image before update:`, existingImage);
 
     // Update the existing image with the new properties
     const updatedImage: GalleryImage = {
       ...existingImage,
       ...partialGalleryImage,
+      id // Ensure ID is always preserved
     };
 
+    console.log(`[STORAGE] Updated image after merge:`, updatedImage);
+
     this.galleryImages.set(id, updatedImage);
+    
+    // Verify the update was saved
+    const verifyImage = this.galleryImages.get(id);
+    console.log(`[STORAGE] Verification - image after save:`, verifyImage);
+    
     return updatedImage;
   }
 
