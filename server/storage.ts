@@ -198,7 +198,7 @@ export class MemStorage implements IStorage {
         capacity: 8,
         size: 60,
         features: ["Lake views", "Master suite", "Pool access", "Private terrace"],
-        imageUrl: "/uploads/gallery/default/1747315800201-804896726-20250418_070740.jpg",
+        imageUrl: "/uploads/gallery/family-suite/KoLakeHouse_family-suite_0.jpg",
         checkinDate: "2025-06-05",
       },
       {
