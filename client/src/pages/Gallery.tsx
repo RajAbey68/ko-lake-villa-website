@@ -444,13 +444,7 @@ const handleCategoryChange = (category: string | null) => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('🖱️ Image clicked:', image.id, image.alt);
-                    console.log('🖼️ Image data:', image);
-                    console.log('📋 Current modal state before:', modalOpen);
-                    console.log('🎯 Current index before:', currentImageIndex);
-                    console.log('📦 Gallery images length:', galleryImages?.length);
                     openImageModal(image);
-                    console.log('📋 Modal state after openImageModal:', modalOpen);
                   }}
                 >
                   <div className="relative overflow-hidden rounded-md">
@@ -539,30 +533,14 @@ const handleCategoryChange = (category: string | null) => {
           )}
 
           {/* Lightbox Modal for Gallery Images */}
-          {(() => {
-            console.log("🎭 Modal rendering check:");
-            console.log("  - galleryImages exists:", !!galleryImages);
-            console.log("  - galleryImages length:", galleryImages?.length);
-            console.log("  - modalOpen:", modalOpen);
-            console.log("  - currentImageIndex:", currentImageIndex);
-            
-            if (galleryImages && galleryImages.length > 0 && modalOpen) {
-              console.log("✅ All conditions met, rendering modal");
+          {modalOpen && galleryImages && galleryImages.length > 0 && (
+            (() => {
               const currentImage = galleryImages[currentImageIndex];
-              console.log("📷 Current image:", currentImage);
+              if (!currentImage) return null;
               
-              if (!currentImage) {
-                console.log("❌ No current image found at index:", currentImageIndex);
-                return null;
-              }
-              
-              const isVideo = currentImage && (
-                currentImage.mediaType === 'video' || 
-                currentImage.imageUrl?.endsWith('.mp4') || 
-                currentImage.imageUrl?.endsWith('.mov')
-              );
-              
-              console.log("🎬 Rendering", isVideo ? 'video' : 'image', 'modal');
+              const isVideo = currentImage.mediaType === 'video' || 
+                             currentImage.imageUrl?.endsWith('.mp4') || 
+                             currentImage.imageUrl?.endsWith('.mov');
               
               return isVideo ? (
                 <FullscreenVideoModal 
@@ -582,11 +560,8 @@ const handleCategoryChange = (category: string | null) => {
                   onNavigate={handleModalNavigate}
                 />
               );
-            } else {
-              console.log("❌ Modal conditions not met");
-              return null;
-            }
-          })()}
+            })()
+          )}
         </div>
       </section>
 
