@@ -25,12 +25,15 @@ import {
   FilterIcon,
   Trash2Icon,
   EyeIcon,
+  EyeOffIcon,
   StarIcon,
   RefreshCwIcon,
   CheckCircleIcon,
   CloudUploadIcon,
   FolderPlusIcon,
-  LayoutGridIcon
+  LayoutGridIcon,
+  ToggleLeftIcon,
+  ToggleRightIcon
 } from 'lucide-react';
 import { GalleryImage } from '@shared/schema';
 
@@ -77,6 +80,7 @@ export default function GalleryManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'category' | 'featured'>('date');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'hidden'>('all');
   
   // Upload State
   const [uploadMode, setUploadMode] = useState<'single' | 'bulk' | 'drag-drop'>('single');
@@ -283,7 +287,10 @@ export default function GalleryManager() {
       image.alt?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       image.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       image.tags?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'published' && image.published !== false) ||
+      (statusFilter === 'hidden' && image.published === false);
+    return matchesCategory && matchesSearch && matchesStatus;
   });
 
   const sortedImages = [...filteredImages].sort((a, b) => {
@@ -560,10 +567,10 @@ export default function GalleryManager() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <FolderIcon className="h-8 w-8 text-green-600" />
+              <EyeIcon className="h-8 w-8 text-green-600" />
               <div>
-                <p className="text-sm text-gray-600">Categories</p>
-                <p className="text-2xl font-bold">{new Set(images.map(i => i.category)).size}</p>
+                <p className="text-sm text-gray-600">Published</p>
+                <p className="text-2xl font-bold">{images.filter(i => i.published !== false).length}</p>
               </div>
             </div>
           </CardContent>
@@ -662,14 +669,26 @@ export default function GalleryManager() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Edit button clicked for image:', image.id);
-                      console.log('Setting editingImage to:', image);
                       setEditingImage(image);
-                      console.log('editingImage state should be set');
                     }}
-                    title="Edit"
+                    title="Edit Details"
                   >
                     <EditIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={image.featured ? "default" : "outline"}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      updateMutation.mutate({
+                        id: image.id,
+                        updates: { ...image, featured: !image.featured }
+                      });
+                    }}
+                    title={image.featured ? "Remove from Featured" : "Add to Featured"}
+                  >
+                    <StarIcon className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -677,7 +696,6 @@ export default function GalleryManager() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Delete button clicked for image:', image.id);
                       setDeleteConfirmId(image.id);
                     }}
                     title="Delete"
@@ -687,12 +705,37 @@ export default function GalleryManager() {
                 </div>
               </div>
 
-              {/* Featured Badge */}
-              {image.featured && (
-                <Badge className="absolute top-2 left-2 bg-[#FF914D]">
-                  Featured
+              {/* Quick Action Controls - Always Visible */}
+              <div className="absolute top-2 right-2 flex gap-1">
+                <Button
+                  size="sm"
+                  variant={image.published !== false ? "default" : "secondary"}
+                  className={`h-8 w-8 p-0 ${image.published !== false ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 hover:bg-gray-500'}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateMutation.mutate({
+                      id: image.id,
+                      updates: { ...image, published: image.published !== false ? false : true }
+                    });
+                  }}
+                  title={image.published !== false ? "Published - Click to Hide" : "Hidden - Click to Publish"}
+                >
+                  {image.published !== false ? <EyeIcon className="h-4 w-4" /> : <EyeOffIcon className="h-4 w-4" />}
+                </Button>
+              </div>
+
+              {/* Status Badges */}
+              <div className="absolute top-2 left-2 flex flex-col gap-1">
+                {image.featured && (
+                  <Badge className="bg-[#FF914D] text-white">
+                    Featured
+                  </Badge>
+                )}
+                <Badge className={`${image.published !== false ? 'bg-green-600 text-white' : 'bg-gray-500 text-white'}`}>
+                  {image.published !== false ? 'Published' : 'Hidden'}
                 </Badge>
-              )}
+              </div>
             </div>
 
             <CardContent className="p-4">
