@@ -13,6 +13,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import NotFound from '@/pages/not-found';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NavigationBar from "@/components/NavigationBar";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import BackToTop from "@/components/BackToTop";
 import Home from "@/pages/Home";
@@ -75,6 +76,7 @@ function Router() {
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
+        {location !== '/' && <NavigationBar />}
         <main className="flex-grow">
           <Switch>
             <Route path="/" component={Home} />
