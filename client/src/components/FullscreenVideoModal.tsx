@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { GalleryImage } from '@/lib/galleryUtils';
+import { GalleryImage } from '@shared/schema';
 import { formatCategoryLabel, formatTagsForDisplay } from '@/lib/galleryUtils';
 
 interface FullscreenVideoModalProps {
@@ -155,7 +155,7 @@ export const FullscreenVideoModal: React.FC<FullscreenVideoModalProps> = ({
                 </div>
 
                 <p className="text-gray-200 text-sm leading-relaxed">
-                  {image.description}
+                  {image.description || 'Experience the beauty of Ko Lake Villa'}
                 </p>
 
                 {tags.length > 0 && (

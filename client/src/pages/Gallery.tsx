@@ -232,8 +232,16 @@ const handleCategoryChange = (category: string | null) => {
     console.log("Opening modal for image:", image);
     const imageIndex = galleryImages.findIndex(img => img.id === image.id);
     console.log("Image index:", imageIndex);
+    
+    const isVideo = image.mediaType === 'video' || 
+                   image.imageUrl?.endsWith('.mp4') || 
+                   image.imageUrl?.endsWith('.mov');
+    console.log("Is video:", isVideo, "Media type:", image.mediaType);
+    
     setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
     setModalOpen(true);
+    
+    console.log("Modal state set to open, current index:", imageIndex >= 0 ? imageIndex : 0);
   };
 
   const closeImageModal = () => {
@@ -534,29 +542,35 @@ const handleCategoryChange = (category: string | null) => {
           )}
 
           {/* Lightbox Modal for Gallery Images */}
-          {galleryImages && galleryImages.length > 0 && (
+          {galleryImages && galleryImages.length > 0 && modalOpen && (
             <>
-              {galleryImages[currentImageIndex] && 
-               (galleryImages[currentImageIndex].mediaType === 'video' || 
-                galleryImages[currentImageIndex].imageUrl?.endsWith('.mp4') || 
-                galleryImages[currentImageIndex].imageUrl?.endsWith('.mov')) ? (
-                <FullscreenVideoModal 
-                  image={galleryImages[currentImageIndex]}
-                  images={galleryImages}
-                  isOpen={modalOpen}
-                  currentIndex={currentImageIndex}
-                  onClose={closeImageModal}
-                  onNavigate={handleModalNavigate}
-                />
-              ) : (
-                <GalleryModal 
-                  images={galleryImages}
-                  isOpen={modalOpen}
-                  currentIndex={currentImageIndex}
-                  onClose={closeImageModal}
-                  onNavigate={handleModalNavigate}
-                />
-              )}
+              {(() => {
+                const currentImage = galleryImages[currentImageIndex];
+                const isVideo = currentImage && (
+                  currentImage.mediaType === 'video' || 
+                  currentImage.imageUrl?.endsWith('.mp4') || 
+                  currentImage.imageUrl?.endsWith('.mov')
+                );
+                
+                return isVideo ? (
+                  <FullscreenVideoModal 
+                    image={currentImage}
+                    images={galleryImages}
+                    isOpen={modalOpen}
+                    currentIndex={currentImageIndex}
+                    onClose={closeImageModal}
+                    onNavigate={handleModalNavigate}
+                  />
+                ) : (
+                  <GalleryModal 
+                    images={galleryImages}
+                    isOpen={modalOpen}
+                    currentIndex={currentImageIndex}
+                    onClose={closeImageModal}
+                    onNavigate={handleModalNavigate}
+                  />
+                );
+              })()}
             </>
           )}
         </div>
