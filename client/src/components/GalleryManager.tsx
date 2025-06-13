@@ -94,6 +94,10 @@ export default function GalleryManager() {
   // Modal State
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<number | null>(null);
+  
+  // Upload Default Settings State
+  const [defaultCategory, setDefaultCategory] = useState('default');
+  const [defaultTags, setDefaultTags] = useState('');
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -327,6 +331,119 @@ export default function GalleryManager() {
         ? prev.filter(id => id !== imageId)
         : [...prev, imageId]
     );
+  };
+
+  // File upload handlers
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Initialize batch metadata for each file
+    const newBatchMetadata: BatchMetadata = {};
+    files.forEach((file) => {
+      const fileId = `${file.name}-${Date.now()}`;
+      newBatchMetadata[fileId] = {
+        category: defaultCategory,
+        title: file.name.split('.')[0], // Remove extension
+        description: '',
+        tags: defaultTags,
+        featured: false
+      };
+    });
+
+    setBatchMetadata(newBatchMetadata);
+    
+    // Initialize upload progress
+    const newProgress: UploadProgress[] = files.map((file) => ({
+      fileId: `${file.name}-${Date.now()}`,
+      fileName: file.name,
+      progress: 0,
+      status: 'uploading' as const
+    }));
+    
+    setUploadProgress(newProgress);
+  };
+
+  const handleBatchUpload = async () => {
+    setIsUploading(true);
+    
+    try {
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      const files = Array.from(fileInput?.files || []);
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileId = Object.keys(batchMetadata)[i];
+        const metadata = batchMetadata[fileId];
+        
+        try {
+          // Update progress
+          setUploadProgress(prev => prev.map(p => 
+            p.fileId === fileId ? { ...p, progress: 25 } : p
+          ));
+
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('category', metadata.category);
+          formData.append('title', metadata.title);
+          formData.append('description', metadata.description);
+          formData.append('tags', metadata.tags);
+          formData.append('featured', metadata.featured.toString());
+
+          // Update progress
+          setUploadProgress(prev => prev.map(p => 
+            p.fileId === fileId ? { ...p, progress: 50 } : p
+          ));
+
+          const response = await fetch('/api/gallery/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed: ${response.statusText}`);
+          }
+
+          // Update progress to complete
+          setUploadProgress(prev => prev.map(p => 
+            p.fileId === fileId ? { ...p, progress: 100, status: 'completed' } : p
+          ));
+
+        } catch (error) {
+          // Update progress with error
+          setUploadProgress(prev => prev.map(p => 
+            p.fileId === fileId ? { 
+              ...p, 
+              status: 'error', 
+              errorMessage: error instanceof Error ? error.message : 'Upload failed'
+            } : p
+          ));
+        }
+      }
+
+      // Refresh gallery after uploads
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({ 
+        title: "Upload Complete", 
+        description: "Files have been uploaded to the gallery" 
+      });
+
+      // Reset upload state after a delay
+      setTimeout(() => {
+        setUploadDialogOpen(false);
+        setUploadProgress([]);
+        setBatchMetadata({});
+        setIsUploading(false);
+      }, 2000);
+
+    } catch (error) {
+      toast({ 
+        title: "Upload Error", 
+        description: "Failed to upload files", 
+        variant: "destructive" 
+      });
+      setIsUploading(false);
+    }
   };
 
   if (isLoading) {
@@ -740,13 +857,102 @@ export default function GalleryManager() {
               Upload images and videos to your gallery with automatic AI categorization and tagging.
             </DialogDescription>
           </DialogHeader>
-          <div className="p-4">
-            <p className="text-center text-gray-500">Upload functionality will be implemented here</p>
+          
+          <div className="p-4 space-y-6">
+            {/* File Upload Area */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="file-upload"
+              />
+              <label htmlFor="file-upload" className="cursor-pointer">
+                <CloudUploadIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-900 mb-2">
+                  Click to upload or drag and drop
+                </p>
+                <p className="text-sm text-gray-500">
+                  PNG, JPG, GIF, MP4, MOV up to 50MB each
+                </p>
+              </label>
+            </div>
+
+            {/* Upload Progress */}
+            {uploadProgress.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium">Upload Progress</h3>
+                {uploadProgress.map((progress) => (
+                  <div key={progress.fileId} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>{progress.fileName}</span>
+                      <span>{progress.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all"
+                        style={{ width: `${progress.progress}%` }}
+                      />
+                    </div>
+                    {progress.error && (
+                      <p className="text-red-600 text-sm">{progress.error}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Batch Metadata */}
+            {Object.keys(batchMetadata).length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-medium">Set Default Metadata for All Files</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Default Category</Label>
+                    <Select
+                      value={defaultCategory}
+                      onValueChange={setDefaultCategory}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GALLERY_CATEGORIES.map((category) => (
+                          <SelectItem key={category.value} value={category.value}>
+                            {category.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Default Tags</Label>
+                    <Input
+                      value={defaultTags}
+                      onChange={(e) => setDefaultTags(e.target.value)}
+                      placeholder="Enter tags separated by commas"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
               Cancel
             </Button>
+            {Object.keys(batchMetadata).length > 0 && (
+              <Button 
+                onClick={handleBatchUpload}
+                disabled={isUploading}
+                className="bg-[#8B5E3C] hover:bg-[#6B4B2F]"
+              >
+                {isUploading ? 'Uploading...' : `Upload ${Object.keys(batchMetadata).length} Files`}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
