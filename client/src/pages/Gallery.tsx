@@ -296,7 +296,7 @@ const Gallery = () => {
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">
                           <video
                             src={image.imageUrl}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                             muted
                             poster=""
                           />
