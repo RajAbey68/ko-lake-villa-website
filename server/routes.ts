@@ -1333,6 +1333,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         Ko Lake Villa categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
         
+        IMPORTANT RULE: If the video filename or content suggests it shows a lake, water body, lake view, or lake activities, categorize it as "koggala-lake" since Ko Lake Villa is located on Koggala Lake.
+        
         Provide a JSON response with improved title, description, category, and relevant tags for this Sri Lankan villa property.`;
 
         analysisResult = await openai.chat.completions.create({
