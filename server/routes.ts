@@ -2080,6 +2080,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: `Cache invalidated for pattern: ${pattern}` });
   });
 
+  // Content management API endpoints
+  app.get("/api/content", async (req, res) => {
+    try {
+      const content = await dataStorage.getAllContent();
+      res.json(content); // Returns array format as expected by tests
+    } catch (error) {
+      console.error('Content API error:', error);
+      res.status(500).json({ error: 'Failed to fetch content' });
+    }
+  });
+
+  app.post("/api/content", async (req, res) => {
+    try {
+      const { content } = req.body;
+      await dataStorage.saveContent(content);
+      res.json({ success: true, message: 'Content saved successfully' });
+    } catch (error) {
+      console.error('Content save error:', error);
+      res.status(500).json({ error: 'Failed to save content' });
+    }
+  });
+
+  // 404 handler for API routes
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
+  });
+
+  // 404 handler for all other routes
+  app.use('*', (req, res) => {
+    res.status(404).send('Page not found');
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
