@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Room, Testimonial, Activity } from '@shared/schema';
 import { ratingToStars } from '@/lib/utils';
 import SEOHead from '@/components/SEOHead';
-import heroImage from '@assets/image_1749803903177.png';
+// Using authentic Ko Lake Villa pool image
 
 const Home = () => {
   // Fetch rooms for the accommodation section
@@ -40,7 +40,7 @@ const Home = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url(${heroImage})`
+            backgroundImage: `url('/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg')`
           }}
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
