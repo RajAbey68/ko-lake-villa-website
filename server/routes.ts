@@ -1416,6 +1416,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI-powered automatic categorization for lake images
+  app.post("/api/auto-categorize-lakes", async (req, res) => {
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: "OpenAI API key not configured" });
+      }
+
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      // Get all gallery images
+      const allImages = await dataStorage.getAllGalleryImages();
+      let categorizedCount = 0;
+
+      for (const image of allImages) {
+        try {
+          // Skip if already categorized as koggala-lake
+          if (image.category === 'koggala-lake') continue;
+
+          // Analyze image for lake content
+          const analysisResult = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              {
+                role: "system",
+                content: `You are an AI that analyzes images to detect lakes, water bodies, and lake-related activities. 
+                
+                Analyze the image and determine if it contains:
+                - Lakes, lagoons, or large water bodies
+                - Boats, kayaks, or water activities on lakes
+                - Lake views, shorelines, or lake landscapes
+                - Wildlife or birds associated with lakes
+                
+                Respond with JSON in this format:
+                {
+                  "hasLake": boolean,
+                  "confidence": number (0-1),
+                  "description": "Brief description of lake content if found",
+                  "suggestedCategory": "koggala-lake" or current category
+                }
+                
+                Only suggest "koggala-lake" category if you're confident (>0.7) that the image shows lake content.`
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: `Analyze this image for lake content. Current category: ${image.category}. Alt text: ${image.alt}. Description: ${image.description || 'No description'}`
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: image.imageUrl.startsWith('http') ? image.imageUrl : `${req.protocol}://${req.get('host')}${image.imageUrl}`
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 300,
+            response_format: { type: "json_object" }
+          });
+
+          const analysis = JSON.parse(analysisResult.choices[0].message.content || '{}');
+          
+          // Auto-categorize if AI detects lake content with high confidence
+          if (analysis.hasLake && analysis.confidence > 0.7 && analysis.suggestedCategory === 'koggala-lake') {
+            await dataStorage.updateGalleryImage({
+              id: image.id,
+              category: 'koggala-lake',
+              tags: image.tags ? `${image.tags}, lake, water, koggala` : 'lake, water, koggala',
+              imageUrl: image.imageUrl,
+              alt: image.alt,
+              title: image.title,
+              description: image.description,
+              featured: image.featured,
+              sortOrder: image.sortOrder,
+              mediaType: image.mediaType
+            });
+            categorizedCount++;
+          }
+        } catch (error) {
+          console.error(`Error analyzing image ${image.id}:`, error);
+        }
+      }
+
+      res.json({
+        message: `Auto-categorization completed. ${categorizedCount} images categorized as Koggala Lake.`,
+        categorizedCount,
+        totalProcessed: allImages.length
+      });
+
+    } catch (error) {
+      console.error('Auto-categorization error:', error);
+      res.status(500).json({ error: "Failed to auto-categorize lake images" });
+    }
+  });
+
   // Legacy endpoint for backward compatibility
   app.post("/api/generate-content", async (req, res) => {
     try {
