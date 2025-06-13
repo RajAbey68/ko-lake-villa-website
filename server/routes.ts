@@ -2132,10 +2132,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: `Cache invalidated for pattern: ${pattern}` });
   });
 
-  // Content management API endpoints
+  // Content management API endpoints with caching
   app.get("/api/content", async (req, res) => {
     try {
-      const content = await dataStorage.getAllContent();
+      let content = serverCache.get(CACHE_KEYS.CONTENT);
+      if (!content) {
+        content = await dataStorage.getAllContent();
+        serverCache.set(CACHE_KEYS.CONTENT, content, CACHE_TTL.MEDIUM);
+        res.setHeader('X-Cache', 'MISS');
+      } else {
+        res.setHeader('X-Cache', 'HIT');
+      }
+      res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minutes
       res.json(content); // Returns array format as expected by tests
     } catch (error) {
       console.error('Content API error:', error);
@@ -2147,6 +2155,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { content } = req.body;
       await dataStorage.saveContent(content);
+      // Invalidate content cache after update
+      serverCache.invalidate(CACHE_KEYS.CONTENT);
       res.json({ success: true, message: 'Content saved successfully' });
     } catch (error) {
       console.error('Content save error:', error);
