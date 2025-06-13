@@ -48,6 +48,9 @@ import {
   TrashIcon,
   ImagePlusIcon,
   CheckCircleIcon,
+  BarChartIcon,
+  PlayCircleIcon,
+  ClockIcon,
   ExternalLinkIcon,
   UploadIcon,
   LinkIcon,
@@ -1499,6 +1502,18 @@ function AdminDashboardContent() {
                 <UsersIcon className="w-5 h-5" />
                 <span>Subscribers</span>
               </button>
+
+              <button 
+                onClick={() => setActiveTab('analytics')}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium w-full text-left ${
+                  activeTab === 'analytics' 
+                    ? 'bg-[#FDF6EE] text-[#FF914D]' 
+                    : 'text-[#8B5E3C] hover:bg-[#FDF6EE]'
+                }`}
+              >
+                <BarChartIcon className="w-5 h-5" />
+                <span>Gallery Analytics</span>
+              </button>
             </nav>
           </div>
 
@@ -1511,6 +1526,7 @@ function AdminDashboardContent() {
                 <TabsTrigger value="messages">Messages</TabsTrigger>
                 <TabsTrigger value="sirvoy">SirVoy Integration</TabsTrigger>
                 <TabsTrigger value="gallery">Gallery</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
               </TabsList>
 
