@@ -870,6 +870,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public gallery update endpoint for fixing file paths
+  app.put('/api/gallery/:id', async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const updatedImage = await dataStorage.updateGalleryImage(imageId, updates);
+      res.json({ success: true, data: updatedImage });
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      res.status(500).json({ success: false, error: 'Failed to update image' });
+    }
+  });
+
   app.delete('/api/admin/gallery/:id', async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
