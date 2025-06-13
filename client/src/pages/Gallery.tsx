@@ -155,6 +155,7 @@ const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
 
   // Helper function to clean and format image URLs
   const getCleanImageUrl = (url: string) => {
@@ -228,20 +229,11 @@ const handleCategoryChange = (category: string | null) => {
 
   const openImageModal = (image: GalleryImageType) => {
     if (!galleryImages) return;
-
-    console.log("Opening modal for image:", image);
+    
     const imageIndex = galleryImages.findIndex(img => img.id === image.id);
-    console.log("Image index:", imageIndex);
-    
-    const isVideo = image.mediaType === 'video' || 
-                   image.imageUrl?.endsWith('.mp4') || 
-                   image.imageUrl?.endsWith('.mov');
-    console.log("Is video:", isVideo, "Media type:", image.mediaType);
-    
+    setSelectedImage(image);
     setCurrentImageIndex(imageIndex >= 0 ? imageIndex : 0);
     setModalOpen(true);
-    
-    console.log("Modal state set to open, current index:", imageIndex >= 0 ? imageIndex : 0);
   };
 
   const closeImageModal = () => {
@@ -452,8 +444,13 @@ const handleCategoryChange = (category: string | null) => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Clicked image:', image.id, image.alt);
+                    console.log('🖱️ Image clicked:', image.id, image.alt);
+                    console.log('🖼️ Image data:', image);
+                    console.log('📋 Current modal state before:', modalOpen);
+                    console.log('🎯 Current index before:', currentImageIndex);
+                    console.log('📦 Gallery images length:', galleryImages?.length);
                     openImageModal(image);
+                    console.log('📋 Modal state after openImageModal:', modalOpen);
                   }}
                 >
                   <div className="relative overflow-hidden rounded-md">
@@ -542,37 +539,54 @@ const handleCategoryChange = (category: string | null) => {
           )}
 
           {/* Lightbox Modal for Gallery Images */}
-          {galleryImages && galleryImages.length > 0 && modalOpen && (
-            <>
-              {(() => {
-                const currentImage = galleryImages[currentImageIndex];
-                const isVideo = currentImage && (
-                  currentImage.mediaType === 'video' || 
-                  currentImage.imageUrl?.endsWith('.mp4') || 
-                  currentImage.imageUrl?.endsWith('.mov')
-                );
-                
-                return isVideo ? (
-                  <FullscreenVideoModal 
-                    image={currentImage}
-                    images={galleryImages}
-                    isOpen={modalOpen}
-                    currentIndex={currentImageIndex}
-                    onClose={closeImageModal}
-                    onNavigate={handleModalNavigate}
-                  />
-                ) : (
-                  <GalleryModal 
-                    images={galleryImages}
-                    isOpen={modalOpen}
-                    currentIndex={currentImageIndex}
-                    onClose={closeImageModal}
-                    onNavigate={handleModalNavigate}
-                  />
-                );
-              })()}
-            </>
-          )}
+          {(() => {
+            console.log("🎭 Modal rendering check:");
+            console.log("  - galleryImages exists:", !!galleryImages);
+            console.log("  - galleryImages length:", galleryImages?.length);
+            console.log("  - modalOpen:", modalOpen);
+            console.log("  - currentImageIndex:", currentImageIndex);
+            
+            if (galleryImages && galleryImages.length > 0 && modalOpen) {
+              console.log("✅ All conditions met, rendering modal");
+              const currentImage = galleryImages[currentImageIndex];
+              console.log("📷 Current image:", currentImage);
+              
+              if (!currentImage) {
+                console.log("❌ No current image found at index:", currentImageIndex);
+                return null;
+              }
+              
+              const isVideo = currentImage && (
+                currentImage.mediaType === 'video' || 
+                currentImage.imageUrl?.endsWith('.mp4') || 
+                currentImage.imageUrl?.endsWith('.mov')
+              );
+              
+              console.log("🎬 Rendering", isVideo ? 'video' : 'image', 'modal');
+              
+              return isVideo ? (
+                <FullscreenVideoModal 
+                  image={currentImage}
+                  images={galleryImages}
+                  isOpen={modalOpen}
+                  currentIndex={currentImageIndex}
+                  onClose={closeImageModal}
+                  onNavigate={handleModalNavigate}
+                />
+              ) : (
+                <GalleryModal 
+                  images={galleryImages}
+                  isOpen={modalOpen}
+                  currentIndex={currentImageIndex}
+                  onClose={closeImageModal}
+                  onNavigate={handleModalNavigate}
+                />
+              );
+            } else {
+              console.log("❌ Modal conditions not met");
+              return null;
+            }
+          })()}
         </div>
       </section>
 
