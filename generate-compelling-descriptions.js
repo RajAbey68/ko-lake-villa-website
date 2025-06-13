@@ -20,17 +20,20 @@ async function generateCompellingDescriptions() {
     for (const video of videos) {
       console.log(`\n🎬 Processing: ${video.title}`);
       
-      // Create a prompt that emphasizes comfort and value
+      // Create a prompt based on Ko Lake Villa brand character guide
       const prompt = `Write a compelling 2-sentence description for this Ko Lake Villa accommodation video: "${video.title}". 
 
-Key messaging:
-- Emphasize COMFORT and quality facilities
-- Highlight VALUE FOR MONEY and wallet-friendly pricing
-- Mention the beautiful Koggala Lake setting in Ahangama, Sri Lanka
-- Appeal to travelers seeking authentic experiences
-- Keep it warm, welcoming, and authentic (no overly fancy language)
+Brand Character Guidelines:
+- Tone: Warm, gracious, informed - never scripted or salesy
+- Core values: Affordable elegance (wallet-friendly but never cheap), genuine safety & serenity, authentic human touch
+- Brand essence: Relax. Revive. Connect.
+- Location: Koggala Lake, Ahangama, Sri Lanka - near surf zones, yoga retreats, Galle Fort
+- Use calm, respectful language that suggests rather than pushes
+- Reference nature, stillness, and simplicity as luxuries
+- Emphasize meaningful connection with nature and oneself
+- Avoid flashy language or overselling
 
-The description should make guests feel they're getting exceptional comfort and experience at a reasonable price.`;
+Write as a knowledgeable host, not a salesperson. Think "quiet luxury meets soulful retreat."`;
 
       try {
         const aiResponse = await openai.chat.completions.create({
