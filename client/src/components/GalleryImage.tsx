@@ -27,7 +27,7 @@ export default function GalleryImage({
 
   // Debug logging for accommodation images
   if (className?.includes('accommodation')) {
-    console.log('Accommodation image loading:', { src, imageSrc, shouldLoadImmediately, isInView });
+    console.log('Accommodation image loading:', { src, imageSrc, shouldLoadImmediately });
   }
 
   return (
