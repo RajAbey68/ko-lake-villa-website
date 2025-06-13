@@ -175,6 +175,8 @@ const Gallery = () => {
   // Fetch gallery images and process URLs
   const { data: galleryImages, isLoading, error } = useQuery<GalleryImageType[]>({
     queryKey: ['/api/gallery', selectedCategory],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
     queryFn: async ({ queryKey }) => {
       const category = queryKey[1] as string | null;
       const url = category 
@@ -182,7 +184,12 @@ const Gallery = () => {
         : '/api/gallery';
 
       console.log('Fetching gallery images from:', url);
-      const response = await fetch(url, { credentials: 'include' });
+      const response = await fetch(url, { 
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'public, max-age=300' // 5 minutes cache
+        }
+      });
 
       if (!response.ok) throw new Error('Failed to fetch gallery images');
 
@@ -199,6 +206,34 @@ const Gallery = () => {
       }));
     }
   });
+
+  // Preload images for better performance
+  useEffect(() => {
+    if (galleryImages && galleryImages.length > 0) {
+      // Preload first 12 images immediately for faster display
+      const imagesToPreload = galleryImages.slice(0, 12).filter(img => img.mediaType !== 'video');
+      
+      imagesToPreload.forEach(image => {
+        if (image.imageUrl) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.src = image.imageUrl;
+        }
+      });
+
+      // Preload remaining images with slight delay
+      setTimeout(() => {
+        const remainingImages = galleryImages.slice(12).filter(img => img.mediaType !== 'video');
+        remainingImages.forEach(image => {
+          if (image.imageUrl) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src = image.imageUrl;
+          }
+        });
+      }, 1000);
+    }
+  }, [galleryImages]);
 
   useEffect(() => {
     document.title = "Photo Gallery - Ko Lake Villa";
