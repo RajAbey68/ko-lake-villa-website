@@ -2,7 +2,21 @@ import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { GalleryImage } from '@shared/schema';
+// Use database schema type directly
+type GalleryImageFromDB = {
+  id: number;
+  imageUrl: string;
+  title: string;
+  alt: string;
+  description: string | null;
+  tags: string | null;
+  category: string;
+  featured: boolean;
+  sortOrder: number;
+  mediaType: string;
+  displaySize: string;
+  fileSize: number | null;
+};
 import { formatCategoryLabel, formatTagsForDisplay } from '@/lib/galleryUtils';
 
 interface FullscreenVideoModalProps {
