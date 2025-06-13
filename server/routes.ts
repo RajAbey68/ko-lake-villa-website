@@ -2124,10 +2124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(404).json({ error: 'API endpoint not found' });
   });
 
-  // 404 handler for all other routes
-  app.use('*', (req, res) => {
-    res.status(404).send('Page not found');
-  });
+  // Note: No catch-all handler here - Vite development server handles frontend routes
 
   const httpServer = createServer(app);
   return httpServer;
