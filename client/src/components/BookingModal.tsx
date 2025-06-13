@@ -77,6 +77,29 @@ export default function BookingModal({ roomName, basePrice, onClose, onBook }: B
     onBook(bookingData);
   };
 
+  const handleValidateCard = () => {
+    // Simulate availability check
+    const isAvailable = Math.random() > 0.3; // 70% chance of availability for demo
+    
+    if (!isAvailable) {
+      setShowAlternatives(true);
+      return;
+    }
+
+    const bookingData = {
+      roomName,
+      checkIn,
+      checkOut,
+      guests,
+      amount: totalAmount,
+      nights
+    };
+    
+    // Store booking data and navigate to card validation
+    sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+    window.location.href = '/card-validation';
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
