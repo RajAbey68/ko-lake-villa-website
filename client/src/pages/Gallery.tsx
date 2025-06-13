@@ -5,6 +5,7 @@ import ZyrositeImage from '@/components/ZyrositeImage';
 import GalleryImageLoader from '@/components/GalleryImageLoader';
 import DirectImageDisplay from '@/components/DirectImageDisplay';
 import { GalleryModal } from '@/components/GalleryModal';
+import { FullscreenVideoModal } from '@/components/FullscreenVideoModal';
 
 // Video Thumbnail Component
 const VideoThumbnail = ({ videoUrl, className }: { videoUrl: string, className?: string }) => {
@@ -534,13 +535,29 @@ const handleCategoryChange = (category: string | null) => {
 
           {/* Lightbox Modal for Gallery Images */}
           {galleryImages && galleryImages.length > 0 && (
-            <GalleryModal 
-              images={galleryImages}
-              isOpen={modalOpen}
-              currentIndex={currentImageIndex}
-              onClose={closeImageModal}
-              onNavigate={handleModalNavigate}
-            />
+            <>
+              {galleryImages[currentImageIndex] && 
+               (galleryImages[currentImageIndex].mediaType === 'video' || 
+                galleryImages[currentImageIndex].imageUrl?.endsWith('.mp4') || 
+                galleryImages[currentImageIndex].imageUrl?.endsWith('.mov')) ? (
+                <FullscreenVideoModal 
+                  image={galleryImages[currentImageIndex]}
+                  images={galleryImages}
+                  isOpen={modalOpen}
+                  currentIndex={currentImageIndex}
+                  onClose={closeImageModal}
+                  onNavigate={handleModalNavigate}
+                />
+              ) : (
+                <GalleryModal 
+                  images={galleryImages}
+                  isOpen={modalOpen}
+                  currentIndex={currentImageIndex}
+                  onClose={closeImageModal}
+                  onNavigate={handleModalNavigate}
+                />
+              )}
+            </>
           )}
         </div>
       </section>
