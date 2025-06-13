@@ -1634,19 +1634,19 @@ function GalleryAnalyticsTab() {
               <div className="flex justify-between">
                 <span>Featured Content</span>
                 <span className="font-medium">
-                  {Object.values(analytics).reduce((sum, cat) => sum + cat.featured, 0)} items
+                  {Object.values(analytics).reduce((sum, cat: any) => sum + (cat.featured || 0), 0)} items
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Quick Loading Videos</span>
                 <span className="font-medium text-green-600">
-                  {Object.values(analytics).reduce((sum, cat) => sum + cat.videosUnder60s, 0)} under 60s
+                  {Object.values(analytics).reduce((sum, cat: any) => sum + (cat.videosUnder60s || 0), 0)} under 60s
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Long Form Content</span>
                 <span className="font-medium text-orange-600">
-                  {Object.values(analytics).reduce((sum, cat) => sum + cat.videosOver180s, 0)} over 3 mins
+                  {Object.values(analytics).reduce((sum, cat: any) => sum + (cat.videosOver180s || 0), 0)} over 3 mins
                 </span>
               </div>
             </div>
