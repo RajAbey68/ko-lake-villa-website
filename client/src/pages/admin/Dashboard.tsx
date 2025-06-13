@@ -199,14 +199,30 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const queryClient = useQueryClient();
   const [isEditingImage, setIsEditingImage] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(undefined);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // Load gallery images
-  const { data: images = [], isLoading, isError } = useQuery<GalleryImage[]>({
-    queryKey: [selectedCategory ? `/api/gallery?category=${selectedCategory}` : '/api/gallery'],
+  const { data: allImages = [], isLoading, isError } = useQuery<GalleryImage[]>({
+    queryKey: ['/api/gallery'],
     retry: false
   });
+
+  // Filter images based on selected category and media type
+  const images = React.useMemo(() => {
+    let filtered = allImages;
+    
+    if (selectedCategory) {
+      filtered = filtered.filter(img => img.category === selectedCategory);
+    }
+    
+    if (selectedMediaType) {
+      filtered = filtered.filter(img => img.mediaType === selectedMediaType);
+    }
+    
+    return filtered;
+  }, [allImages, selectedCategory, selectedMediaType]);
 
   // Form for adding/editing images
   const form = useForm<FormValues>({
@@ -627,21 +643,86 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
 
   return (
     <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4 text-center">
+            <ImageIcon className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+            <div className="text-2xl font-bold text-blue-700">{allImages.filter(img => img.mediaType === 'image').length}</div>
+            <div className="text-sm text-blue-600">Total Images</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-purple-50 border-purple-200">
+          <CardContent className="p-4 text-center">
+            <PlayCircleIcon className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+            <div className="text-2xl font-bold text-purple-700">{allImages.filter(img => img.mediaType === 'video').length}</div>
+            <div className="text-sm text-purple-600">Total Videos</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-4 text-center">
+            <StarIcon className="w-8 h-8 mx-auto mb-2 text-green-600" />
+            <div className="text-2xl font-bold text-green-700">{allImages.filter(img => img.featured).length}</div>
+            <div className="text-sm text-green-600">Featured</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Media Type filter */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700">Filter by Type:</span>
+          <Button 
+            variant={selectedMediaType === undefined ? "default" : "outline"}
+            onClick={() => setSelectedMediaType(undefined)}
+            className={selectedMediaType === undefined ? "bg-[#62C3D2] hover:bg-[#54b5c4]" : ""}
+            size="sm"
+          >
+            All ({allImages.length})
+          </Button>
+          <Button 
+            variant={selectedMediaType === 'image' ? "default" : "outline"}
+            onClick={() => setSelectedMediaType('image')}
+            className={selectedMediaType === 'image' ? "bg-[#62C3D2] hover:bg-[#54b5c4]" : ""}
+            size="sm"
+          >
+            <ImageIcon className="w-4 h-4 mr-1" />
+            Images ({allImages.filter(img => img.mediaType === 'image').length})
+          </Button>
+          <Button 
+            variant={selectedMediaType === 'video' ? "default" : "outline"}
+            onClick={() => setSelectedMediaType('video')}
+            className={selectedMediaType === 'video' ? "bg-[#62C3D2] hover:bg-[#54b5c4]" : ""}
+            size="sm"
+          >
+            <PlayCircleIcon className="w-4 h-4 mr-1" />
+            Videos ({allImages.filter(img => img.mediaType === 'video').length})
+          </Button>
+        </div>
+      </div>
+
       {/* Category filter */}
       <div className="flex flex-wrap gap-3 mb-6">
-        <Button 
-          variant={selectedCategory === undefined ? "default" : "outline"}
-          onClick={() => setSelectedCategory(undefined)}
-          className={selectedCategory === undefined ? "bg-[#FF914D] hover:bg-[#e67e3d]" : ""}
-        >
-          All Categories
-        </Button>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700">Filter by Category:</span>
+          <Button 
+            variant={selectedCategory === undefined ? "default" : "outline"}
+            onClick={() => setSelectedCategory(undefined)}
+            className={selectedCategory === undefined ? "bg-[#FF914D] hover:bg-[#e67e3d]" : ""}
+            size="sm"
+          >
+            All Categories
+          </Button>
+        </div>
         {CATEGORIES.map(category => (
           <Button 
             key={category.value}
             variant={selectedCategory === category.value ? "default" : "outline"}
             onClick={() => setSelectedCategory(category.value)}
             className={selectedCategory === category.value ? "bg-[#FF914D] hover:bg-[#e67e3d]" : ""}
+            size="sm"
           >
             {category.label}
           </Button>
