@@ -24,7 +24,7 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
     return 'family-suite'; // default
   };
 
-  // Fetch gallery images for this room category
+  // Fetch gallery images for this room category - must be called before any conditional returns
   const { data: galleryImages = [] } = useQuery({
     queryKey: ['/api/gallery', getRoomCategory(room?.name || '')],
     queryFn: async () => {
@@ -36,6 +36,13 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
     },
     enabled: isOpen && !!room
   });
+
+  // Reset image index when modal opens or room changes
+  useEffect(() => {
+    if (isOpen && room) {
+      setCurrentImageIndex(0);
+    }
+  }, [room?.id, isOpen]);
 
   if (!isOpen || !room) return null;
 
@@ -56,11 +63,6 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + finalImages.length) % finalImages.length);
   };
-
-  // Reset image index when modal opens or room changes
-  useEffect(() => {
-    setCurrentImageIndex(0);
-  }, [room?.id, isOpen]);
 
   const getFeatureIcon = (feature: string) => {
     const lowerFeature = feature.toLowerCase();
