@@ -1372,6 +1372,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   
                   Valid categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
                   
+                  IMPORTANT RULE: If the image shows a lake, water body, lake view, waterfront, boats on water, or any aquatic scenery, categorize it as "koggala-lake" since Ko Lake Villa is situated on Koggala Lake in Sri Lanka.
+                  
                   Provide improved title, description, best category, and SEO tags for this Sri Lankan luxury villa image.`
                 },
                 {
