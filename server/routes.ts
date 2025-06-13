@@ -472,11 +472,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       if (!fs.existsSync(filePath)) {
+        console.warn(`File not found: ${filePath}`);
         return res.status(404).send('File not found');
       }
 
       const stats = fs.statSync(filePath);
       if (stats.size === 0) {
+        console.warn(`Empty file: ${filePath}`);
         return res.status(404).send('Empty file');
       }
 
@@ -488,10 +490,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       else if (filePath.match(/\.webp$/i)) contentType = 'image/webp';
       else if (filePath.match(/\.(mp4|mov|webm|avi)$/i)) contentType = 'video/mp4';
 
-      // Set headers
+      // Enhanced headers for better caching and loading
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Length', stats.size);
-      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.setHeader('Last-Modified', stats.mtime.toUTCString());
+      res.setHeader('ETag', `"${stats.mtime.getTime()}-${stats.size}"`);
+      
+      // Disable caching for debugging - can be re-enabled later
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      // CORS headers for cross-origin access
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Range');
+
+      // Handle HEAD requests
+      if (req.method === 'HEAD') {
+        return res.end();
+      }
 
       // Handle video range requests
       if (contentType.startsWith('video/') && req.headers.range) {
@@ -513,7 +531,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Stream the file
-      return fs.createReadStream(filePath).pipe(res);
+      const stream = fs.createReadStream(filePath);
+      stream.on('error', (error) => {
+        console.error(`Stream error for ${filePath}:`, error);
+        if (!res.headersSent) {
+          res.status(500).send('Stream error');
+        }
+      });
+      
+      return stream.pipe(res);
     } catch (error) {
       console.error(`Error serving file: ${req.path}`, error);
       return res.status(500).send('Server error');
@@ -653,33 +679,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const category = req.query.category as string | undefined;
 
+      // Disable API caching temporarily for debugging
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
       if (category && category !== 'all' && category !== '') {
-        // Check cache for category-specific images
-        const cacheKey = CACHE_KEYS.GALLERY_CATEGORY(category);
-        let images = serverCache.get(cacheKey);
-        
-        if (!images) {
-          images = await dataStorage.getGalleryImagesByCategory(category);
-          // Process images with proper media type detection
-          images = images.map(processMediaItem);
-          serverCache.set(cacheKey, images, CACHE_TTL.SHORT);
-        }
-        
-        res.setHeader('Cache-Control', 'public, max-age=300');
+        let images = await dataStorage.getGalleryImagesByCategory(category);
+        // Process images with proper media type detection
+        images = images.map(processMediaItem);
+        console.log(`Gallery API: Returning ${images.length} images for category: ${category}`);
         return res.json(images);
       }
 
-      // Check cache for all gallery images
-      let allImages = serverCache.get(CACHE_KEYS.GALLERY_ALL);
-      if (!allImages) {
-        allImages = await dataStorage.getGalleryImages();
-        // Process images with proper media type detection
-        allImages = allImages.map(processMediaItem);
-        serverCache.set(CACHE_KEYS.GALLERY_ALL, allImages, CACHE_TTL.SHORT);
-      }
+      // Get all gallery images fresh
+      let allImages = await dataStorage.getGalleryImages();
+      // Process images with proper media type detection
+      allImages = allImages.map(processMediaItem);
       
-      res.setHeader('Cache-Control', 'public, max-age=300');
-      res.setHeader('X-Cache', allImages === serverCache.get(CACHE_KEYS.GALLERY_ALL) ? 'HIT' : 'MISS');
+      console.log(`Gallery API: Returning ${allImages.length} total images`);
       res.json(allImages);
     } catch (error) {
       console.error('Gallery API error:', error);

@@ -68,10 +68,10 @@ export const CACHE_KEYS = {
   CONTENT: 'content:all'
 } as const;
 
-// Cache TTL constants (in milliseconds)
+// Cache TTL constants (in milliseconds) - Reduced for better responsiveness
 export const CACHE_TTL = {
-  SHORT: 2 * 60 * 1000,      // 2 minutes
-  MEDIUM: 5 * 60 * 1000,     // 5 minutes
-  LONG: 15 * 60 * 1000,      // 15 minutes
-  STATIC: 60 * 60 * 1000     // 1 hour
+  SHORT: 30 * 1000,          // 30 seconds
+  MEDIUM: 2 * 60 * 1000,     // 2 minutes  
+  LONG: 5 * 60 * 1000,       // 5 minutes
+  STATIC: 15 * 60 * 1000     // 15 minutes
 } as const;
