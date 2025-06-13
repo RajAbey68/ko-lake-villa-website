@@ -1213,7 +1213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: req.body.title || galleryImage.title || galleryImage.alt
       };
 
-      const updatedImage = await dataStorage.updateGalleryImage(id, updates);
+      const updatedImage = await dataStorage.updateGalleryImage({ id, ...updates });
 
       // Invalidate gallery cache after update
       serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
