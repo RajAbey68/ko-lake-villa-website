@@ -1,161 +1,79 @@
-#!/usr/bin/env node
-
 /**
- * Emergency Ko Lake Villa Gallery Restoration
- * Rebuilds gallery database from existing working image files
+ * Emergency Gallery Restore - Check what happened to images and restore them
  */
 
-import fs from 'fs';
-import path from 'path';
-
-// API request helper
-async function apiRequest(method, endpoint, body = null) {
-  const url = `http://localhost:5000${endpoint}`;
-  const options = {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-  };
+async function emergencyGalleryRestore() {
+  console.log('🚨 Emergency Gallery Restore - Checking what happened to your images');
   
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-  
-  const response = await fetch(url, options);
-  return response;
-}
-
-// Scan for working image files
-function findWorkingImages() {
-  const galleryPath = './uploads/gallery';
-  const workingImages = [];
-  
-  function scanDirectory(dirPath, category = 'default') {
-    try {
-      const items = fs.readdirSync(dirPath);
-      
-      items.forEach(item => {
-        const fullPath = path.join(dirPath, item);
-        const stat = fs.statSync(fullPath);
-        
-        if (stat.isDirectory()) {
-          // Extract category from folder name
-          const categoryName = path.basename(fullPath);
-          scanDirectory(fullPath, categoryName);
-        } else if (stat.isFile() && item.endsWith('.jpg') && stat.size > 1000) {
-          // Only include files larger than 1KB (working images)
-          const relativePath = fullPath.replace('./uploads', '');
-          
-          workingImages.push({
-            filename: item,
-            category: category,
-            path: relativePath,
-            size: stat.size
-          });
-        }
-      });
-    } catch (error) {
-      console.error(`Error scanning ${dirPath}:`, error.message);
-    }
-  }
-  
-  scanDirectory(galleryPath);
-  return workingImages;
-}
-
-// Generate appropriate tags for Ko Lake Villa images
-function generateTags(filename, category) {
-  const tags = ['Ko Lake Villa', 'Ahangama', 'Galle', 'Sri Lanka'];
-  
-  // Category-specific tags
-  switch (category) {
-    case 'family-suite':
-      tags.push('family suite', 'accommodation', 'luxury room', 'master bedroom');
-      break;
-    case 'triple-room':
-      tags.push('triple room', 'accommodation', 'guest room', 'twin beds');
-      break;
-    case 'group-room':
-      tags.push('group room', 'accommodation', 'spacious', 'multiple guests');
-      break;
-    case 'pool-deck':
-      tags.push('infinity pool', 'pool deck', 'swimming', 'relaxation');
-      break;
-    case 'dining-area':
-      tags.push('dining', 'restaurant', 'meals', 'food service');
-      break;
-    case 'lake-garden':
-      tags.push('garden', 'Koggala Lake', 'landscaping', 'outdoor space');
-      break;
-    case 'roof-garden':
-      tags.push('rooftop', 'terrace', 'garden', 'views');
-      break;
-    case 'front-garden':
-      tags.push('entrance', 'garden', 'landscaping', 'arrival');
-      break;
-    case 'excursions':
-      tags.push('activities', 'tours', 'experiences', 'local attractions');
-      break;
-    default:
-      tags.push('property', 'villa', 'accommodation');
-  }
-  
-  return tags.join(', ');
-}
-
-// Main restoration function
-async function restoreGallery() {
-  console.log('🚨 EMERGENCY GALLERY RESTORATION STARTING...');
+  const baseUrl = 'http://localhost:5000';
   
   try {
-    const workingImages = findWorkingImages();
-    console.log(`Found ${workingImages.length} working images to restore`);
+    // Check current gallery state
+    const response = await fetch(`${baseUrl}/api/gallery`);
+    const galleryItems = await response.json();
     
-    let restored = 0;
-    let errors = 0;
+    console.log(`\n📊 Current Gallery State:`);
+    console.log(`Total items: ${galleryItems.length}`);
     
-    for (const image of workingImages) {
-      try {
-        const imageData = {
-          imageUrl: image.path,
-          category: image.category,
-          title: `Ko Lake Villa - ${image.category.replace('-', ' ')}`,
-          tags: generateTags(image.filename, image.category)
-        };
-        
-        const response = await apiRequest('POST', '/api/gallery', imageData);
-        
-        if (response.ok) {
-          restored++;
-          console.log(`✅ Restored: ${image.filename} (${image.category})`);
-        } else {
-          errors++;
-          console.log(`❌ Failed: ${image.filename} - ${response.status}`);
+    const images = galleryItems.filter(item => item.type === 'image');
+    const videos = galleryItems.filter(item => item.type === 'video');
+    
+    console.log(`Images: ${images.length}`);
+    console.log(`Videos: ${videos.length}`);
+    
+    console.log(`\n📋 Current Gallery Contents:`);
+    galleryItems.forEach((item, index) => {
+      console.log(`${index + 1}. ${item.type.toUpperCase()}: ${item.title || 'No title'}`);
+      console.log(`   File: ${item.imageUrl || item.videoUrl}`);
+      console.log(`   Category: ${item.category || 'No category'}`);
+    });
+    
+    // Check if files exist in filesystem
+    const fs = require('fs');
+    const path = require('path');
+    
+    console.log(`\n🔍 Checking file system for missing images...`);
+    
+    // Check uploads directory
+    const uploadsDir = './uploads/gallery';
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      console.log(`Found ${files.length} files in uploads/gallery directory`);
+      
+      const imageFiles = files.filter(file => 
+        file.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i)
+      );
+      const videoFiles = files.filter(file => 
+        file.toLowerCase().match(/\.(mp4|mov|avi|mkv)$/i)
+      );
+      
+      console.log(`Image files on disk: ${imageFiles.length}`);
+      console.log(`Video files on disk: ${videoFiles.length}`);
+      
+      // Show first 10 image files
+      console.log(`\n📁 Sample image files found:`);
+      imageFiles.slice(0, 10).forEach(file => {
+        console.log(`  - ${file}`);
+      });
+      
+      // Check if files in database exist on disk
+      console.log(`\n🔍 Checking database entries against filesystem:`);
+      galleryItems.forEach(item => {
+        const filePath = item.imageUrl || item.videoUrl;
+        if (filePath) {
+          const fileName = filePath.replace('/uploads/gallery/', '');
+          const exists = files.includes(fileName);
+          console.log(`${exists ? '✅' : '❌'} ${fileName} - ${exists ? 'EXISTS' : 'MISSING'}`);
         }
-      } catch (error) {
-        errors++;
-        console.log(`❌ Error restoring ${image.filename}:`, error.message);
-      }
-    }
-    
-    console.log('\n📊 RESTORATION SUMMARY:');
-    console.log(`✅ Successfully restored: ${restored} images`);
-    console.log(`❌ Errors: ${errors}`);
-    console.log(`📁 Total working files found: ${workingImages.length}`);
-    
-    // Verify restoration
-    console.log('\n🔍 Verifying gallery API...');
-    const verifyResponse = await apiRequest('GET', '/api/gallery');
-    if (verifyResponse.ok) {
-      const galleryData = await verifyResponse.json();
-      console.log(`✅ Gallery API working - ${galleryData.length} images accessible`);
+      });
+      
     } else {
-      console.log('❌ Gallery API verification failed');
+      console.log('❌ uploads/gallery directory not found!');
     }
     
   } catch (error) {
-    console.error('💥 CRITICAL ERROR during restoration:', error);
+    console.error('Error checking gallery:', error.message);
   }
 }
 
-// Run restoration
-restoreGallery();
+emergencyGalleryRestore();
