@@ -604,6 +604,18 @@ export default function GalleryManager() {
           </SelectContent>
         </Select>
         
+        <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+          <SelectTrigger className="w-48">
+            <EyeIcon className="h-4 w-4 mr-2" />
+            <SelectValue placeholder="Status Filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Items</SelectItem>
+            <SelectItem value="published">Published Only</SelectItem>
+            <SelectItem value="hidden">Hidden Only</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
           <SelectTrigger className="w-40">
             <SelectValue />
