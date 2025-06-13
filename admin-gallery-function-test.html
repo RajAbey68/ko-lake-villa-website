@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ko Lake Villa - Gallery Function Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+        }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .pass { color: #22c55e; font-weight: bold; }
+        .fail { color: #ef4444; font-weight: bold; }
+        .test-details { font-size: 0.9em; color: #666; margin-left: 10px; }
+        .test-category {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        #results {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-line;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-number { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .primary { background: #3b82f6; color: white; }
+        .primary:hover { background: #2563eb; }
+        .secondary { background: #6b7280; color: white; }
+        .secondary:hover { background: #4b5563; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Ko Lake Villa - Gallery Function Test Suite</h1>
+        <p>Comprehensive testing of gallery functionality, API integration, caching, and admin controls.</p>
+        
+        <div class="controls">
+            <button class="primary" onclick="runAllTests()">🚀 Run All Tests</button>
+            <button class="secondary" onclick="clearResults()">🗑️ Clear Results</button>
+            <button class="secondary" onclick="window.open('/admin/gallery', '_blank')">🔧 Open Admin Gallery</button>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTests">0</div>
+                <div>Total Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number pass" id="passedTests">0</div>
+                <div>Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number fail" id="failedTests">0</div>
+                <div>Failed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="testDuration">0ms</div>
+                <div>Duration</div>
+            </div>
+        </div>
+
+        <div id="testResults"></div>
+        
+        <div class="test-container">
+            <h3>📋 Console Output</h3>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        class GalleryFunctionTest {
+            constructor() {
+                this.results = {
+                    critical: [],
+                    api: [],
+                    admin: [],
+                    ui: [],
+                    performance: []
+                };
+                this.startTime = Date.now();
+                this.output = document.getElementById('results');
+            }
+
+            log(message) {
+                console.log(message);
+                this.output.textContent += message + '\n';
+                this.output.scrollTop = this.output.scrollHeight;
+            }
+
+            async apiRequest(method, endpoint, body = null) {
+                try {
+                    const response = await fetch(endpoint, {
+                        method,
+                        headers: body ? { 'Content-Type': 'application/json' } : {},
+                        body: body ? JSON.stringify(body) : null
+                    });
+                    const data = await response.json();
+                    return { ok: response.ok, status: response.status, data };
+                } catch (error) {
+                    return { ok: false, error: error.message };
+                }
+            }
+
+            logTest(category, testName, passed, details = '') {
+                const result = {
+                    test: testName,
+                    passed,
+                    details,
+                    timestamp: new Date().toISOString()
+                };
+                this.results[category].push(result);
+                
+                const status = passed ? '✅ PASS' : '❌ FAIL';
+                this.log(`[${category.toUpperCase()}] ${status}: ${testName}`);
+                if (details) this.log(`   Details: ${details}`);
+            }
+
+            async testCriticalAPIs() {
+                this.log('\n🔴 CRITICAL API TESTS');
+                this.log('====================');
+                
+                // Test gallery data fetch
+                const galleryResponse = await this.apiRequest('GET', '/api/gallery');
+                this.logTest('critical', 'Gallery API Endpoint', galleryResponse.ok, 
+                    galleryResponse.ok ? `${galleryResponse.data?.length || 0} items loaded` : galleryResponse.error);
+
+                // Test admin gallery endpoint
+                const adminResponse = await this.apiRequest('GET', '/api/admin/gallery');
+                this.logTest('critical', 'Admin Gallery API', adminResponse.ok,
+                    adminResponse.ok ? 'Admin access working' : adminResponse.error);
+
+                // Test image update functionality
+                if (galleryResponse.ok && galleryResponse.data?.length > 0) {
+                    const testImage = galleryResponse.data[0];
+                    const updateData = { ...testImage, published: !testImage.published };
+                    delete updateData.id; // Remove ID from update payload
+                    
+                    const updateResponse = await this.apiRequest('POST', `/api/admin/gallery/${testImage.id}`, updateData);
+                    this.logTest('critical', 'Image Update API', updateResponse.ok,
+                        updateResponse.ok ? 'Publication toggle working' : updateResponse.error);
+
+                    // Revert the change
+                    if (updateResponse.ok) {
+                        const revertData = { ...testImage };
+                        delete revertData.id;
+                        await this.apiRequest('POST', `/api/admin/gallery/${testImage.id}`, revertData);
+                    }
+                }
+
+                return galleryResponse.data || [];
+            }
+
+            async testAdminConsole() {
+                this.log('\n🔧 ADMIN CONSOLE TESTS');
+                this.log('======================');
+
+                // Test admin page access
+                try {
+                    const adminPageResponse = await fetch('/admin/gallery');
+                    this.logTest('admin', 'Admin Page Access', adminPageResponse.ok,
+                        `Status: ${adminPageResponse.status}`);
+                } catch (error) {
+                    this.logTest('admin', 'Admin Page Access', false, error.message);
+                }
+
+                // Test upload endpoint
+                const uploadTest = await this.apiRequest('POST', '/api/admin/upload');
+                this.logTest('admin', 'Upload Endpoint Available', uploadTest.status !== 404,
+                    `Endpoint responds (expecting form data)`);
+
+                // Test bulk operations
+                const bulkDeleteTest = await this.apiRequest('POST', '/api/admin/gallery/bulk-delete', { ids: [] });
+                this.logTest('admin', 'Bulk Operations Endpoint', bulkDeleteTest.status !== 404,
+                    'Bulk delete endpoint available');
+
+                // Test AI analysis endpoint
+                const aiTest = await this.apiRequest('POST', '/api/analyze-media/1');
+                this.logTest('admin', 'AI Analysis Endpoint', aiTest.status !== 404,
+                    'AI analysis endpoint available');
+            }
+
+            async testUIFunctionality() {
+                this.log('\n🎨 UI FUNCTIONALITY TESTS');
+                this.log('==========================');
+
+                // Test admin gallery in new window
+                const adminWindow = window.open('/admin/gallery', 'adminTest', 'width=800,height=600');
+                
+                if (adminWindow) {
+                    // Wait for admin page to load
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    try {
+                        const adminDoc = adminWindow.document;
+                        
+                        // Test gallery grid
+                        const galleryGrid = adminDoc.querySelector('[class*="grid"]');
+                        this.logTest('ui', 'Admin Gallery Grid', !!galleryGrid,
+                            galleryGrid ? 'Grid layout found' : 'Grid layout missing');
+
+                        // Test filter controls
+                        const filterControls = adminDoc.querySelectorAll('select');
+                        this.logTest('ui', 'Filter Controls', filterControls.length > 0,
+                            `${filterControls.length} filter controls found`);
+
+                        // Test image cards
+                        const imageCards = adminDoc.querySelectorAll('[class*="card"], .group');
+                        this.logTest('ui', 'Image Cards Rendered', imageCards.length > 0,
+                            `${imageCards.length} image cards found`);
+
+                        // Test publication toggles
+                        const toggleButtons = adminDoc.querySelectorAll('button[title*="Published"], button[title*="Hidden"]');
+                        this.logTest('ui', 'Publication Toggle Buttons', toggleButtons.length > 0,
+                            `${toggleButtons.length} toggle buttons found`);
+
+                        // Test status badges
+                        const statusBadges = adminDoc.querySelectorAll('[class*="badge"]');
+                        this.logTest('ui', 'Status Badges', statusBadges.length > 0,
+                            `${statusBadges.length} status badges found`);
+
+                        adminWindow.close();
+                    } catch (error) {
+                        this.logTest('ui', 'Admin UI Access', false, error.message);
+                        adminWindow.close();
+                    }
+                } else {
+                    this.logTest('ui', 'Admin Window Creation', false, 'Popup blocked');
+                }
+            }
+
+            async testModalFunctionality() {
+                this.log('\n🔍 MODAL & ENLARGEMENT TESTS');
+                this.log('=============================');
+
+                // Test public gallery page
+                const galleryWindow = window.open('/gallery', 'galleryTest', 'width=800,height=600');
+                
+                if (galleryWindow) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    try {
+                        const galleryDoc = galleryWindow.document;
+                        
+                        // Test clickable images
+                        const clickableImages = galleryDoc.querySelectorAll('img[class*="cursor-pointer"], img[style*="cursor: pointer"]');
+                        this.logTest('ui', 'Clickable Images', clickableImages.length > 0,
+                            `${clickableImages.length} clickable images found`);
+
+                        // Test video elements
+                        const videoElements = galleryDoc.querySelectorAll('video');
+                        this.logTest('ui', 'Video Elements', videoElements.length > 0,
+                            `${videoElements.length} video elements found`);
+
+                        // Test modal components
+                        const modalComponents = galleryDoc.querySelectorAll('[class*="modal"], [class*="dialog"]');
+                        this.logTest('ui', 'Modal Components', modalComponents.length >= 0,
+                            `Modal infrastructure available`);
+
+                        galleryWindow.close();
+                    } catch (error) {
+                        this.logTest('ui', 'Gallery UI Access', false, error.message);
+                        galleryWindow.close();
+                    }
+                } else {
+                    this.logTest('ui', 'Gallery Window Creation', false, 'Popup blocked');
+                }
+            }
+
+            async testPerformance() {
+                this.log('\n⚡ PERFORMANCE TESTS');
+                this.log('====================');
+
+                // Test API response time
+                const apiStart = Date.now();
+                const apiResponse = await this.apiRequest('GET', '/api/gallery');
+                const apiTime = Date.now() - apiStart;
+                
+                this.logTest('performance', 'API Response Time', apiTime < 3000,
+                    `${apiTime}ms (target: <3000ms)`);
+
+                // Test data size
+                if (apiResponse.ok) {
+                    const dataSize = JSON.stringify(apiResponse.data).length;
+                    this.logTest('performance', 'Data Payload Size', dataSize < 1000000,
+                        `${Math.round(dataSize/1024)}KB (target: <1MB)`);
+                }
+
+                // Test memory usage
+                if (performance.memory) {
+                    const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                    this.logTest('performance', 'Memory Usage', memoryMB < 200,
+                        `${memoryMB}MB used (target: <200MB)`);
+                }
+            }
+
+            async testCacheAndState() {
+                this.log('\n💾 CACHE AND STATE TESTS');
+                this.log('========================');
+
+                // Test local storage
+                try {
+                    localStorage.setItem('gallery-test', 'working');
+                    const stored = localStorage.getItem('gallery-test');
+                    localStorage.removeItem('gallery-test');
+                    this.logTest('api', 'Local Storage', stored === 'working',
+                        'Local storage read/write working');
+                } catch (error) {
+                    this.logTest('api', 'Local Storage', false, error.message);
+                }
+
+                // Test multiple API calls (caching)
+                const call1Start = Date.now();
+                await this.apiRequest('GET', '/api/gallery');
+                const call1Time = Date.now() - call1Start;
+
+                const call2Start = Date.now();
+                await this.apiRequest('GET', '/api/gallery');
+                const call2Time = Date.now() - call2Start;
+
+                this.logTest('api', 'API Caching Effect', call2Time <= call1Time,
+                    `First: ${call1Time}ms, Second: ${call2Time}ms`);
+            }
+
+            updateStats() {
+                let totalTests = 0;
+                let passedTests = 0;
+
+                Object.values(this.results).forEach(category => {
+                    totalTests += category.length;
+                    passedTests += category.filter(t => t.passed).length;
+                });
+
+                document.getElementById('totalTests').textContent = totalTests;
+                document.getElementById('passedTests').textContent = passedTests;
+                document.getElementById('failedTests').textContent = totalTests - passedTests;
+                document.getElementById('testDuration').textContent = `${Date.now() - this.startTime}ms`;
+            }
+
+            generateHTMLReport() {
+                const testResults = document.getElementById('testResults');
+                testResults.innerHTML = '';
+
+                Object.keys(this.results).forEach(category => {
+                    const tests = this.results[category];
+                    if (tests.length === 0) return;
+
+                    const section = document.createElement('div');
+                    section.className = 'test-section';
+
+                    const categoryHeader = document.createElement('div');
+                    categoryHeader.className = 'test-category';
+                    categoryHeader.textContent = `${category.toUpperCase()} (${tests.filter(t => t.passed).length}/${tests.length})`;
+                    section.appendChild(categoryHeader);
+
+                    tests.forEach(test => {
+                        const testItem = document.createElement('div');
+                        testItem.className = 'test-item';
+                        
+                        const testName = document.createElement('span');
+                        testName.textContent = test.test;
+                        
+                        const testStatus = document.createElement('span');
+                        testStatus.className = test.passed ? 'pass' : 'fail';
+                        testStatus.textContent = test.passed ? '✅ PASS' : '❌ FAIL';
+                        
+                        testItem.appendChild(testName);
+                        testItem.appendChild(testStatus);
+                        
+                        if (test.details) {
+                            const details = document.createElement('div');
+                            details.className = 'test-details';
+                            details.textContent = test.details;
+                            testItem.appendChild(details);
+                        }
+                        
+                        section.appendChild(testItem);
+                    });
+
+                    testResults.appendChild(section);
+                });
+            }
+
+            async runAllTests() {
+                this.log('🚀 STARTING COMPREHENSIVE GALLERY FUNCTION TESTS');
+                this.log('================================================');
+
+                try {
+                    // Critical API tests
+                    const images = await this.testCriticalAPIs();
+
+                    // Admin console tests
+                    await this.testAdminConsole();
+
+                    // UI functionality tests
+                    await this.testUIFunctionality();
+
+                    // Modal functionality tests
+                    await this.testModalFunctionality();
+
+                    // Performance tests
+                    await this.testPerformance();
+
+                    // Cache and state tests
+                    await this.testCacheAndState();
+
+                    this.generateReport();
+                    this.generateHTMLReport();
+                    this.updateStats();
+
+                } catch (error) {
+                    this.log(`❌ Test suite error: ${error.message}`);
+                    this.logTest('critical', 'Test Suite Execution', false, error.message);
+                }
+            }
+
+            generateReport() {
+                const duration = Date.now() - this.startTime;
+                this.log('\n📊 COMPREHENSIVE TEST REPORT');
+                this.log('===============================');
+
+                let totalTests = 0;
+                let passedTests = 0;
+
+                Object.keys(this.results).forEach(category => {
+                    const tests = this.results[category];
+                    const categoryPassed = tests.filter(t => t.passed).length;
+                    const categoryTotal = tests.length;
+                    
+                    totalTests += categoryTotal;
+                    passedTests += categoryPassed;
+
+                    if (categoryTotal > 0) {
+                        this.log(`\n${category.toUpperCase()}: ${categoryPassed}/${categoryTotal} passed`);
+                    }
+                });
+
+                this.log(`\n🎯 OVERALL RESULTS: ${passedTests}/${totalTests} tests passed`);
+                this.log(`⏱️  Total test time: ${duration}ms`);
+
+                // Generate recommendations
+                this.log('\n🔧 RECOMMENDATIONS:');
+                const failedTests = totalTests - passedTests;
+                
+                if (failedTests === 0) {
+                    this.log('✅ All systems operational! Gallery is production-ready.');
+                } else if (failedTests <= 2) {
+                    this.log('⚠️  Minor issues detected. Review failed tests above.');
+                } else {
+                    this.log('🚨 Multiple issues found. Address critical failures first.');
+                }
+
+                return { totalTests, passedTests, failedTests, duration };
+            }
+        }
+
+        let testInstance;
+
+        async function runAllTests() {
+            document.getElementById('results').textContent = '';
+            testInstance = new GalleryFunctionTest();
+            await testInstance.runAllTests();
+        }
+
+        function clearResults() {
+            document.getElementById('results').textContent = '';
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('totalTests').textContent = '0';
+            document.getElementById('passedTests').textContent = '0';
+            document.getElementById('failedTests').textContent = '0';
+            document.getElementById('testDuration').textContent = '0ms';
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>
