@@ -58,6 +58,7 @@ import {
   RefreshCwIcon,
   BugIcon,
   PlusCircleIcon,
+  StarIcon,
   CheckIcon,
   XIcon,
   FilterIcon

@@ -1043,6 +1043,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Gallery Update (PATCH) - This was missing!
+  app.patch("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      console.log(`[ADMIN PATCH] Updating gallery item ${id} with:`, req.body);
+      
+      const existingImage = await dataStorage.getGalleryImageById(id);
+      if (!existingImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+
+      // Merge updates with existing data, preserving all fields
+      const updates = {
+        ...existingImage,
+        ...req.body,
+        id // Ensure ID is preserved
+      };
+
+      console.log(`[ADMIN PATCH] Merged update data:`, updates);
+
+      const updatedImage = await dataStorage.updateGalleryImage(updates);
+      
+      // Invalidate gallery cache after update
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+
+      console.log(`[ADMIN PATCH] Successfully updated gallery item ${id}`);
+
+      res.json({
+        message: "Gallery image updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error(`[ADMIN PATCH] Error updating gallery item ${id}:`, error);
+      res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
   // Gallery deletion - both admin and public routes
   app.delete("/api/gallery/:id", async (req, res) => {
     const id = parseInt(req.params.id);
