@@ -74,6 +74,7 @@ class TestFixSystem {
       const validContactData = {
         name: 'Test User',
         email: 'test@example.com',
+        subject: 'Test Inquiry',
         message: 'Test message for validation',
         phone: '+1234567890'
       };
