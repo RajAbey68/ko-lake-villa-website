@@ -196,7 +196,7 @@ export default function GalleryManager() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete image');
       return response.json();
     },
@@ -217,7 +217,7 @@ export default function GalleryManager() {
   // Bulk delete mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: number[]) => {
-      const response = await fetch('/api/gallery/bulk-delete', {
+      const response = await fetch('/api/admin/gallery/bulk-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids })
