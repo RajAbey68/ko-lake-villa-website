@@ -466,6 +466,59 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Direct file serving to bypass Vite middleware interference with uploads
+  app.get('/uploads/*', (req, res) => {
+    const filePath = path.join(process.cwd(), req.path);
+    
+    try {
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).send('File not found');
+      }
+
+      const stats = fs.statSync(filePath);
+      if (stats.size === 0) {
+        return res.status(404).send('Empty file');
+      }
+
+      // Determine content type
+      let contentType = 'application/octet-stream';
+      if (filePath.match(/\.(jpg|jpeg)$/i)) contentType = 'image/jpeg';
+      else if (filePath.match(/\.png$/i)) contentType = 'image/png';
+      else if (filePath.match(/\.gif$/i)) contentType = 'image/gif';
+      else if (filePath.match(/\.webp$/i)) contentType = 'image/webp';
+      else if (filePath.match(/\.(mp4|mov|webm|avi)$/i)) contentType = 'video/mp4';
+
+      // Set headers
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Length', stats.size);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+
+      // Handle video range requests
+      if (contentType.startsWith('video/') && req.headers.range) {
+        const range = req.headers.range;
+        const fileSize = stats.size;
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunkSize = (end - start) + 1;
+
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+          'Content-Type': contentType
+        });
+
+        return fs.createReadStream(filePath, { start, end }).pipe(res);
+      }
+
+      // Stream the file
+      return fs.createReadStream(filePath).pipe(res);
+    } catch (error) {
+      console.error(`Error serving file: ${req.path}`, error);
+      return res.status(500).send('Server error');
+    }
+  });
   // Serve uploaded files
   app.use('/uploads', express.static(UPLOAD_DIR));
 
