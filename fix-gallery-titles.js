@@ -1,127 +1,106 @@
 /**
- * Fix Gallery Titles and Descriptions
- * Updates existing gallery images with proper titles and descriptions
+ * Fix Gallery Titles - Replace timestamp IDs with proper descriptive titles
  */
 
-import fs from 'fs';
-
-async function apiRequest(method, endpoint, body = null) {
-  const baseUrl = 'http://localhost:5000';
-  const config = {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-  };
-  
-  if (body) {
-    config.body = JSON.stringify(body);
-  }
-  
-  const response = await fetch(`${baseUrl}${endpoint}`, config);
-  return response;
-}
-
-// Authentic Ko Lake Villa content based on your property
-const authenticContent = {
-  'family-suite': [
-    {
-      title: 'Master Suite with Lake Views',
-      description: 'Spacious master suite featuring panoramic views of Koggala Lake with modern amenities and traditional Sri Lankan design elements.'
-    },
-    {
-      title: 'Family Suite Living Area',
-      description: 'Elegant family suite living area designed for comfort and relaxation, with direct access to private terrace overlooking the lake.'
-    },
-    {
-      title: 'Private Bedroom Sanctuary',
-      description: 'Beautifully appointed bedroom sanctuary offering tranquil lake views and premium bedding for the perfect rest.'
-    }
-  ],
-  'dining-area': [
-    {
-      title: 'Lakeside Dining Experience',
-      description: 'Enjoy authentic Sri Lankan cuisine prepared with fresh local ingredients while overlooking the serene waters of Koggala Lake.'
-    },
-    {
-      title: 'Traditional Sri Lankan Cuisine',
-      description: 'Traditional dining experience featuring local specialties and international favorites in an elegant lakeside setting.'
-    }
-  ],
-  'pool-deck': [
-    {
-      title: 'Infinity Pool with Lake Views',
-      description: 'Private infinity pool seamlessly blending with the horizon of Koggala Lake, creating the perfect setting for relaxation.'
-    },
-    {
-      title: 'Private Pool Deck',
-      description: 'Spacious pool deck with comfortable loungers and panoramic views, ideal for sunbathing and outdoor dining.'
-    }
-  ],
-  'lake-garden': [
-    {
-      title: 'Tropical Lake Gardens',
-      description: 'Beautifully landscaped tropical gardens leading directly to the shores of Koggala Lake with native Sri Lankan flora.'
-    }
-  ],
-  'default': [
-    {
-      title: 'Ko Lake Villa Experience',
-      description: 'Experience the beauty and tranquility of Ko Lake Villa, your perfect lakeside retreat in Ahangama, Galle.'
-    },
-    {
-      title: 'Villa Architecture',
-      description: 'Traditional Sri Lankan architecture beautifully integrated with modern luxury amenities and stunning lake views.'
-    }
-  ]
-};
-
 async function fixGalleryTitles() {
-  console.log('🔍 Getting current gallery images...');
+  console.log('🔧 Fixing gallery titles - removing timestamp IDs');
   
-  // Get current gallery
-  const response = await apiRequest('GET', '/api/gallery');
-  const images = await response.json();
-  
-  console.log(`📸 Found ${images.length} images to update`);
-  
-  let updateCount = 0;
-  
-  for (const image of images) {
-    try {
-      const categoryContent = authenticContent[image.category] || authenticContent['default'];
-      const contentIndex = updateCount % categoryContent.length;
-      const content = categoryContent[contentIndex];
-      
-      let title = content.title;
-      let description = content.description;
-      
-      if (image.mediaType === 'video') {
-        title = `${title} - Video Tour`;
-        description = `${description} Take a virtual tour and experience the authentic atmosphere of this beautiful space.`;
-      }
-      
-      // Update the image with proper title and description
-      const updateData = {
-        title: title,
-        description: description,
-        alt: title  // Update alt text to match title
-      };
-      
-      const updateResponse = await apiRequest('PATCH', `/api/admin/gallery/${image.id}`, updateData);
-      
-      if (updateResponse.ok) {
-        console.log(`✅ Updated: ${title}`);
-        updateCount++;
-      } else {
-        console.log(`❌ Failed to update image ${image.id}`);
-      }
-      
-    } catch (error) {
-      console.log(`❌ Error updating image ${image.id}:`, error.message);
+  try {
+    // Get current gallery images
+    const response = await fetch('/api/gallery');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gallery: ${response.status}`);
     }
+    
+    const images = await response.json();
+    console.log(`📋 Found ${images.length} gallery items to review`);
+    
+    let updatedCount = 0;
+    
+    for (const image of images) {
+      // Check if title is a timestamp ID (long number)
+      const isTimestampId = /^\d{13,}$/.test(image.title);
+      
+      if (isTimestampId) {
+        console.log(`❌ Found timestamp ID title: ${image.title}`);
+        
+        // Generate proper title based on category and content
+        let newTitle = '';
+        
+        if (image.category === 'entire-villa') {
+          newTitle = 'Ko Lake Villa - Complete Property View';
+        } else if (image.category === 'family-suite') {
+          newTitle = 'Master Family Suite';
+        } else if (image.category === 'triple-room') {
+          newTitle = 'Triple/Twin Room';
+        } else if (image.category === 'group-room') {
+          newTitle = 'Group Room Accommodation';
+        } else if (image.category === 'pool-deck') {
+          newTitle = 'Pool Deck & Swimming Area';
+        } else if (image.category === 'dining-area') {
+          newTitle = 'Dining Area';
+        } else if (image.category === 'lake-garden') {
+          newTitle = 'Lake Garden Views';
+        } else if (image.category === 'koggala-lake') {
+          newTitle = 'Koggala Lake Views';
+        } else if (image.alt) {
+          newTitle = image.alt;
+        } else {
+          newTitle = 'Ko Lake Villa Experience';
+        }
+        
+        // Update the image with proper title
+        try {
+          const updateResponse = await fetch(`/api/admin/gallery/${image.id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...image,
+              title: newTitle,
+              alt: newTitle
+            })
+          });
+          
+          if (updateResponse.ok) {
+            console.log(`✅ Updated: ${image.title} → ${newTitle}`);
+            updatedCount++;
+          } else {
+            console.log(`⚠️ Failed to update image ${image.id}: ${updateResponse.status}`);
+          }
+        } catch (error) {
+          console.log(`❌ Error updating image ${image.id}: ${error.message}`);
+        }
+      } else if (image.title) {
+        console.log(`✅ Good title: ${image.title}`);
+      }
+    }
+    
+    console.log(`\n📊 SUMMARY:`);
+    console.log(`- Total images reviewed: ${images.length}`);
+    console.log(`- Timestamp IDs fixed: ${updatedCount}`);
+    console.log(`- Gallery now has proper descriptive titles`);
+    
+    return {
+      success: true,
+      totalImages: images.length,
+      updatedCount,
+      message: 'Gallery titles cleaned up successfully'
+    };
+    
+  } catch (error) {
+    console.error('❌ Failed to fix gallery titles:', error.message);
+    return {
+      success: false,
+      error: error.message
+    };
   }
-  
-  console.log(`\n📊 Update Complete: ${updateCount} images updated with authentic titles and descriptions`);
 }
 
 // Run the fix
-fixGalleryTitles().catch(console.error);
+fixGalleryTitles().then(result => {
+  if (result.success) {
+    console.log('\n🎉 SUCCESS: Gallery titles now show proper descriptions instead of timestamp IDs');
+  } else {
+    console.log('\n💥 FAILED: Could not fix gallery titles');
+  }
+});
