@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Complete Ko Lake Villa Media Recovery
  * Finds and restores ALL authentic property images and videos
@@ -9,206 +7,194 @@ import fs from 'fs';
 import path from 'path';
 
 async function apiRequest(method, endpoint, body = null) {
-  const url = `http://localhost:5000${endpoint}`;
-  const options = {
+  const response = await fetch(`http://localhost:5000${endpoint}`, {
     method,
     headers: { 'Content-Type': 'application/json' },
-  };
-  
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-  
-  const response = await fetch(url, options);
+    body: body ? JSON.stringify(body) : null
+  });
   return response;
 }
 
 function findAllMedia() {
+  
   const mediaFiles = [];
   
   function scanDirectory(dirPath) {
-    try {
-      const items = fs.readdirSync(dirPath);
+    if (!fs.existsSync(dirPath)) return;
+    
+    const items = fs.readdirSync(dirPath, { withFileTypes: true });
+    
+    for (const item of items) {
+      const fullPath = path.join(dirPath, item.name);
       
-      items.forEach(item => {
-        const fullPath = path.join(dirPath, item);
-        const stat = fs.statSync(fullPath);
+      if (item.isDirectory()) {
+        scanDirectory(fullPath);
+      } else if (item.isFile()) {
+        const ext = path.extname(item.name).toLowerCase();
         
-        if (stat.isDirectory()) {
-          scanDirectory(fullPath);
-        } else if (stat.size > 10000) { // Only files larger than 10KB
-          const ext = path.extname(item).toLowerCase();
-          if (['.jpg', '.jpeg', '.png', '.mp4', '.mov'].includes(ext)) {
-            const relativePath = fullPath.replace('./uploads', '');
-            
-            // Determine category from path
-            let category = 'All Villa';
-            if (fullPath.includes('family-suite')) category = 'Family Suite';
-            else if (fullPath.includes('triple-room')) category = 'Triple Room';
-            else if (fullPath.includes('group-room')) category = 'Group Room';
-            else if (fullPath.includes('pool-deck') || fullPath.includes('pool')) category = 'Pool & Outdoor';
-            else if (fullPath.includes('dining-area') || fullPath.includes('dining')) category = 'Dining Area';
-            else if (fullPath.includes('lake-garden')) category = 'Lake Garden';
-            else if (fullPath.includes('roof-garden')) category = 'Roof Garden';
-            else if (fullPath.includes('front-garden')) category = 'Front Garden';
-            else if (fullPath.includes('koggala-lake')) category = 'Koggala Lake';
-            else if (fullPath.includes('excursions')) category = 'Excursions';
-            
-            mediaFiles.push({
-              filename: item,
-              fullPath: fullPath,
-              relativePath: relativePath,
-              category: category,
-              size: stat.size,
-              mediaType: ext === '.mp4' || ext === '.mov' ? 'video' : 'image'
-            });
-          }
+        // Image files
+        if (['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
+          mediaFiles.push({
+            filename: item.name,
+            path: fullPath.replace('./', '/'),
+            type: 'image',
+            size: fs.statSync(fullPath).size
+          });
         }
-      });
-    } catch (error) {
-      // Directory doesn't exist or can't be read
+        
+        // Video files
+        if (['.mp4', '.mov', '.avi', '.mkv', '.webm'].includes(ext)) {
+          mediaFiles.push({
+            filename: item.name,
+            path: fullPath.replace('./', '/'),
+            type: 'video',
+            size: fs.statSync(fullPath).size
+          });
+        }
+      }
     }
   }
   
-  // Scan all relevant directories
+  // Scan common media directories
   scanDirectory('./uploads');
+  scanDirectory('./static');
   scanDirectory('./images');
   
   return mediaFiles;
 }
 
 function generateTags(filename, category, mediaType) {
-  const baseTags = ['Ko Lake Villa', 'Ahangama', 'Galle', 'Sri Lanka'];
+  const tags = [category];
   
-  if (mediaType === 'video') {
-    baseTags.push('video tour', 'virtual tour');
-  }
+  if (filename.toLowerCase().includes('pool')) tags.push('pool');
+  if (filename.toLowerCase().includes('room')) tags.push('accommodation');
+  if (filename.toLowerCase().includes('villa')) tags.push('property');
+  if (filename.toLowerCase().includes('view')) tags.push('scenic');
+  if (filename.toLowerCase().includes('beach')) tags.push('beach');
+  if (filename.toLowerCase().includes('garden')) tags.push('garden');
+  if (filename.toLowerCase().includes('interior')) tags.push('interior');
+  if (filename.toLowerCase().includes('exterior')) tags.push('exterior');
   
-  switch (category) {
-    case 'Family Suite':
-      baseTags.push('family suite', 'master bedroom', 'luxury accommodation');
-      break;
-    case 'Triple Room':
-      baseTags.push('triple room', 'guest room', 'accommodation');
-      break;
-    case 'Group Room':
-      baseTags.push('group accommodation', 'large room', 'multiple guests');
-      break;
-    case 'Pool & Outdoor':
-      baseTags.push('infinity pool', 'outdoor space', 'swimming', 'relaxation');
-      break;
-    case 'Dining Area':
-      baseTags.push('dining', 'meals', 'restaurant');
-      break;
-    case 'Lake Garden':
-      baseTags.push('garden', 'Koggala Lake', 'landscaping');
-      break;
-    case 'Roof Garden':
-      baseTags.push('rooftop', 'terrace', 'views');
-      break;
-    case 'Front Garden':
-      baseTags.push('entrance', 'arrival', 'garden');
-      break;
-    case 'Koggala Lake':
-      baseTags.push('lake views', 'water activities', 'boat rides');
-      break;
-    case 'Excursions':
-      baseTags.push('activities', 'tours', 'local attractions');
-      break;
-    default:
-      baseTags.push('villa property', 'accommodation');
-  }
-  
-  return baseTags.join(', ');
+  return tags;
 }
 
 async function completeMediaRecovery() {
-  console.log('🏝️ COMPLETE KO LAKE VILLA MEDIA RECOVERY');
-  console.log('=========================================\n');
+  console.log('🔄 Starting complete media recovery for Ko Lake Villa');
   
+  // Find all media files
+  const mediaFiles = findAllMedia();
+  console.log(`Found ${mediaFiles.length} media files to process`);
+  
+  const images = mediaFiles.filter(f => f.type === 'image');
+  const videos = mediaFiles.filter(f => f.type === 'video');
+  
+  console.log(`Images: ${images.length}, Videos: ${videos.length}`);
+  
+  // Clear existing gallery data
+  console.log('Clearing corrupted gallery data...');
   try {
-    const allMedia = findAllMedia();
-    console.log(`Found ${allMedia.length} total media files`);
-    
-    // Get currently stored media to avoid duplicates
-    const currentResponse = await apiRequest('GET', '/api/gallery');
-    const currentMedia = currentResponse.ok ? await currentResponse.json() : [];
-    console.log(`Currently in gallery: ${currentMedia.length} items`);
-    
-    // Filter out already stored media
-    const newMedia = allMedia.filter(media => 
-      !currentMedia.some(current => current.imageUrl.includes(media.filename))
-    );
-    
-    console.log(`New media to restore: ${newMedia.length} items\n`);
-    
-    let restored = 0;
-    let errors = 0;
-    
-    for (const media of newMedia) {
-      try {
-        const mediaData = {
-          imageUrl: media.relativePath,
-          category: media.category,
-          title: `Ko Lake Villa - ${media.category}`,
-          tags: generateTags(media.filename, media.category, media.mediaType),
-          mediaType: media.mediaType,
-          featured: false,
-          sortOrder: restored + 1
-        };
-        
-        const response = await apiRequest('POST', '/api/gallery', mediaData);
-        
-        if (response.ok) {
-          restored++;
-          console.log(`✅ Restored: ${media.filename} (${media.category}) [${media.mediaType}]`);
-        } else {
-          errors++;
-          console.log(`❌ Failed: ${media.filename} - Status ${response.status}`);
-        }
-        
-        // Small delay to prevent overwhelming the server
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-      } catch (error) {
-        errors++;
-        console.log(`❌ Error restoring ${media.filename}: ${error.message}`);
+    await apiRequest('DELETE', '/api/gallery/clear-all');
+  } catch (error) {
+    console.log('Note: Clear all endpoint may not exist, continuing...');
+  }
+  
+  let restored = 0;
+  
+  // Process images
+  for (const media of mediaFiles) {
+    try {
+      // Determine category based on filename and path
+      let category = 'property';
+      let description = '';
+      let title = media.filename.replace(/\.[^/.]+$/, ""); // Remove extension
+      
+      // Categorize based on filename patterns
+      const lowerName = media.filename.toLowerCase();
+      
+      if (lowerName.includes('pool')) {
+        category = 'pool';
+        description = 'Ko Lake Villa swimming pool area showcasing our refreshing aquatic amenities';
+        title = title.replace(/^\d+_?/, '').replace(/pool/i, 'Pool Area');
+      } else if (lowerName.includes('room') || lowerName.includes('bedroom') || lowerName.includes('accommodation')) {
+        category = 'accommodation';
+        description = 'Comfortable and elegantly furnished accommodation at Ko Lake Villa';
+        title = title.replace(/^\d+_?/, '').replace(/room/i, 'Guest Room');
+      } else if (lowerName.includes('dining') || lowerName.includes('restaurant') || lowerName.includes('food')) {
+        category = 'dining';
+        description = 'Delicious local cuisine and dining experiences at Ko Lake Villa';
+        title = title.replace(/^\d+_?/, '').replace(/dining/i, 'Dining Experience');
+      } else if (lowerName.includes('garden') || lowerName.includes('exterior') || lowerName.includes('outside')) {
+        category = 'garden';
+        description = 'Beautiful gardens and outdoor spaces at Ko Lake Villa';
+        title = title.replace(/^\d+_?/, '').replace(/garden/i, 'Garden Area');
+      } else if (lowerName.includes('interior') || lowerName.includes('inside') || lowerName.includes('living')) {
+        category = 'interior';
+        description = 'Stylish interior spaces designed for comfort and relaxation';
+        title = title.replace(/^\d+_?/, '').replace(/interior/i, 'Interior Space');
+      } else if (lowerName.includes('view') || lowerName.includes('scenic') || lowerName.includes('landscape')) {
+        category = 'scenic';
+        description = 'Stunning scenic views and natural beauty surrounding Ko Lake Villa';
+        title = title.replace(/^\d+_?/, '').replace(/view/i, 'Scenic View');
+      } else {
+        description = 'Ko Lake Villa - Experience affordable elegance in the heart of Ahangama';
+        title = title.replace(/^\d+_?/, '').replace(/ko.?lake.?villa/i, 'Ko Lake Villa');
       }
+      
+      // Clean up title
+      title = title.replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!title || title.length < 3) {
+        title = `Ko Lake Villa - ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+      }
+      
+      const mediaData = {
+        title: title,
+        description: description,
+        category: category,
+        tags: generateTags(media.filename, category, media.type),
+        type: media.type,
+        featured: category === 'property' || category === 'scenic',
+        published: true
+      };
+      
+      if (media.type === 'image') {
+        mediaData.imageUrl = media.path;
+      } else {
+        mediaData.videoUrl = media.path;
+      }
+      
+      console.log(`Restoring: ${title} (${media.type})`);
+      
+      const response = await apiRequest('POST', '/api/gallery', mediaData);
+      
+      if (response.ok) {
+        restored++;
+        console.log(`✅ Restored: ${title}`);
+      } else {
+        console.log(`❌ Failed to restore: ${title}`);
+      }
+      
+    } catch (error) {
+      console.log(`Error processing ${media.filename}:`, error.message);
     }
+  }
+  
+  console.log(`\n✅ Recovery complete: ${restored} media items restored`);
+  console.log(`📊 Final count - Images: ${restored} items total`);
+  
+  // Verify restoration
+  try {
+    const verifyResponse = await apiRequest('GET', '/api/gallery');
+    const restoredItems = await verifyResponse.json();
+    console.log(`\n🔍 Verification: Gallery now contains ${restoredItems.length} items`);
     
-    console.log('\n📊 COMPLETE RECOVERY SUMMARY:');
-    console.log(`✅ Successfully restored: ${restored} media files`);
-    console.log(`❌ Errors: ${errors}`);
-    console.log(`📁 Total media files found: ${allMedia.length}`);
+    const verifyImages = restoredItems.filter(item => item.type === 'image');
+    const verifyVideos = restoredItems.filter(item => item.type === 'video');
     
-    // Final verification
-    console.log('\n🔍 Final verification...');
-    const finalResponse = await apiRequest('GET', '/api/gallery');
-    if (finalResponse.ok) {
-      const finalGallery = await finalResponse.json();
-      console.log(`🎯 Gallery now contains: ${finalGallery.length} total items`);
-      
-      const categories = {};
-      const mediaTypes = {};
-      
-      finalGallery.forEach(item => {
-        categories[item.category] = (categories[item.category] || 0) + 1;
-        mediaTypes[item.mediaType || 'image'] = (mediaTypes[item.mediaType || 'image'] || 0) + 1;
-      });
-      
-      console.log('\nCategory distribution:');
-      Object.entries(categories).forEach(([cat, count]) => {
-        console.log(`   ${cat}: ${count} items`);
-      });
-      
-      console.log('\nMedia type distribution:');
-      Object.entries(mediaTypes).forEach(([type, count]) => {
-        console.log(`   ${type}: ${count} items`);
-      });
-    }
+    console.log(`📸 Images: ${verifyImages.length}`);
+    console.log(`🎥 Videos: ${verifyVideos.length}`);
     
   } catch (error) {
-    console.error('💥 CRITICAL ERROR during complete recovery:', error);
+    console.log('Could not verify restoration:', error.message);
   }
 }
 
