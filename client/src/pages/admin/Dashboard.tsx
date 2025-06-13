@@ -205,6 +205,7 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [bulkUpdateMode, setBulkUpdateMode] = useState(false);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
+  const [autoCategorizeLoading, setAutoCategorizeLoading] = useState(false);
 
   // Load gallery images
   const { data: allImages = [], isLoading, isError } = useQuery<GalleryImage[]>({
@@ -711,6 +712,32 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
     return Array.from(cats).sort();
   }, [allImages]);
 
+  // Auto-categorize lake images using AI
+  const handleAutoCategorizeLakes = async () => {
+    setAutoCategorizeLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/auto-categorize-lakes");
+      const result = await response.json();
+      
+      toast({
+        title: "Auto-Categorization Complete",
+        description: result.message,
+      });
+      
+      // Refresh gallery data
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      
+    } catch (error) {
+      toast({
+        title: "Auto-Categorization Failed",
+        description: "Failed to categorize lake images automatically",
+        variant: "destructive",
+      });
+    } finally {
+      setAutoCategorizeLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -812,6 +839,16 @@ function GalleryManager({ isAddingImage, setIsAddingImage }: GalleryManagerProps
                 className={bulkUpdateMode ? "bg-blue-600 hover:bg-blue-700" : ""}
               >
                 {bulkUpdateMode ? "Exit Selection Mode" : "Select Multiple Items"}
+              </Button>
+              
+              <Button
+                onClick={handleAutoCategorizeLakes}
+                variant="outline"
+                size="sm"
+                className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                disabled={autoCategorizeLoading}
+              >
+                🤖 Auto-Categorize Lake Images
               </Button>
               
               {bulkUpdateMode && (
