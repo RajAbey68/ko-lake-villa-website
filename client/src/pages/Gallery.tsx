@@ -143,6 +143,8 @@ const Gallery = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<GalleryImageType | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [imagesPerPage, setImagesPerPage] = useState(12);
 
   // Fetch gallery images
   const { data: galleryImages, isLoading, error } = useQuery<GalleryImageType[]>({
@@ -163,6 +165,17 @@ const Gallery = () => {
     return categoryMatch && mediaTypeMatch;
   });
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedMediaType]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredImages.length / imagesPerPage);
+  const startIndex = (currentPage - 1) * imagesPerPage;
+  const endIndex = startIndex + imagesPerPage;
+  const paginatedImages = filteredImages.slice(startIndex, endIndex);
+
   // Get unique categories
   const categories = [...new Set(galleryImages?.map(img => img.category).filter(Boolean))] as string[];
 
@@ -174,7 +187,7 @@ const Gallery = () => {
 
   const navigateModal = (index: number) => {
     setCurrentImageIndex(index);
-    setSelectedImage(filteredImages[index]);
+    setSelectedImage(filteredImages[index] as GalleryImageType);
   };
 
   if (isLoading) {
@@ -297,7 +310,7 @@ const Gallery = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {filteredImages.map((image, index) => {
+            {paginatedImages.map((image, index) => {
               const isVideo = image.mediaType === 'video' || image.imageUrl?.includes('.mp4') || image.imageUrl?.includes('.mov');
               
               return (
