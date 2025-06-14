@@ -98,6 +98,15 @@ export const FullscreenVideoModal: React.FC<FullscreenVideoModalProps> = ({
               src={image.imageUrl}
               alt={image.alt}
               className="max-w-full max-h-full object-contain"
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '85vh',
+                objectFit: 'contain',
+                objectPosition: 'center',
+                width: 'auto',
+                height: 'auto'
+              }}
+              loading="eager"
             />
           )}
 
