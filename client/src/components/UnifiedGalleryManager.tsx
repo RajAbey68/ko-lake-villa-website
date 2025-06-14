@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,18 +71,18 @@ export default function UnifiedGalleryManager() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'category' | 'featured'>('date');
-  
+
   // Upload State
   const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('single');
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
   const [batchMetadata, setBatchMetadata] = useState<BatchMetadata>({});
   const [isUploading, setIsUploading] = useState(false);
-  
+
   // Edit State
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
-  
+
   // Modal State
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<number | null>(null);
@@ -225,7 +224,7 @@ export default function UnifiedGalleryManager() {
     }));
 
     setUploadProgress(newProgress);
-    
+
     // Initialize metadata for each file
     const newMetadata: BatchMetadata = {};
     newProgress.forEach(progress => {
@@ -248,7 +247,7 @@ export default function UnifiedGalleryManager() {
     for (let i = 0; i < fileArray.length; i++) {
       const file = fileArray[i];
       const fileId = uploadProgress[i]?.fileId;
-      
+
       if (!fileId) continue;
 
       try {
@@ -259,7 +258,7 @@ export default function UnifiedGalleryManager() {
 
         const formData = new FormData();
         formData.append('file', file);
-        
+
         const metadata = batchMetadata[fileId];
         if (metadata) {
           formData.append('title', metadata.title);
@@ -303,7 +302,7 @@ export default function UnifiedGalleryManager() {
 
     setIsUploading(false);
     refetch();
-    
+
     // Clear after delay
     setTimeout(() => {
       setUploadProgress([]);
@@ -357,6 +356,70 @@ export default function UnifiedGalleryManager() {
     }));
   };
 
+  // Quick category change handler
+  const handleQuickCategoryChange = async (id: number, newCategory: string) => {
+    try {
+      const response = await fetch(`/api/gallery/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ category: newCategory }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update category');
+      }
+
+      // Refresh the gallery
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+
+      toast({
+        title: "Success",
+        description: `Category changed to ${newCategory}`,
+      });
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Delete handler
+  const handleDeleteItem = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/gallery/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete item');
+      }
+
+      // Refresh the gallery
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+
+      toast({
+        title: "Success",
+        description: "Item deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete item",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -375,6 +438,8 @@ export default function UnifiedGalleryManager() {
     );
   }
 
+  const availableCategories = GALLERY_CATEGORIES.map(cat => cat.value);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -385,7 +450,7 @@ export default function UnifiedGalleryManager() {
             Complete media management - upload, organize, edit, and optimize all your images and videos
           </p>
         </div>
-        
+
         <div className="flex gap-2">
           <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C]">
             <UploadIcon className="h-4 w-4 mr-2" />
@@ -411,7 +476,7 @@ export default function UnifiedGalleryManager() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -423,7 +488,7 @@ export default function UnifiedGalleryManager() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -435,7 +500,7 @@ export default function UnifiedGalleryManager() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -462,7 +527,7 @@ export default function UnifiedGalleryManager() {
             />
           </div>
         </div>
-        
+
         <Select value={selectedCategory || ''} onValueChange={(value) => setSelectedCategory(value || null)}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="All Categories" />
@@ -474,7 +539,7 @@ export default function UnifiedGalleryManager() {
             ))}
           </SelectContent>
         </Select>
-        
+
         <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
           <SelectTrigger className="w-[150px]">
             <SelectValue />
@@ -735,7 +800,7 @@ export default function UnifiedGalleryManager() {
           {uploadProgress.length > 0 && (
             <div className="space-y-4">
               <h4 className="font-medium">Upload Progress & Metadata</h4>
-              
+
               {uploadProgress.map((progress) => (
                 <Card key={progress.fileId}>
                   <CardContent className="p-4">
@@ -743,7 +808,7 @@ export default function UnifiedGalleryManager() {
                       {progress.preview && (
                         <img src={progress.preview} alt="Preview" className="w-16 h-16 object-cover rounded" />
                       )}
-                      
+
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{progress.filename}</span>
@@ -755,13 +820,13 @@ export default function UnifiedGalleryManager() {
                             {progress.status}
                           </Badge>
                         </div>
-                        
+
                         <Progress value={progress.progress} className="w-full" />
-                        
+
                         {progress.status === 'error' && progress.errorMessage && (
                           <p className="text-red-600 text-sm">{progress.errorMessage}</p>
                         )}
-                        
+
                         {progress.status === 'pending' && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
@@ -772,7 +837,7 @@ export default function UnifiedGalleryManager() {
                                 placeholder="Enter title"
                               />
                             </div>
-                            
+
                             <div>
                               <Label>Category</Label>
                               <Select
@@ -789,7 +854,7 @@ export default function UnifiedGalleryManager() {
                                 </SelectContent>
                               </Select>
                             </div>
-                            
+
                             <div className="md:col-span-2">
                               <Label>Description</Label>
                               <Textarea
@@ -799,7 +864,7 @@ export default function UnifiedGalleryManager() {
                                 rows={2}
                               />
                             </div>
-                            
+
                             <div>
                               <Label>SEO Tags</Label>
                               <Input
@@ -808,8 +873,9 @@ export default function UnifiedGalleryManager() {
                                 placeholder="tag1, tag2, tag3"
                               />
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
+```
                               <Switch
                                 checked={batchMetadata[progress.fileId]?.featured || false}
                                 onCheckedChange={(checked) => updateBatchMetadata(progress.fileId, 'featured', checked)}
