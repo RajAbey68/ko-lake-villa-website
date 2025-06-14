@@ -375,7 +375,7 @@ async function generateImageContent(filename: string, category: string, isVideo:
 }
 
 // Fallback content generation when AI is not available
-function generateFallbackContent(filename: string, category: string, isVideo: boolean): {title: string, description: string} {
+function generateFallbackContent(filename: string, category: string, isVideo): {title: string, description: string} {
   const categoryTitles: Record<string, string> = {
     'family-suite': 'Family Suite',
     'friends': 'Friends & Fun',
@@ -887,14 +887,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/admin/gallery/:id', async (req, res) => {
+  // Gallery deletion - both admin and public routes
+  app.delete("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
     try {
-      const imageId = parseInt(req.params.id);
-      await dataStorage.deleteGalleryImage(imageId);
-      res.json({ success: true, message: 'Image deleted successfully' });
+      console.log(`[DELETE] Attempting to delete gallery image ${id}`);
+      const success = await dataStorage.deleteGalleryImage(id);
+      if (success) {
+        // Invalidate gallery cache after delete
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+
+        console.log(`[DELETE] Successfully deleted gallery image ${id}`);
+        return res.json({ 
+          success: true, 
+          message: "Gallery image deleted successfully!" 
+        });
+      }
+      console.log(`[DELETE] Gallery image ${id} not found`);
+      res.status(404).json({ message: "Gallery image not found" });
     } catch (error) {
-      console.error('Error deleting gallery image:', error);
-      res.status(500).json({ success: false, error: 'Failed to delete image' });
+      console.error(`[DELETE] Error deleting gallery image ${id}:`, error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
     }
   });
 
@@ -1145,17 +1163,291 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      console.log(`[DELETE] Attempting to delete gallery image ${id}`);
       const success = await dataStorage.deleteGalleryImage(id);
       if (success) {
         // Invalidate gallery cache after delete
         serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
         serverCache.invalidatePattern('gallery:category:.*');
 
-        return res.json({ message: "Gallery image deleted successfully!" });
+        console.log(`[DELETE] Successfully deleted gallery image ${id}`);
+        return res.json({ 
+          success: true, 
+          message: "Gallery image deleted successfully!" 
+        });
       }
+      console.log(`[DELETE] Gallery image ${id} not found`);
       res.status(404).json({ message: "Gallery image not found" });
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error(`[DELETE] Error deleting gallery image ${id}:`, error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // AI content generation endpoint for existing gallery images
+  app.post("/api/admin/generate-gallery-content", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      let updatedCount = 0;
+
+      for (const image of images) {
+        // Only generate content if title or description is missing
+        if (!image.title || !image.description || image.title.trim() === '' || image.description.trim() === '') {
+          const isVideo = image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov');
+          const generatedContent = await generateImageContent(image.imageUrl, image.category, isVideo);
+
+          // Update the image with AI-generated content
+          await dataStorage.updateGalleryImage(image.id, {
+            title: generatedContent.title,
+            description: generatedContent.description
+          });
+
+          updatedCount++;
+        }
+      }
+
+      res.json({ 
+        message: `Successfully generated content for ${updatedCount} images`,
+        updated: updatedCount,
+        total: images.length
+      });
+    } catch (error) {
+      console.error('AI content generation error:', error);
+      res.status(500).json({ message: "Failed to generate AI content" });
+    }
+  });
+
+  // Booking inquiry with notifications
+  app.post("/api/booking", async (req, res) => {
+    try {
+      const validatedData = insertBookingInquirySchema.parse(req.body);
+      const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
+
+      // Send notifications after successful booking storage
+      try {
+        await sendBookingNotifications(bookingInquiry);
+      } catch (notificationError) {
+        console.error('Notification error (booking still saved):', notificationError);
+        // Don't fail the booking if notifications fail
+      }
+
+      res.status(201).json({
+        message: "Booking inquiry submitted successfully! You'll receive a confirmation email and we'll contact you within 24 hours.",
+        data: bookingInquiry
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Booking validation error:', error.errors);
+        return res.status(400).json({ 
+          message: "Invalid booking data", 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        });
+      }
+      console.error('Booking submission error:', error);
+      res.status(500).json({ message: "Failed to submit booking inquiry" });
+    }
+  });
+
+  // Contact form
+  app.post("/api/contact", async (req, res) => {
+    try {
+      console.log('Contact form submission:', req.body);
+
+      // Clean and prepare data with all optional fields handled properly
+      const cleanedData = {
+        name: req.body.name?.trim() || '',
+        email: req.body.email?.trim() || '',
+        phone: req.body.phone?.trim() || null,
+        timezone: req.body.timezone || "Asia/Colombo",
+        familiarity: req.body.familiarity || null,
+        messageType: req.body.messageType || null,
+        subject: req.body.subject?.trim() || '',
+        message: req.body.message?.trim() || ''
+      };
+
+      // Validate required fields
+      if (!cleanedData.name || !cleanedData.email || !cleanedData.message) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, and message are required fields"
+        });
+      }
+
+      // Remove null values to avoid validation issues
+      Object.keys(cleanedData).forEach(key => {
+        if (cleanedData[key] === null || cleanedData[key] === undefined) {
+          delete cleanedData[key];
+        }
+      });
+
+      const validatedData = insertContactMessageSchema.parse(cleanedData);
+      const contactMessage = await dataStorage.createContactMessage(validatedData);
+      res.status(201).json({
+        success: true,
+        message: "Message sent successfully!",
+        data: contactMessage
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Contact form validation error:', error.errors);
+        return res.status(400).json({ 
+          success: false,
+          message: "Invalid contact form data", 
+          errors: error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        });
+      }
+      console.error('Contact form submission error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to send message" 
+      });
+    }
+  });
+
+  // Newsletter subscription
+  app.post("/api/newsletter", async (req, res) => {
+    try {
+      console.log('Newsletter submission:', req.body);
+
+      // Clean the data before validation
+      const email = req.body.email?.trim();
+
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is required"
+        });
+      }
+
+      const cleanedData = { email };
+
+      const validatedData = insertNewsletterSubscriberSchema.parse(cleanedData);
+
+      // Check for existing subscription
+      try {
+        const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
+        res.status(201).json({
+          success: true,
+          message: "Subscribed to newsletter successfully!",
+          data: subscriber
+        });
+      } catch (dbError) {
+        // Handle duplicate email case
+        if (dbError.message?.includes('duplicate') || dbError.code === '23505') {
+          return res.status(400).json({
+            success: false,
+            message: "This email is already subscribed to our newsletter"
+          });
+        }
+        throw dbError;
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Newsletter validation error:', error.errors);
+        return res.status(400).json({ 
+          success: false,
+          message: "Invalid email format", 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        });
+      }
+      console.error('Newsletter subscription error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to subscribe to newsletter" 
+      });
+    }
+  });
+
+  // Admin Gallery Management
+  app.post("/api/admin/gallery", async (req, res) => {
+    try {
+      const validatedData = insertGalleryImageSchema.parse(req.body);
+      const galleryImage = await dataStorage.createGalleryImage(validatedData);
+      res.status(201).json({
+        message: "Gallery image added successfully!",
+        data: galleryImage
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid gallery image data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to add gallery image" });
+    }
+  });
+
+  // Admin Gallery Update (PATCH) - This was missing!
+  app.patch("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      console.log(`[ADMIN PATCH] Updating gallery item ${id} with:`, req.body);
+
+      const existingImage = await dataStorage.getGalleryImageById(id);
+      if (!existingImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+
+      // Merge updates with existing data, preserving all fields
+      const updates = {
+        ...existingImage,
+        ...req.body,
+        id // Ensure ID is preserved
+      };
+
+      console.log(`[ADMIN PATCH] Merged update data:`, updates);
+
+      const updatedImage = await dataStorage.updateGalleryImage({ id, ...req.body });
+
+      // Invalidate gallery cache after update
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+
+      console.log(`[ADMIN PATCH] Successfully updated gallery item ${id}`);
+
+      res.json({
+        message: "Gallery image updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error(`[ADMIN PATCH] Error updating gallery item ${id}:`, error);
+      res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
+  // Gallery deletion - both admin and public routes
+  app.delete("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      console.log(`[DELETE] Attempting to delete gallery image ${id}`);
+      const success = await dataStorage.deleteGalleryImage(id);
+      if (success) {
+        // Invalidate gallery cache after delete
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+
+        console.log(`[DELETE] Successfully deleted gallery image ${id}`);
+        return res.json({ 
+          success: true, 
+          message: "Gallery image deleted successfully!" 
+        });
+      }
+      console.log(`[DELETE] Gallery image ${id} not found`);
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      console.error(`[DELETE] Error deleting gallery image ${id}:`, error);
       res.status(500).json({ message: "Failed to delete gallery image" });
     }
   });
@@ -1421,7 +1713,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               content: [
                 {
                   type: "text",
-                  text: `Analyze this Ko Lake Villa image and provide:
+                  text: `Analyze thisThis update ensures that the delete endpoints for gallery images return consistent and informative responses, including logging for debugging purposes.
+```text
+ Ko Lake Villa image and provide:
 
                   Current details:
                   - Current title: ${image.title || image.alt || 'Untitled'}
@@ -1700,8 +1994,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const configPath = path.join(__dirname, '../shared/deal-config.json');
 
       if (fs.existsSync(configPath)) {
-        const config = JSON.parse(```text
-fs.readFileSync(configPath, 'utf8'));
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         res.json(config);
       } else {
         // Default configuration
@@ -2300,7 +2593,7 @@ fs.readFileSync(configPath, 'utf8'));
         error: 'Analysis failed',
         category: 'entire-villa',
         confidence: 0.5,
-        description: 'Default categorization due to analysis error'
+        description: 'Default categorization due to analysiserror'
       });
     }
   });
@@ -2596,8 +2889,7 @@ fs.readFileSync(configPath, 'utf8'));
 
   // 404 handler for API routes
   app.use('/api/*', (req, res) => {
-    res.status(404).```text
-json({ error: 'API endpoint not found' });
+    res.status(404).json({ error: 'API endpoint not found' });
   });
 
   // Note: No catch-all handler here - Vite development server handles frontend routes
