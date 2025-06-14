@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Room, Testimonial, Activity } from '@shared/schema';
 import { ratingToStars } from '@/lib/utils';
 import SEOHead from '@/components/SEOHead';
-// Use bright infinity pool image for hero section
-import heroPoolImage from "@assets/image_1749865704551.png";
+// Use stunning sunset pool view for hero section
+import heroPoolImage from "@assets/image_1749894978513.png";
 
 const Home = () => {
   // Fetch rooms for the accommodation section
