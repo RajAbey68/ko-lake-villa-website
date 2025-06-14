@@ -37,26 +37,26 @@ const Home = () => {
         image="https://www.KoLakeHouse.com/images/hero-villa.jpg"
       />
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center bg-gradient-to-br from-[#8B5E3C] to-[#A0B985]">
+      <section className="relative h-screen flex items-center justify-center">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url(${heroPoolImage})`
           }}
         ></div>
-        <div className="absolute inset-0 bg-black bg-opacity-45"></div>
-        <div className="relative z-10 text-center px-4 max-w-4xl bg-black bg-opacity-45 rounded-lg p-8">
-          <h1 className="text-4xl md:text-5xl text-white font-display font-bold mb-4 tracking-wide">Ko Lake Villa</h1>
-          <p className="text-lg md:text-xl text-white mb-8 font-light">Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.</p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/gallery" className="kolake-btn primary">
-              📸 View Gallery
+        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <div className="relative z-10 text-center px-6 max-w-3xl">
+          <h1 className="text-3xl md:text-4xl text-white font-display font-light mb-3 tracking-wider">Ko Lake Villa</h1>
+          <p className="text-base md:text-lg text-white mb-8 font-light opacity-90">Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.</p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link href="/gallery" className="bg-white bg-opacity-10 backdrop-blur-sm text-white px-5 py-2 rounded-full border border-white border-opacity-30 hover:bg-opacity-20 transition-all text-sm font-light">
+              View Gallery
             </Link>
-            <Link href="/contact" className="kolake-btn secondary">
-              📩 Request Info
+            <Link href="/contact" className="bg-transparent text-white px-5 py-2 rounded-full border border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition-all text-sm font-light">
+              Request Info
             </Link>
-            <Link href="/accommodation" className="kolake-btn accent">
-              📆 Book Direct – Save 10%
+            <Link href="/accommodation" className="bg-white bg-opacity-15 backdrop-blur-sm text-white px-5 py-2 rounded-full border border-white border-opacity-40 hover:bg-opacity-25 transition-all text-sm font-medium">
+              Book Direct – Save 10%
             </Link>
           </div>
         </div>
