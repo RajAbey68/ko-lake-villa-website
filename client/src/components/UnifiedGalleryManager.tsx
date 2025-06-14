@@ -607,7 +607,10 @@ export default function UnifiedGalleryManager() {
                   onValueChange={(newCategory) => {
                     updateImageMutation.mutate({
                       id: image.id,
-                      updates: { category: newCategory }
+                      updates: { 
+                        category: newCategory,
+                        tags: image.tags ? `${newCategory},${image.tags.replace(image.category, '').replace(/^,+|,+$/g, '')}` : newCategory
+                      }
                     });
                   }}
                 >
