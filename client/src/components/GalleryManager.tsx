@@ -81,24 +81,24 @@ export default function GalleryManager() {
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'category' | 'featured'>('date');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'hidden'>('all');
-  
+
   // Upload State
   const [uploadMode, setUploadMode] = useState<'single' | 'bulk' | 'drag-drop'>('single');
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
   const [batchMetadata, setBatchMetadata] = useState<BatchMetadata>({});
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  
+
   // Edit State
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
-  
+
   // Modal State
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<number | null>(null);
-  
+
   // Upload Default Settings State
   const [defaultCategory, setDefaultCategory] = useState('default');
   const [defaultTags, setDefaultTags] = useState('');
@@ -185,7 +185,7 @@ export default function GalleryManager() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Update failed:', response.status, errorText);
@@ -280,7 +280,7 @@ export default function GalleryManager() {
     },
     onSuccess: (result, imageId) => {
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-      
+
       // Update the edit dialog with AI-generated content if it's open for this image
       if (editingImage && editingImage.id === imageId) {
         setEditTitle(result.title || editTitle);
@@ -290,7 +290,7 @@ export default function GalleryManager() {
           setEditTags(Array.isArray(result.tags) ? result.tags.join(', ') : result.tags);
         }
       }
-      
+
       toast({ 
         title: "AI Analysis Complete", 
         description: result.message || "Image analyzed and updated successfully" 
@@ -354,7 +354,7 @@ export default function GalleryManager() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       setUploadDialogOpen(true);
@@ -390,7 +390,7 @@ export default function GalleryManager() {
     });
 
     setBatchMetadata(newBatchMetadata);
-    
+
     // Initialize upload progress
     const newProgress: UploadProgress[] = files.map((file) => ({
       fileId: `${file.name}-${Date.now()}`,
@@ -398,22 +398,22 @@ export default function GalleryManager() {
       progress: 0,
       status: 'uploading' as const
     }));
-    
+
     setUploadProgress(newProgress);
   };
 
   const handleBatchUpload = async () => {
     setIsUploading(true);
-    
+
     try {
       const fileInput = document.getElementById('file-upload') as HTMLInputElement;
       const files = Array.from(fileInput?.files || []);
-      
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileId = Object.keys(batchMetadata)[i];
         const metadata = batchMetadata[fileId];
-        
+
         try {
           // Update progress
           setUploadProgress(prev => prev.map(p => 
@@ -484,6 +484,28 @@ export default function GalleryManager() {
     }
   };
 
+  // Quick Category Change Function
+  const handleQuickCategoryChange = async (imageId: number, newCategory: string) => {
+    try {
+      const response = await fetch(`/api/admin/gallery/${imageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: newCategory })
+      });
+
+      if (response.ok) {
+        queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+        toast({ title: "Success", description: `Category updated to ${newCategory}` });
+      } else {
+        const errorData = await response.json();
+        toast({ title: "Error", description: `Failed to update category: ${errorData.message}`, variant: "destructive" });
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+      toast({ title: "Error", description: "Failed to update category", variant: "destructive" });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -501,6 +523,8 @@ export default function GalleryManager() {
       </div>
     );
   }
+
+  const categories = GALLERY_CATEGORIES.map(cat => cat.value);
 
   return (
     <div 
@@ -529,7 +553,7 @@ export default function GalleryManager() {
             Upload, organize, edit, and tag your images and videos with complete media management
           </p>
         </div>
-        
+
         <div className="flex gap-2">
           <Button onClick={() => setUploadDialogOpen(true)} className="bg-[#FF914D] hover:bg-[#8B5E3C]">
             <UploadIcon className="h-4 w-4 mr-2" />
@@ -564,7 +588,7 @@ export default function GalleryManager() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -576,7 +600,7 @@ export default function GalleryManager() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -588,7 +612,7 @@ export default function GalleryManager() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -613,7 +637,7 @@ export default function GalleryManager() {
             className="w-64"
           />
         </div>
-        
+
         <Select value={selectedCategory || 'all'} onValueChange={(value) => setSelectedCategory(value === 'all' ? null : value)}>
           <SelectTrigger className="w-48">
             <FilterIcon className="h-4 w-4 mr-2" />
@@ -628,7 +652,7 @@ export default function GalleryManager() {
             ))}
           </SelectContent>
         </Select>
-        
+
         <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
           <SelectTrigger className="w-48">
             <EyeIcon className="h-4 w-4 mr-2" />
@@ -783,14 +807,7 @@ export default function GalleryManager() {
                 <Select
                   value={image.category}
                   onValueChange={(newCategory) => {
-                    updateMutation.mutate({
-                      id: image.id,
-                      updates: { 
-                        ...image, 
-                        category: newCategory,
-                        tags: image.tags ? `${newCategory},${image.tags.replace(image.category, '').replace(/^,+|,+$/g, '')}` : newCategory
-                      }
-                    });
+                    handleQuickCategoryChange(image.id, newCategory);
                   }}
                 >
                   <SelectTrigger className="h-7 text-xs">
@@ -852,7 +869,7 @@ export default function GalleryManager() {
                 ×
               </button>
             </div>
-            
+
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Preview */}
@@ -974,7 +991,7 @@ export default function GalleryManager() {
               Upload images and videos to your gallery with automatic AI categorization and tagging.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="p-4 space-y-6">
             {/* File Upload Area */}
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
@@ -1083,7 +1100,7 @@ export default function GalleryManager() {
               Are you sure you want to delete this image? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          
+
           {deleteConfirmId && (
             <div className="py-4">
               <p className="text-sm text-gray-600 mb-2">
@@ -1095,7 +1112,7 @@ export default function GalleryManager() {
               </div>
             </div>
           )}
-          
+
           <DialogFooter className="gap-2">
             <Button 
               variant="outline" 
@@ -1143,7 +1160,7 @@ export default function GalleryManager() {
               Are you sure you want to delete {selectedImages.length} selected images? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <p className="text-sm text-gray-600 mb-2">
               You are about to delete <strong>{selectedImages.length}</strong> images.
@@ -1156,7 +1173,7 @@ export default function GalleryManager() {
               Selected image IDs: {selectedImages.join(', ')}
             </div>
           </div>
-          
+
           <DialogFooter className="gap-2">
             <Button 
               variant="outline" 
