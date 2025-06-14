@@ -1545,6 +1545,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comments endpoints for images/videos
+  app.get("/api/gallery/:id/comments", async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      if (isNaN(imageId)) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
+
+      // For now, return empty comments array - implement database storage later
+      res.json({ comments: [], imageId });
+    } catch (error) {
+      console.error('Comments fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch comments" });
+    }
+  });
+
+  app.post("/api/gallery/:id/comments", async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const { text, author } = req.body;
+
+      if (isNaN(imageId) || !text || !author) {
+        return res.status(400).json({ error: "Invalid comment data" });
+      }
+
+      // Basic comment structure - implement database storage later
+      const comment = {
+        id: Date.now(),
+        imageId,
+        text,
+        author,
+        timestamp: new Date().toISOString()
+      };
+
+      res.json({ success: true, comment });
+    } catch (error) {
+      console.error('Comment post error:', error);
+      res.status(500).json({ error: "Failed to post comment" });
+    }
+  });
+
+  // AI-powered media analysis endpoint
+  app.post("/api/analyze-media", async (req, res) => {
+    try {
+      const { imageUrl, category } = req.body;
+      
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image URL required" });
+      }
+
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(200).json({ 
+          title: "Ko Lake Villa Media",
+          description: "Authentic property content",
+          category: category || "default",
+          tags: ["ko-lake-villa", "property", "authentic"],
+          confidence: 0.5,
+          note: "AI analysis requires OpenAI API key configuration"
+        });
+      }
+
+      const OpenAI = require('openai');
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      const analysisResult = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "Analyze Ko Lake Villa property media and provide authentic descriptions. Return JSON with title, description, category, tags array, and confidence score."
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Analyze this Ko Lake Villa image for category: ${category || 'unknown'}`
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: imageUrl.startsWith('http') ? imageUrl : `${req.protocol}://${req.get('host')}${imageUrl}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 300,
+        response_format: { type: "json_object" }
+      });
+
+      const analysis = JSON.parse(analysisResult.choices[0].message.content || '{}');
+      res.json(analysis);
+
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      res.status(500).json({ error: "Media analysis failed" });
+    }
+  });
+
+  // Search functionality for gallery
+  app.get("/api/gallery/search", async (req, res) => {
+    try {
+      const { q, category, tags } = req.query;
+      const images = await dataStorage.getGalleryImages();
+      
+      let filtered = images;
+
+      if (q) {
+        const query = String(q).toLowerCase();
+        filtered = filtered.filter(img => 
+          img.title?.toLowerCase().includes(query) ||
+          img.description?.toLowerCase().includes(query) ||
+          img.alt?.toLowerCase().includes(query) ||
+          img.tags?.toLowerCase().includes(query)
+        );
+      }
+
+      if (category) {
+        filtered = filtered.filter(img => img.category === category);
+      }
+
+      if (tags) {
+        const searchTags = String(tags).toLowerCase().split(',');
+        filtered = filtered.filter(img => 
+          searchTags.some(tag => img.tags?.toLowerCase().includes(tag.trim()))
+        );
+      }
+
+      res.json(filtered);
+    } catch (error) {
+      console.error('Search error:', error);
+      res.status(500).json({ error: "Search failed" });
+    }
+  });
+
   // Gallery categories endpoint
   app.get("/api/gallery/categories", async (req, res) => {
     try {
