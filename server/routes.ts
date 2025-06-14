@@ -316,14 +316,14 @@ contact@kolakehouse.com
 }
 
 // Initialize OpenAI for AI-powered content generation
-let openai = null;
+let openai: OpenAI | null = null;
 try {
   if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
   }
-} catch (error) {
+} catch (error: any) {
   console.log('OpenAI not available:', error.message);
 }
 
