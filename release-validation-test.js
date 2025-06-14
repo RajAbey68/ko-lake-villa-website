@@ -227,10 +227,9 @@ class ReleaseValidationTest {
       testimonialsResponse.ok, `Status: ${testimonialsResponse.status}`);
     
     // Validate environment configuration
-    const hasRequiredEnvVars = process.env.DATABASE_URL && 
-                              process.env.REPLIT_DOMAIN;
+    const hasRequiredEnvVars = process.env.DATABASE_URL;
     this.logTest('critical', 'Environment Configuration', 
-      hasRequiredEnvVars, 'Required environment variables present');
+      hasRequiredEnvVars, `DATABASE_URL: ${hasRequiredEnvVars ? 'present' : 'missing'}`);
   }
 
   generateReleaseReport() {

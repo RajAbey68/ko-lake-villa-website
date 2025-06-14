@@ -2090,43 +2090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin dashboard endpoint
-  app.get("/api/admin/dashboard", async (req, res) => {
-    try {
-      const images = await dataStorage.getGalleryImages();
-      const categories = await dataStorage.getGalleryCategories();
-      
-      // Dashboard metrics
-      const stats = {
-        totalImages: images.length,
-        totalVideos: images.filter(img => img.isVideo).length,
-        categoryCounts: categories.reduce((acc, cat) => {
-          acc[cat.id] = images.filter(img => img.category === cat.id).length;
-          return acc;
-        }, {}),
-        recentUploads: images
-          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-          .slice(0, 10),
-        systemHealth: {
-          database: 'connected',
-          storage: 'active',
-          apis: 'operational'
-        }
-      };
-      
-      res.json({
-        success: true,
-        dashboard: stats,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Admin dashboard error:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: "Dashboard data unavailable" 
-      });
-    }
-  });
+
 
   // Admin API health endpoints
   app.get('/api/admin/gallery', async (req, res) => {
@@ -2629,13 +2593,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/dashboard", async (req, res) => {
     try {
       const images = await dataStorage.getGalleryImages();
-      const categories = await dataStorage.getGalleryCategories();
+      
+      // Define categories locally since method doesn't exist
+      const categoryList = [
+        { id: 'entire-villa', name: 'Entire Villa' },
+        { id: 'family-suite', name: 'Family Suite' },
+        { id: 'group-room', name: 'Group Room' },
+        { id: 'triple-room', name: 'Triple Room' },
+        { id: 'dining-area', name: 'Dining Area' },
+        { id: 'pool-deck', name: 'Pool & Deck' },
+        { id: 'lake-garden', name: 'Lake Garden' },
+        { id: 'roof-garden', name: 'Roof Garden' },
+        { id: 'front-garden', name: 'Front Garden' },
+        { id: 'koggala-lake', name: 'Koggala Lake' },
+        { id: 'excursions', name: 'Excursions' },
+        { id: 'events', name: 'Events' },
+        { id: 'amenities', name: 'Amenities' },
+        { id: 'spa-wellness', name: 'Spa & Wellness' },
+        { id: 'activities', name: 'Activities' },
+        { id: 'default', name: 'Other' }
+      ];
       
       // Dashboard metrics
       const stats = {
         totalImages: images.length,
         totalVideos: images.filter(img => img.isVideo).length,
-        categoryCounts: categories.reduce((acc, cat) => {
+        categoryCounts: categoryList.reduce((acc, cat) => {
           acc[cat.id] = images.filter(img => img.category === cat.id).length;
           return acc;
         }, {}),
