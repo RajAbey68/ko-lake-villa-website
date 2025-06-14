@@ -177,7 +177,7 @@ const Gallery = () => {
   const paginatedImages = filteredImages.slice(startIndex, endIndex);
 
   // Get unique categories
-  const categories = [...new Set(galleryImages?.map(img => img.category).filter(Boolean))] as string[];
+  const categories = Array.from(new Set(galleryImages?.map(img => img.category).filter(Boolean))) as string[];
 
   const openModal = (image: GalleryImageType, index: number) => {
     setSelectedImage(image);

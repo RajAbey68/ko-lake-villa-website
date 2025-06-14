@@ -7,12 +7,15 @@ export interface ValidatedGalleryImage {
   id: number;
   imageUrl: string;
   title: string;
-  description: string;
+  alt: string;
+  description: string | null;
   category: string;
   mediaType: string;
-  tags?: string;
+  tags: string | null;
   featured: boolean;
   sortOrder: number;
+  displaySize: string;
+  fileSize: number | null;
   isValid: boolean;
   validationNotes: string[];
 }
@@ -197,12 +200,15 @@ export class GalleryValidator {
       id: image.id,
       imageUrl: image.imageUrl,
       title: cleanTitle,
+      alt: image.alt || cleanTitle,
       description: cleanDescription,
       category: image.category,
       mediaType: image.mediaType || 'image',
-      tags: image.tags,
+      tags: image.tags || null,
       featured: image.featured || false,
       sortOrder: image.sortOrder || 0,
+      displaySize: image.displaySize || 'medium',
+      fileSize: image.fileSize || null,
       isValid,
       validationNotes
     };
