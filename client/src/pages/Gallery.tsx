@@ -45,7 +45,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
       {/* Header */}
       <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <h3 className="text-xl font-semibold">{image.title}</h3>
+          <h3 className="text-xl font-semibold">{generateCleanTitle(image)}</h3>
           {image.category && (
             <Badge variant="secondary" className="bg-[#FF914D] text-white">
               {image.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -109,9 +109,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
           </Button>
 
           <div className="text-center flex-1 mx-4">
-            {image.description && (
-              <p className="text-sm mb-2">{image.description}</p>
-            )}
+            <p className="text-sm mb-2">{generateCleanDescription(image)}</p>
             {image.tags && (
               <div className="flex flex-wrap justify-center gap-1">
                 {image.tags.split(',').map((tag, index) => (
@@ -295,44 +293,52 @@ const Gallery = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {filteredImages.map((image, index) => {
               const isVideo = image.mediaType === 'video' || image.imageUrl?.includes('.mp4') || image.imageUrl?.includes('.mov');
               
               return (
                 <Card 
                   key={image.id} 
-                  className="group cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
+                  className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-white border border-gray-200 hover:border-[#FF914D]/30"
                   onClick={() => openModal(image, index)}
                 >
                   <CardContent className="p-0">
-                    <div className="relative aspect-square">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                       {isVideo ? (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                        <div className="w-full h-full relative bg-gray-900 flex items-center justify-center">
                           <video
                             src={image.imageUrl}
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-cover"
                             muted
-                            poster=""
+                            preload="metadata"
                           />
-                          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-40 transition-all">
-                            <Play className="w-12 h-12 text-white" />
+                          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center group-hover:bg-opacity-20 transition-all">
+                            <div className="bg-white bg-opacity-90 rounded-full p-3 group-hover:scale-110 transition-transform">
+                              <Play className="w-6 h-6 text-gray-800" />
+                            </div>
                           </div>
-                          <Badge className="absolute top-2 right-2 bg-red-600 text-white">
-                            <Video className="w-3 h-3 mr-1" />
+                          <Badge className="absolute top-3 right-3 bg-red-600 text-white text-xs">
                             Video
                           </Badge>
                         </div>
                       ) : (
-                        <div className="relative">
+                        <div className="relative w-full h-full">
                           <img
                             src={image.imageUrl}
-                            alt={image.alt || image.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            alt={generateCleanTitle(image)}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                             loading="lazy"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
+                            }}
                           />
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
-                            <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="bg-white bg-opacity-90 rounded-full p-2">
+                              <ZoomIn className="w-5 h-5 text-gray-800" />
+                            </div>
                           </div>
                         </div>
                       )}
@@ -340,13 +346,11 @@ const Gallery = () => {
                     
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-900 truncate mb-1">
-                        {image.title}
+                        {generateCleanTitle(image)}
                       </h3>
-                      {image.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                          {image.description}
-                        </p>
-                      )}
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                        {generateCleanDescription(image)}
+                      </p>
                       <div className="flex items-center justify-between">
                         {image.category && (
                           <Badge variant="secondary" className="text-xs">
