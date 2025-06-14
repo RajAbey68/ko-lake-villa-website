@@ -2470,6 +2470,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Short URL redirects to Airbnb listings
+  app.get('/klv', (req, res) => {
+    res.redirect(301, 'https://airbnb.co.uk/h/klv');
+  });
+
+  app.get('/klv1', (req, res) => {
+    res.redirect(301, 'https://airbnb.co.uk/h/klv1');
+  });
+
+  app.get('/klv3', (req, res) => {
+    res.redirect(301, 'https://airbnb.co.uk/h/klv3');
+  });
+
+  app.get('/klv6', (req, res) => {
+    res.redirect(301, 'https://airbnb.co.uk/h/klv6');
+  });
+
   // 404 handler for API routes
   app.use('/api/*', (req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });
