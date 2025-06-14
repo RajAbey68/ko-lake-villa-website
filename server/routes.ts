@@ -2470,6 +2470,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Emergency Gallery Backup and Restore System
+  app.post('/api/admin/gallery/backup', async (req, res) => {
+    try {
+      const { reason, performedBy } = req.body;
+      
+      // Create immediate backup of current gallery state
+      const backupResult = await db.execute(`
+        INSERT INTO gallery_images_backup (
+          backup_reason, original_id, image_url, alt, title, description,
+          category, tags, featured, sort_order, media_type, created_at, updated_at
+        )
+        SELECT 
+          $1, id, image_url, alt, title, description,
+          category, tags, featured, sort_order, media_type, created_at, updated_at
+        FROM gallery_images
+        RETURNING backup_id
+      `, [reason || 'Manual backup']);
+      
+      const backupId = backupResult.rows[0]?.backup_id;
+      
+      res.json({ 
+        success: true, 
+        backupId, 
+        message: 'Gallery backup created successfully' 
+      });
+    } catch (error) {
+      console.error('Backup failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to create backup' 
+      });
+    }
+  });
+
+  app.get('/api/admin/gallery/backups', async (req, res) => {
+    try {
+      const backups = await db.execute(`
+        SELECT DISTINCT backup_id, backup_timestamp, backup_reason,
+               COUNT(*) as image_count
+        FROM gallery_images_backup 
+        GROUP BY backup_id, backup_timestamp, backup_reason
+        ORDER BY backup_timestamp DESC
+        LIMIT 10
+      `);
+      
+      res.json(backups.rows);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to get backups' });
+    }
+  });
+
+  app.post('/api/admin/gallery/restore/:backupId', async (req, res) => {
+    try {
+      const backupId = parseInt(req.params.backupId);
+      const { performedBy, reason } = req.body;
+      
+      // Get backup timestamp
+      const backupInfo = await db.execute(`
+        SELECT backup_timestamp FROM gallery_images_backup 
+        WHERE backup_id = $1 LIMIT 1
+      `, [backupId]);
+      
+      if (backupInfo.rows.length === 0) {
+        return res.status(404).json({ error: 'Backup not found' });
+      }
+      
+      const backupTimestamp = backupInfo.rows[0].backup_timestamp;
+      
+      // Clear current gallery
+      await db.execute('DELETE FROM gallery_images');
+      
+      // Restore from backup
+      const restoreResult = await db.execute(`
+        INSERT INTO gallery_images (
+          image_url, alt, title, description, category, tags,
+          featured, sort_order, media_type
+        )
+        SELECT 
+          image_url, alt, title, description, category, tags,
+          featured, sort_order, media_type
+        FROM gallery_images_backup 
+        WHERE backup_timestamp = $1
+      `, [backupTimestamp]);
+      
+      res.json({ 
+        success: true, 
+        restored: restoreResult.rowCount,
+        message: `Restored ${restoreResult.rowCount} images from backup` 
+      });
+      
+    } catch (error) {
+      console.error('Restore failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to restore from backup' 
+      });
+    }
+  });
+
   // Short URL redirects to listing URLs (configurable for myGuesty migration)
   app.get('/klv', (req, res) => {
     const url = process.env.AIRBNB_KLV_URL || 'https://airbnb.co.uk/h/klv';
