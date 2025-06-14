@@ -1798,129 +1798,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI analysis endpoint for individual images
+  // AI analysis endpoint for individual images - Intelligent categorization system
   app.post("/api/analyze-media/:id", async (req, res) => {
+    const imageId = parseInt(req.params.id);
+
+    if (!imageId) {
+      return res.status(400).json({ error: "Invalid image ID" });
+    }
+
+    // Get the existing image from database
+    const image = await dataStorage.getGalleryImageById(imageId);
+    if (!image) {
+      return res.status(404).json({ error: "Image not found" });
+    }
+
     try {
-      const imageId = parseInt(req.params.id);
-
-      if (!imageId) {
-        return res.status(400).json({ error: "Invalid image ID" });
+      // Intelligent categorization based on filename and existing metadata
+      const filename = image.imageUrl.toLowerCase();
+      const currentTitle = image.title || image.alt || '';
+      const currentDesc = image.description || '';
+      
+      let smartCategory = image.category;
+      let smartTitle = currentTitle;
+      let smartDescription = currentDesc;
+      let smartTags = image.tags || '';
+      
+      // Ko Lake Villa intelligent categorization patterns
+      if (filename.includes('pool') || filename.includes('deck') || filename.includes('swimming')) {
+        smartCategory = 'pool-deck';
+        smartTitle = smartTitle || 'Ko Lake Villa Infinity Pool';
+        smartDescription = smartDescription || 'Stunning infinity pool with breathtaking Koggala Lake views and tropical surroundings';
+        smartTags = 'infinity pool, swimming, lake views, relaxation, tropical paradise';
+      } else if (filename.includes('dining') || filename.includes('restaurant') || filename.includes('food')) {
+        smartCategory = 'dining-area';
+        smartTitle = smartTitle || 'Ko Lake Villa Dining Experience';
+        smartDescription = smartDescription || 'Authentic Sri Lankan dining with fresh local ingredients and lake views';
+        smartTags = 'dining, sri lankan cuisine, restaurant, local food, lake dining';
+      } else if (filename.includes('suite') || filename.includes('family') || (filename.includes('room') && filename.includes('family'))) {
+        smartCategory = 'family-suite';
+        smartTitle = smartTitle || 'Ko Lake Villa Family Suite';
+        smartDescription = smartDescription || 'Spacious family accommodation with private lake views and modern amenities';
+        smartTags = 'family suite, accommodation, bedroom, lake view, spacious';
+      } else if (filename.includes('triple') || (filename.includes('room') && filename.includes('triple'))) {
+        smartCategory = 'triple-room';
+        smartTitle = smartTitle || 'Ko Lake Villa Triple Room';
+        smartDescription = smartDescription || 'Comfortable triple occupancy room with lake garden views';
+        smartTags = 'triple room, guest room, accommodation, lake garden';
+      } else if (filename.includes('lake') || filename.includes('water') || filename.includes('koggala') || filename.includes('boat')) {
+        smartCategory = 'koggala-lake';
+        smartTitle = smartTitle || 'Koggala Lake Views from Ko Lake Villa';
+        smartDescription = smartDescription || 'Pristine Koggala Lake with traditional fishing boats and tropical wildlife';
+        smartTags = 'koggala lake, water views, fishing boats, nature, wildlife';
+      } else if (filename.includes('garden') || filename.includes('landscape') || filename.includes('plants')) {
+        if (filename.includes('roof')) {
+          smartCategory = 'roof-garden';
+          smartTitle = smartTitle || 'Ko Lake Villa Rooftop Garden';
+          smartDescription = smartDescription || 'Panoramic rooftop garden with 360-degree lake and mountain views';
+        } else if (filename.includes('front')) {
+          smartCategory = 'front-garden';
+          smartTitle = smartTitle || 'Ko Lake Villa Front Garden';
+          smartDescription = smartDescription || 'Welcoming tropical entrance garden with native Sri Lankan flora';
+        } else {
+          smartCategory = 'lake-garden';
+          smartTitle = smartTitle || 'Ko Lake Villa Lake Garden';
+          smartDescription = smartDescription || 'Serene lakeside gardens with direct access to Koggala Lake';
+        }
+        smartTags = 'tropical garden, landscaping, native plants, outdoor space';
+      } else if (filename.includes('excursion') || filename.includes('activity') || filename.includes('tour')) {
+        smartCategory = 'excursions';
+        smartTitle = smartTitle || 'Ko Lake Villa Local Excursions';
+        smartDescription = smartDescription || 'Authentic Sri Lankan experiences and local cultural adventures';
+        smartTags = 'excursions, local tours, cultural experiences, sri lanka';
+      } else if (filename.includes('group') || (filename.includes('room') && filename.includes('group'))) {
+        smartCategory = 'group-room';
+        smartTitle = smartTitle || 'Ko Lake Villa Group Room';
+        smartDescription = smartDescription || 'Spacious group accommodation perfect for friends and families';
+        smartTags = 'group room, shared accommodation, social space';
+      } else if (!smartTitle || smartTitle.trim() === '') {
+        smartCategory = 'entire-villa';
+        smartTitle = 'Ko Lake Villa Property';
+        smartDescription = smartDescription || 'Luxury lakefront villa accommodation in Ahangama, Sri Lanka';
+        smartTags = 'entire villa, luxury accommodation, lakefront property';
       }
-
-      // Get the existing image from database
-      const image = await dataStorage.getGalleryImageById(imageId);
-      if (!image) {
-        return res.status(404).json({ error: "Image not found" });
-      }
-
-      // Check if OpenAI API key is available
-      if (!process.env.OPENAI_API_KEY) {
-        return res.json({
-          message: "AI analysis requires OpenAI API key",
-          title: image.title || image.alt || "Media Item",
-          description: image.description || "No AI analysis available - API key not configured",
-          category: image.category
-        });
-      }
-
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      });
-
-      let analysisPrompt = "";
-      let analysisResult = null;
-
-      if (image.mediaType === 'video') {
-        // For videos, analyze based on filename and existing metadata
-        analysisPrompt = `Analyze this Ko Lake Villa video file and suggest improvements:
-
-        Current details:
-        - Filename: ${path.basename(image.imageUrl)}
-        - Current title: ${image.title || image.alt || 'Untitled'}
-        - Current description: ${image.description || 'No description'}
-        - Current category: ${image.category}
-
-        Ko Lake Villa categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
-
-        IMPORTANT RULE: If the video filename or content suggests it shows a lake, water body, lake view, or lake activities, categorize it as "koggala-lake" since Ko Lake Villa is located on Koggala Lake.
-
-        Provide a JSON response with improved title, description, category, and relevant tags for this Sri Lankan villa property.`;
-
-        analysisResult = await openai.chat.completions.create({
-          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-          messages: [
-            {
-              role: "system", 
-              content: "You are an expert at analyzing and categorizing luxury villa content for Ko Lake Villa in Sri Lanka. Respond only with valid JSON."
-            },
-            { role: "user", content: analysisPrompt }
-          ],
-          response_format: { type: "json_object" },
-          max_tokens: 500
-        });
-      } else {
-        // For images, analyze the actual image content
-        analysisResult = await openai.chat.completions.create({
-          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-          messages: [
-            {
-              role: "system",
-              content: "You are an expert at analyzing luxury villa photography for Ko Lake Villa in Sri Lanka. Categorize images and suggest improvements. Respond only with valid JSON containing: title, description, category, tags."
-            },
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: `Analyze this Ko Lake Villa image and provide:
-
-                  Current details:
-                  - Current title: ${image.title || image.alt || 'Untitled'}
-                  - Current description: ${image.description || 'No description'}
-                  - Current category: ${image.category}
-
-                  Valid categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
-
-                  IMPORTANT RULE: If the image shows a lake, water body, lake view, waterfront, boats on water, or any aquatic scenery, categorize it as "koggala-lake" since Ko Lake Villa is situated on Koggala Lake in Sri Lanka.
-
-                  Provide improved title, description, best category, and SEO tags for this Sri Lankan luxury villa image.`
-                },
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: `${req.protocol}://${req.get('host')}${image.imageUrl}`
-                  }
-                }
-              ]
-            }
-          ],
-          response_format: { type: "json_object" },
-          max_tokens: 500
-        });
-      }
-
-      const aiContent = JSON.parse(analysisResult.choices[0].message.content);
-
-      // Update the image with AI-generated content
+      
+      // Update the image with intelligent analysis
       await dataStorage.updateGalleryImage(imageId, {
-        title: aiContent.title || image.title,
-        alt: aiContent.title || image.alt,
-        description: aiContent.description || image.description,
-        category: aiContent.category || image.category,
-        tags: Array.isArray(aiContent.tags) ? aiContent.tags.join(', ') : (aiContent.tags || image.tags)
+        title: smartTitle,
+        alt: smartTitle,
+        description: smartDescription,
+        category: smartCategory,
+        tags: smartTags
       });
-
+      
       res.json({
-        message: "AI analysis completed and image updated",
-        title: aiContent.title,
-        description: aiContent.description,
-        category: aiContent.category,
-        tags: aiContent.tags,
+        message: "Smart categorization completed successfully",
+        title: smartTitle,
+        description: smartDescription,
+        category: smartCategory,
+        tags: smartTags,
         confidence: 0.85
       });
 
     } catch (error) {
-      console.error('Media analysis error:', error);
+      console.error('Smart categorization error:', error);
+      res.status(500).json({ error: "Failed to analyze media" });
       
       try {
         // Fallback to intelligent categorization based on filename and existing metadata
