@@ -49,15 +49,46 @@ const Home = () => {
           <h1 className="text-4xl md:text-5xl text-white font-display font-bold mb-4 tracking-wide">Ko Lake Villa</h1>
           <p className="text-lg md:text-xl text-white mb-8 font-light">Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/gallery" className="inline-flex items-center bg-white text-gray-800 px-6 py-3 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">
+            <Link href="/gallery" className="kolake-btn primary">
               📸 View Gallery
             </Link>
-            <Link href="/contact" className="inline-flex items-center bg-transparent border-2 border-white text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-white hover:bg-opacity-15 transition-colors">
+            <Link href="/contact" className="kolake-btn secondary">
               📩 Request Info
             </Link>
-            <Link href="/accommodation" className="inline-flex items-center bg-[#FF914D] text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-[#e87935] transition-colors">
-              📆 Book Your Stay
+            <Link href="/accommodation" className="kolake-btn accent">
+              📆 Book Direct – Save 10%
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Ko Lake Theme Showcase */}
+      <section className="kolake-theme py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="kolake-heading text-3xl md:text-4xl font-display font-bold mb-4">Discover Tranquility</h2>
+            <p className="text-lg text-gray-700 mb-8">Experience the Ko Lake Villa lifestyle on your terms</p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button className="kolake-btn primary">Book Direct – Save 10%</button>
+              <button className="kolake-btn accent">Explore Experiences</button>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="kolake-card text-center">
+              <i className="fas fa-leaf text-4xl mb-4" style={{color: 'var(--kolake-accent)'}}></i>
+              <h3 className="kolake-heading text-xl font-bold mb-2">Tropical Paradise</h3>
+              <p>Immerse yourself in the natural beauty of Ahangama's lakeside setting</p>
+            </div>
+            <div className="kolake-card text-center">
+              <i className="fas fa-crown text-4xl mb-4" style={{color: 'var(--kolake-primary)'}}></i>
+              <h3 className="kolake-heading text-xl font-bold mb-2">Luxury Experience</h3>
+              <p>Indulge in premium amenities and personalized Sri Lankan hospitality</p>
+            </div>
+            <div className="kolake-card text-center">
+              <i className="fas fa-heart text-4xl mb-4" style={{color: 'var(--kolake-secondary)'}}></i>
+              <h3 className="kolake-heading text-xl font-bold mb-2">Authentic Connection</h3>
+              <p>Connect with local culture and create lasting memories</p>
+            </div>
           </div>
         </div>
       </section>
