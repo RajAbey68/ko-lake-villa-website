@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Filter, Image as ImageIcon, Video, X, Play, ZoomIn } from 'lucide-react';
+import { generateCleanTitle, generateCleanDescription } from '@/lib/imageDisplayUtils';
 
 interface GalleryModalProps {
   isOpen: boolean;
@@ -40,65 +41,79 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
   const isVideo = image.mediaType === 'video' || image.imageUrl?.includes('.mp4') || image.imageUrl?.includes('.mov');
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-      <div className="max-w-6xl max-h-full w-full h-full flex flex-col">
-        {/* Header */}
-        <div className="flex justify-between items-center p-4 text-white">
-          <div className="flex items-center gap-4">
-            <h3 className="text-xl font-semibold">{image.title}</h3>
-            {image.category && (
-              <Badge variant="secondary" className="bg-[#FF914D] text-white">
-                {image.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-300">
-              {currentIndex + 1} of {images.length}
-            </span>
-            <Button variant="outline" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Media Content */}
-        <div className="flex-1 flex items-center justify-center">
-          {isVideo ? (
-            <video
-              src={image.imageUrl}
-              controls
-              className="max-w-full max-h-full"
-              autoPlay
-            />
-          ) : (
-            <img
-              src={image.imageUrl}
-              alt={image.alt || image.title}
-              className="max-w-full max-h-full object-contain"
-            />
+    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col">
+      {/* Header */}
+      <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <h3 className="text-xl font-semibold">{image.title}</h3>
+          {image.category && (
+            <Badge variant="secondary" className="bg-[#FF914D] text-white">
+              {image.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </Badge>
           )}
         </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-300">
+            {currentIndex + 1} of {images.length}
+          </span>
+          <Button variant="outline" size="sm" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center p-4">
+      {/* Media Content - Full available space */}
+      <div className="flex-1 flex items-center justify-center p-4 min-h-0">
+        {isVideo ? (
+          <video
+            src={image.imageUrl}
+            controls
+            className="w-full h-full object-contain"
+            style={{ 
+              maxWidth: 'calc(100vw - 2rem)', 
+              maxHeight: 'calc(100vh - 200px)',
+              objectFit: 'contain'
+            }}
+            autoPlay
+            muted
+            playsInline
+          />
+        ) : (
+          <img
+            src={image.imageUrl}
+            alt={image.alt || image.title}
+            className="w-full h-full object-contain"
+            style={{ 
+              maxWidth: 'calc(100vw - 2rem)', 
+              maxHeight: 'calc(100vh - 200px)',
+              objectFit: 'contain',
+              objectPosition: 'center'
+            }}
+            loading="eager"
+          />
+        )}
+      </div>
+
+      {/* Navigation and Description */}
+      <div className="bg-black bg-opacity-50 backdrop-blur-sm text-white p-4">
+        <div className="flex justify-between items-start gap-4">
           <Button 
             variant="outline"
             onClick={() => {
               const prevIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
               onNavigate(prevIndex);
             }}
-            className="text-white border-white hover:bg-white hover:text-black"
+            className="text-white border-white hover:bg-white hover:text-black flex-shrink-0"
           >
             Previous
           </Button>
 
-          <div className="text-center text-white flex-1 mx-4">
+          <div className="text-center flex-1 mx-4">
             {image.description && (
-              <p className="text-sm">{image.description}</p>
+              <p className="text-sm mb-2">{image.description}</p>
             )}
             {image.tags && (
-              <div className="flex flex-wrap justify-center gap-1 mt-2">
+              <div className="flex flex-wrap justify-center gap-1">
                 {image.tags.split(',').map((tag, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {tag.trim()}
@@ -114,7 +129,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
               const nextIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
               onNavigate(nextIndex);
             }}
-            className="text-white border-white hover:bg-white hover:text-black"
+            className="text-white border-white hover:bg-white hover:text-black flex-shrink-0"
           >
             Next
           </Button>
