@@ -144,11 +144,15 @@ export function RoomDetailsModal({ room, isOpen, onClose, onBookNow, onVirtualTo
 
         {/* Image Gallery */}
         <div className="relative">
-          <div className="aspect-video bg-gray-200">
+          <div className="aspect-video bg-gray-200 flex items-center justify-center">
             <img
               src={finalImages[currentImageIndex]}
               alt={`${room.name} - Image ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-full object-contain"
+              style={{ 
+                objectFit: 'contain',
+                objectPosition: 'center'
+              }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
