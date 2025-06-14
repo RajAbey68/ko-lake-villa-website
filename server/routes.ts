@@ -584,7 +584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const isVideoFile = file.mimetype.startsWith('video/') || 
                             file.originalname.toLowerCase().match(/\.(mp4|mov|avi|webm)$/);
 
-        const mediaType = isVideoFile ? 'video' : 'image';
+        const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
         const fileUrl = `/uploads/gallery/default/${file.filename}`;
 
         const galleryImageData = {
@@ -773,7 +773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                             file.originalname.toLowerCase().endsWith('.mov') ||
                             file.originalname.toLowerCase().endsWith('.avi');
 
-          const mediaType = isVideoFile ? 'video' : 'image';
+          const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
           const fileUrl = `/uploads/gallery/default/${file.filename}`;
 
           const galleryImageData = {
