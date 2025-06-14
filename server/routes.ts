@@ -2470,21 +2470,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Short URL redirects to Airbnb listings
+  // Short URL redirects to listing URLs (configurable for myGuesty migration)
   app.get('/klv', (req, res) => {
-    res.redirect(301, 'https://airbnb.co.uk/h/klv');
+    const url = process.env.AIRBNB_KLV_URL || 'https://airbnb.co.uk/h/klv';
+    res.redirect(301, url);
   });
 
   app.get('/klv1', (req, res) => {
-    res.redirect(301, 'https://airbnb.co.uk/h/klv1');
+    const url = process.env.AIRBNB_KLV1_URL || 'https://airbnb.co.uk/h/klv1';
+    res.redirect(301, url);
   });
 
   app.get('/klv3', (req, res) => {
-    res.redirect(301, 'https://airbnb.co.uk/h/klv3');
+    const url = process.env.AIRBNB_KLV3_URL || 'https://airbnb.co.uk/h/klv3';
+    res.redirect(301, url);
   });
 
   app.get('/klv6', (req, res) => {
-    res.redirect(301, 'https://airbnb.co.uk/h/klv6');
+    const url = process.env.AIRBNB_KLV6_URL || 'https://airbnb.co.uk/h/klv6';
+    res.redirect(301, url);
   });
 
   // 404 handler for API routes
