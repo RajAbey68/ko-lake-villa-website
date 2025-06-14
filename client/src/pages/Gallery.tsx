@@ -45,7 +45,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
       {/* Header */}
       <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <h3 className="text-xl font-semibold">{generateCleanTitle(image)}</h3>
+          <h3 className="text-xl font-semibold">{image.title}</h3>
           {image.category && (
             <Badge variant="secondary" className="bg-[#FF914D] text-white">
               {image.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -109,7 +109,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
           </Button>
 
           <div className="text-center flex-1 mx-4">
-            <p className="text-sm mb-2">{generateCleanDescription(image)}</p>
+            <p className="text-sm mb-2">{image.description}</p>
             {image.tags && (
               <div className="flex flex-wrap justify-center gap-1">
                 {image.tags.split(',').map((tag, index) => (
@@ -150,10 +150,10 @@ const Gallery = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Apply comprehensive validation and deduplication first
-  const validatedImages = galleryImages ? validateAndDeduplicateImages(galleryImages) : [];
+  // Apply comprehensive validation and deduplication
+  const validatedImages = galleryImages ? galleryValidator.validateAndProcessImages(galleryImages) : [];
   
-  // Then filter by user selections
+  // Filter by user selections
   const filteredImages = validatedImages.filter(image => {
     const categoryMatch = !selectedCategory || image.category === selectedCategory;
     const mediaTypeMatch = !selectedMediaType || 
@@ -329,7 +329,7 @@ const Gallery = () => {
                         <div className="relative w-full h-full">
                           <img
                             src={image.imageUrl}
-                            alt={generateCleanTitle(image)}
+                            alt={image.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                             loading="lazy"
                             onError={(e) => {
@@ -349,10 +349,10 @@ const Gallery = () => {
                     
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-900 truncate mb-1">
-                        {generateCleanTitle(image)}
+                        {image.title}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                        {generateCleanDescription(image)}
+                        {image.description}
                       </p>
                       <div className="flex items-center justify-between">
                         {image.category && (
