@@ -30,7 +30,8 @@ import { Badge } from '../../components/ui/badge';
 import { ProtectedRoute } from '../../components/ProtectedRoute';
 import { Spinner } from '../../components/ui/spinner';
 import { useToast } from '../../hooks/use-toast';
-import { toast as hotToast } from '../../hooks/use-toast'; 
+import { toast as hotToast } from '../../hooks/use-toast';
+import UnifiedGalleryManager from '../../components/UnifiedGalleryManager'; 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { apiRequest } from '../../lib/queryClient';
@@ -1827,6 +1828,28 @@ function GalleryAnalyticsTab() {
   );
 }
 
+// Gallery Tab Component  
+function GalleryTab() {
+  const [isAddingImage, setIsAddingImage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [debugImages, setDebugImages] = useState<GalleryImage[]>([]);
+
+  const testAddImage = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/gallery');
+      if (response.ok) {
+        const images = await response.json();
+        setDebugImages(images);
+        console.log('Gallery images loaded:', images.length);
+      }
+    } catch (error) {
+      console.error('Failed to load gallery images:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-col space-y-4">
@@ -1875,8 +1898,9 @@ function GalleryAnalyticsTab() {
                     alt={img.alt} 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // On error, show error indicator
-                      e.currentTarget.src = "https://via.placeholder.com/100x100?text=Error";
+                      const target = e.currentTarget;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.add('bg-red-100');
                     }}
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
@@ -1892,7 +1916,7 @@ function GalleryAnalyticsTab() {
         )}
       </CardHeader>
       <CardContent>
-        <GalleryManager isAddingImage={isAddingImage} setIsAddingImage={setIsAddingImage} />
+        <UnifiedGalleryManager />
       </CardContent>
     </Card>
   );
