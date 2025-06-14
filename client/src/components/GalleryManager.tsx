@@ -274,7 +274,11 @@ export default function GalleryManager() {
   // AI Analysis mutation
   const analyzeImageMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/analyze-media/${id}`, { method: 'POST' });
+      const response = await fetch('/api/analyze-media', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageId: id })
+      });
       if (!response.ok) throw new Error('Failed to analyze image');
       return response.json();
     },
@@ -759,6 +763,11 @@ export default function GalleryManager() {
                   src={image.imageUrl} 
                   alt={image.alt}
                   className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    console.error('Failed to load image:', image.imageUrl);
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Im0xNSAxMi0zLTMtMy0zdjZsMyAzIDMgM3YtNloiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+';
+                  }}
                 />
               )}
 
