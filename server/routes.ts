@@ -1545,6 +1545,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery categories endpoint
+  app.get("/api/gallery/categories", async (req, res) => {
+    try {
+      const categories = [
+        { id: 'entire-villa', name: 'Entire Villa', count: 0 },
+        { id: 'family-suite', name: 'Family Suite', count: 0 },
+        { id: 'group-room', name: 'Group Room', count: 0 },
+        { id: 'triple-room', name: 'Triple Room', count: 0 },
+        { id: 'dining-area', name: 'Dining Area', count: 0 },
+        { id: 'pool-deck', name: 'Pool & Deck', count: 0 },
+        { id: 'lake-garden', name: 'Lake Garden', count: 0 },
+        { id: 'roof-garden', name: 'Roof Garden', count: 0 },
+        { id: 'front-garden', name: 'Front Garden', count: 0 },
+        { id: 'koggala-lake', name: 'Koggala Lake', count: 0 },
+        { id: 'excursions', name: 'Excursions', count: 0 },
+        { id: 'events', name: 'Events', count: 0 },
+        { id: 'amenities', name: 'Amenities', count: 0 },
+        { id: 'spa-wellness', name: 'Spa & Wellness', count: 0 },
+        { id: 'activities', name: 'Activities', count: 0 },
+        { id: 'default', name: 'Other', count: 0 }
+      ];
+
+      // Get actual counts from database
+      const images = await dataStorage.getGalleryImages();
+      const categoryCounts = {};
+      
+      images.forEach(image => {
+        const category = image.category || 'default';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      });
+
+      // Update counts
+      categories.forEach(category => {
+        category.count = categoryCounts[category.id] || 0;
+      });
+
+      res.json({ categories, total: images.length });
+    } catch (error) {
+      console.error('Gallery categories error:', error);
+      res.status(500).json({ error: "Failed to fetch gallery categories" });
+    }
+  });
+
   // Bulk delete endpoint for admin
   app.post("/api/admin/gallery/bulk-delete", async (req, res) => {
     try {
