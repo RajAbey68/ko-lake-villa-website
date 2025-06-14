@@ -679,32 +679,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/gallery", async (req, res) => {
     try {
       const category = req.query.category as string;
-
-      let query = dataStorage.db.select({
-        id: dataStorage.galleryImages.id,
-        imageUrl: dataStorage.galleryImages.imageUrl,
-        title: dataStorage.galleryImages.title,
-        alt: dataStorage.galleryImages.alt,
-        description: dataStorage.galleryImages.description,
-        category: dataStorage.galleryImages.category,
-        tags: dataStorage.galleryImages.tags,
-        featured: dataStorage.galleryImages.featured,
-        sortOrder: dataStorage.galleryImages.sortOrder,
-        mediaType: dataStorage.galleryImages.mediaType
-      }).from(dataStorage.galleryImages).orderBy(
-        dataStorage.desc(dataStorage.galleryImages.featured),
-        dataStorage.asc(dataStorage.galleryImages.sortOrder),
-        dataStorage.desc(dataStorage.galleryImages.id)
-      );
-
+      let galleryImages;
+      
       if (category && category !== 'all') {
-        query = query.where(dataStorage.eq(dataStorage.galleryImages.category, category));
+        galleryImages = await dataStorage.getGalleryImagesByCategory(category);
+      } else {
+        galleryImages = await dataStorage.getGalleryImages();
       }
-
-      const images = await query;
-
-      console.log(`Gallery API: Returning ${images.length} total images`);
-      res.json(images);
+      
+      console.log(`Gallery API: Returning ${galleryImages.length} total images`);
+      res.json(galleryImages);
     } catch (error) {
       console.error("Gallery fetch error:", error);
       res.status(500).json({ error: "Failed to fetch gallery images" });
