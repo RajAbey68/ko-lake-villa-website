@@ -1178,11 +1178,18 @@ class DbStorage implements IStorage {
     });
   }
 
-  async updateGalleryImage(id: number, updates: Partial<GalleryImage>): Promise<GalleryImage> {
+  async updateGalleryImage(galleryImage: Partial<GalleryImage> & { id: number }): Promise<GalleryImage> {
     try {
+      const { id, ...updates } = galleryImage;
+      
+      // Filter out undefined values to prevent Drizzle errors
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => value !== undefined)
+      );
+
       const [updatedImage] = await db
         .update(galleryImages)
-        .set(updates)
+        .set(cleanUpdates)
         .where(eq(galleryImages.id, id))
         .returning();
 
