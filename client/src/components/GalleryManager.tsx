@@ -778,9 +778,35 @@ export default function GalleryManager() {
             <CardContent className="p-4">
               <h3 className="font-medium text-[#8B5E3C] mb-2 line-clamp-2">{image.alt}</h3>
 
-              <Badge variant="outline" className="mb-2">
-                {GALLERY_CATEGORIES.find(c => c.value === image.category)?.label || image.category}
-              </Badge>
+              {/* Quick Category Change Dropdown */}
+              <div className="mb-2">
+                <Select
+                  value={image.category}
+                  onValueChange={(newCategory) => {
+                    updateMutation.mutate({
+                      id: image.id,
+                      updates: { 
+                        ...image, 
+                        category: newCategory,
+                        tags: image.tags ? `${newCategory},${image.tags.replace(image.category, '').replace(/^,+|,+$/g, '')}` : newCategory
+                      }
+                    });
+                  }}
+                >
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue>
+                      {GALLERY_CATEGORIES.find(c => c.value === image.category)?.label || image.category}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GALLERY_CATEGORIES.map(cat => (
+                      <SelectItem key={cat.value} value={cat.value} className="text-xs">
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {image.description && (
                 <p className="text-sm text-gray-600 line-clamp-2 mb-2">{image.description}</p>
