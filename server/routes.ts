@@ -7,11 +7,11 @@ import { serverCache, CACHE_KEYS, CACHE_TTL } from "./cache";
 // Media processing utility function
 function processMediaItem(item: any) {
   if (!item.imageUrl) return item;
-  
+
   const fileExtension = item.imageUrl.toLowerCase().split('.').pop() || '';
   const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv', 'm4v', 'ogv'];
   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tiff', 'ico'];
-  
+
   let mediaType = 'image';
   if (videoExtensions.includes(fileExtension)) {
     mediaType = 'video';
@@ -469,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Direct file serving to bypass Vite middleware interference with uploads
   app.get('/uploads/*', (req, res) => {
     const filePath = path.join(process.cwd(), req.path);
-    
+
     try {
       if (!fs.existsSync(filePath)) {
         console.warn(`File not found: ${filePath}`);
@@ -495,12 +495,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Length', stats.size);
       res.setHeader('Last-Modified', stats.mtime.toUTCString());
       res.setHeader('ETag', `"${stats.mtime.getTime()}-${stats.size}"`);
-      
+
       // Disable caching for debugging - can be re-enabled later
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
-      
+
       // CORS headers for cross-origin access
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
@@ -538,7 +538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.status(500).send('Stream error');
         }
       });
-      
+
       return stream.pipe(res);
     } catch (error) {
       console.error(`Error serving file: ${req.path}`, error);
@@ -675,36 +675,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(diningOptions);
   });
 
+  // Get all gallery images with optional category filtering
   app.get("/api/gallery", async (req, res) => {
     try {
-      const category = req.query.category as string | undefined;
+      const category = req.query.category as string;
 
-      // Disable API caching temporarily for debugging
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+      let query = dataStorage.db.select({
+        id: dataStorage.galleryImages.id,
+        imageUrl: dataStorage.galleryImages.imageUrl,
+        title: dataStorage.galleryImages.title,
+        alt: dataStorage.galleryImages.alt,
+        description: dataStorage.galleryImages.description,
+        category: dataStorage.galleryImages.category,
+        tags: dataStorage.galleryImages.tags,
+        featured: dataStorage.galleryImages.featured,
+        sortOrder: dataStorage.galleryImages.sortOrder,
+        mediaType: dataStorage.galleryImages.mediaType
+      }).from(dataStorage.galleryImages).orderBy(
+        dataStorage.desc(dataStorage.galleryImages.featured),
+        dataStorage.asc(dataStorage.galleryImages.sortOrder),
+        dataStorage.desc(dataStorage.galleryImages.id)
+      );
 
-      if (category && category !== 'all' && category !== '') {
-        let images = await dataStorage.getGalleryImagesByCategory(category);
-        // Process images with proper media type detection
-        images = images.map(processMediaItem);
-        console.log(`Gallery API: Returning ${images.length} images for category: ${category}`);
-        return res.json(images);
+      if (category && category !== 'all') {
+        query = query.where(dataStorage.eq(dataStorage.galleryImages.category, category));
       }
 
-      // Get all gallery images fresh
-      let allImages = await dataStorage.getGalleryImages();
-      // Process images with proper media type detection
-      allImages = allImages.map(processMediaItem);
-      
-      console.log(`Gallery API: Returning ${allImages.length} total images`);
-      res.json(allImages);
+      const images = await query;
+
+      console.log(`Gallery API: Returning ${images.length} total images`);
+      res.json(images);
     } catch (error) {
-      console.error('Gallery API error:', error);
-      res.status(500).json({ 
-        message: "Failed to fetch gallery images",
-        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-      });
+      console.error("Gallery fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch gallery images" });
     }
   });
 
@@ -725,11 +728,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
-      
+
       // Invalidate gallery cache after creating new image
       serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
       serverCache.invalidatePattern('gallery:category:.*');
-      
+
       res.status(201).json(galleryImage);
     } catch (error) {
       console.error('Gallery POST error:', error);
@@ -861,7 +864,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const imageId = parseInt(req.params.id);
       const updates = req.body;
-      
+
       const updatedImage = await dataStorage.updateGalleryImage(imageId, updates);
       res.json({ success: true, data: updatedImage });
     } catch (error) {
@@ -875,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const imageId = parseInt(req.params.id);
       const updates = req.body;
-      
+
       const updatedImage = await dataStorage.updateGalleryImage(imageId, updates);
       res.json({ success: true, data: updatedImage });
     } catch (error) {
@@ -1101,7 +1104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       console.log(`[ADMIN PATCH] Updating gallery item ${id} with:`, req.body);
-      
+
       const existingImage = await dataStorage.getGalleryImageById(id);
       if (!existingImage) {
         return res.status(404).json({ message: "Gallery image not found" });
@@ -1117,7 +1120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[ADMIN PATCH] Merged update data:`, updates);
 
       const updatedImage = await dataStorage.updateGalleryImage({ id, ...req.body });
-      
+
       // Invalidate gallery cache after update
       serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
       serverCache.invalidatePattern('gallery:category:.*');
@@ -1147,7 +1150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Invalidate gallery cache after delete
         serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
         serverCache.invalidatePattern('gallery:category:.*');
-        
+
         return res.json({ message: "Gallery image deleted successfully!" });
       }
       res.status(404).json({ message: "Gallery image not found" });
@@ -1270,7 +1273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/gallery/bulk-delete", async (req, res) => {
     try {
       const { ids } = req.body;
-      
+
       if (!Array.isArray(ids) || ids.length === 0) {
         return res.status(400).json({ message: "Invalid or empty image IDs array" });
       }
@@ -1379,17 +1382,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (image.mediaType === 'video') {
         // For videos, analyze based on filename and existing metadata
         analysisPrompt = `Analyze this Ko Lake Villa video file and suggest improvements:
-        
+
         Current details:
         - Filename: ${path.basename(image.imageUrl)}
         - Current title: ${image.title || image.alt || 'Untitled'}
         - Current description: ${image.description || 'No description'}
         - Current category: ${image.category}
-        
+
         Ko Lake Villa categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
-        
+
         IMPORTANT RULE: If the video filename or content suggests it shows a lake, water body, lake view, or lake activities, categorize it as "koggala-lake" since Ko Lake Villa is located on Koggala Lake.
-        
+
         Provide a JSON response with improved title, description, category, and relevant tags for this Sri Lankan villa property.`;
 
         analysisResult = await openai.chat.completions.create({
@@ -1419,16 +1422,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 {
                   type: "text",
                   text: `Analyze this Ko Lake Villa image and provide:
-                  
+
                   Current details:
                   - Current title: ${image.title || image.alt || 'Untitled'}
                   - Current description: ${image.description || 'No description'}
                   - Current category: ${image.category}
-                  
+
                   Valid categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
-                  
+
                   IMPORTANT RULE: If the image shows a lake, water body, lake view, waterfront, boats on water, or any aquatic scenery, categorize it as "koggala-lake" since Ko Lake Villa is situated on Koggala Lake in Sri Lanka.
-                  
+
                   Provide improved title, description, best category, and SEO tags for this Sri Lankan luxury villa image.`
                 },
                 {
@@ -1446,7 +1449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const aiContent = JSON.parse(analysisResult.choices[0].message.content);
-      
+
       // Update the image with AI-generated content
       await dataStorage.updateGalleryImage(imageId, {
         title: aiContent.title || image.title,
@@ -1498,13 +1501,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               {
                 role: "system",
                 content: `You are an AI that analyzes images to detect lakes, water bodies, and lake-related activities. 
-                
+
                 Analyze the image and determine if it contains:
                 - Lakes, lagoons, or large water bodies
                 - Boats, kayaks, or water activities on lakes
                 - Lake views, shorelines, or lake landscapes
                 - Wildlife or birds associated with lakes
-                
+
                 Respond with JSON in this format:
                 {
                   "hasLake": boolean,
@@ -1512,7 +1515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   "description": "Brief description of lake content if found",
                   "suggestedCategory": "koggala-lake" or current category
                 }
-                
+
                 Only suggest "koggala-lake" category if you're confident (>0.7) that the image shows lake content.`
               },
               {
@@ -1536,7 +1539,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
 
           const analysis = JSON.parse(analysisResult.choices[0].message.content || '{}');
-          
+
           // Auto-categorize if AI detects lake content with high confidence
           if (analysis.hasLake && analysis.confidence > 0.7 && analysis.suggestedCategory === 'koggala-lake') {
             await dataStorage.updateGalleryImage({
@@ -1697,7 +1700,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const configPath = path.join(__dirname, '../shared/deal-config.json');
 
       if (fs.existsSync(configPath)) {
-        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        const config = JSON.parse(```text
+fs.readFileSync(configPath, 'utf8'));
         res.json(config);
       } else {
         // Default configuration
@@ -2310,7 +2314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
       const { booking } = req.body;
-      
+
       // Create setup intent for card validation
       const setupIntent = await stripe.setupIntents.create({
         payment_method_types: ['card'],
@@ -2323,7 +2327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           validation_type: 'ko_lake_villa_booking'
         }
       });
-      
+
       res.json({ 
         clientSecret: setupIntent.client_secret,
         setupIntentId: setupIntent.id
@@ -2474,7 +2478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/gallery/backup', async (req, res) => {
     try {
       const { reason, performedBy } = req.body;
-      
+
       // Create immediate backup of current gallery state
       const backupResult = await db.execute(`
         INSERT INTO gallery_images_backup (
@@ -2487,9 +2491,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         FROM gallery_images
         RETURNING backup_id
       `, [reason || 'Manual backup']);
-      
+
       const backupId = backupResult.rows[0]?.backup_id;
-      
+
       res.json({ 
         success: true, 
         backupId, 
@@ -2514,7 +2518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ORDER BY backup_timestamp DESC
         LIMIT 10
       `);
-      
+
       res.json(backups.rows);
     } catch (error) {
       res.status(500).json({ error: 'Failed to get backups' });
@@ -2525,22 +2529,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const backupId = parseInt(req.params.backupId);
       const { performedBy, reason } = req.body;
-      
+
       // Get backup timestamp
       const backupInfo = await db.execute(`
         SELECT backup_timestamp FROM gallery_images_backup 
         WHERE backup_id = $1 LIMIT 1
       `, [backupId]);
-      
+
       if (backupInfo.rows.length === 0) {
         return res.status(404).json({ error: 'Backup not found' });
       }
-      
+
       const backupTimestamp = backupInfo.rows[0].backup_timestamp;
-      
+
       // Clear current gallery
       await db.execute('DELETE FROM gallery_images');
-      
+
       // Restore from backup
       const restoreResult = await db.execute(`
         INSERT INTO gallery_images (
@@ -2553,13 +2557,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         FROM gallery_images_backup 
         WHERE backup_timestamp = $1
       `, [backupTimestamp]);
-      
+
       res.json({ 
         success: true, 
         restored: restoreResult.rowCount,
         message: `Restored ${restoreResult.rowCount} images from backup` 
       });
-      
+
     } catch (error) {
       console.error('Restore failed:', error);
       res.status(500).json({ 
@@ -2592,7 +2596,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // 404 handler for API routes
   app.use('/api/*', (req, res) => {
-    res.status(404).json({ error: 'API endpoint not found' });
+    res.status(404).```text
+json({ error: 'API endpoint not found' });
   });
 
   // Note: No catch-all handler here - Vite development server handles frontend routes

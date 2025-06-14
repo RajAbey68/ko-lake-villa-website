@@ -1,4 +1,3 @@
-
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import GalleryManager from '@/components/GalleryManager';
 import AdminNavigation from '@/components/AdminNavigation';
