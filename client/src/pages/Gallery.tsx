@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Filter, Image as ImageIcon, Video, X, Play, ZoomIn } from 'lucide-react';
-import { generateCleanTitle, generateCleanDescription } from '@/lib/imageDisplayUtils';
+import { galleryValidator } from '@/lib/galleryValidator';
 
 interface GalleryModalProps {
   isOpen: boolean;
@@ -150,15 +150,18 @@ const Gallery = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Filter images based on selected filters
-  const filteredImages = galleryImages?.filter(image => {
+  // Apply comprehensive validation and deduplication first
+  const validatedImages = galleryImages ? validateAndDeduplicateImages(galleryImages) : [];
+  
+  // Then filter by user selections
+  const filteredImages = validatedImages.filter(image => {
     const categoryMatch = !selectedCategory || image.category === selectedCategory;
     const mediaTypeMatch = !selectedMediaType || 
       (selectedMediaType === 'image' && image.mediaType === 'image') ||
       (selectedMediaType === 'video' && (image.mediaType === 'video' || image.imageUrl?.includes('.mp4') || image.imageUrl?.includes('.mov')));
     
     return categoryMatch && mediaTypeMatch;
-  }) || [];
+  });
 
   // Get unique categories
   const categories = [...new Set(galleryImages?.map(img => img.category).filter(Boolean))] as string[];
