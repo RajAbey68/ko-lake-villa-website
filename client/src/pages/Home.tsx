@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Room, Testimonial, Activity } from '@shared/schema';
 import { ratingToStars } from '@/lib/utils';
 import SEOHead from '@/components/SEOHead';
-// Use authentic property image from gallery for hero section
-const heroImage = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
+// Use bright infinity pool image for hero section
+import heroPoolImage from "@assets/image_1749865704551.png";
 
 const Home = () => {
   // Fetch rooms for the accommodation section
@@ -41,7 +41,7 @@ const Home = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url(${heroImage})`
+            backgroundImage: `url(${heroPoolImage})`
           }}
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
