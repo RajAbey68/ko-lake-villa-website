@@ -274,10 +274,9 @@ export default function GalleryManager() {
   // AI Analysis mutation
   const analyzeImageMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch('/api/analyze-media', { 
+      const response = await fetch(`/api/analyze-media/${id}`, { 
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageId: id })
+        headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) throw new Error('Failed to analyze image');
       return response.json();
