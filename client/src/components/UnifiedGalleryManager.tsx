@@ -165,6 +165,26 @@ export default function UnifiedGalleryManager() {
     },
   });
 
+  // Update image mutation
+  const updateImageMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: Partial<GalleryImage> }) => {
+      const response = await fetch(`/api/gallery/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      if (!response.ok) throw new Error('Failed to update image');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      toast({ title: "Success", description: "Category updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   // AI Analysis mutation
   const aiAnalysisMutation = useMutation({
     mutationFn: async (imageId: number) => {
