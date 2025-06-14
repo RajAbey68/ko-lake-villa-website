@@ -1,0 +1,93 @@
+/* 🌴 Ko Lake Villa Brand Theme – Kurumba & King Coconut Style */
+/* Scoped to avoid conflicts with existing Tailwind classes */
+
+:root {
+  --kolake-primary: #F9A825;   /* King Coconut Gold */
+  --kolake-secondary: #7A4E2F; /* Coconut Husk Brown */
+  --kolake-accent: #4CAF50;    /* Palm Leaf Green */
+  --kolake-bg-light: #FFF8E7;  /* Seafoam Cream */
+  --kolake-text: #2E2E2E;
+  --kolake-muted: #E0E0E0;
+  --kolake-font: 'Helvetica Neue', sans-serif;
+}
+
+/* Only apply to specific Ko Lake branded elements */
+.kolake-theme {
+  background-color: var(--kolake-bg-light);
+  color: var(--kolake-text);
+  font-family: var(--kolake-font);
+}
+
+/* Scoped nav styling */
+.kolake-nav {
+  background-color: var(--kolake-secondary);
+  color: white;
+  padding: 1rem 2rem;
+}
+
+/* Scoped heading styling */
+.kolake-heading {
+  color: var(--kolake-secondary);
+}
+
+/* Scoped button styling - only for .kolake-btn class */
+.kolake-btn {
+  border: none;
+  border-radius: 30px;
+  padding: 0.7rem 1.5rem;
+  font-weight: bold;
+  font-family: var(--kolake-font);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.kolake-btn.primary {
+  background-color: var(--kolake-primary);
+  color: white;
+}
+
+.kolake-btn.primary:hover {
+  background-color: #e68a00;
+}
+
+.kolake-btn.secondary {
+  background-color: transparent;
+  color: var(--kolake-secondary);
+  border: 2px solid var(--kolake-secondary);
+}
+
+.kolake-btn.secondary:hover {
+  background-color: var(--kolake-secondary);
+  color: white;
+}
+
+.kolake-btn.accent {
+  background-color: var(--kolake-accent);
+  color: white;
+}
+
+.kolake-btn.accent:hover {
+  background-color: #388E3C;
+}
+
+/* Scoped card styling */
+.kolake-card {
+  background-color: white;
+  border: 1px solid var(--kolake-muted);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Scoped link styling */
+.kolake-theme a:not(.kolake-btn) {
+  color: var(--kolake-accent);
+  text-decoration: none;
+}
+
+.kolake-theme a:not(.kolake-btn):hover {
+  text-decoration: underline;
+}
