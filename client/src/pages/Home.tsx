@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Room, Testimonial, Activity } from '@shared/schema';
 import { ratingToStars } from '@/lib/utils';
 import SEOHead from '@/components/SEOHead';
-import heroImage from '@assets/image_1749803903177.png';
+// Use authentic property image from gallery for hero section
+const heroImage = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
 
 const Home = () => {
   // Fetch rooms for the accommodation section
