@@ -334,7 +334,12 @@ const Gallery = () => {
                             loading="lazy"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = '/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg';
+                              console.error('Image failed to load:', image.imageUrl);
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm">Image not found<br/>${image.imageUrl}</div>`;
+                              }
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
