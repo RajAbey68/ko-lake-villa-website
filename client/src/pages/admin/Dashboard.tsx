@@ -2329,5 +2329,3 @@ function AdminDashboardContent() {
     </div>
   );
 }
-
-export default AdminDashboardContent;
