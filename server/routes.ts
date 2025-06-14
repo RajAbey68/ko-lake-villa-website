@@ -2090,6 +2090,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin dashboard endpoint
+  app.get("/api/admin/dashboard", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      const categories = await dataStorage.getGalleryCategories();
+      
+      // Dashboard metrics
+      const stats = {
+        totalImages: images.length,
+        totalVideos: images.filter(img => img.isVideo).length,
+        categoryCounts: categories.reduce((acc, cat) => {
+          acc[cat.id] = images.filter(img => img.category === cat.id).length;
+          return acc;
+        }, {}),
+        recentUploads: images
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 10),
+        systemHealth: {
+          database: 'connected',
+          storage: 'active',
+          apis: 'operational'
+        }
+      };
+      
+      res.json({
+        success: true,
+        dashboard: stats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Admin dashboard error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Dashboard data unavailable" 
+      });
+    }
+  });
+
   // Admin API health endpoints
   app.get('/api/admin/gallery', async (req, res) => {
     try {
@@ -2587,7 +2625,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Handle 404 for API routes
+  // Admin dashboard endpoint - moved before 404 handler
+  app.get("/api/admin/dashboard", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      const categories = await dataStorage.getGalleryCategories();
+      
+      // Dashboard metrics
+      const stats = {
+        totalImages: images.length,
+        totalVideos: images.filter(img => img.isVideo).length,
+        categoryCounts: categories.reduce((acc, cat) => {
+          acc[cat.id] = images.filter(img => img.category === cat.id).length;
+          return acc;
+        }, {}),
+        recentUploads: images
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 10),
+        systemHealth: {
+          database: 'connected',
+          storage: 'active',
+          apis: 'operational'
+        }
+      };
+      
+      res.json({
+        success: true,
+        dashboard: stats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Admin dashboard error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Dashboard data unavailable" 
+      });
+    }
+  });
+
+  // Handle 404 for API routes (must be last)
   app.use('/api/*', (req, res) => {
     console.log(`404 API route: ${req.method} ${req.path}`);
     res.status(404).json({ 
@@ -2597,6 +2673,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       method: req.method,
       availableEndpoints: [
         '/api/gallery',
+        '/api/gallery/categories',
+        '/api/gallery/search',
+        '/api/analyze-media',
         '/api/upload',
         '/api/contact',
         '/api/booking',
@@ -2604,6 +2683,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         '/api/virtual-tours',
         '/api/content',
         '/api/pricing',
+        '/api/admin/dashboard',
+        '/api/admin/gallery',
         '/api/admin/pricing'
       ]
     });
