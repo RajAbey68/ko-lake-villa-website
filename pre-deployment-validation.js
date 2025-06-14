@@ -33,8 +33,14 @@ async function runPreDeploymentValidation() {
 
   // Test 1: Core API Endpoints
   console.log('🔌 Testing Core API Endpoints...');
+  
+  // Determine the base URL for API calls
+  const baseUrl = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : 'http://localhost:5000';
+  
   try {
-    const galleryResponse = await fetch('/api/gallery');
+    const galleryResponse = await fetch(`${baseUrl}/api/gallery`);
     const gallery = await galleryResponse.json();
     
     if (galleryResponse.ok && Array.isArray(gallery)) {
@@ -66,7 +72,7 @@ async function runPreDeploymentValidation() {
     const formData = new FormData();
     formData.append('category', 'test');
     
-    const uploadResponse = await fetch('/api/upload', {
+    const uploadResponse = await fetch(`${baseUrl}/api/upload`, {
       method: 'POST',
       body: formData
     });
@@ -82,7 +88,7 @@ async function runPreDeploymentValidation() {
 
   // Test 3: Database Connectivity
   try {
-    const roomsResponse = await fetch('/api/rooms');
+    const roomsResponse = await fetch(`${baseUrl}/api/rooms`);
     const rooms = await roomsResponse.json();
     
     if (roomsResponse.ok && Array.isArray(rooms)) {
@@ -96,7 +102,7 @@ async function runPreDeploymentValidation() {
 
   // Test 4: Admin Authentication
   try {
-    const adminResponse = await fetch('/api/admin/check');
+    const adminResponse = await fetch(`${baseUrl}/api/admin/check`);
     if (adminResponse.status === 401 || adminResponse.status === 403) {
       logTest('Admin Security', true, 'Admin routes protected');
     } else if (adminResponse.ok) {
@@ -118,13 +124,13 @@ async function runPreDeploymentValidation() {
 
   // Test 6: Image Editing Capability
   try {
-    const galleryResponse = await fetch('/api/gallery');
+    const galleryResponse = await fetch(`${baseUrl}/api/gallery`);
     const gallery = await galleryResponse.json();
     
     if (gallery && gallery.length > 0) {
       const testImage = gallery[0];
       
-      const updateResponse = await fetch(`/api/gallery/${testImage.id}`, {
+      const updateResponse = await fetch(`${baseUrl}/api/gallery/${testImage.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -147,7 +153,7 @@ async function runPreDeploymentValidation() {
 
   // Test 7: Static File Serving
   try {
-    const faviconResponse = await fetch('/favicon.ico');
+    const faviconResponse = await fetch(`${baseUrl}/favicon.ico`);
     logTest('Static File Serving', faviconResponse.ok, `Status: ${faviconResponse.status}`);
   } catch (error) {
     logTest('Static File Serving', false, error.message);
@@ -159,7 +165,7 @@ async function runPreDeploymentValidation() {
   
   for (const page of pages) {
     try {
-      const pageResponse = await fetch(page);
+      const pageResponse = await fetch(`${baseUrl}${page}`);
       if (pageResponse.ok) pagesAccessible++;
     } catch (error) {
       // Page test failed
