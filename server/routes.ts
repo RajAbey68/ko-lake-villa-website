@@ -1713,9 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               content: [
                 {
                   type: "text",
-                  text: `Analyze thisThis update ensures that the delete endpoints for gallery images return consistent and informative responses, including logging for debugging purposes.
-```text
- Ko Lake Villa image and provide:
+                  text: `Analyze this Ko Lake Villa image and provide:
 
                   Current details:
                   - Current title: ${image.title || image.alt || 'Untitled'}
