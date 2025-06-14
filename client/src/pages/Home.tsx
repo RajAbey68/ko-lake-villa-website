@@ -44,13 +44,21 @@ const Home = () => {
             backgroundImage: `url(${heroPoolImage})`
           }}
         ></div>
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div className="relative z-10 text-center px-4 max-w-4xl">
-          <h1 className="text-4xl md:text-6xl text-white font-display font-bold mb-6 text-shadow whitespace-nowrap">Ko Lake Villa</h1>
-          <p className="text-xl md:text-2xl text-white mb-8 text-shadow">Luxury Lakeside Villa in Ahangama, Galle</p>
-          <Link href="/booking" className="inline-block bg-[#FF914D] text-white px-8 py-4 rounded text-lg font-medium hover:bg-[#8B5E3C] transition-colors">
-            Book Your Stay
-          </Link>
+        <div className="absolute inset-0 bg-black bg-opacity-45"></div>
+        <div className="relative z-10 text-center px-4 max-w-4xl bg-black bg-opacity-45 rounded-lg p-8">
+          <h1 className="text-4xl md:text-5xl text-white font-display font-bold mb-4 tracking-wide">Ko Lake Villa</h1>
+          <p className="text-lg md:text-xl text-white mb-8 font-light">Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.</p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/gallery" className="inline-flex items-center bg-white text-gray-800 px-6 py-3 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">
+              📸 View Gallery
+            </Link>
+            <Link href="/contact" className="inline-flex items-center bg-transparent border-2 border-white text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-white hover:bg-opacity-15 transition-colors">
+              📩 Request Info
+            </Link>
+            <Link href="/accommodation" className="inline-flex items-center bg-[#FF914D] text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-[#e87935] transition-colors">
+              📆 Book Your Stay
+            </Link>
+          </div>
         </div>
       </section>
 
