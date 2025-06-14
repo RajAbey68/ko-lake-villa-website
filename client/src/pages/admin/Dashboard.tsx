@@ -142,14 +142,6 @@ function PricingManagerCard() {
 }
 
 
-export default function AdminDashboard() {
-  return (
-    <ProtectedRoute>
-      <AdminDashboardContent />
-    </ProtectedRoute>
-  );
-}
-
 // Validation schema for gallery images
 const galleryImageSchema = z.object({
   uploadMethod: z.enum(["url", "file"]).default("url"),
@@ -2337,4 +2329,6 @@ function AdminDashboardContent() {
     </div>
   );
 }
+
+export default AdminDashboardContent;
 }
