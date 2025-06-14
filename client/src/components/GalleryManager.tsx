@@ -484,25 +484,65 @@ export default function GalleryManager() {
     }
   };
 
-  // Quick Category Change Function
-  const handleQuickCategoryChange = async (imageId: number, newCategory: string) => {
+  const handleQuickCategoryChange = async (id: number, newCategory: string) => {
     try {
-      const response = await fetch(`/api/admin/gallery/${imageId}`, {
+      const response = await fetch(`/api/admin/gallery/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: newCategory })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ category: newCategory }),
       });
 
-      if (response.ok) {
-        queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
-        toast({ title: "Success", description: `Category updated to ${newCategory}` });
-      } else {
-        const errorData = await response.json();
-        toast({ title: "Error", description: `Failed to update category: ${errorData.message}`, variant: "destructive" });
+      if (!response.ok) {
+        throw new Error('Failed to update category');
       }
+
+      // Refresh the gallery
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+
+      toast({
+        title: "Success",
+        description: `Category changed to ${newCategory}`,
+      });
     } catch (error) {
-      console.error("Update error:", error);
-      toast({ title: "Error", description: "Failed to update category", variant: "destructive" });
+      console.error('Error updating category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteItem = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/gallery/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete item');
+      }
+
+      // Refresh the gallery
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+
+      toast({
+        title: "Success",
+        description: "Item deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete item",
+        variant: "destructive",
+      });
     }
   };
 
@@ -524,7 +564,8 @@ export default function GalleryManager() {
     );
   }
 
-  const categories = GALLERY_CATEGORIES.map(cat => cat.value);
+    const availableCategories = GALLERY_CATEGORIES.map(cat => cat.value);
+
 
   return (
     <div 
@@ -807,7 +848,14 @@ export default function GalleryManager() {
                 <Select
                   value={image.category}
                   onValueChange={(newCategory) => {
-                    handleQuickCategoryChange(image.id, newCategory);
+                    updateMutation.mutate({
+                      id: image.id,
+                      updates: { 
+                        ...image, 
+                        category: newCategory,
+                        tags: image.tags ? `${newCategory},${image.tags.replace(image.category, '').replace(/^,+|,+$/g, '')}` : newCategory
+                      }
+                    });
                   }}
                 >
                   <SelectTrigger className="h-7 text-xs">
