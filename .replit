@@ -20,7 +20,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Stable Ko Lake Villa Dev"
+runButton = "Restart Ko Lake Villa App"
 
 [[workflows.workflow]]
 name = "Project"
@@ -595,3 +595,24 @@ args = "npm install"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development npm run dev"
+
+[[workflows.workflow]]
+name = "Restart Ko Lake Villa App"
+author = 42618786
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"node.*5000\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pkill -f \"vite\" || true"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 3"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
