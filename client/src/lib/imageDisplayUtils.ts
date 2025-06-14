@@ -1,6 +1,38 @@
 /**
- * Utility functions for clean image display
+ * Utility functions for clean image display and validation
  */
+
+export function validateAndDeduplicateImages(images: any[]): any[] {
+  if (!Array.isArray(images)) return [];
+  
+  // Remove exact duplicates by imageUrl
+  const uniqueByUrl = images.reduce((unique: any[], current) => {
+    const isDuplicate = unique.some(item => item.imageUrl === current.imageUrl);
+    if (!isDuplicate) {
+      unique.push(current);
+    }
+    return unique;
+  }, []);
+  
+  // Remove similar images (same visual content, different metadata)
+  const deduplicated = uniqueByUrl.reduce((unique: any[], current) => {
+    const filename = current.imageUrl.split('/').pop() || '';
+    const basePattern = filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '').replace(/_\d+/g, '');
+    
+    const isSimilar = unique.some(item => {
+      const existingFilename = item.imageUrl.split('/').pop() || '';
+      const existingPattern = existingFilename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '').replace(/_\d+/g, '');
+      return basePattern === existingPattern;
+    });
+    
+    if (!isSimilar) {
+      unique.push(current);
+    }
+    return unique;
+  }, []);
+  
+  return deduplicated;
+}
 
 export function generateCleanTitle(image: any): string {
   // If we have a proper title that's not a filename, use it
