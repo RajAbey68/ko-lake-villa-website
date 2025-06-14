@@ -210,8 +210,13 @@ export default function GalleryManager() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
+      console.log('Deleting image with ID:', id);
       const response = await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete image');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete failed:', response.status, errorText);
+        throw new Error(`Failed to delete image: ${response.status}`);
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -219,10 +224,12 @@ export default function GalleryManager() {
       setDeleteConfirmId(null);
       toast({ title: "Success", description: "Image deleted successfully" });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Delete mutation error:', error);
+      setDeleteConfirmId(null);
       toast({ 
         title: "Error", 
-        description: "Failed to delete image", 
+        description: `Failed to delete image: ${error.message}`, 
         variant: "destructive" 
       });
     }
@@ -231,18 +238,36 @@ export default function GalleryManager() {
   // Bulk delete mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: number[]) => {
+      console.log('Bulk deleting images with IDs:', ids);
       const response = await fetch('/api/admin/gallery/bulk-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids })
       });
-      if (!response.ok) throw new Error('Failed to delete images');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Bulk delete failed:', response.status, errorText);
+        throw new Error(`Failed to delete images: ${response.status}`);
+      }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
       setSelectedImages([]);
-      toast({ title: "Success", description: "Images deleted successfully" });
+      setShowDeleteAllConfirm(false);
+      toast({ 
+        title: "Success", 
+        description: result.message || "Images deleted successfully" 
+      });
+    },
+    onError: (error) => {
+      console.error('Bulk delete mutation error:', error);
+      setShowDeleteAllConfirm(false);
+      toast({ 
+        title: "Error", 
+        description: `Failed to delete images: ${error.message}`, 
+        variant: "destructive" 
+      });
     }
   });
 
@@ -1120,11 +1145,12 @@ export default function GalleryManager() {
             <Button 
               variant="destructive" 
               onClick={() => {
-                console.log('Confirming bulk delete for images:', selectedImages);
-                bulkDeleteMutation.mutate(selectedImages);
-                setShowDeleteAllConfirm(false);
+                if (selectedImages.length > 0) {
+                  console.log('Confirming bulk delete for images:', selectedImages);
+                  bulkDeleteMutation.mutate(selectedImages);
+                }
               }}
-              disabled={bulkDeleteMutation.isPending}
+              disabled={bulkDeleteMutation.isPending || selectedImages.length === 0}
               className="bg-red-600 hover:bg-red-700"
             >
               {bulkDeleteMutation.isPending ? (
