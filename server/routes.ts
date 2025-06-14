@@ -1798,172 +1798,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI analysis endpoint for individual images - Intelligent categorization system
+  // Smart analysis endpoint for individual images
   app.post("/api/analyze-media/:id", async (req, res) => {
-    const imageId = parseInt(req.params.id);
-
-    if (!imageId) {
-      return res.status(400).json({ error: "Invalid image ID" });
-    }
-
-    // Get the existing image from database
-    const image = await dataStorage.getGalleryImageById(imageId);
-    if (!image) {
-      return res.status(404).json({ error: "Image not found" });
-    }
-
     try {
-      // Intelligent categorization based on filename and existing metadata
+      const imageId = parseInt(req.params.id);
+
+      if (!imageId) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
+
+      // Get the existing image from database
+      const image = await dataStorage.getGalleryImageById(imageId);
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      // Intelligent categorization based on filename and metadata
       const filename = image.imageUrl.toLowerCase();
-      const currentTitle = image.title || image.alt || '';
-      const currentDesc = image.description || '';
+      const basename = filename.split('/').pop() || '';
       
-      let smartCategory = image.category;
-      let smartTitle = currentTitle;
-      let smartDescription = currentDesc;
-      let smartTags = image.tags || '';
+      let enhancedTitle = image.title || image.alt || '';
+      let enhancedDescription = image.description || '';
+      let enhancedCategory = image.category || 'entire-villa';
+      let enhancedTags = image.tags || '';
       
-      // Ko Lake Villa intelligent categorization patterns
-      if (filename.includes('pool') || filename.includes('deck') || filename.includes('swimming')) {
-        smartCategory = 'pool-deck';
-        smartTitle = smartTitle || 'Ko Lake Villa Infinity Pool';
-        smartDescription = smartDescription || 'Stunning infinity pool with breathtaking Koggala Lake views and tropical surroundings';
-        smartTags = 'infinity pool, swimming, lake views, relaxation, tropical paradise';
-      } else if (filename.includes('dining') || filename.includes('restaurant') || filename.includes('food')) {
-        smartCategory = 'dining-area';
-        smartTitle = smartTitle || 'Ko Lake Villa Dining Experience';
-        smartDescription = smartDescription || 'Authentic Sri Lankan dining with fresh local ingredients and lake views';
-        smartTags = 'dining, sri lankan cuisine, restaurant, local food, lake dining';
-      } else if (filename.includes('suite') || filename.includes('family') || (filename.includes('room') && filename.includes('family'))) {
-        smartCategory = 'family-suite';
-        smartTitle = smartTitle || 'Ko Lake Villa Family Suite';
-        smartDescription = smartDescription || 'Spacious family accommodation with private lake views and modern amenities';
-        smartTags = 'family suite, accommodation, bedroom, lake view, spacious';
-      } else if (filename.includes('triple') || (filename.includes('room') && filename.includes('triple'))) {
-        smartCategory = 'triple-room';
-        smartTitle = smartTitle || 'Ko Lake Villa Triple Room';
-        smartDescription = smartDescription || 'Comfortable triple occupancy room with lake garden views';
-        smartTags = 'triple room, guest room, accommodation, lake garden';
-      } else if (filename.includes('lake') || filename.includes('water') || filename.includes('koggala') || filename.includes('boat')) {
-        smartCategory = 'koggala-lake';
-        smartTitle = smartTitle || 'Koggala Lake Views from Ko Lake Villa';
-        smartDescription = smartDescription || 'Pristine Koggala Lake with traditional fishing boats and tropical wildlife';
-        smartTags = 'koggala lake, water views, fishing boats, nature, wildlife';
-      } else if (filename.includes('garden') || filename.includes('landscape') || filename.includes('plants')) {
-        if (filename.includes('roof')) {
-          smartCategory = 'roof-garden';
-          smartTitle = smartTitle || 'Ko Lake Villa Rooftop Garden';
-          smartDescription = smartDescription || 'Panoramic rooftop garden with 360-degree lake and mountain views';
-        } else if (filename.includes('front')) {
-          smartCategory = 'front-garden';
-          smartTitle = smartTitle || 'Ko Lake Villa Front Garden';
-          smartDescription = smartDescription || 'Welcoming tropical entrance garden with native Sri Lankan flora';
-        } else {
-          smartCategory = 'lake-garden';
-          smartTitle = smartTitle || 'Ko Lake Villa Lake Garden';
-          smartDescription = smartDescription || 'Serene lakeside gardens with direct access to Koggala Lake';
+      // Smart categorization logic
+      if (basename.includes('pool') || basename.includes('deck') || basename.includes('swimming')) {
+        enhancedCategory = 'pool-deck';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Ko Lake Villa Infinity Pool';
         }
-        smartTags = 'tropical garden, landscaping, native plants, outdoor space';
-      } else if (filename.includes('excursion') || filename.includes('activity') || filename.includes('tour')) {
-        smartCategory = 'excursions';
-        smartTitle = smartTitle || 'Ko Lake Villa Local Excursions';
-        smartDescription = smartDescription || 'Authentic Sri Lankan experiences and local cultural adventures';
-        smartTags = 'excursions, local tours, cultural experiences, sri lanka';
-      } else if (filename.includes('group') || (filename.includes('room') && filename.includes('group'))) {
-        smartCategory = 'group-room';
-        smartTitle = smartTitle || 'Ko Lake Villa Group Room';
-        smartDescription = smartDescription || 'Spacious group accommodation perfect for friends and families';
-        smartTags = 'group room, shared accommodation, social space';
-      } else if (!smartTitle || smartTitle.trim() === '') {
-        smartCategory = 'entire-villa';
-        smartTitle = 'Ko Lake Villa Property';
-        smartDescription = smartDescription || 'Luxury lakefront villa accommodation in Ahangama, Sri Lanka';
-        smartTags = 'entire villa, luxury accommodation, lakefront property';
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Stunning infinity pool with breathtaking Koggala Lake views and tropical surroundings';
+        }
+        enhancedTags = enhancedTags || 'infinity pool, swimming, lake views, relaxation, tropical paradise';
+      } else if (basename.includes('dining') || basename.includes('restaurant') || basename.includes('food')) {
+        enhancedCategory = 'dining-area';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Ko Lake Villa Dining Experience';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Authentic Sri Lankan dining with fresh local ingredients and lake views';
+        }
+        enhancedTags = enhancedTags || 'dining, sri lankan cuisine, restaurant, local food, lake dining';
+      } else if (basename.includes('lake') || basename.includes('water') || basename.includes('koggala') || basename.includes('boat')) {
+        enhancedCategory = 'koggala-lake';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Koggala Lake Views from Ko Lake Villa';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Pristine Koggala Lake with traditional fishing boats and tropical wildlife';
+        }
+        enhancedTags = enhancedTags || 'koggala lake, water views, fishing boats, nature, wildlife';
+      } else if (basename.includes('family') || basename.includes('suite')) {
+        enhancedCategory = 'family-suite';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Ko Lake Villa Family Suite';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Spacious family accommodation with private lake views and modern amenities';
+        }
+        enhancedTags = enhancedTags || 'family suite, accommodation, bedroom, lake view, spacious';
       }
       
-      // Update the image with intelligent analysis
-      await dataStorage.updateGalleryImage(imageId, {
-        title: smartTitle,
-        alt: smartTitle,
-        description: smartDescription,
-        category: smartCategory,
-        tags: smartTags
+      // Ensure we have meaningful content
+      if (!enhancedTitle || enhancedTitle.trim() === '') {
+        enhancedTitle = 'Ko Lake Villa Property';
+      }
+      if (!enhancedDescription || enhancedDescription.trim() === '') {
+        enhancedDescription = 'Beautiful Ko Lake Villa accommodation in Ahangama, Sri Lanka';
+      }
+      if (!enhancedTags || enhancedTags.trim() === '') {
+        enhancedTags = 'ko lake villa, sri lanka, accommodation';
+      }
+      
+      // Force update with enhanced content
+      await dataStorage.updateGalleryImage({
+        id: imageId,
+        title: enhancedTitle,
+        alt: enhancedTitle,
+        description: enhancedDescription,
+        category: enhancedCategory,
+        tags: enhancedTags
       });
       
       res.json({
         message: "Smart categorization completed successfully",
-        title: smartTitle,
-        description: smartDescription,
-        category: smartCategory,
-        tags: smartTags,
+        title: enhancedTitle,
+        description: enhancedDescription,
+        category: enhancedCategory,
+        tags: enhancedTags,
         confidence: 0.85
       });
 
     } catch (error) {
       console.error('Smart categorization error:', error);
-      res.status(500).json({ error: "Failed to analyze media" });
-      
-      try {
-        // Fallback to intelligent categorization based on filename and existing metadata
-        const filename = image.imageUrl.toLowerCase();
-        const currentTitle = image.title || image.alt || '';
-        const currentDesc = image.description || '';
-        
-        let fallbackCategory = image.category;
-        let fallbackTitle = currentTitle;
-        let fallbackDescription = currentDesc;
-        let fallbackTags = image.tags || '';
-        
-        // Intelligent categorization based on URL patterns
-        if (filename.includes('pool') || filename.includes('deck')) {
-          fallbackCategory = 'pool-deck';
-          fallbackTitle = fallbackTitle || 'Ko Lake Villa Pool Area';
-          fallbackDescription = fallbackDescription || 'Stunning infinity pool with lake views at Ko Lake Villa';
-          fallbackTags = 'pool, infinity pool, swimming, relaxation, lake views';
-        } else if (filename.includes('dining') || filename.includes('restaurant')) {
-          fallbackCategory = 'dining-area';
-          fallbackTitle = fallbackTitle || 'Ko Lake Villa Dining Experience';
-          fallbackDescription = fallbackDescription || 'Elegant dining space with authentic Sri Lankan cuisine';
-          fallbackTags = 'dining, restaurant, cuisine, sri lankan food';
-        } else if (filename.includes('suite') || filename.includes('family')) {
-          fallbackCategory = 'family-suite';
-          fallbackTitle = fallbackTitle || 'Ko Lake Villa Family Suite';
-          fallbackDescription = fallbackDescription || 'Spacious family accommodation with lake views';
-          fallbackTags = 'family suite, accommodation, bedroom, lake view';
-        } else if (filename.includes('lake') || filename.includes('water') || filename.includes('koggala')) {
-          fallbackCategory = 'koggala-lake';
-          fallbackTitle = fallbackTitle || 'Koggala Lake Views';
-          fallbackDescription = fallbackDescription || 'Beautiful Koggala Lake scenery from Ko Lake Villa';
-          fallbackTags = 'koggala lake, water views, nature, sri lanka';
-        } else if (filename.includes('garden') || filename.includes('roof')) {
-          fallbackCategory = filename.includes('roof') ? 'roof-garden' : 'front-garden';
-          fallbackTitle = fallbackTitle || 'Ko Lake Villa Garden Area';
-          fallbackDescription = fallbackDescription || 'Lush tropical gardens surrounding Ko Lake Villa';
-          fallbackTags = 'garden, tropical, landscaping, outdoor space';
-        }
-        
-        // Update with fallback analysis
-        await dataStorage.updateGalleryImage(imageId, {
-          title: fallbackTitle,
-          alt: fallbackTitle,
-          description: fallbackDescription,
-          category: fallbackCategory,
-          tags: fallbackTags
-        });
-        
-        res.json({
-          message: "Smart categorization completed based on image metadata",
-          title: fallbackTitle,
-          description: fallbackDescription,
-          category: fallbackCategory,
-          tags: fallbackTags,
-          confidence: 0.75
-        });
-        
-      } catch (fallbackError) {
-        console.error('Fallback analysis error:', fallbackError);
-        res.status(500).json({ error: "Failed to analyze media" });
-      }
+      res.status(500).json({ error: "Smart analysis failed: " + error.message });
     }
   });
 
