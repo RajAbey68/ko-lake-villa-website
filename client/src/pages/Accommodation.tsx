@@ -100,14 +100,33 @@ const Accommodation = () => {
   };
 
   const getAirbnbUrl = (roomName: string) => {
-    if (roomName.includes('KLV1')) {
-      return 'https://www.airbnb.com/rooms/1174350095806477772';
-    } else if (roomName.includes('KLV3')) {
-      return 'https://www.airbnb.com/rooms/1174388403896068608';
-    } else if (roomName.includes('KLV6')) {
-      return 'https://www.airbnb.com/rooms/1174415860020182016';
+    // Use search URLs with location and property details for better reliability
+    const baseUrl = 'https://www.airbnb.com/s/Koggala--Southern-Province--Sri-Lanka';
+    const searchParams = new URLSearchParams({
+      'refinement_paths[]': '/homes',
+      'tab_id': 'home_tab',
+      'flexible_trip_lengths[]': 'one_week',
+      'place_id': 'ChIJy61EFjAd4joRgfhfvUaK3SY',
+      'search_mode': 'regular_search'
+    });
+    
+    if (roomName.includes('KLV1') || roomName.includes('Family Suite')) {
+      searchParams.set('room_types[]', 'Private room');
+      searchParams.set('min_bedrooms', '2');
+      return `${baseUrl}?${searchParams.toString()}`;
+    } else if (roomName.includes('KLV3') || roomName.includes('Triple')) {
+      searchParams.set('room_types[]', 'Private room');
+      searchParams.set('min_bedrooms', '1');
+      return `${baseUrl}?${searchParams.toString()}`;
+    } else if (roomName.includes('KLV6') || roomName.includes('Group')) {
+      searchParams.set('room_types[]', 'Shared room');
+      searchParams.set('min_bedrooms', '3');
+      return `${baseUrl}?${searchParams.toString()}`;
     } else {
-      return 'https://www.airbnb.com/rooms/1174301478806060032';
+      // Entire villa - search for entire homes
+      searchParams.set('room_types[]', 'Entire home/apt');
+      searchParams.set('min_bedrooms', '4');
+      return `${baseUrl}?${searchParams.toString()}`;
     }
   };
 
