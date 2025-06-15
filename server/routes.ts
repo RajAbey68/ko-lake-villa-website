@@ -577,10 +577,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const file = req.file;
         const category = req.body.category || 'entire-villa';
-        const title = req.body.title || req.body.alt || file.originalname.replace(/\.[^/.]+$/, "");
-        const description = req.body.description || '';
+        let title = req.body.title || req.body.alt;
+        let description = req.body.description || '';
         const featured = req.body.featured === 'true';
-        const tags = req.body.tags || '';
+        let tags = req.body.tags || '';
+
+        // Generate AI-powered title and description if not provided
+        if (!title || !description) {
+          try {
+            const aiContent = await generateImageContent(file.originalname, category, file.mimetype.startsWith('video/'));
+            if (!title) title = aiContent.title;
+            if (!description) description = aiContent.description;
+            console.log(`AI generated content: ${title} - ${description}`);
+          } catch (aiError) {
+            console.error('AI content generation failed:', aiError);
+            // Fallback to filename-based title
+            if (!title) title = file.originalname.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            if (!description) description = `Beautiful ${category.replace('-', ' ')} at Ko Lake Villa`;
+          }
+        }
 
         const isVideoFile = file.mimetype.startsWith('video/') || 
                             file.originalname.toLowerCase().match(/\.(mp4|mov|avi|webm)$/);
@@ -2673,75 +2688,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let tags = [];
       let confidence = 0.8;
 
-      // Enhanced filename-based categorization with better logic
-      if (filename.includes('pool') || filename.includes('swimming')) {
-        suggestedCategory = 'pool-deck';
-        title = 'Pool Area';
-        description = 'Relaxing pool deck area with beautiful lake views';
-        tags = ['pool', 'relaxation', 'swimming'];
-      } else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake') || filename.includes('restaurant')) {
-        suggestedCategory = 'dining-area';
-        title = 'Dining Experience';
-        description = 'Delicious dining with stunning lake views';
-        tags = ['dining', 'food', 'cuisine'];
-      } else if (filename.includes('family') || filename.includes('suite')) {
-        suggestedCategory = 'family-suite';
-        title = 'Family Suite';
-        description = 'Spacious family accommodation with modern amenities';
-        tags = ['family', 'accommodation', 'suite'];
-      } else if (filename.includes('garden') || filename.includes('plants') || filename.includes('flowers')) {
-        if (filename.includes('lake')) {
-          suggestedCategory = 'lake-garden';
-          title = 'Lake Garden';
-          description = 'Beautiful garden area overlooking the lake';
-        } else if (filename.includes('roof')) {
-          suggestedCategory = 'roof-garden';
-          title = 'Roof Garden';
-          description = 'Elevated garden space with panoramic views';
-        } else {
-          suggestedCategory = 'front-garden';
-          title = 'Villa Gardens';
-          description = 'Tropical landscaping and outdoor spaces';
+      // Try OpenAI Vision API first for better titles and descriptions
+      if (process.env.OPENAI_API_KEY) {
+        try {
+          const OpenAI = (await import('openai')).default;
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+          // Convert image to base64
+          const imageBuffer = fs.readFileSync(req.file.path);
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = req.file.mimetype;
+
+          const response = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: `Analyze this image from Ko Lake Villa, a luxury holiday rental in Ahangama, Sri Lanka. Generate:
+1. A compelling, descriptive title (2-5 words)
+2. A marketing description highlighting luxury and comfort
+3. The most appropriate category from: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
+4. Relevant tags (3-5 keywords)
+
+Respond in JSON format:
+{
+  "title": "Descriptive Title",
+  "description": "Marketing description",
+  "category": "category-name",
+  "tags": ["tag1", "tag2", "tag3"],
+  "confidence": 0.9
+}`
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: `data:${mimeType};base64,${base64Image}`
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 500,
+            response_format: { type: "json_object" }
+          });
+
+          if (response.choices[0]?.message?.content) {
+            const aiResult = JSON.parse(response.choices[0].message.content);
+            title = aiResult.title || 'Ko Lake Villa Experience';
+            description = aiResult.description || 'Luxury accommodation at Ko Lake Villa';
+            suggestedCategory = aiResult.category || 'entire-villa';
+            tags = aiResult.tags || ['luxury', 'villa', 'sri lanka'];
+            confidence = aiResult.confidence || 0.9;
+
+            console.log(`AI Vision Analysis: ${title} (${suggestedCategory}) - Confidence: ${confidence}`);
+          }
+        } catch (aiError) {
+          console.error('OpenAI Vision API error:', aiError);
+          // Fall back to filename-based analysis
         }
-        tags = ['garden', 'nature', 'landscaping'];
-      } else if (filename.includes('lake') || filename.includes('koggala')) {
-        suggestedCategory = 'koggala-lake';
-        title = 'Koggala Lake Views';
-        description = 'Stunning views of Koggala Lake and surroundings';
-        tags = ['lake', 'koggala', 'views'];
-      } else if (filename.includes('triple')) {
-        suggestedCategory = 'triple-room';
-        title = 'Triple Room';
-        description = 'Comfortable triple occupancy accommodation';
-        tags = ['triple', 'room', 'accommodation'];
-      } else if (filename.includes('group')) {
-        suggestedCategory = 'group-room';
-        title = 'Group Accommodation';
-        description = 'Perfect for group stays and gatherings';
-        tags = ['group', 'friends', 'accommodation'];
-      } else if (filename.includes('excursion') || filename.includes('tour') || filename.includes('activity')) {
-        suggestedCategory = 'excursions';
-        title = 'Local Excursions';
-        description = 'Explore the beautiful surroundings of Ahangama';
-        tags = ['excursions', 'activities', 'tours'];
-      } else if (filename.includes('event') || filename.includes('celebration') || filename.includes('party')) {
-        suggestedCategory = 'events';
-        title = 'Villa Events';
-        description = 'Special celebrations and events at the villa';
-        tags = ['events', 'celebrations', 'special'];
-      } else if (filename.includes('friend') || filename.includes('social')) {
-        suggestedCategory = 'friends';
-        title = 'Friends Gathering';
-        description = 'Perfect spaces for socializing with friends';
-        tags = ['friends', 'social', 'gathering'];
       }
 
-      // If no specific title was set, generate from filename
+      // Enhanced filename-based categorization as fallback
       if (!title) {
-        title = req.file.originalname
-          .replace(/\.[^/.]+$/, "")
-          .replace(/[-_]/g, " ")
-          .replace(/\b\w/g, l => l.toUpperCase());
+        if (filename.includes('pool') || filename.includes('swimming')) {
+          suggestedCategory = 'pool-deck';
+          title = 'Infinity Pool Paradise';
+          description = 'Stunning infinity pool with panoramic lake views';
+          tags = ['pool', 'infinity', 'relaxation', 'lake views'];
+        } else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake') || filename.includes('restaurant')) {
+          suggestedCategory = 'dining-area';
+          title = 'Lakeside Dining Experience';
+          description = 'Exquisite dining with breathtaking lake views';
+          tags = ['dining', 'gourmet', 'lake views', 'cuisine'];
+        } else if (filename.includes('family') || filename.includes('suite')) {
+          suggestedCategory = 'family-suite';
+          title = 'Luxury Family Retreat';
+          description = 'Spacious family suite with modern amenities and comfort';
+          tags = ['family', 'luxury', 'suite', 'comfort'];
+        } else if (filename.includes('garden') || filename.includes('plants') || filename.includes('flowers')) {
+          if (filename.includes('lake')) {
+            suggestedCategory = 'lake-garden';
+            title = 'Tranquil Lake Gardens';
+            description = 'Serene tropical gardens overlooking Koggala Lake';
+          } else if (filename.includes('roof')) {
+            suggestedCategory = 'roof-garden';
+            title = 'Elevated Garden Sanctuary';
+            description = 'Private rooftop garden with panoramic views';
+          } else {
+            suggestedCategory = 'front-garden';
+            title = 'Tropical Garden Paradise';
+            description = 'Lush tropical landscaping surrounding the villa';
+          }
+          tags = ['garden', 'tropical', 'nature', 'landscaping'];
+        } else if (filename.includes('lake') || filename.includes('koggala')) {
+          suggestedCategory = 'koggala-lake';
+          title = 'Koggala Lake Panorama';
+          description = 'Spectacular views across pristine Koggala Lake';
+          tags = ['lake', 'koggala', 'panorama', 'nature'];
+        } else if (filename.includes('triple')) {
+          suggestedCategory = 'triple-room';
+          title = 'Comfortable Triple Accommodation';
+          description = 'Modern triple room with premium amenities';
+          tags = ['triple', 'modern', 'accommodation', 'comfort'];
+        } else if (filename.includes('group')) {
+          suggestedCategory = 'group-room';
+          title = 'Group Living Space';
+          description = 'Perfect accommodation for group gatherings';
+          tags = ['group', 'spacious', 'social', 'gathering'];
+        } else {
+          // Default for entire villa
+          title = 'Ko Lake Villa Luxury';
+          description = 'Experience ultimate luxury at Ko Lake Villa, Ahangama';
+          tags = ['luxury', 'villa', 'ahangama', 'sri lanka'];
+        }
       }
 
       // Clean up temp file
