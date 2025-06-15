@@ -100,16 +100,6 @@ const Accommodation = () => {
   };
 
   const getAirbnbUrl = (roomName: string) => {
-<<<<<<< HEAD
-    if (roomName.includes('KLV1')) {
-      return 'https://www.airbnb.com/rooms/1174350095806477772';
-    } else if (roomName.includes('KLV3')) {
-      return 'https://www.airbnb.com/rooms/1174388403896068608';
-    } else if (roomName.includes('KLV6')) {
-      return 'https://www.airbnb.com/rooms/1174415860020182016';
-    } else {
-      return 'https://www.airbnb.com/rooms/1174301478806060032';
-=======
     // Use search URLs with location and property details for better reliability
     const baseUrl = 'https://www.airbnb.com/s/Koggala--Southern-Province--Sri-Lanka';
     const searchParams = new URLSearchParams({
@@ -137,7 +127,7 @@ const Accommodation = () => {
       searchParams.set('room_types[]', 'Entire home/apt');
       searchParams.set('min_bedrooms', '4');
       return `${baseUrl}?${searchParams.toString()}`;
->>>>>>> dev
+
     }
   };
 

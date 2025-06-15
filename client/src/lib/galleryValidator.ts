@@ -75,16 +75,6 @@ export class GalleryValidator {
 
     console.log(`Gallery Validator: Processing ${rawImages.length} images`);
 
-<<<<<<< HEAD
-    // Step 1: Remove exact duplicates by URL
-    const uniqueByUrl = this.removeDuplicateUrls(rawImages);
-    
-    // Step 2: Remove visually similar images 
-    const deduplicatedImages = this.removeSimilarImages(uniqueByUrl);
-    
-    // Step 3: Validate and clean each image
-    const validatedImages = deduplicatedImages.map(image => this.validateSingleImage(image));
-=======
     // Step 1: Remove exact duplicates by URL only
     const uniqueByUrl = this.removeDuplicateUrls(rawImages);
     
@@ -93,7 +83,7 @@ export class GalleryValidator {
     
     // Step 3: Validate and clean each image
     const validatedImages = uniqueByUrl.map(image => this.validateSingleImage(image));
->>>>>>> dev
+
     
     // Step 4: Sort by priority (featured first, then by category importance)
     const sortedImages = this.sortImagesByPriority(validatedImages);
