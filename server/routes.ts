@@ -46,6 +46,10 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
+<<<<<<< HEAD
+=======
+import { registerAIRoutes } from './aiRoutes';
+>>>>>>> dev
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -550,21 +554,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   console.log(`Serving uploads from: ${UPLOAD_DIR}`);
 
+<<<<<<< HEAD
   // File upload endpoint
   app.post("/api/upload", (req, res) => {
     console.log("Upload endpoint hit");
 
     upload.any()(req, res, async (err) => {
+=======
+  // Consolidated gallery upload endpoint
+  app.post("/api/upload", (req, res) => {
+    console.log("Gallery upload endpoint hit");
+
+    upload.single('image')(req, res, async (err) => {
+>>>>>>> dev
       if (err) {
-        console.error("Multer error:", err);
+        console.error("Upload error:", err);
         return res.status(500).json({ 
           success: false,
+<<<<<<< HEAD
           message: "File upload error", 
+=======
+          message: "File upload failed", 
+>>>>>>> dev
           error: err.message 
         });
       }
 
       try {
+<<<<<<< HEAD
         console.log("Files received:", req.files);
         console.log("Body received:", req.body);
 
@@ -627,13 +644,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: "Failed to save image metadata",
             error: dbError.message || 'Database error'
           });
+=======
+        if (!req.file) {
+          return res.status(400).json({ 
+            success: false,
+            message: "No file provided" 
+          });
         }
+
+        console.log("Processing file:", req.file.originalname);
+
+        const file = req.file;
+        const category = req.body.category || 'entire-villa';
+        let title = req.body.title || req.body.alt;
+        let description = req.body.description || '';
+        const featured = req.body.featured === 'true';
+        let tags = req.body.tags || '';
+
+        // Generate AI-powered title and description if not provided
+        if (!title || !description) {
+          try {
+            const aiContent = await generateImageContent(file.originalname, category, file.mimetype.startsWith('video/'));
+            if (!title) title = aiContent.title;
+            if (!description) description = aiContent.description;
+            console.log(`AI generated content: ${title} - ${description}`);
+          } catch (aiError) {
+            console.error('AI content generation failed:', aiError);
+            // Fallback to filename-based title
+            if (!title) title = file.originalname.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            if (!description) description = `Beautiful ${category.replace('-', ' ')} at Ko Lake Villa`;
+          }
+>>>>>>> dev
+        }
+
+        const isVideoFile = file.mimetype.startsWith('video/') || 
+                            file.originalname.toLowerCase().match(/\.(mp4|mov|avi|webm)$/);
+
+        const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
+        const fileUrl = `/uploads/gallery/default/${file.filename}`;
+
+        const galleryImageData = {
+          imageUrl: fileUrl,
+          title: title,
+          alt: title,
+          description,
+          category,
+          tags,
+          featured,
+          mediaType,
+          sortOrder: 0
+        };
+
+        const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+        console.log("Gallery image created:", galleryImage.id);
+
+        // Invalidate cache
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+
+        res.status(201).json({
+          success: true,
+          message: "File uploaded successfully",
+          data: galleryImage
+        });
+
       } catch (error: any) {
         console.error("Upload processing error:", error);
         res.status(500).json({ 
           success: false,
+<<<<<<< HEAD
           message: "Failed to process uploaded file",
           error: error?.message || 'Unknown error'
+=======
+          message: "Upload failed",
+          error: error?.message || 'Processing error'
+>>>>>>> dev
         });
       }
     });
@@ -789,7 +874,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                             file.originalname.toLowerCase().endsWith('.mov') ||
                             file.originalname.toLowerCase().endsWith('.avi');
 
+<<<<<<< HEAD
           const mediaType = isVideoFile ? 'video' : 'image';
+=======
+          const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
+>>>>>>> dev
           const fileUrl = `/uploads/gallery/default/${file.filename}`;
 
           const galleryImageData = {
@@ -2680,6 +2769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
+<<<<<<< HEAD
 
       const filename = req.file.originalname.toLowerCase();
       let suggestedCategory = 'entire-villa';
@@ -2757,6 +2847,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .replace(/\.[^/.]+$/, "")
           .replace(/[-_]/g, " ")
           .replace(/\b\w/g, l => l.toUpperCase());
+=======
+
+      const filename = req.file.originalname.toLowerCase();
+      let suggestedCategory = 'entire-villa';
+      let title = '';
+      let description = '';
+      let tags = [];
+      let confidence = 0.8;
+
+      // Try OpenAI Vision API first for better titles and descriptions
+      if (process.env.OPENAI_API_KEY) {
+        try {
+          const OpenAI = (await import('openai')).default;
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+          // Convert image to base64
+          const imageBuffer = fs.readFileSync(req.file.path);
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = req.file.mimetype;
+
+          const response = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: `Analyze this image from Ko Lake Villa, a luxury holiday rental in Ahangama, Sri Lanka. Generate:
+1. A compelling, descriptive title (2-5 words)
+2. A marketing description highlighting luxury and comfort
+3. The most appropriate category from: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
+4. Relevant tags (3-5 keywords)
+
+Respond in JSON format:
+{
+  "title": "Descriptive Title",
+  "description": "Marketing description",
+  "category": "category-name",
+  "tags": ["tag1", "tag2", "tag3"],
+  "confidence": 0.9
+}`
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: `data:${mimeType};base64,${base64Image}`
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 500,
+            response_format: { type: "json_object" }
+          });
+
+          if (response.choices[0]?.message?.content) {
+            const aiResult = JSON.parse(response.choices[0].message.content);
+            title = aiResult.title || 'Ko Lake Villa Experience';
+            description = aiResult.description || 'Luxury accommodation at Ko Lake Villa';
+            suggestedCategory = aiResult.category || 'entire-villa';
+            tags = aiResult.tags || ['luxury', 'villa', 'sri lanka'];
+            confidence = aiResult.confidence || 0.9;
+
+            console.log(`AI Vision Analysis: ${title} (${suggestedCategory}) - Confidence: ${confidence}`);
+          }
+        } catch (aiError) {
+          console.error('OpenAI Vision API error:', aiError);
+          // Fall back to filename-based analysis
+        }
+      }
+
+      // Enhanced filename-based categorization as fallback
+      if (!title) {
+        if (filename.includes('pool') || filename.includes('swimming')) {
+          suggestedCategory = 'pool-deck';
+          title = 'Infinity Pool Paradise';
+          description = 'Stunning infinity pool with panoramic lake views';
+          tags = ['pool', 'infinity', 'relaxation', 'lake views'];
+        } else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake') || filename.includes('restaurant')) {
+          suggestedCategory = 'dining-area';
+          title = 'Lakeside Dining Experience';
+          description = 'Exquisite dining with breathtaking lake views';
+          tags = ['dining', 'gourmet', 'lake views', 'cuisine'];
+        } else if (filename.includes('family') || filename.includes('suite')) {
+          suggestedCategory = 'family-suite';
+          title = 'Luxury Family Retreat';
+          description = 'Spacious family suite with modern amenities and comfort';
+          tags = ['family', 'luxury', 'suite', 'comfort'];
+        } else if (filename.includes('garden') || filename.includes('plants') || filename.includes('flowers')) {
+          if (filename.includes('lake')) {
+            suggestedCategory = 'lake-garden';
+            title = 'Tranquil Lake Gardens';
+            description = 'Serene tropical gardens overlooking Koggala Lake';
+          } else if (filename.includes('roof')) {
+            suggestedCategory = 'roof-garden';
+            title = 'Elevated Garden Sanctuary';
+            description = 'Private rooftop garden with panoramic views';
+          } else {
+            suggestedCategory = 'front-garden';
+            title = 'Tropical Garden Paradise';
+            description = 'Lush tropical landscaping surrounding the villa';
+          }
+          tags = ['garden', 'tropical', 'nature', 'landscaping'];
+        } else if (filename.includes('lake') || filename.includes('koggala')) {
+          suggestedCategory = 'koggala-lake';
+          title = 'Koggala Lake Panorama';
+          description = 'Spectacular views across pristine Koggala Lake';
+          tags = ['lake', 'koggala', 'panorama', 'nature'];
+        } else if (filename.includes('triple')) {
+          suggestedCategory = 'triple-room';
+          title = 'Comfortable Triple Accommodation';
+          description = 'Modern triple room with premium amenities';
+          tags = ['triple', 'modern', 'accommodation', 'comfort'];
+        } else if (filename.includes('group')) {
+          suggestedCategory = 'group-room';
+          title = 'Group Living Space';
+          description = 'Perfect accommodation for group gatherings';
+          tags = ['group', 'spacious', 'social', 'gathering'];
+        } else {
+          // Default for entire villa
+          title = 'Ko Lake Villa Luxury';
+          description = 'Experience ultimate luxury at Ko Lake Villa, Ahangama';
+          tags = ['luxury', 'villa', 'ahangama', 'sri lanka'];
+        }
+>>>>>>> dev
       }
 
       // Clean up temp file
@@ -3080,6 +3296,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.redirect(301, url);
   });
 
+<<<<<<< HEAD
+=======
+  // OpenAI Vision API endpoint for real-time image analysis
+  app.post("/api/ai/analyze-image", async (req, res) => {
+    try {
+      const { imageUrl } = req.body;
+      
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image URL is required" });
+      }
+
+      // Convert relative URL to absolute path for local images
+      let fullImageUrl = imageUrl;
+      if (imageUrl.startsWith('/uploads/')) {
+        fullImageUrl = `http://localhost:5000${imageUrl}`;
+      }
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Analyze this image from Ko Lake Villa, a luxury lakeside accommodation in Ahangama, Sri Lanka. Generate 3-5 relevant tags that describe what you see. Focus on: room features, dining areas, outdoor spaces, lake views, architecture, activities, or amenities. Return only a JSON array of tags, no other text."
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: fullImageUrl
+                  }
+                }
+              ]
+            }
+          ],
+          max_tokens: 100
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices[0]?.message?.content?.trim();
+        
+        try {
+          const tags = JSON.parse(content);
+          res.json({ 
+            success: true, 
+            tags: Array.isArray(tags) ? tags : [content] 
+          });
+        } catch (parseError) {
+          // If JSON parsing fails, extract tags from text response
+          const fallbackTags = content
+            .replace(/["\[\]]/g, '')
+            .split(',')
+            .map((tag: string) => tag.trim())
+            .filter((tag: string) => tag.length > 0)
+            .slice(0, 5);
+          
+          res.json({ 
+            success: true, 
+            tags: fallbackTags.length > 0 ? fallbackTags : ['villa', 'koggala', 'sri-lanka'] 
+          });
+        }
+      } else {
+        console.error('OpenAI Vision API error:', response.status, await response.text());
+        res.status(500).json({ 
+          error: "AI analysis failed", 
+          tags: ['villa', 'koggala', 'sri-lanka'] 
+        });
+      }
+    } catch (error) {
+      console.error('Image analysis error:', error);
+      res.status(500).json({ 
+        error: "Failed to analyze image", 
+        tags: ['villa', 'koggala', 'sri-lanka'] 
+      });
+    }
+  });
+
+>>>>>>> dev
   // 404 handler for API routes
   app.use('/api/*', (req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });
