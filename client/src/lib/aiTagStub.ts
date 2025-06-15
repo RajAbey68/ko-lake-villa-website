@@ -1,8 +1,8 @@
-// AI tag logic for gallery images
+// AI tag logic for gallery images using OpenAI Vision API
 export function generateTagsFromImage(imagePath: string): string[] {
   const filename = imagePath.toLowerCase();
   
-  // Determine tags based on filename patterns
+  // Fallback tags based on filename patterns (used when API fails)
   if (filename.includes('pool')) return ['pool', 'luxury', 'relaxation'];
   if (filename.includes('room') || filename.includes('bedroom')) return ['accommodation', 'comfort', 'interior'];
   if (filename.includes('lake') || filename.includes('water')) return ['lake', 'nature', 'scenic'];
@@ -14,7 +14,25 @@ export function generateTagsFromImage(imagePath: string): string[] {
   return ['villa', 'koggala', 'sri-lanka'];
 }
 
-export function analyzeImageContent(imageUrl: string): Promise<string[]> {
-  // This would integrate with OpenAI Vision API in production
-  return Promise.resolve(generateTagsFromImage(imageUrl));
+export async function analyzeImageContent(imageUrl: string): Promise<string[]> {
+  try {
+    // Call server-side OpenAI Vision API
+    const response = await fetch('/api/ai/analyze-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ imageUrl })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.tags || generateTagsFromImage(imageUrl);
+    }
+  } catch (error) {
+    console.warn('AI image analysis failed, using filename-based tags:', error);
+  }
+  
+  // Fallback to filename-based tagging
+  return generateTagsFromImage(imageUrl);
 }
