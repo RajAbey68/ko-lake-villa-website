@@ -551,97 +551,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   console.log(`Serving uploads from: ${UPLOAD_DIR}`);
 
-<<<<<<< HEAD
-  // File upload endpoint
-  app.post("/api/upload", (req, res) => {
-    console.log("Upload endpoint hit");
-
-    upload.any()(req, res, async (err) => {
-=======
   // Consolidated gallery upload endpoint
   app.post("/api/upload", (req, res) => {
     console.log("Gallery upload endpoint hit");
 
     upload.single('image')(req, res, async (err) => {
->>>>>>> dev
       if (err) {
         console.error("Upload error:", err);
         return res.status(500).json({ 
           success: false,
-<<<<<<< HEAD
-          message: "File upload error", 
-=======
           message: "File upload failed", 
->>>>>>> dev
           error: err.message 
         });
       }
 
       try {
-<<<<<<< HEAD
-        console.log("Files received:", req.files);
-        console.log("Body received:", req.body);
-
-        if (!req.files || req.files.length === 0) {
-          console.log("No files uploaded");
-          return res.status(400).json({ 
-            success: false,
-            message: "No file uploaded" 
-          });
-        }
-
-        const file = Array.isArray(req.files) ? req.files[0] : req.files[Object.keys(req.files)[0]];
-        const category = req.body.category || 'entire-villa';
-        const title = req.body.title || req.body.alt || file.originalname.replace(/\.[^/.]+$/, "");
-        const description = req.body.description || '';
-        const featured = req.body.featured === 'true' || req.body.featured === true;
-        const tags = req.body.tags || '';
-
-        console.log("Processing file:", file.originalname, "Category:", category);
-
-        const isVideoFile = file.mimetype.startsWith('video/') || 
-                            file.originalname.toLowerCase().endsWith('.mp4') ||
-                            file.originalname.toLowerCase().endsWith('.mov') ||
-                            file.originalname.toLowerCase().endsWith('.avi') ||
-                            file.originalname.toLowerCase().endsWith('.webm');
-
-        const mediaType = req.body.mediaType || (isVideoFile ? 'video' : 'image');
-        const fileUrl = `/uploads/gallery/default/${file.filename}`;
-
-        const galleryImageData = {
-          imageUrl: fileUrl,
-          title: title,
-          alt: title,
-          description,
-          category,
-          tags,
-          featured,
-          mediaType,
-          sortOrder: 0
-        };
-
-        console.log("Creating gallery image with data:", galleryImageData);
-
-        try {
-          const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
-          console.log("Gallery image created:", galleryImage.id);
-
-          res.status(201).json({
-            success: true,
-            message: "File uploaded successfully!",
-            data: {
-              imageUrl: fileUrl,
-              ...galleryImage
-            }
-          });
-        } catch (dbError) {
-          console.error("Database error creating gallery image:", dbError);
-          res.status(500).json({ 
-            success: false,
-            message: "Failed to save image metadata",
-            error: dbError.message || 'Database error'
-          });
-=======
         if (!req.file) {
           return res.status(400).json({ 
             success: false,
@@ -671,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (!title) title = file.originalname.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
             if (!description) description = `Beautiful ${category.replace('-', ' ')} at Ko Lake Villa`;
           }
->>>>>>> dev
+
         }
 
         const isVideoFile = file.mimetype.startsWith('video/') || 
@@ -709,13 +633,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Upload processing error:", error);
         res.status(500).json({ 
           success: false,
-<<<<<<< HEAD
-          message: "Failed to process uploaded file",
-          error: error?.message || 'Unknown error'
-=======
           message: "Upload failed",
           error: error?.message || 'Processing error'
->>>>>>> dev
+
         });
       }
     });
@@ -871,11 +791,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                             file.originalname.toLowerCase().endsWith('.mov') ||
                             file.originalname.toLowerCase().endsWith('.avi');
 
-<<<<<<< HEAD
-          const mediaType = isVideoFile ? 'video' : 'image';
-=======
           const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
->>>>>>> dev
+
           const fileUrl = `/uploads/gallery/default/${file.filename}`;
 
           const galleryImageData = {
@@ -2766,85 +2683,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
-<<<<<<< HEAD
-
-      const filename = req.file.originalname.toLowerCase();
-      let suggestedCategory = 'entire-villa';
-      let title = '';
-      let description = '';
-      let tags = [];
-      let confidence = 0.8;
-
-      // Enhanced filename-based categorization with better logic
-      if (filename.includes('pool') || filename.includes('swimming')) {
-        suggestedCategory = 'pool-deck';
-        title = 'Pool Area';
-        description = 'Relaxing pool deck area with beautiful lake views';
-        tags = ['pool', 'relaxation', 'swimming'];
-      } else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake') || filename.includes('restaurant')) {
-        suggestedCategory = 'dining-area';
-        title = 'Dining Experience';
-        description = 'Delicious dining with stunning lake views';
-        tags = ['dining', 'food', 'cuisine'];
-      } else if (filename.includes('family') || filename.includes('suite')) {
-        suggestedCategory = 'family-suite';
-        title = 'Family Suite';
-        description = 'Spacious family accommodation with modern amenities';
-        tags = ['family', 'accommodation', 'suite'];
-      } else if (filename.includes('garden') || filename.includes('plants') || filename.includes('flowers')) {
-        if (filename.includes('lake')) {
-          suggestedCategory = 'lake-garden';
-          title = 'Lake Garden';
-          description = 'Beautiful garden area overlooking the lake';
-        } else if (filename.includes('roof')) {
-          suggestedCategory = 'roof-garden';
-          title = 'Roof Garden';
-          description = 'Elevated garden space with panoramic views';
-        } else {
-          suggestedCategory = 'front-garden';
-          title = 'Villa Gardens';
-          description = 'Tropical landscaping and outdoor spaces';
-        }
-        tags = ['garden', 'nature', 'landscaping'];
-      } else if (filename.includes('lake') || filename.includes('koggala')) {
-        suggestedCategory = 'koggala-lake';
-        title = 'Koggala Lake Views';
-        description = 'Stunning views of Koggala Lake and surroundings';
-        tags = ['lake', 'koggala', 'views'];
-      } else if (filename.includes('triple')) {
-        suggestedCategory = 'triple-room';
-        title = 'Triple Room';
-        description = 'Comfortable triple occupancy accommodation';
-        tags = ['triple', 'room', 'accommodation'];
-      } else if (filename.includes('group')) {
-        suggestedCategory = 'group-room';
-        title = 'Group Accommodation';
-        description = 'Perfect for group stays and gatherings';
-        tags = ['group', 'friends', 'accommodation'];
-      } else if (filename.includes('excursion') || filename.includes('tour') || filename.includes('activity')) {
-        suggestedCategory = 'excursions';
-        title = 'Local Excursions';
-        description = 'Explore the beautiful surroundings of Ahangama';
-        tags = ['excursions', 'activities', 'tours'];
-      } else if (filename.includes('event') || filename.includes('celebration') || filename.includes('party')) {
-        suggestedCategory = 'events';
-        title = 'Villa Events';
-        description = 'Special celebrations and events at the villa';
-        tags = ['events', 'celebrations', 'special'];
-      } else if (filename.includes('friend') || filename.includes('social')) {
-        suggestedCategory = 'friends';
-        title = 'Friends Gathering';
-        description = 'Perfect spaces for socializing with friends';
-        tags = ['friends', 'social', 'gathering'];
-      }
-
-      // If no specific title was set, generate from filename
-      if (!title) {
-        title = req.file.originalname
-          .replace(/\.[^/.]+$/, "")
-          .replace(/[-_]/g, " ")
-          .replace(/\b\w/g, l => l.toUpperCase());
-=======
 
       const filename = req.file.originalname.toLowerCase();
       let suggestedCategory = 'entire-villa';
@@ -2969,7 +2807,7 @@ Respond in JSON format:
           description = 'Experience ultimate luxury at Ko Lake Villa, Ahangama';
           tags = ['luxury', 'villa', 'ahangama', 'sri lanka'];
         }
->>>>>>> dev
+
       }
 
       // Clean up temp file
@@ -3291,8 +3129,6 @@ Respond in JSON format:
     res.redirect(301, url);
   });
 
-<<<<<<< HEAD
-=======
   // OpenAI Vision API endpoint for real-time image analysis
   app.post("/api/ai/analyze-image", async (req, res) => {
     try {
@@ -3377,7 +3213,7 @@ Respond in JSON format:
     }
   });
 
->>>>>>> dev
+
   // 404 handler for API routes
   app.use('/api/*', (req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });
