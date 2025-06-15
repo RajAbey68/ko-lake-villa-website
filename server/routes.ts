@@ -3275,15 +3275,13 @@ Respond in JSON format:
     }
   });
 
-  // Short URL redirects to listing URLs (configurable for myGuesty migration)
+  // Airbnb shortlink redirects
   app.get('/klv', (req, res) => {
-    const url = process.env.AIRBNB_KLV_URL || 'https://airbnb.co.uk/h/klv';
-    res.redirect(301, url);
+    res.redirect('https://airbnb.com/h/kolakevilla');
   });
 
   app.get('/klv1', (req, res) => {
-    const url = process.env.AIRBNB_KLV1_URL || 'https://airbnb.co.uk/h/klv1';
-    res.redirect(301, url);
+    res.redirect('https://airbnb.com/h/klv1');
   });
 
   app.get('/klv3', (req, res) => {
