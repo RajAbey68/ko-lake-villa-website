@@ -46,10 +46,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
-<<<<<<< HEAD
-=======
 import { registerAIRoutes } from './aiRoutes';
->>>>>>> dev
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
