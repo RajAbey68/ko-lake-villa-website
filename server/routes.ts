@@ -3065,6 +3065,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.redirect(301, url);
   });
 
+  // Register AI routes for OpenAI image analysis
+  registerAIRoutes(app);
+
   // 404 handler for API routes
   app.use('/api/*', (req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });

@@ -60,8 +60,8 @@ export function registerAIRoutes(app: Express) {
           const fallbackTags = content
             .replace(/["\[\]]/g, '')
             .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0)
+            .map((tag: string) => tag.trim())
+            .filter((tag: string) => tag.length > 0)
             .slice(0, 5);
           
           res.json({ 
