@@ -1,260 +1,167 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import lib/utils from '@/lib/utils';
-import { useAuth } from '../contexts/AuthContext';
+'use client'
 
-const Header = () => {
-  const [location] = useRouter();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { currentUser, isAdmin } = useAuth();
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+export default function Header() {
+  const pathname = usePathname()
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+      setIsScrolled(window.scrollY > 50)
+    }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
 
   const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
-  };
+    setMobileMenuOpen(false)
+  }
 
   return (
     <header 
-      className={cn(
-        "fixed w-full bg-[#FDF6EE] z-50 transition-all duration-300 header-shadow",
+      className={`fixed w-full bg-white z-50 transition-all duration-300 shadow-md ${
         isScrolled ? "py-2" : "py-4"
-      )}
+      }`}
     >
-      {/* Top section with logo and book now button */}
-      <div className="container mx-auto px-4 flex items-center justify-between border-b border-[#A0B985] pb-2 mb-2">
+      <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center">
-          <h1 className="text-[#8B5E3C] font-display text-2xl md:text-3xl font-bold whitespace-nowrap">Ko Lake Villa</h1>
+          <h1 className="text-blue-600 text-2xl md:text-3xl font-bold">Ko Lake Villa</h1>
         </Link>
 
-        {/* Mobile Menu Button */}
-        <div className="flex items-center">
+        <div className="flex items-center space-x-4">
           <Link 
-            href="/booking" 
-            className="hidden md:block bg-[#FF914D] text-white px-6 py-2 rounded hover:bg-[#8B5E3C] transition-colors font-medium mr-2"
+            href="https://wa.me/94771234567" 
+            className="hidden md:block bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition-colors font-medium"
           >
             Book Now
           </Link>
 
-          {isAdmin && (
-            <Link 
-              href="/admin" 
-              className="hidden md:block text-[#8B5E3C] text-xs border border-[#8B5E3C] px-3 py-1 rounded hover:bg-[#8B5E3C] hover:text-white transition-colors font-medium mr-2"
-            >
-              Admin
-            </Link>
-          )}
-
           <button 
-            className="md:hidden text-[#8B5E3C] focus:outline-none" 
+            className="md:hidden text-blue-600 focus:outline-none" 
             onClick={toggleMobileMenu}
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
-            <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* Bottom section with navigation */}
-      <div className="container mx-auto px-4">
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center justify-center space-x-8">
-          <Link 
-            href="/" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/' && "text-[#FF914D]"
-            )}
-          >
-            Home
-          </Link>
-          <Link 
-            href="/deals" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/deals' && "text-[#FF914D]"
-            )}
-          >
-            Deals
-          </Link>
-          <Link 
-            href="/accommodation" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/accommodation' && "text-[#FF914D]"
-            )}
-          >
-            Accommodation
-          </Link>
-          <Link 
-            href="/dining" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/dining' && "text-[#FF914D]"
-            )}
-          >
-            Dining
-          </Link>
-          <Link 
-            href="/experiences" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/experiences' && "text-[#FF914D]"
-            )}
-          >
-            Experiences
-          </Link>
-          <Link 
-            href="/gallery" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/gallery' && "text-[#FF914D]"
-            )}
-          >
-            Gallery
-          </Link>
-          <Link 
-            href="/faq" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/faq' && "text-[#FF914D]"
-            )}
-          >
-            FAQ
-          </Link>
-          <Link 
-            href="/contact" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium",
-              location === '/contact' && "text-[#FF914D]"
-            )}
-          >
-            Contact
-          </Link>
-        </nav>
-      </div>
+      <nav className="hidden md:flex items-center justify-center space-x-8 mt-4 border-t pt-4">
+        <Link 
+          href="/" 
+          className={`text-gray-700 hover:text-blue-600 transition-colors font-medium ${
+            pathname === '/' ? 'text-blue-600' : ''
+          }`}
+        >
+          Home
+        </Link>
+        <Link 
+          href="/accommodation" 
+          className={`text-gray-700 hover:text-blue-600 transition-colors font-medium ${
+            pathname === '/accommodation' ? 'text-blue-600' : ''
+          }`}
+        >
+          Accommodation
+        </Link>
+        <Link 
+          href="/gallery" 
+          className={`text-gray-700 hover:text-blue-600 transition-colors font-medium ${
+            pathname === '/gallery' ? 'text-blue-600' : ''
+          }`}
+        >
+          Gallery
+        </Link>
+        <Link 
+          href="/experiences" 
+          className={`text-gray-700 hover:text-blue-600 transition-colors font-medium ${
+            pathname === '/experiences' ? 'text-blue-600' : ''
+          }`}
+        >
+          Experiences
+        </Link>
+        <Link 
+          href="/contact" 
+          className={`text-gray-700 hover:text-blue-600 transition-colors font-medium ${
+            pathname === '/contact' ? 'text-blue-600' : ''
+          }`}
+        >
+          Contact
+        </Link>
+      </nav>
 
-      {/* Mobile Navigation Menu */}
-      <div 
-        className={cn(
-          "md:hidden bg-[#FDF6EE] absolute w-full left-0 top-20 shadow-md transition-all duration-300",
-          mobileMenuOpen ? "block" : "hidden"
-        )}
-      >
-        <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-          <Link 
-            href="/" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Home
-          </Link>
-          <Link 
-            href="/deals" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/deals' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Deals
-          </Link>
-          <Link 
-            href="/accommodation" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/accommodation' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Accommodation
-          </Link>
-          <Link 
-            href="/dining" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/dining' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Dining
-          </Link>
-          <Link 
-            href="/experiences" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/experiences' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Experiences
-          </Link>
-          <Link 
-            href="/gallery" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/gallery' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Gallery
-          </Link>
-          <Link 
-            href="/faq" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/faq' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            FAQ
-          </Link>
-          <Link 
-            href="/contact" 
-            className={cn(
-              "text-[#8B5E3C] hover:text-[#FF914D] transition-colors font-medium py-2",
-              location === '/contact' && "text-[#FF914D]"
-            )}
-            onClick={closeMobileMenu}
-          >
-            Contact
-          </Link>
-          <Link 
-            href="/booking" 
-            className="bg-[#FF914D] text-white px-6 py-3 rounded text-center hover:bg-[#8B5E3C] transition-colors font-medium"
-            onClick={closeMobileMenu}
-          >
-            Book Now
-          </Link>
-
-          {isAdmin && (
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white absolute w-full left-0 top-full shadow-md border-t">
+          <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link 
-              href="/admin" 
-              className="text-[#8B5E3C] text-sm border border-[#8B5E3C] px-4 py-2 rounded text-center hover:bg-[#8B5E3C] hover:text-white transition-colors mt-2"
+              href="/" 
+              className={`text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 ${
+                pathname === '/' ? 'text-blue-600' : ''
+              }`}
               onClick={closeMobileMenu}
             >
-              Admin
+              Home
             </Link>
-          )}
+            <Link 
+              href="/accommodation" 
+              className={`text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 ${
+                pathname === '/accommodation' ? 'text-blue-600' : ''
+              }`}
+              onClick={closeMobileMenu}
+            >
+              Accommodation
+            </Link>
+            <Link 
+              href="/gallery" 
+              className={`text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 ${
+                pathname === '/gallery' ? 'text-blue-600' : ''
+              }`}
+              onClick={closeMobileMenu}
+            >
+              Gallery
+            </Link>
+            <Link 
+              href="/experiences" 
+              className={`text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 ${
+                pathname === '/experiences' ? 'text-blue-600' : ''
+              }`}
+              onClick={closeMobileMenu}
+            >
+              Experiences
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 ${
+                pathname === '/contact' ? 'text-blue-600' : ''
+              }`}
+              onClick={closeMobileMenu}
+            >
+              Contact
+            </Link>
+            <Link 
+              href="https://wa.me/94771234567" 
+              className="bg-green-600 text-white px-6 py-3 rounded text-center hover:bg-green-700 transition-colors font-medium"
+              onClick={closeMobileMenu}
+            >
+              Book Now
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </header>
-  );
-};
-
-export default Header;
+  )
+}
