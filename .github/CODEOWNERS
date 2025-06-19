@@ -1,0 +1,38 @@
+
+# Ko Lake Villa - Code Owners
+# This file defines who should review changes to specific parts of the codebase
+
+# Global ownership - all files require review from project owner
+* @RajAbey68
+
+# Admin components and authentication
+/client/src/pages/admin/ @RajAbey68
+/client/src/components/admin/ @RajAbey68
+/server/middleware/auth.ts @RajAbey68
+/client/src/lib/withAuth.tsx @RajAbey68
+
+# Gallery and media management
+/client/src/components/*Gallery* @RajAbey68
+/server/mediaAnalyzer.ts @RajAbey68
+/server/galleryGovernance.ts @RajAbey68
+/uploads/ @RajAbey68
+
+# Database and API routes
+/server/db.ts @RajAbey68
+/server/routes.ts @RajAbey68
+/server/index.ts @RajAbey68
+
+# CI/CD and deployment
+/.github/workflows/ @RajAbey68
+/deploy-*.sh @RajAbey68
+/deploy-*.js @RajAbey68
+
+# Configuration files
+/.replit @RajAbey68
+/package.json @RajAbey68
+/vite.config.vercel.ts @RajAbey68
+
+# Documentation
+/README.md @RajAbey68
+/DEPLOYMENT_GUIDE.md @RajAbey68
+/docs/ @RajAbey68
