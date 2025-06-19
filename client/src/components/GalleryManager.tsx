@@ -98,6 +98,8 @@ export default function GalleryManager() {
   // Modal State
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<number | null>(null);
+  const [showClearGalleryConfirm, setShowClearGalleryConfirm] = useState(false);
+  const [clearingGallery, setClearingGallery] = useState(false);
 
   // Upload Default Settings State
   const [defaultCategory, setDefaultCategory] = useState('default');
@@ -270,6 +272,56 @@ export default function GalleryManager() {
       });
     }
   });
+
+  // Clear Gallery mutation
+  const clearGalleryMutation = useMutation({
+    mutationFn: async () => {
+      console.log('Clearing entire gallery...');
+      const response = await fetch('/api/gallery/clear-all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Clear gallery failed:', response.status, errorText);
+        throw new Error(`Failed to clear gallery: ${response.status}`);
+      }
+      return response.json();
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+      setShowClearGalleryConfirm(false);
+      setClearingGallery(false);
+      toast({ 
+        title: "Gallery Cleared", 
+        description: result.message || `Successfully removed ${result.count || 0} images and videos` 
+      });
+    },
+    onError: (error) => {
+      console.error('Clear gallery mutation error:', error);
+      setShowClearGalleryConfirm(false);
+      setClearingGallery(false);
+      toast({ 
+        title: "Error", 
+        description: `Failed to clear gallery: ${error.message}`, 
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const handleClearGallery = () => {
+    const password = prompt('Enter admin password to clear all gallery media:');
+    if (password !== 'KoLakeVilla2024!') {
+      toast({
+        title: "Unauthorized",
+        description: "Invalid admin password",
+        variant: "destructive"
+      });
+      return;
+    }
+    setClearingGallery(true);
+    clearGalleryMutation.mutate();
+  };
 
   // AI Analysis mutation
   const analyzeImageMutation = useMutation({
@@ -606,6 +658,24 @@ export default function GalleryManager() {
           <Button onClick={() => refetch()} variant="outline">
             <RefreshCwIcon className="h-4 w-4 mr-2" />
             Refresh
+          </Button>
+          <Button 
+            variant="destructive" 
+            onClick={() => setShowClearGalleryConfirm(true)}
+            disabled={clearingGallery || images.length === 0}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {clearingGallery ? (
+              <>
+                <RefreshCwIcon className="h-4 w-4 mr-2 animate-spin" />
+                Clearing...
+              </>
+            ) : (
+              <>
+                <Trash2Icon className="h-4 w-4 mr-2" />
+                Clear All Media
+              </>
+            )}
           </Button>
           {selectedImages.length > 0 && (
             <Button 
@@ -1261,6 +1331,58 @@ export default function GalleryManager() {
                 <>
                   <Trash2Icon className="h-4 w-4 mr-2" />
                   Delete {selectedImages.length} Images
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Clear Gallery Confirmation Dialog */}
+      <Dialog open={showClearGalleryConfirm} onOpenChange={setShowClearGalleryConfirm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Clear Entire Gallery</DialogTitle>
+            <DialogDescription>
+              This will permanently delete ALL images and videos from the gallery. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <div className="bg-red-50 border border-red-200 rounded p-4">
+              <p className="text-red-800 text-sm font-medium mb-2">⚠️ DANGER ZONE</p>
+              <p className="text-red-700 text-sm mb-2">
+                You are about to delete <strong>{images.length}</strong> media items from Ko Lake Villa gallery.
+              </p>
+              <p className="text-red-600 text-xs">
+                This includes all images, videos, categories, and metadata. This operation cannot be reversed.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowClearGalleryConfirm(false)}
+              disabled={clearingGallery}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleClearGallery}
+              disabled={clearingGallery}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {clearingGallery ? (
+                <>
+                  <RefreshCwIcon className="h-4 w-4 mr-2 animate-spin" />
+                  Clearing Gallery...
+                </>
+              ) : (
+                <>
+                  <Trash2Icon className="h-4 w-4 mr-2" />
+                  Clear All Media
                 </>
               )}
             </Button>
