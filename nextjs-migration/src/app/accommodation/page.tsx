@@ -1,33 +1,109 @@
-export const metadata = {
-  title: 'accommodation - Ko Lake Villa',
-  description: 'Ko Lake Villa - Luxury accommodation by Koggala Lake'
+import { Metadata } from 'next'
+import Link from 'next/link'
+import roomsData from '@/content/rooms.json'
+
+export const metadata: Metadata = {
+  title: 'Accommodation - Ko Lake Villa',
+  description: 'Discover our luxury accommodations at Ko Lake Villa, offering various room options for couples, families, and groups.',
 }
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
-import { Room } from '@shared/schema';
-import { separator } from '@/components/ui/separator';
-import components/BookingModal from '@/components/BookingModal';
-import components/VirtualTourModal from '@/components/VirtualTourModal';
-import components/RoomDetailsModal from '@/components/RoomDetailsModal';
-import { Eye } from 'lucide-react';
-import { button } from '@/components/ui/button';
-import components/GalleryImage from '@/components/GalleryImage';
-
-interface PricingData {
-  updated: string;
-  rates: {
-    [roomId: string]: {
-      sun: number;
-      mon: number;
-      tue: number;
-    };
-  };
-  overrides?: {
-    [roomId: string]: {
-      customPrice: number;
-      setDate: string;
+export default function AccommodationPage() {
+  return (
+    <main className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Our Accommodation
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Choose from our range of luxury accommodations, from intimate rooms to the entire villa experience
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {roomsData.rooms.map((room) => (
+            <div key={room.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="md:flex">
+                <div className="md:w-1/2">
+                  <div className="h-64 md:h-full bg-gray-300"></div>
+                </div>
+                <div className="md:w-1/2 p-8">
+                  <h2 className="text-2xl font-bold mb-4">{room.name}</h2>
+                  <p className="text-gray-600 mb-6">{room.description}</p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{room.maxGuests}</div>
+                      <div className="text-sm text-gray-500">Max Guests</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{room.rooms}</div>
+                      <div className="text-sm text-gray-500">Rooms</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <h4 className="font-semibold mb-2">Features:</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {room.features.slice(0, 3).map((feature, index) => (
+                        <li key={index} className="flex items-center">
+                          <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-3xl font-bold text-blue-600">${room.priceFrom}</span>
+                      <span className="text-gray-500">/night</span>
+                    </div>
+                    <div className="space-x-2">
+                      <Link 
+                        href={`https://wa.me/94771234567?text=Hi! I'm interested in booking ${room.name}`}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold transition duration-300"
+                      >
+                        WhatsApp
+                      </Link>
+                      <Link 
+                        href={`mailto:info@kolakevilla.com?subject=Booking Inquiry - ${room.name}`}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-semibold transition duration-300"
+                      >
+                        Email
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="text-center mt-12">
+          <div className="bg-blue-600 text-white rounded-lg p-8">
+            <h3 className="text-2xl font-bold mb-4">Book Direct & Save</h3>
+            <p className="text-lg mb-6">Get the best rates and personalized service when you book directly with us</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="https://wa.me/94771234567"
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition duration-300"
+              >
+                WhatsApp Booking
+              </Link>
+              <Link 
+                href="/contact"
+                className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-3 rounded-lg font-semibold transition duration-300"
+              >
+                Contact Us
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
       autoPrice: number;
     };
   };
