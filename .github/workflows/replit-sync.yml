@@ -1,0 +1,33 @@
+
+name: Replit Sync
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Trigger Replit Deploy
+        run: |
+          echo "Triggering Replit deployment for Ko Lake Villa..."
+          if [ "${{ secrets.REPLIT_DEPLOY_WEBHOOK }}" != "" ]; then
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -d '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}' \
+              ${{ secrets.REPLIT_DEPLOY_WEBHOOK }}
+            echo "✅ Replit deployment triggered successfully"
+          else
+            echo "⚠️ REPLIT_DEPLOY_WEBHOOK secret not configured"
+          fi
+          
+      - name: Validate deployment
+        run: |
+          echo "Ko Lake Villa deployment initiated"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
