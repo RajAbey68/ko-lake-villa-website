@@ -344,7 +344,7 @@ const Gallery = () => {
                         <div className="relative w-full h-full">
                           <img
                             src={image.imageUrl}
-                            alt={image.title}
+                            alt={sanitizeImageAlt(image.title)}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                             loading="lazy"
                             onError={(e) => {
@@ -369,10 +369,10 @@ const Gallery = () => {
                     
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-900 truncate mb-1">
-                        {image.title}
+                        {sanitizeText(image.title)}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                        {image.description}
+                        {sanitizeText(image.description)}
                       </p>
                       <div className="flex items-center justify-between">
                         {image.category && (
