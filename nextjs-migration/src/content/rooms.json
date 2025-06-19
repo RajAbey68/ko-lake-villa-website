@@ -1,0 +1,87 @@
+{
+  "rooms": [
+    {
+      "id": "klv",
+      "name": "Entire Villa (KLV)",
+      "description": "Complete privacy and luxury for large groups. The entire Ko Lake Villa with 7 beautifully appointed rooms.",
+      "maxGuests": 18,
+      "rooms": 7,
+      "bathrooms": 7,
+      "features": [
+        "Private lakefront access",
+        "Full kitchen and dining area",
+        "Multiple living spaces",
+        "Garden and outdoor areas",
+        "Boat safari included",
+        "Complete privacy"
+      ],
+      "priceFrom": 450,
+      "images": [
+        "/images/villa-exterior.jpg",
+        "/images/villa-interior.jpg",
+        "/images/villa-garden.jpg"
+      ]
+    },
+    {
+      "id": "klv1",
+      "name": "Master Family Suite (KLV1)",
+      "description": "Spacious family suite perfect for families with children. Premium accommodation with lake views.",
+      "maxGuests": 6,
+      "rooms": 2,
+      "bathrooms": 2,
+      "features": [
+        "Lake view",
+        "Family-friendly layout",
+        "Private balcony",
+        "Air conditioning",
+        "Wi-Fi included",
+        "Breakfast available"
+      ],
+      "priceFrom": 180,
+      "images": [
+        "/images/master-suite.jpg",
+        "/images/master-balcony.jpg"
+      ]
+    },
+    {
+      "id": "klv6",
+      "name": "Group Room (KLV6)",
+      "description": "Ideal for small groups seeking comfort and value. Well-appointed room with modern amenities.",
+      "maxGuests": 6,
+      "rooms": 1,
+      "bathrooms": 1,
+      "features": [
+        "Group accommodation",
+        "Modern amenities",
+        "Shared common areas",
+        "Air conditioning",
+        "Wi-Fi included",
+        "Garden access"
+      ],
+      "priceFrom": 120,
+      "images": [
+        "/images/group-room.jpg"
+      ]
+    },
+    {
+      "id": "klv3",
+      "name": "Triple/Twin Rooms (KLV3)",
+      "description": "Comfortable rooms perfect for small families or groups. Cozy accommodation with essential amenities.",
+      "maxGuests": 3,
+      "rooms": 1,
+      "bathrooms": 1,
+      "features": [
+        "Twin or triple configuration",
+        "Cozy atmosphere",
+        "Shared facilities",
+        "Air conditioning",
+        "Wi-Fi included",
+        "Budget-friendly"
+      ],
+      "priceFrom": 80,
+      "images": [
+        "/images/twin-room.jpg"
+      ]
+    }
+  ]
+}
