@@ -5,6 +5,12 @@
 # Global ownership - all files require review from project owner
 * @RajAbey68
 
+# TypeScript files require TypeScript expert review
+*.ts @your-typescript-expert
+
+# Docker and deployment files require DevOps team review
+Dockerfile @your-devops-team
+
 # Admin components and authentication
 /client/src/pages/admin/ @RajAbey68
 /client/src/components/admin/ @RajAbey68
