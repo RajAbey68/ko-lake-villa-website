@@ -1,0 +1,44 @@
+{
+  "version": 2,
+  "name": "ko-lake-villa",
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "buildCommand": "cd client && npm run build",
+  "outputDirectory": "client/dist",
+  "devCommand": "cd client && npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://your-replit-url.replit.app/api/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://your-replit-url.replit.app",
+    "VITE_STRIPE_PUBLIC_KEY": "@vite_stripe_public_key",
+    "VITE_GA_MEASUREMENT_ID": "@vite_ga_measurement_id"
+  }
+}
