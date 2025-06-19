@@ -834,8 +834,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Gallery management API endpoints
-  app.get('/api/admin/gallery', async (req, res) => {
+  // Gallery management API endpoints (protected)
+  app.get('/api/admin/gallery', requireAdminAuth, adminRateLimit, async (req, res) => {
     try {
       const images = await dataStorage.getGalleryImages();
       res.json(images);
@@ -845,7 +845,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/admin/gallery/:id', async (req, res) => {
+  app.put('/api/admin/gallery/:id', requireAdminAuth, adminRateLimit, async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
       const updates = req.body;

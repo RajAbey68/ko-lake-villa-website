@@ -47,7 +47,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
       {/* Header */}
       <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <h3 className="text-xl font-semibold">{image.title}</h3>
+          <h3 className="text-xl font-semibold">{sanitizeText(image.title)}</h3>
           {image.category && (
             <Badge variant="secondary" className="bg-[#FF914D] text-white">
               {image.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
