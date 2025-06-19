@@ -425,6 +425,14 @@ const Accommodation = () => {
           setShowVirtualTour(true);
         }}
       />
+      {/* Staff Protection Rules */}
+      <section className="py-8 bg-red-50">
+        <div className="container mx-auto px-4">
+          <div id="staff-rules" data-staff-rules className="bg-white border border-red-200 rounded-lg p-6 shadow-sm">
+            {/* Content will be populated by global-fixes.js */}
+          </div>
+        </div>
+      </section>
     </>
   );
 };

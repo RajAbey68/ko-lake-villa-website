@@ -365,6 +365,18 @@ Relax, Revive, and Connect — you're in the right place.`;
               </Form>
             </div>
           </div>
+          
+          {/* Clear FAQ Button */}
+          <div className="mt-6 text-center">
+            <Button 
+              id="faq-clear"
+              variant="outline" 
+              className="text-gray-600 hover:text-gray-800"
+              type="button"
+            >
+              Clear All Fields
+            </Button>
+          </div>
         </div>
       </section>
     </div>
