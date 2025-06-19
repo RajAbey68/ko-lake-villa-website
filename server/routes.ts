@@ -47,6 +47,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
 import { registerAIRoutes } from './aiRoutes';
+import { requireAdminAuth, adminRateLimit } from './middleware/auth';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

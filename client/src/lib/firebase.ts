@@ -10,14 +10,14 @@ import {
   type User 
 } from "firebase/auth";
 
-// Firebase configuration
+// Firebase configuration using environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyC5xsgdPgOQP-ClyGxqswoxKFolMEVdLcw",
-  authDomain: "ko-lake-villa-69f03.firebaseapp.com",
-  projectId: "ko-lake-villa-69f03",
-  storageBucket: "ko-lake-villa-69f03.firebasestorage.app",
-  messagingSenderId: "1093542852432",
-  appId: "1:1093542852432:web:91ca5ad836208a2944de55"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyC5xsgdPgOQP-ClyGxqswoxKFolMEVdLcw",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "ko-lake-villa-69f03.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "ko-lake-villa-69f03",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "ko-lake-villa-69f03.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1093542852432",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1093542852432:web:91ca5ad836208a2944de55"
 };
 
 // Initialize Firebase - ensure it's only initialized once

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Filter, Image as ImageIcon, Video, X, Play, ZoomIn } from 'lucide-react';
 import { galleryValidator } from '@/lib/galleryValidator';
+import { sanitizeHtml, sanitizeText, sanitizeImageAlt } from '@/lib/sanitizer';
 import SEOHead from '@/components/SEOHead';
 
 interface GalleryModalProps {
