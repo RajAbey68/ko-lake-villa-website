@@ -1,0 +1,46 @@
+name: Ko Lake Villa Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Run Deployment Tests
+      run: |
+        npm test
+        curl -X GET https://skill-bridge-rajabey68.replit.app/api/rooms
+        curl -X GET https://skill-bridge-rajabey68.replit.app/api/activities
+    
+    - name: Test Gallery API
+      run: |
+        curl -X GET https://skill-bridge-rajabey68.replit.app/api/gallery
+        
+    - name: Performance Test
+      run: |
+        npx lighthouse https://skill-bridge-rajabey68.replit.app/ --only-categories=performance --output=json --output-path=./lighthouse-report.json
+        
+    - name: Upload Lighthouse Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: lighthouse-report
+        path: lighthouse-report.json
