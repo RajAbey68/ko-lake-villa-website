@@ -36,7 +36,8 @@ export default function GalleryImage({
       src={imageSrc}
       alt={alt} 
       className={`${className} ${isLoaded && !hasError ? 'opacity-100' : 'opacity-100'}`}
-      loading="eager"
+      loading={shouldLoadImmediately ? "eager" : "lazy"}
+      decoding="async"
       style={{
         imageRendering: 'high-quality',
         backfaceVisibility: 'hidden',
