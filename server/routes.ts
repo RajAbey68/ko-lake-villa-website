@@ -1799,8 +1799,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Smart analysis endpoint for individual images
-  app.post("/api/analyze-media/:id", async (req, res) => {
+  // Smart analysis endpoint for individual images (protected)
+  app.post("/api/analyze-media/:id", requireAdminAuth, async (req, res) => {
     try {
       const imageId = parseInt(req.params.id);
 
@@ -2675,8 +2675,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Media Analysis endpoint for bulk uploader
-  app.post("/api/analyze-media", upload.single('file'), async (req, res) => {
+  // AI Media Analysis endpoint for bulk uploader (protected)
+  app.post("/api/analyze-media", requireAdminAuth, upload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });

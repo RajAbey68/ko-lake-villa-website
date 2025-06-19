@@ -83,7 +83,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
         ) : (
           <img
             src={image.imageUrl}
-            alt={image.alt || image.title}
+            alt={sanitizeImageAlt(image.alt || image.title || 'Gallery image')}
             className="w-full h-full object-contain"
             style={{ 
               maxWidth: 'calc(100vw - 2rem)', 
@@ -111,12 +111,12 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
           </Button>
 
           <div className="text-center flex-1 mx-4">
-            <p className="text-sm mb-2">{image.description}</p>
+            <p className="text-sm mb-2">{sanitizeText(image.description)}</p>
             {image.tags && (
               <div className="flex flex-wrap justify-center gap-1">
                 {image.tags.split(',').map((tag, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
-                    {tag.trim()}
+                    {sanitizeText(tag.trim())}
                   </Badge>
                 ))}
               </div>
@@ -390,7 +390,7 @@ const Gallery = () => {
                         <div className="flex flex-wrap gap-1 mt-2">
                           {image.tags.split(',').slice(0, 3).map((tag, tagIndex) => (
                             <Badge key={tagIndex} variant="outline" className="text-xs">
-                              {tag.trim()}
+                              {sanitizeText(tag.trim())}
                             </Badge>
                           ))}
                           {image.tags.split(',').length > 3 && (
