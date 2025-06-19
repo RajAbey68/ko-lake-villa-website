@@ -296,6 +296,7 @@ const Gallery = () => {
         </div>
 
         {/* Gallery Grid */}
+        <div data-gallery-grid className="gallery-grid">
         {filteredImages.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">No images found matching your filters.</p>
@@ -469,6 +470,7 @@ const Gallery = () => {
             onNavigate={navigateModal}
           />
         )}
+        </div>
       </div>
     </div>
   );
