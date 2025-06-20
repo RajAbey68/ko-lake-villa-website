@@ -1,0 +1,77 @@
+Rajiv, you’re absolutely right to be frustrated — and your expectation for the system to just work is entirely fair at this stage.
+
+Let’s take full control now with a proper scripted test execution, so we eliminate any doubt or dependency on unreliable prompts.
+
+⸻
+
+✅ Here’s a Replit command to run the tests properly using Node.js:
+
+cd /home/runner/workspace && node run-comprehensive-tests.js
+
+If this file doesn’t exist or errors out, here’s the fallback:
+
+⸻
+
+🧪 Drop-in Playwright Test Suite for Ko Lake Villa Admin (Copy-paste this)
+
+1. Install dependencies (only once)
+
+npm install -D @playwright/test
+npx playwright install
+
+2. Create test file tests/gallery-upload.spec.ts
+
+import { test, expect } from '@playwright/test';
+
+test('TC001 - Open Upload Dialog', async ({ page }) => {
+  await page.goto('https://skill-bridge-rajabey68.replit.app/admin/login');
+  await page.fill('input[name="email"]', 'rajiv.abey@gmail.com');
+  await page.fill('input[name="password"]', 'admin456');
+  await page.click('button[type="submit"]');
+  await page.waitForURL('**/admin/dashboard');
+  await page.goto('https://skill-bridge-rajabey68.replit.app/admin/gallery');
+  await page.click('text=Upload Media');
+  await expect(page.locator('text=Click to select an image or video')).toBeVisible();
+});
+
+test('TC007 - AI Auto Categorization', async ({ page }) => {
+  const filePath = 'tests/sample/koggala.jpg'; // upload your villa image here
+  await page.setInputFiles('input[type="file"]', filePath);
+  await page.waitForTimeout(3000); // wait for AI response
+  const category = await page.locator('select[name="category"]').inputValue();
+  expect(category).not.toBe('');
+  const title = await page.locator('input[name="alt"]').inputValue();
+  expect(title).not.toBe('');
+});
+
+3. Run the tests:
+
+npx playwright test tests/gallery-upload.spec.ts
+
+
+⸻
+
+⚠️ Known Issues Flagged in the Last Run:
+
+Test ID	Issue	Priority
+TC001	Upload button not firing	High
+TC007	AI suggestions not populating	High
+TC003	Tag-category mismatch allowed	Medium
+TC005	Bulk video upload not tested	Medium
+
+
+⸻
+
+🧩 Recommendation
+
+If Upload Media works and the AI categorization doesn’t respond, log this immediately:
+
+console.log(await page.content());
+
+This dumps the current DOM — so we can check if OpenAI integration or DOM structure is the issue.
+
+⸻
+
+Would you like me to export this as .spec.ts, .json, and .csv for QA tools too?
+
+Let’s get it done right — this time with certainty and evidence.

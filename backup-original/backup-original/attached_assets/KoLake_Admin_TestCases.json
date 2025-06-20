@@ -1,0 +1,60 @@
+[
+  {
+    "ID": "TC001",
+    "Function": "Image Upload",
+    "Expected Result": "Image uploaded successfully and visible in GalleryManager",
+    "Steps": [
+      "Login to /admin/login",
+      "Go to ImageUploader",
+      "Select valid image",
+      "Select category",
+      "Click upload"
+    ]
+  },
+  {
+    "ID": "TC002",
+    "Function": "Video Upload",
+    "Expected Result": "Video uploaded successfully and listed under 'VideoUploader'",
+    "Steps": [
+      "Login to /admin/login",
+      "Go to VideoUploader",
+      "Select valid MP4 file",
+      "Select category",
+      "Click upload"
+    ]
+  },
+  {
+    "ID": "TC003",
+    "Function": "AI Categorization",
+    "Expected Result": "Correct category, tags, and description suggested",
+    "Steps": [
+      "Upload image via ImageUploader",
+      "Wait for AI to auto-fill metadata",
+      "Check if tags match category",
+      "Check for confidence > 0.7"
+    ]
+  },
+  {
+    "ID": "TC004",
+    "Function": "Bulk Image Upload",
+    "Expected Result": "Multiple images uploaded, categorized correctly",
+    "Steps": [
+      "Login to /admin/login",
+      "Navigate to BulkUpload",
+      "Drag and drop multiple valid images",
+      "Select batch category",
+      "Click upload"
+    ]
+  },
+  {
+    "ID": "TC005",
+    "Function": "Tag-Category Validation",
+    "Expected Result": "Tags include category and no conflict is allowed",
+    "Steps": [
+      "Upload image with manual tags",
+      "Ensure tags include category",
+      "Try uploading with mismatched tag",
+      "Ensure error is thrown"
+    ]
+  }
+]
