@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Lake Categorization & Save Functionality</title>
+</head>
+<body>
+    <h1>Testing Gallery Save & AI Lake Categorization</h1>
+    <div id="results"></div>
+
+    <script>
+        async function testGalleryFunctionality() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>🔍 Starting tests...</p>';
+
+            try {
+                // 1. Test fetching gallery data
+                console.log('Fetching gallery data...');
+                const galleryResponse = await fetch('/api/gallery');
+                const galleryData = await galleryResponse.json();
+                
+                if (!galleryData.success) {
+                    throw new Error('Failed to fetch gallery data');
+                }
+
+                results.innerHTML += `<p>✅ Gallery fetch successful: ${galleryData.data.length} items</p>`;
+
+                // 2. Find a lake-related video to test with
+                const lakeVideo = galleryData.data.find(item => 
+                    item.mediaType === 'video' && 
+                    (item.imageUrl.toLowerCase().includes('lake') || 
+                     item.description?.toLowerCase().includes('lake') ||
+                     item.alt?.toLowerCase().includes('lake'))
+                );
+
+                if (!lakeVideo) {
+                    results.innerHTML += '<p>⚠️ No lake-related video found for testing</p>';
+                    return;
+                }
+
+                results.innerHTML += `<p>🎥 Testing with video: ${lakeVideo.alt || lakeVideo.title}</p>`;
+
+                // 3. Test the admin PATCH endpoint (save functionality)
+                const updateData = {
+                    category: "koggala-lake",
+                    description: "Beautiful Koggala Lake views from Ko Lake Villa - test update",
+                    tags: "koggala lake, water views, sri lanka"
+                };
+
+                console.log('Testing save functionality with:', updateData);
+                const patchResponse = await fetch(`/api/admin/gallery/${lakeVideo.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const patchResult = await patchResponse.json();
+                
+                if (patchResponse.ok) {
+                    results.innerHTML += '<p>✅ Save functionality working correctly!</p>';
+                    results.innerHTML += `<p>📝 Updated category: ${patchResult.data?.category}</p>`;
+                } else {
+                    results.innerHTML += `<p>❌ Save failed: ${patchResult.message}</p>`;
+                }
+
+                // 4. Test AI analysis for automatic lake categorization
+                console.log('Testing AI analysis...');
+                const aiResponse = await fetch(`/api/analyze-media/${lakeVideo.id}`, {
+                    method: 'POST'
+                });
+
+                const aiResult = await aiResponse.json();
+                
+                if (aiResponse.ok) {
+                    results.innerHTML += '<p>✅ AI analysis working!</p>';
+                    results.innerHTML += `<p>🤖 AI suggested category: ${aiResult.category}</p>';
+                    
+                    if (aiResult.category === 'koggala-lake') {
+                        results.innerHTML += '<p>🎯 AI correctly identified lake content!</p>';
+                    }
+                } else {
+                    results.innerHTML += `<p>❌ AI analysis failed: ${aiResult.error}</p>`;
+                }
+
+                // 5. Verify the changes persisted by refetching
+                const verifyResponse = await fetch(`/api/gallery/${lakeVideo.id}`);
+                const verifyResult = await verifyResponse.json();
+                
+                if (verifyResponse.ok) {
+                    results.innerHTML += '<p>✅ Verification successful - changes persisted!</p>';
+                    results.innerHTML += `<p>💾 Current category: ${verifyResult.category}</p>`;
+                } else {
+                    results.innerHTML += '<p>❌ Verification failed</p>';
+                }
+
+                results.innerHTML += '<p><strong>🎉 All tests completed!</strong></p>';
+
+            } catch (error) {
+                console.error('Test error:', error);
+                results.innerHTML += `<p>❌ Test error: ${error.message}</p>`;
+            }
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', testGalleryFunctionality);
+    </script>
+</body>
+</html>

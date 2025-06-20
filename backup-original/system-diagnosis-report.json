@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-05-30T10:35:28.260Z",
+  "tests": [
+    {
+      "name": "Gallery API",
+      "status": "PASS",
+      "details": "Status: 200, Images: 0"
+    },
+    {
+      "name": "File System",
+      "status": "PASS",
+      "details": "Working: 25, Corrupted: 0"
+    },
+    {
+      "name": "Storage Layer",
+      "status": "PASS",
+      "details": "API accessible: true, Response time indicates memory storage"
+    },
+    {
+      "name": "Image Accessibility",
+      "status": "FAIL",
+      "details": "Accessible: 0, Inaccessible: 0"
+    }
+  ],
+  "summary": {
+    "overallStatus": "CRITICAL",
+    "testsPasssed": 3,
+    "totalTests": 4,
+    "criticalIssues": 1,
+    "imageCount": 0,
+    "fileSystemFiles": 25
+  },
+  "faultLog": [
+    "Missing image categories: family-suite, triple-room, group-room, pool-deck, dining-area, lake-garden, roof-garden, front-garden, excursions, koggala-lake"
+  ]
+}
