@@ -1,0 +1,101 @@
+Excellent — you’re now aiming to:
+
+🔁 Baseline your website pricing off the real Airbnb nightly price for Sunday, Monday, or Tuesday nights (if available). This helps prevent overestimating the direct booking price when Airbnb has dynamic discounting (as seen in the screenshot).
+
+⸻
+
+✅ What the Script Will Do (Plain English)
+	•	Look at Airbnb’s price for a Sunday, Monday, or Tuesday night in the current or next week
+	•	Use that price as the reference/base price
+	•	Apply the previously agreed direct booking logic:
+	•	–10% for normal booking
+	•	–15% for last-minute (within 3 days)
+
+⸻
+
+🛠️ Replit Script: Smart Pricing Based on Weekday Baseline
+
+This script assumes you’re scraping Airbnb’s visible pricing manually or via an upstream PMS (since Airbnb has no public API). It works with sample data and can be adapted once live scraping is in place.
+
+// 🧠 Ko Lake Villa – Dynamic Baseline Pricing Model
+
+// Sample scraped or fetched Airbnb pricing data (can be dynamic later)
+const airbnbRates = {
+  "2025-06-01": 539, // Sunday
+  "2025-06-02": 520, // Monday
+  "2025-06-03": 510, // Tuesday
+  "2025-06-04": 645,
+  "2025-06-05": 700,
+};
+
+// 1. Pick earliest available Sunday–Tuesday rate
+const baselineDays = ["2025-06-01", "2025-06-02", "2025-06-03"];
+let baselinePrice = null;
+
+for (const date of baselineDays) {
+  if (airbnbRates[date]) {
+    baselinePrice = airbnbRates[date];
+    break;
+  }
+}
+
+// Fallback if no preferred weekday pricing found
+if (!baselinePrice) {
+  console.warn("⚠️ No Sunday–Tuesday rate found, using fallback rate.");
+  baselinePrice = 650; // Static fallback, can be the average
+}
+
+// 2. Function to calculate direct booking price
+function getDirectBookingRate(baseRate, checkinDateStr) {
+  const today = new Date();
+  const checkin = new Date(checkinDateStr);
+  const daysToCheckin = Math.ceil((checkin - today) / (1000 * 60 * 60 * 24));
+
+  const discount = daysToCheckin <= 3 ? 0.15 : 0.10;
+  const label = daysToCheckin <= 3 ? "Last-Minute Deal (15% off)" : "Book Direct (10% off)";
+  const directPrice = (baseRate * (1 - discount)).toFixed(2);
+
+  return {
+    airbnbBase: baseRate,
+    directPrice,
+    discountPercent: discount * 100,
+    label,
+    daysToCheckin,
+  };
+}
+
+// 3. Example usage
+const checkinDate = "2025-06-05"; // user input or date picker
+const pricing = getDirectBookingRate(baselinePrice, checkinDate);
+
+console.log(`💡 Direct booking for ${checkinDate}`);
+console.log(`Airbnb Base: $${pricing.airbnbBase}`);
+console.log(`Direct Price: $${pricing.directPrice}`);
+console.log(`Discount Applied: ${pricing.discountPercent}% (${pricing.label})`);
+
+
+⸻
+
+🧪 Output Example
+
+💡 Direct booking for 2025-06-05
+Airbnb Base: $539
+Direct Price: $485.10
+Discount Applied: 10% (Book Direct (10% off))
+
+
+⸻
+
+✅ Integration Guidance
+	•	🔌 Connect to live rates: You’ll need either a PMS like Lodgify or manual Airbnb rate scraping for those weekday slots
+	•	🔁 Run this nightly (as a cron job or admin refresh) to keep your baseline fresh
+	•	🖥️ Frontend Display: Show both “Airbnb Avg for Early Week” and “Your Direct Price Today”
+
+⸻
+
+Would you like me to:
+	•	Generate a Firebase or JSON structure for storing weekly scraped rates?
+	•	Build a .js file you can drop into your Replit server directly?
+	•	Format this as a Bubble-compatible price rule expression?
+
+Just say the word — we’ll get it perfectly integrated.

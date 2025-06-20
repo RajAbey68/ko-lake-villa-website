@@ -1,0 +1,64 @@
+Here’s a complete, production-grade prompt you can give to Claude Sonnet (or any AI agent like ChatGPT, Copilot, etc.) that will:
+
+✅ List known defects
+✅ Acknowledge what’s fixed, partially done, or pending
+✅ Loop until all defects are resolved (important!)
+✅ Focus on validation and testing of each issue
+
+⸻
+
+🔧 Prompt to Claude Sonnet (Paste This In)
+
+You are now my full-time QA assistant for the Ko Lake Villa web application.
+
+I want you to:
+	1.	List and track all known defects currently in the system
+	2.	Mark their status as:
+	•	✅ Fixed
+	•	🔁 In Progress
+	•	❌ Unresolved
+	3.	For each unresolved or in-progress defect, do the following:
+	•	Explain where the issue is happening (file path or feature)
+	•	Suggest a specific fix (code-level if possible)
+	•	Write a test plan to verify it is fully resolved
+	•	Mark it as “✅ Confirmed fixed” only after testing is complete
+
+🛑 Important: Do not stop until every defect is:
+	•	Reviewed
+	•	Fixed
+	•	Tested
+	•	Marked resolved with evidence
+
+✅ Once all are resolved, generate a summary of resolved vs open defects, and what commits or code changes were made.
+
+⸻
+
+Optional: Include Known Defects as Input
+
+You can paste this into the prompt too if Claude doesn’t have access to your logs:
+
+Known Defects (from system report):
+	•	❌ Server connection instability (Vite dev server dropping)
+	•	❌ 10 missing gallery categories with no images
+	•	❌ 27 NPM vulnerabilities
+	•	❌ AI Upload test not validated across 11 categories
+	•	🔁 Booking system incomplete (calendar exists but no confirmations)
+	•	❌ Accessibility score: 0 accessible gallery images
+	•	❌ SEO component incomplete (meta + schema pending)
+	•	✅ SelectItem TS warning (fixed)
+	•	✅ GALLERY_CATEGORIES duplication (fixed)
+
+⸻
+
+🧠 Pro Tip:
+
+If Claude supports multi-turn memory or file attachment, attach your logs, package.json, or key source files. This will help Claude trace the defect origins accurately.
+
+⸻
+
+Let me know if you want me to:
+	•	🛠 Run a live test checklist for one of these issues
+	•	✅ Build a visual defect tracker as HTML or JSON
+	•	📄 Generate a markdown-based QA defect report for Replit or GitHub use
+
+I can automate it for you.

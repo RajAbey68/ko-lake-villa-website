@@ -1,121 +1,27 @@
-# Dependencies
-node_modules/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Production builds
-dist/
-build/
+# env files
+.env*
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# vercel
+.vercel
 
-# Database
-*.db
-*.sqlite
-
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# OS generated files
-.DS_Store
-<<<<<<< HEAD
-server/public
-vite.config.ts.*
-*.tar.gz
-# Node and build files
-node_modules/
-dist/
-.DS_Store
-
-# Build tools
-*.tar.gz
-*.log
-*.env
-.env.*
-
-# Local development artifacts
-*.zip
-*.bak
-*.old
-
-# Replit and OS
-.replit
-*.swp
-
-# Specific folders
-server/public/
-vite.config.ts.*
-# Remove the zip file from Git (but not from your workspace)
-git rm --cached ko-lake-villa.zip
-
-# Add and commit the updated .gitignore
-git add .gitignore
-git commit -m "Update .gitignore to exclude large local files and dev artifacts"
-
-# Push to GitHub
-git push -u origin main
-
-exit
-ko-lake-villa.zip
-=======
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Upload directories (keep structure, ignore content)
-uploads/**/*
-!uploads/.gitkeep
-
-# Test artifacts
-test-results/
-playwright-report/
-
-# Development artifacts
-*.backup
-*.old
-attached_assets/
-*.test.js
-*-test.js
-test-*.js
-comprehensive-*.js
-admin-*.js
-fix-*.js
-debug-*.js
-emergency-*.js
-clean-*.js
-deployment-*.js
-automated-*.js
-browser-*.js
-gallery-*.js
-accommodation-*.js
->>>>>>> dev
+# typescript
+*.tsbuildinfo
+next-env.d.ts

@@ -1,0 +1,69 @@
+// 1. Fix Upload Endpoint (server/routes.ts)
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { analyzeImageWithAI } from './mediaAnalyzer';
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+router.post("/api/upload", upload.single('image'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No image uploaded" });
+
+  try {
+    const result = await analyzeImageWithAI(req.file.path, req.body.category);
+    const useAI = result.confidence > 0.7;
+
+    const metadata = {
+      category: useAI ? result.category : req.body.category,
+      title: useAI ? result.title : req.body.title,
+      description: useAI ? result.description : req.body.description,
+      tags: useAI ? result.tags : req.body.tags,
+      confidence: result.confidence
+    };
+
+    fs.renameSync(req.file.path, `uploads/${req.file.originalname}`); // Save image properly
+
+    res.status(200).json({ message: "Upload successful", metadata });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "AI analysis failed" });
+  }
+});
+
+export default router;
+
+// 2. AI Analysis Integration (server/mediaAnalyzer.ts)
+export async function analyzeImageWithAI(imagePath: string, userCategory: string) {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  const imageBuffer = fs.readFileSync(imagePath);
+  const base64Image = imageBuffer.toString('base64');
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `Analyze this Ko Lake Villa image. Categories: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions. Suggest best category, title, description, and 5 relevant tags. Return JSON: {\"category\": \"...\", \"title\": \"...\", \"description\": \"...\", \"tags\": [\"...\"], \"confidence\": 0.95}`
+          },
+          {
+            type: "image_url",
+            image_url: { url: `data:image/jpeg;base64,${base64Image}` }
+          }
+        ]
+      }
+    ],
+    response_format: { type: "json_object" }
+  });
+
+  return JSON.parse(response.choices[0].message.content);
+}

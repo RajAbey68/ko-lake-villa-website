@@ -1,0 +1,145 @@
+Absolutely — here’s a single Replit Agent prompt + complete working script that will add the missing “Pricing Manager” section to your Admin Dashboard.
+
+It will show:
+	•	✅ Airbnb rates (from your JSON baseline)
+	•	✅ Your direct rates (auto-calculated)
+	•	✅ Savings in USD
+	•	✅ Action buttons:
+	•	Open Pricing Calendar
+	•	Preview Live Rates
+	•	(Optional) Edit Description
+
+⸻
+
+🔧 🟤 Replit Agent Prompt — “Pricing Manager” Card for Admin Dashboard
+
+Prompt:
+You are working on the Ko Lake Villa website hosted at https://skill-bridge-rajabey68.replit.app/admin/dashboard.
+Update the admin dashboard by inserting a new “Pricing Manager” card below the subscriber stats and above “Recent Activity.”
+
+The card should:
+	•	Read Airbnb rates from /static/pricing.json
+	•	Apply 10% discount for direct bookings
+	•	Show direct price, Airbnb price, and savings per room
+	•	Display action buttons:
+	•	“🔁 Open Pricing Calendar” → /admin/calendar
+	•	“👁 Preview Live Rates” → /accommodation
+
+Use a warm green gradient or soft shadow to distinguish this pricing block.
+
+⸻
+
+🧱 Example JSON Data (static/pricing.json)
+
+{
+  "updated": "2025-05-25T15:55:00Z",
+  "rates": {
+    "knp": { "sun": 431 },
+    "knp1": { "sun": 119 },
+    "knp3": { "sun": 70 },
+    "knp6": { "sun": 250 }
+  }
+}
+
+
+⸻
+
+✅ Full Component Code – Add to Dashboard.tsx
+
+// imports
+import pricing from "../../../static/pricing.json";
+
+const rooms = {
+  knp: "Entire Villa (KNP)",
+  knp1: "Family Suite (KNP1)",
+  knp3: "Twin/Triple Room (KNP3)",
+  knp6: "Group Room (KNP6)",
+};
+
+function calculateDirectRate(rate: number) {
+  return +(rate * 0.9).toFixed(2); // 10% discount
+}
+
+function PricingManagerCard() {
+  const updated = new Date(pricing.updated).toLocaleString();
+
+  return (
+    <div style={{
+      background: 'linear-gradient(to right, #e6f5e9, #f4fdf6)',
+      padding: '1rem',
+      borderRadius: '10px',
+      boxShadow: '0 1px 6px rgba(0,0,0,0.1)',
+      marginBottom: '1.5rem'
+    }}>
+      <h3>💸 Pricing Manager</h3>
+      <p style={{ fontStyle: 'italic', marginBottom: '0.5rem' }}>
+        Last updated: {updated}
+      </p>
+      <table width="100%" style={{ marginBottom: '1rem' }}>
+        <thead>
+          <tr>
+            <th align="left">Room</th>
+            <th>Airbnb Rate</th>
+            <th>Your Rate</th>
+            <th>Guest Savings</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(pricing.rates).map(([id, { sun }]) => {
+            const direct = calculateDirectRate(sun);
+            const saving = (sun - direct).toFixed(2);
+            return (
+              <tr key={id}>
+                <td>{rooms[id]}</td>
+                <td>${sun}</td>
+                <td style={{ color: "green" }}>${direct}</td>
+                <td>${saving}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <a href="/admin/calendar">
+          <button style={{ background: "#469458", color: "white", padding: "0.5rem 1rem" }}>🔁 Open Pricing Calendar</button>
+        </a>
+        <a href="/accommodation" target="_blank">
+          <button style={{ background: "#ccc", padding: "0.5rem 1rem" }}>👁 Preview Live Rates</button>
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// Inject into Dashboard.tsx render
+export default function AdminDashboard() {
+  return (
+    <main>
+      {/* existing dashboard content */}
+      <WelcomeCard />
+      <StatsOverview />
+      
+      {/* insert here */}
+      <PricingManagerCard />
+
+      <RecentActivity />
+    </main>
+  );
+}
+
+
+⸻
+
+✅ What This Solves
+	•	Ensures real-time parity between your Replit frontend and actual Airbnb pricing
+	•	Gives admins clear view and control over live pricing
+	•	Visually aligns with the rest of your admin UI
+
+⸻
+
+Would you like me to also:
+	•	Add a one-click “Update Rate” editor inline?
+	•	Add seasonal override fields for high/low season?
+	•	Connect this to Firebase or Supabase instead of local JSON?
+
+You’re one step from full OTA-grade control — I’m ready when you are.

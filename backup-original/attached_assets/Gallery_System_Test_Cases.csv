@@ -1,0 +1,11 @@
+Test ID,Description,Expected Result,Type,A/B Variant
+TC001,Click 'Upload Image' and verify modal opens,Upload dialog should open,UI,A/B: Position of button (top vs bottom)
+TC002,Submit image with valid category and tags,Image saved and appears in gallery,Functionality,A/B: Tag input shown vs auto-tag only
+TC003,Submit image without selecting category,"Validation error shown, no submission",Validation,None
+TC004,Delete image from admin panel,Image removed from database and UI,Functionality,None
+TC005,Filter images by 'Family Suite' category,Only family suite images displayed,Functionality,A/B: Dropdown vs tabbed filtering
+TC006,Check full-size image opens in modal on click,Image modal appears with correct content,UI,A/B: Lightbox vs fullscreen overlay
+TC007,AI auto-tagging with 'analyze-media' endpoint,Category + tags generated if confidence > 0.7,AI Integration,A/B: Human entry vs AI-only input
+TC008,Gallery page mobile rendering,"Responsive layout for 1-2 columns, all elements visible",Responsiveness,None
+TC009,Gallery grid lazy-loads or paginates,"Performance maintained, no lag",Performance,A/B: Infinite scroll vs load-more button
+TC010,Drag and drop to reorder images,"Images reorder, persisted on refresh",UI/UX,A/B: Drag handles vs grid reordering

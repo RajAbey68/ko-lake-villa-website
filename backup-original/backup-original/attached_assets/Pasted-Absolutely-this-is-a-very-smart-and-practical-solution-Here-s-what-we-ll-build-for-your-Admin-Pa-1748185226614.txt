@@ -1,0 +1,133 @@
+Absolutely — this is a very smart and practical solution.
+
+Here’s what we’ll build for your Admin Panel on Replit:
+
+⸻
+
+✅ Admin Panel Features – Smart Pricing Control
+
+Feature	Description
+📅 Calendar View	Shows current Airbnb base rates (Sun–Tues) for each room
+🔁 Refresh Pricing Button	Manually updates the JSON pricing file using the most recent observed data
+✍️ Manual Edit Option	Still allows manual weekly price override for control
+
+
+⸻
+
+🧱 File & Route Structure (Replit / Express / EJS or React)
+
+/admin
+├── calendar.ts        <-- Route that renders current pricing and calendar table
+├── refresh.ts         <-- Endpoint that runs "pull latest" (manual sync trigger)
+├── edit.ts            <-- Optional JSON editor UI
+/static/pricing.json   <-- Stores Airbnb-derived baselines
+
+
+⸻
+
+🧩 Step 1: pricing.json (Simple Price Store)
+
+{
+  "updated": "2025-05-25T10:00:00Z",
+  "rates": {
+    "knp": {
+      "mon": 431,
+      "tue": 431,
+      "sun": 431
+    },
+    "knp1": {
+      "mon": 119,
+      "tue": 119,
+      "sun": 71
+    },
+    "knp3": {
+      "mon": 70,
+      "tue": 70,
+      "sun": 50
+    }
+  }
+}
+
+
+⸻
+
+🖥️ Step 2: Admin Calendar Page (admin/calendar.ts or /calendar route)
+
+import pricing from '../static/pricing.json';
+
+export default function AdminCalendar() {
+  return (
+    <div className="admin-calendar">
+      <h2>📅 Ko Lake Villa – Airbnb Price Calendar (Sun–Tues)</h2>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Room</th><th>Sunday</th><th>Monday</th><th>Tuesday</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(pricing.rates).map(([roomId, days]) => (
+            <tr key={roomId}>
+              <td>{roomId.toUpperCase()}</td>
+              <td>${days.sun}</td>
+              <td>${days.mon}</td>
+              <td>${days.tue}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p><em>Last updated: {new Date(pricing.updated).toLocaleString()}</em></p>
+      <form method="POST" action="/admin/refresh">
+        <button type="submit">🔁 Refresh Airbnb Pricing</button>
+      </form>
+    </div>
+  );
+}
+
+
+⸻
+
+🔁 Step 3: Refresh Pricing Button Logic (admin/refresh.ts)
+
+import fs from 'fs';
+import path from 'path';
+
+export function refreshPrices(req, res) {
+  // Simulate fetching from screenshot or PMS JSON feed
+  const latestPricing = {
+    updated: new Date().toISOString(),
+    rates: {
+      knp: { sun: 431, mon: 431, tue: 431 },
+      knp1: { sun: 71, mon: 119, tue: 119 },
+      knp3: { sun: 50, mon: 70, tue: 70 }
+    }
+  };
+
+  const filePath = path.join(__dirname, '../static/pricing.json');
+  fs.writeFileSync(filePath, JSON.stringify(latestPricing, null, 2));
+  res.redirect('/admin/calendar');
+}
+
+
+⸻
+
+✅ Optional Add-On: Manual JSON Editor UI
+
+You can add a /admin/edit route that renders a basic form to input raw values and update pricing.json if needed manually (weekly bulk edit).
+
+⸻
+
+🧪 Validation and Safety
+	•	Add a simple schema check to make sure all rooms have numeric rates for 3 days
+	•	Display a toast or message like “✅ Prices updated on Sun, May 25 at 15:55”
+
+⸻
+
+Want This Bundled?
+
+Would you like me to:
+	•	Generate this as a .zip project with all routes ready for upload to Replit?
+	•	Include authentication for admin-only access?
+	•	Connect the live frontend (/accommodation) to always read these dynamic values?
+
+Let me know how you’d like it packaged — ready to deploy.

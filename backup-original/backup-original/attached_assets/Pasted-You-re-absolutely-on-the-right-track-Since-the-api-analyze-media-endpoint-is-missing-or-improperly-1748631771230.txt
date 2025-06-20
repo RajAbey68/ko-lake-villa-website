@@ -1,0 +1,85 @@
+You’re absolutely on the right track. Since the /api/analyze-media endpoint is missing or improperly implemented, let me provide you with:
+
+⸻
+
+✅ Full Fix: Add AI Image Analysis Endpoint
+
+Paste this into your server/routes.ts file:
+
+import express from 'express';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import OpenAI from 'openai';
+
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Add this route
+router.post('/api/analyze-media', upload.single('image'), async (req, res) => {
+  try {
+    const { category = "" } = req.body;
+    const filePath = req.file?.path;
+
+    if (!filePath) {
+      return res.status(400).json({ error: 'Image file missing' });
+    }
+
+    const buffer = fs.readFileSync(filePath);
+    const base64Image = buffer.toString('base64');
+
+    const aiResponse = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Analyze this Ko Lake Villa image. Category: ${category || "unspecified"}. Suggest best category, title, description, and 5 tags in JSON format.`,
+            },
+            {
+              type: 'image_url',
+              image_url: { url: `data:image/jpeg;base64,${base64Image}` },
+            },
+          ],
+        },
+      ],
+      response_format: 'json',
+    });
+
+    const result = JSON.parse(aiResponse.choices[0].message.content || '{}');
+    res.json(result);
+  } catch (error) {
+    console.error('AI analysis error:', error);
+    res.status(500).json({ error: 'AI analysis failed' });
+  } finally {
+    if (req.file?.path) fs.unlinkSync(req.file.path); // cleanup
+  }
+});
+
+export default router;
+
+
+⸻
+
+📌 Checklist
+
+Item	Status
+.env has OPENAI_API_KEY=sk-...	✅ Required
+Route added to server/routes.ts	✅ Paste above
+Route wired in app.ts or index.ts	✅ Add: app.use('/', router)
+Client calls POST /api/analyze-media with image field	✅ Ensure naming matches image
+Replit Secrets configured	✅ Use Replit’s Secrets tab for security
+
+
+⸻
+
+Would you like me to also:
+	1.	🧪 Provide a test case for Playwright to validate the endpoint?
+	2.	🧠 Enhance the prompt so it adapts to villa-specific categories?
+	3.	🎯 Validate AI confidence threshold before applying AI tags?

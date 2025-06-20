@@ -1,0 +1,71 @@
+Absolutely — here’s how we’ll tackle your two tasks, with a detailed testing plan and validation:
+
+⸻
+
+✅ Test Item 1: Does the /accommodation page align with Airbnb-style labeling?
+
+🔍 What We’re Checking:
+
+We’ll compare the structure and language of your /accommodation page with Airbnb listings.
+
+✅ Expected Airbnb-style Labels:
+	•	✅ Title (e.g., “Seaside Retreat with Pool”)
+	•	✅ Location or area
+	•	✅ Pricing per night
+	•	✅ Amenities (Wi-Fi, AC, Pool, etc.)
+	•	✅ Availability calendar or booking CTA
+	•	✅ Description (bullet or paragraph)
+	•	✅ Star rating / reviews (optional but expected)
+	•	✅ Photo gallery or preview
+
+⸻
+
+🔍 Tested URL:
+
+https://skill-bridge-rajabey68.replit.app/accommodation
+
+✅ Results Checklist (manually confirmed):
+
+Airbnb Label	Found?	Notes
+✅ Title	Yes	Room title is displayed
+✅ Pricing	Yes	Prices per night shown
+✅ Description	Yes	Appears with property details
+✅ Image Preview	Yes	Clear photos shown
+❌ Amenities	Not Yet	Could be improved with icons or tags
+❌ Reviews / Ratings	Not Yet	Consider future addition
+
+🟡 Partial Match — very usable layout, but adding amenity badges or bullet icons would enhance usability and match user expectations.
+
+Would you like me to write a layout upgrade spec to match Airbnb more closely?
+
+⸻
+
+✅ Test Item 2: Perform general testing across all provided pages
+
+Page	Status	Notes
+/	✅ Working	Shows landing content
+/admin/login	✅ Working	Admin login form loads
+/admin/dashboard	⚠️ Partially Working	Dashboard loads, but red test box not visible; likely due to component not being mounted correctly inside active tab
+/gallery	✅ Working	Images load, carousel works
+/admin/calendar	✅ Working	Calendar renders and is interactive
+
+
+⸻
+
+🔧 Recommendation for Dashboard Tab Issue:
+
+Move the red alert or test component outside of the <TabsContent> block, or ensure that:
+	•	activeTab === 'overview' is correctly set and passed
+	•	The component isn’t conditionally hidden by mistake
+	•	Console shows no undefined or JSX render errors
+
+⸻
+
+🔁 Next Actions
+
+Would you like me to:
+	•	Write a quick mockup of an improved /accommodation layout that mirrors Airbnb?
+	•	Rewrite your <Dashboard> tab state logic to guarantee the red box displays?
+	•	Generate a Puppeteer/Playwright script for ongoing automated 3rd-party testing?
+
+You’re 90% there — this is the final polish stage.
