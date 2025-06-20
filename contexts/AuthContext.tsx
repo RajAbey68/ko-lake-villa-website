@@ -1,17 +1,17 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import {
-  type User,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth"
-import { auth, storeAuthUser, getStoredAuthUser, clearStoredAuthUser } from "@/lib/firebase"
+
+interface MockUser {
+  uid: string
+  email: string
+  displayName: string | null
+  photoURL: string | null
+  emailVerified: boolean
+}
 
 interface AuthContextType {
-  user: User | null
+  user: MockUser | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
@@ -21,8 +21,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<MockUser | null>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     // Check for stored user on mount
@@ -30,22 +30,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser) {
       setUser(storedUser)
     }
-
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
-      storeAuthUser(user)
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
   }, [])
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password)
-      storeAuthUser(result.user)
+      // Mock authentication - for demo purposes
+      if (email === "admin@kolakevilla.com" && password === "admin123") {
+        const mockUser: MockUser = {
+          uid: "mock-user-id",
+          email: email,
+          displayName: "Admin User",
+          photoURL: null,
+          emailVerified: true,
+        }
+        setUser(mockUser)
+        storeAuthUser(mockUser)
+      } else {
+        throw new Error("Invalid credentials")
+      }
     } catch (error) {
       console.error("Sign in error:", error)
       throw error
@@ -57,8 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string) => {
     setLoading(true)
     try {
-      const result = await createUserWithEmailAndPassword(auth, email, password)
-      storeAuthUser(result.user)
+      // Mock signup - for demo purposes
+      const mockUser: MockUser = {
+        uid: "mock-user-id-" + Date.now(),
+        email: email,
+        displayName: null,
+        photoURL: null,
+        emailVerified: false,
+      }
+      setUser(mockUser)
+      storeAuthUser(mockUser)
     } catch (error) {
       console.error("Sign up error:", error)
       throw error
@@ -70,7 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setLoading(true)
     try {
-      await signOut(auth)
       clearStoredAuthUser()
       setUser(null)
     } catch (error) {
@@ -98,4 +108,36 @@ export function useAuth() {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
+}
+
+// Mock storage functions
+const storeAuthUser = (user: MockUser | null): void => {
+  if (typeof window !== "undefined") {
+    if (user) {
+      localStorage.setItem("authUser", JSON.stringify(user))
+    } else {
+      localStorage.removeItem("authUser")
+    }
+  }
+}
+
+const getStoredAuthUser = (): MockUser | null => {
+  if (typeof window !== "undefined") {
+    try {
+      const storedUser = localStorage.getItem("authUser")
+      if (storedUser) {
+        return JSON.parse(storedUser) as MockUser
+      }
+    } catch (error) {
+      console.error("Error parsing stored auth user:", error)
+      localStorage.removeItem("authUser")
+    }
+  }
+  return null
+}
+
+const clearStoredAuthUser = (): void => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("authUser")
+  }
 }
