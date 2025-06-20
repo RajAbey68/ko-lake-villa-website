@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ko Lake Villa - Easy Image Organizer</title>
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: #FDF6EE;
+      color: #8B5E3C;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      color: #8B5E3C;
+      text-align: center;
+    }
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    .btn {
+      background-color: #FF914D;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .btn:hover {
+      background-color: #e67e3e;
+    }
+    .btn-secondary {
+      background-color: #A0B985;
+    }
+    .btn-secondary:hover {
+      background-color: #8ca571;
+    }
+    .center {
+      text-align: center;
+    }
+    .category-selection {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .category-item {
+      background-color: white;
+      border: 1px solid #A0B985;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .category-item.active {
+      background-color: #A0B985;
+      color: white;
+    }
+    .drop-area {
+      border: 3px dashed #A0B985;
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      margin: 30px 0;
+      background-color: rgba(255, 255, 255, 0.5);
+      transition: all 0.3s;
+    }
+    .drop-area.highlight {
+      background-color: rgba(160, 185, 133, 0.1);
+      border-color: #FF914D;
+    }
+    .file-list {
+      margin-top: 30px;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background-color: white;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .file-thumb {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .file-details {
+      flex: 1;
+    }
+    .file-name {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .file-size {
+      font-size: 0.8em;
+      color: #888;
+    }
+    .file-controls {
+      display: flex;
+      gap: 5px;
+    }
+    .remove-btn {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    .info-banner {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .result-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid #ddd;
+    }
+    .download-section {
+      background-color: #e7f5e8;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .category-folders {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .folder {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    .folder-icon {
+      color: #FF914D;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    .folder-name {
+      font-weight: bold;
+    }
+    .folder-count {
+      color: #666;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ko Lake Villa - Easy Image Organizer</h1>
+    <p class="center">Organize your images by category for your Ko Lake Villa website</p>
+  </div>
+  
+  <div class="container">
+    <div class="info-banner">
+      <strong>How this works:</strong> This tool helps you organize your Ko Lake Villa photos by category. 
+      Select a category, add your images, and the tool will create labeled folders on your computer.
+    </div>
+    
+    <h2>Step 1: Select a category</h2>
+    <div class="category-selection" id="categorySelection">
+      <div class="category-item active" data-category="Family Suite">Family Suite</div>
+      <div class="category-item" data-category="Group Room">Group Room</div>
+      <div class="category-item" data-category="Triple Room">Triple Room</div>
+      <div class="category-item" data-category="Dining Area">Dining Area</div>
+      <div class="category-item" data-category="Pool Deck">Pool Deck</div>
+      <div class="category-item" data-category="Lake Garden">Lake Garden</div>
+      <div class="category-item" data-category="Roof Garden">Roof Garden</div>
+      <div class="category-item" data-category="Front Garden and Entrance">Front Garden</div>
+      <div class="category-item" data-category="Koggala Lake Ahangama and Surrounding">Koggala Lake</div>
+      <div class="category-item" data-category="Excursions">Excursions</div>
+    </div>
+    
+    <h2>Step 2: Add your images</h2>
+    <div class="drop-area" id="dropArea">
+      <p>Drag and drop your images here</p>
+      <p>or</p>
+      <button type="button" class="btn" id="selectFilesBtn">Select Images</button>
+      <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+    </div>
+    
+    <div class="file-list" id="fileList"></div>
+    
+    <div class="center">
+      <button type="button" class="btn btn-secondary" id="resetBtn">Reset</button>
+      <button type="button" class="btn" id="organizeBtn">Organize Images by Category</button>
+    </div>
+  </div>
+  
+  <div class="container result-section" id="resultSection" style="display: none;">
+    <h2>Your Organized Images</h2>
+    
+    <div class="category-folders" id="categoryFolders">
+      <!-- Folders will be added here -->
+    </div>
+    
+    <div class="download-section">
+      <p>Your images are now organized into categories!</p>
+      <p>Right-click on images in each category and save them to your computer in folders with the same names.</p>
+    </div>
+  </div>
+  
+  <script>
+    // DOM elements
+    const categoryItems = document.querySelectorAll('.category-item');
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const selectFilesBtn = document.getElementById('selectFilesBtn');
+    const fileList = document.getElementById('fileList');
+    const resetBtn = document.getElementById('resetBtn');
+    const organizeBtn = document.getElementById('organizeBtn');
+    const resultSection = document.getElementById('resultSection');
+    const categoryFolders = document.getElementById('categoryFolders');
+    
+    // App state
+    let selectedCategory = 'Family Suite';
+    let selectedFiles = [];
+    let organizedImages = {};
+    
+    // Initialize category folders for each category
+    categoryItems.forEach(item => {
+      const category = item.dataset.category;
+      organizedImages[category] = [];
+    });
+    
+    // Set up event listeners
+    categoryItems.forEach(item => {
+      item.addEventListener('click', () => {
+        // Remove active class from all
+        categoryItems.forEach(i => i.classList.remove('active'));
+        // Add active to clicked
+        item.classList.add('active');
+        // Update selected category
+        selectedCategory = item.dataset.category;
+      });
+    });
+    
+    // Handle file selection button
+    selectFilesBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+    
+    // Set up drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add('highlight');
+      }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove('highlight');
+      }, false);
+    });
+    
+    dropArea.addEventListener('drop', e => {
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    });
+    
+    // Handle reset button
+    resetBtn.addEventListener('click', () => {
+      // Clear file list
+      fileList.innerHTML = '';
+      selectedFiles = [];
+      
+      // Reset each category in organizedImages
+      Object.keys(organizedImages).forEach(category => {
+        organizedImages[category] = [];
+      });
+      
+      // Hide results
+      resultSection.style.display = 'none';
+    });
+    
+    // Handle organize button
+    organizeBtn.addEventListener('click', () => {
+      if (selectedFiles.length === 0) {
+        alert('Please add some images first.');
+        return;
+      }
+      
+      organizeImages();
+      displayOrganizedImages();
+      resultSection.style.display = 'block';
+      
+      // Scroll to results
+      resultSection.scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    // Handle files selected by user
+    function handleFiles(files) {
+      // Filter to only include image files
+      const imageFiles = Array.from(files).filter(file => {
+        return file.type.startsWith('image/');
+      });
+      
+      if (imageFiles.length === 0) {
+        alert('Please select image files only (JPG, PNG, etc).');
+        return;
+      }
+      
+      // Add all files to our selected category
+      imageFiles.forEach(file => {
+        // Create a new fileObj with the current category
+        const fileObj = {
+          file: file,
+          category: selectedCategory
+        };
+        
+        selectedFiles.push(fileObj);
+        
+        // Create and add file item to list
+        createFileItem(fileObj);
+      });
+    }
+    
+    // Create a file item in the list
+    function createFileItem(fileObj) {
+      const file = fileObj.file;
+      const category = fileObj.category;
+      
+      // Create list item
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      
+      // Create thumbnail
+      const thumbnail = document.createElement('img');
+      thumbnail.className = 'file-thumb';
+      thumbnail.src = URL.createObjectURL(file);
+      
+      // Create file details
+      const details = document.createElement('div');
+      details.className = 'file-details';
+      
+      const name = document.createElement('div');
+      name.className = 'file-name';
+      name.textContent = file.name;
+      
+      const size = document.createElement('div');
+      size.className = 'file-size';
+      size.textContent = formatFileSize(file.size) + ' - Category: ' + category;
+      
+      details.appendChild(name);
+      details.appendChild(size);
+      
+      // Create controls
+      const controls = document.createElement('div');
+      controls.className = 'file-controls';
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = 'Remove';
+      removeBtn.addEventListener('click', () => {
+        // Remove from selectedFiles
+        const index = selectedFiles.indexOf(fileObj);
+        if (index > -1) {
+          selectedFiles.splice(index, 1);
+        }
+        
+        // Remove item from list
+        item.remove();
+      });
+      
+      controls.appendChild(removeBtn);
+      
+      // Add all to item
+      item.appendChild(thumbnail);
+      item.appendChild(details);
+      item.appendChild(controls);
+      
+      // Add to list
+      fileList.appendChild(item);
+    }
+    
+    // Format file size for display
+    function formatFileSize(bytes) {
+      if (bytes < 1024) {
+        return bytes + ' bytes';
+      } else if (bytes < 1048576) {
+        return (bytes / 1024).toFixed(1) + ' KB';
+      } else {
+        return (bytes / 1048576).toFixed(1) + ' MB';
+      }
+    }
+    
+    // Organize images into categories
+    function organizeImages() {
+      // Reset organized images
+      Object.keys(organizedImages).forEach(category => {
+        organizedImages[category] = [];
+      });
+      
+      // Sort files into categories
+      selectedFiles.forEach(fileObj => {
+        if (organizedImages[fileObj.category]) {
+          organizedImages[fileObj.category].push(fileObj);
+        }
+      });
+    }
+    
+    // Display organized images
+    function displayOrganizedImages() {
+      // Clear previous folders
+      categoryFolders.innerHTML = '';
+      
+      // Create a folder for each category with files
+      Object.keys(organizedImages).forEach(category => {
+        const files = organizedImages[category];
+        
+        if (files.length > 0) {
+          // Create folder div
+          const folderDiv = document.createElement('div');
+          folderDiv.className = 'folder';
+          
+          // Folder icon
+          const folderIcon = document.createElement('div');
+          folderIcon.className = 'folder-icon';
+          folderIcon.innerHTML = '📁';
+          
+          // Folder name
+          const folderName = document.createElement('div');
+          folderName.className = 'folder-name';
+          folderName.textContent = category;
+          
+          // Folder count
+          const folderCount = document.createElement('div');
+          folderCount.className = 'folder-count';
+          folderCount.textContent = files.length + ' images';
+          
+          folderDiv.appendChild(folderIcon);
+          folderDiv.appendChild(folderName);
+          folderDiv.appendChild(folderCount);
+          
+          // Add folder to category folders
+          categoryFolders.appendChild(folderDiv);
+          
+          // Create folder contents when clicked
+          folderDiv.addEventListener('click', () => {
+            showFolderContents(category, files);
+          });
+        }
+      });
+    }
+    
+    // Show folder contents
+    function showFolderContents(category, files) {
+      // Create modal
+      const modal = document.createElement('div');
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.right = '0';
+      modal.style.bottom = '0';
+      modal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+      modal.style.display = 'flex';
+      modal.style.justifyContent = 'center';
+      modal.style.alignItems = 'center';
+      modal.style.zIndex = '1000';
+      
+      // Create content
+      const content = document.createElement('div');
+      content.style.backgroundColor = 'white';
+      content.style.borderRadius = '8px';
+      content.style.padding = '20px';
+      content.style.maxWidth = '80%';
+      content.style.maxHeight = '80vh';
+      content.style.overflow = 'auto';
+      
+      // Create header
+      const header = document.createElement('div');
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+      header.style.marginBottom = '20px';
+      
+      const title = document.createElement('h3');
+      title.textContent = category + ' Images';
+      title.style.margin = '0';
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = 'Close';
+      closeBtn.className = 'btn btn-secondary';
+      closeBtn.style.padding = '5px 10px';
+      closeBtn.addEventListener('click', () => {
+        document.body.removeChild(modal);
+      });
+      
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      
+      // Create gallery
+      const gallery = document.createElement('div');
+      gallery.style.display = 'grid';
+      gallery.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+      gallery.style.gap = '15px';
+      
+      // Add each image
+      files.forEach(fileObj => {
+        const imgContainer = document.createElement('div');
+        imgContainer.style.textAlign = 'center';
+        
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(fileObj.file);
+        img.style.width = '100%';
+        img.style.height = '150px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '5px';
+        img.style.marginBottom = '5px';
+        
+        const imgName = document.createElement('div');
+        imgName.textContent = fileObj.file.name;
+        imgName.style.fontSize = '0.9em';
+        imgName.style.overflowWrap = 'break-word';
+        
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(imgName);
+        gallery.appendChild(imgContainer);
+      });
+      
+      // Add instructions
+      const instructions = document.createElement('div');
+      instructions.style.backgroundColor = '#f8f9fa';
+      instructions.style.padding = '15px';
+      instructions.style.borderRadius = '5px';
+      instructions.style.marginTop = '20px';
+      
+      instructions.innerHTML = `
+        <p><strong>To save these images:</strong></p>
+        <ol>
+          <li>Create a folder on your computer named "${category}"</li>
+          <li>Right-click on each image and select "Save image as"</li>
+          <li>Save the image to your "${category}" folder</li>
+        </ol>
+      `;
+      
+      // Assemble modal
+      content.appendChild(header);
+      content.appendChild(gallery);
+      content.appendChild(instructions);
+      modal.appendChild(content);
+      
+      // Close when clicking outside content
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+        }
+      });
+      
+      // Add to body
+      document.body.appendChild(modal);
+    }
+  </script>
+</body>
+</html>

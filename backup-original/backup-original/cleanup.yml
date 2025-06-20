@@ -1,0 +1,18 @@
+name: 🚫 Cleanup Old Workflows
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete old deploy to Replit workflow (manual)
+        run: echo "Manually delete .github/workflows/deploy-replit.yml if present."
+
+      - name: Delete roadmap-sync.yml (manual)
+        run: echo "Manually delete .github/workflows/roadmap-sync.yml if present."
+
+      - name: Confirm cleanup
+        run: echo "Old workflows flagged for cleanup."
