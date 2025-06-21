@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, Image as ImageIcon, Video, X, Loader2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
+import { useSwipeable } from 'react-swipeable';
 
 // Define the type for a single gallery image
 interface GalleryImage {
@@ -41,12 +42,19 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, currentIndex, images.length, onClose, onNavigate]);
 
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => onNavigate(currentIndex < images.length - 1 ? currentIndex + 1 : 0),
+    onSwipedRight: () => onNavigate(currentIndex > 0 ? currentIndex - 1 : images.length - 1),
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
+
   if (!isOpen) return null;
 
   const isVideo = image.mediaType === 'video';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col animate-fadeIn">
+    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col animate-fadeIn" {...swipeHandlers}>
       <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <h3 className="text-xl font-semibold">{image.title}</h3>
