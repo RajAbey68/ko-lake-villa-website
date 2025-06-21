@@ -1,11 +1,13 @@
 "use client"
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Filter, Image as ImageIcon, Video, X, Loader2, AlertCircle } from 'lucide-react';
+import { Filter, Image as ImageIcon, Video, X, Loader2, AlertCircle, MessageSquare, Send } from 'lucide-react';
 import Image from 'next/image';
 import { useSwipeable } from 'react-swipeable';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 // Define the type for a single gallery image
 interface GalleryImage {
@@ -19,6 +21,14 @@ interface GalleryImage {
   alt?: string;
 }
 
+// Define the type for a single comment
+interface Comment {
+  id: string;
+  author: string;
+  text: string;
+  timestamp: string;
+}
+
 // --- Gallery Modal Component ---
 interface GalleryModalProps {
   isOpen: boolean;
@@ -30,6 +40,71 @@ interface GalleryModalProps {
 }
 
 const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate }: GalleryModalProps) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isCommentsLoading, setIsCommentsLoading] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+
+  // Fetch comments when the image changes
+  useEffect(() => {
+    if (!isOpen || !image) return;
+    
+    const fetchComments = async () => {
+      setIsCommentsLoading(true);
+      setCommentError(null);
+      try {
+        const response = await fetch(`/api/gallery/comments?imageId=${image.id}`);
+        if (!response.ok) throw new Error('Failed to fetch comments.');
+        const data = await response.json();
+        setComments(data);
+      } catch (err: any) {
+        setCommentError(err.message);
+      } finally {
+        setIsCommentsLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [isOpen, image]);
+
+  const handleCommentSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const author = formData.get('author') as string;
+    const text = formData.get('text') as string;
+
+    if (!author || !text) {
+      setCommentError("Author and comment text are required.");
+      return;
+    }
+
+    const newComment = { imageId: image.id, author, text };
+
+    // Optimistic UI update
+    const tempId = `temp-${Date.now()}`;
+    setComments(prev => [...prev, { ...newComment, id: tempId, timestamp: new Date().toISOString() }]);
+    event.currentTarget.reset();
+    
+    try {
+      const response = await fetch('/api/gallery/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newComment),
+      });
+
+      if (!response.ok) throw new Error('Failed to submit comment.');
+      
+      const savedComment = await response.json();
+      
+      // Replace temporary comment with the one from the server
+      setComments(prev => prev.map(c => (c.id === tempId ? savedComment : c)));
+
+    } catch (err: any) {
+      setCommentError(err.message);
+      // Revert optimistic update on failure
+      setComments(prev => prev.filter(c => c.id !== tempId));
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -54,42 +129,81 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
   const isVideo = image.mediaType === 'video';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col animate-fadeIn" {...swipeHandlers}>
-      <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
-        <div className="flex items-center gap-4">
-          <h3 className="text-xl font-semibold">{image.title}</h3>
-          <Badge variant="secondary" className="bg-[#FF914D] text-white capitalize">{image.category.replace('-', ' ')}</Badge>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-300">{currentIndex + 1} of {images.length}</span>
-          <Button variant="outline" size="icon" onClick={onClose} className="bg-transparent text-white border-white hover:bg-white hover:text-black">
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center p-4 min-h-0">
-        {isVideo ? (
-          <video src={image.imageUrl} controls autoPlay muted playsInline className="max-w-full max-h-full object-contain" />
-        ) : (
-          <Image src={image.imageUrl} alt={image.alt || image.title} width={1920} height={1080} className="max-w-full max-h-full object-contain" />
-        )}
-      </div>
-
-      <div className="bg-black bg-opacity-50 backdrop-blur-sm text-white p-4">
-        <div className="flex justify-between items-center gap-4">
-          <Button onClick={() => onNavigate(currentIndex > 0 ? currentIndex - 1 : images.length - 1)} className="text-white border-white hover:bg-white hover:text-black" variant="outline">Previous</Button>
-          <div className="text-center flex-1 mx-4">
-            <p className="text-sm mb-2">{image.description}</p>
-            {image.tags && <div className="flex flex-wrap justify-center gap-1">{image.tags.split(',').map((tag, index) => <Badge key={index} variant="outline" className="text-xs">{tag.trim()}</Badge>)}</div>}
+    <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex animate-fadeIn" {...swipeHandlers}>
+      {/* Main Content (Image/Video) */}
+      <div className="flex-grow flex flex-col">
+        <div className="flex justify-between items-center p-4 text-white bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <h3 className="text-xl font-semibold">{image.title}</h3>
+            <Badge variant="secondary" className="bg-[#FF914D] text-white capitalize">{image.category.replace('-', ' ')}</Badge>
           </div>
-          <Button onClick={() => onNavigate(currentIndex < images.length - 1 ? currentIndex + 1 : 0)} className="text-white border-white hover:bg-white hover:text-black" variant="outline">Next</Button>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-300">{currentIndex + 1} of {images.length}</span>
+            <Button variant="outline" size="icon" onClick={onClose} className="bg-transparent text-white border-white hover:bg-white hover:text-black">
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center p-4 min-h-0">
+          {isVideo ? (
+            <video src={image.imageUrl} controls autoPlay muted playsInline className="max-w-full max-h-full object-contain" />
+          ) : (
+            <Image src={image.imageUrl} alt={image.alt || image.title} width={1920} height={1080} className="max-w-full max-h-full object-contain" />
+          )}
+        </div>
+
+        <div className="bg-black bg-opacity-50 backdrop-blur-sm text-white p-4">
+          <div className="flex justify-between items-center gap-4">
+            <Button onClick={() => onNavigate(currentIndex > 0 ? currentIndex - 1 : images.length - 1)} className="text-white border-white hover:bg-white hover:text-black" variant="outline">Previous</Button>
+            <div className="text-center flex-1 mx-4">
+              <p className="text-sm mb-2">{image.description}</p>
+              {image.tags && <div className="flex flex-wrap justify-center gap-1">{image.tags.split(',').map((tag, index) => <Badge key={index} variant="outline" className="text-xs">{tag.trim()}</Badge>)}</div>}
+            </div>
+            <Button onClick={() => onNavigate(currentIndex < images.length - 1 ? currentIndex + 1 : 0)} className="text-white border-white hover:bg-white hover:text-black" variant="outline">Next</Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Comments Sidebar */}
+      <div className="w-full md:w-96 bg-gray-900 text-white flex flex-col border-l border-gray-700 h-full">
+        <div className="p-4 border-b border-gray-700">
+          <h4 className="text-lg font-semibold flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            Comments
+          </h4>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {isCommentsLoading && <div className="flex items-center justify-center gap-2"><Loader2 className="animate-spin w-5 h-5" /><span>Loading...</span></div>}
+          {commentError && <div className="text-red-400 p-2 bg-red-900/50 rounded">{commentError}</div>}
+          {!isCommentsLoading && comments.length === 0 && <div className="text-gray-400">No comments yet. Be the first!</div>}
+          
+          {comments.map(comment => (
+            <div key={comment.id} className="bg-gray-800 p-3 rounded-lg">
+              <div className="flex justify-between items-center mb-1">
+                <p className="font-semibold text-sm">{comment.author}</p>
+                <p className="text-xs text-gray-400">{new Date(comment.timestamp).toLocaleString()}</p>
+              </div>
+              <p className="text-sm">{comment.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 border-t border-gray-700">
+          <form onSubmit={handleCommentSubmit} className="space-y-3">
+            <Input name="author" placeholder="Your name" className="bg-gray-800 border-gray-600 focus:ring-offset-gray-900 focus:ring-white" required />
+            <Textarea name="text" placeholder="Add a comment..." className="bg-gray-800 border-gray-600 focus:ring-offset-gray-900 focus:ring-white" required />
+            <Button type="submit" className="w-full bg-[#FF914D] hover:bg-[#E07B3A]">
+              <Send className="w-4 h-4 mr-2" />
+              Submit
+            </Button>
+          </form>
         </div>
       </div>
     </div>
   );
 };
-
 
 // --- Main Gallery Page Component ---
 export default function GalleryPage() {
