@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Filter, Image as ImageIcon, Video, X, Loader2, AlertCircle, MessageSquare, Send } from 'lucide-react';
+import { Filter, Image as ImageIcon, Video, X, Loader2, AlertCircle, MessageSquare, Send, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { useSwipeable } from 'react-swipeable';
 import { Input } from '@/components/ui/input';
@@ -43,6 +43,13 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
   const [comments, setComments] = useState<Comment[]>([]);
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [currentTags, setCurrentTags] = useState(image.tags || '');
+  const [isAiTagging, setIsAiTagging] = useState(false);
+
+  // Reset tags when image changes
+  useEffect(() => {
+    setCurrentTags(image.tags || '');
+  }, [image]);
 
   // Fetch comments when the image changes
   useEffect(() => {
@@ -105,6 +112,30 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
     }
   };
 
+  const handleAiTagging = async () => {
+    setIsAiTagging(true);
+    try {
+      const response = await fetch('/api/gallery/ai-tag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: image.imageUrl }),
+      });
+      if (!response.ok) throw new Error('AI tagging failed.');
+      const { tags } = await response.json();
+      
+      // Append new unique tags
+      const existingTags = new Set(currentTags.split(',').map(t => t.trim()).filter(Boolean));
+      tags.forEach((tag: string) => existingTags.add(tag));
+      setCurrentTags(Array.from(existingTags).join(', '));
+
+    } catch (error) {
+      console.error("AI Tagging Error:", error);
+      // Handle error display if necessary
+    } finally {
+      setIsAiTagging(false);
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -158,7 +189,7 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
             <Button onClick={() => onNavigate(currentIndex > 0 ? currentIndex - 1 : images.length - 1)} className="text-white border-white hover:bg-white hover:text-black" variant="outline">Previous</Button>
             <div className="text-center flex-1 mx-4">
               <p className="text-sm mb-2">{image.description}</p>
-              {image.tags && <div className="flex flex-wrap justify-center gap-1">{image.tags.split(',').map((tag, index) => <Badge key={index} variant="outline" className="text-xs">{tag.trim()}</Badge>)}</div>}
+              {currentTags && <div className="flex flex-wrap justify-center gap-1">{currentTags.split(',').map((tag, index) => <Badge key={index} variant="outline" className="text-xs">{tag.trim()}</Badge>)}</div>}
             </div>
             <Button onClick={() => onNavigate(currentIndex < images.length - 1 ? currentIndex + 1 : 0)} className="text-white border-white hover:bg-white hover:text-black" variant="outline">Next</Button>
           </div>
@@ -172,6 +203,14 @@ const GalleryModal = ({ isOpen, onClose, image, images, currentIndex, onNavigate
             <MessageSquare className="w-5 h-5" />
             Comments
           </h4>
+        </div>
+
+        {/* AI Tagging Button */}
+        <div className="p-4 border-b border-gray-700">
+          <Button onClick={handleAiTagging} disabled={isAiTagging} className="w-full bg-purple-600 hover:bg-purple-700">
+            {isAiTagging ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            {isAiTagging ? 'Analyzing...' : 'Auto-Tag with AI'}
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
