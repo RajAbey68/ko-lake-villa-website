@@ -26,6 +26,9 @@ const allImages = [
   { id: '8', title: 'A Quick Tour of the Villa', description: 'A short video walkthrough of the main areas.', imageUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', category: 'entire-villa', mediaType: 'video', tags: 'tour, video, walkthrough' },
 ];
 
+// Export the data so it can be imported by other server-side components
+export const galleryData = allImages;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
