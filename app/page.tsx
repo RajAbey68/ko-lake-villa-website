@@ -3,12 +3,19 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import type { Metadata } from 'next'
 // TODO: Re-implement useQuery to fetch dynamic data for rooms, testimonials, and activities
 // For now, using static placeholder data.
 // import { useQuery } from '@tanstack/react-query'
 
 // TODO: Replace with a valid image path from the /public directory
 const heroPoolImage = "/hero-pool-image.png"
+
+export const metadata: Metadata = {
+  title: "Ko Lake Villa | Your Luxury Accommodation Catalyst",
+  description: "Experience boutique lakeside luxury in Ahangama, Sri Lanka with personalized service and stunning lake views. Your luxury accommodation catalyst for unforgettable memories.",
+  keywords: "Ko Lake Villa, Ahangama accommodation, Galle villa, Sri Lanka lakefront, Koggala Lake, boutique villa, family suite, group accommodation, infinity pool, direct booking, luxury villa Sri Lanka",
+}
 
 export default function HomePage() {
 
