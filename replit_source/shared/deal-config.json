@@ -1,0 +1,9 @@
+
+{
+  "earlyBirdDays": 30,
+  "earlyBirdDiscount": 15,
+  "lateDealDays": 3,
+  "lateDealDiscount": 20,
+  "baseDiscountPercent": 10,
+  "updatedAt": "2025-01-01T00:00:00.000Z"
+}
