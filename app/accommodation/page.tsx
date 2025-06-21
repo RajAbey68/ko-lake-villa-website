@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertCircle, Eye, Video, ShoppingCart } from 'lucide-react';
+import BookingModal from '@/components/BookingModal';
 
 // Define the type for a single room
 interface Room {
@@ -26,6 +27,8 @@ export default function AccommodationPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -44,6 +47,24 @@ export default function AccommodationPage() {
     };
     fetchRooms();
   }, []);
+
+  const handleBookNow = (room: Room) => {
+    setSelectedRoom(room);
+    setIsBookingModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsBookingModalOpen(false);
+    setSelectedRoom(null);
+  };
+
+  const handleBookingSubmit = (bookingData: any) => {
+    // Handle the booking submission
+    console.log('Booking submitted:', bookingData);
+    // Here you would typically send the booking data to your backend
+    alert('Booking submitted successfully! We will contact you shortly.');
+    handleCloseModal();
+  };
 
   if (isLoading) {
     return (
@@ -102,6 +123,11 @@ export default function AccommodationPage() {
                       width={600}
                       height={400}
                       className="w-full h-64 md:h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to a placeholder image if the original fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder-logo.png';
+                      }}
                     />
                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center space-x-4">
                         <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 text-white border-white bg-black/30 hover:bg-white hover:text-black">
@@ -140,7 +166,11 @@ export default function AccommodationPage() {
                     </div>
 
                     <div className="mt-6 text-right">
-                        <Button size="lg" className="bg-[#FF914D] hover:bg-[#E07B3A] text-white">
+                        <Button 
+                          size="lg" 
+                          className="bg-[#FF914D] hover:bg-[#E07B3A] text-white"
+                          onClick={() => handleBookNow(room)}
+                        >
                             <ShoppingCart className="w-5 h-5 mr-2" />
                             Book Now
                         </Button>
@@ -152,6 +182,16 @@ export default function AccommodationPage() {
           </div>
         </div>
       </section>
+
+      {/* Booking Modal */}
+      {isBookingModalOpen && selectedRoom && (
+        <BookingModal
+          roomName={selectedRoom.name}
+          basePrice={selectedRoom.directPrice}
+          onClose={handleCloseModal}
+          onBook={handleBookingSubmit}
+        />
+      )}
     </div>
   );
 }
