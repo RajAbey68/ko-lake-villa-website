@@ -30,7 +30,8 @@ export default function HomePage() {
       
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center">
-        <div className="absolute inset-0">
+        {/* Background Image and Overlay */}
+        <div className="absolute inset-0 z-0">
           <Image
             src={heroPoolImage}
             alt="Stunning sunset pool view at Ko Lake Villa"
@@ -38,8 +39,10 @@ export default function HomePage() {
             className="object-cover"
             priority
           />
+          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         </div>
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+
+        {/* Foreground Content */}
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <h1 className="text-3xl md:text-4xl text-white font-display font-light mb-3 tracking-wider">Ko Lake Villa</h1>
           <p className="text-base md:text-lg text-white mb-8 font-light opacity-90">Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.</p>
