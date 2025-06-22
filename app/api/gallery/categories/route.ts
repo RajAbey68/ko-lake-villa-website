@@ -1,14 +1,18 @@
-import { NextResponse } from "next/server"
-import { galleryData } from '../route'
+import { NextResponse } from 'next/server';
+import fs, { Dirent } from 'fs';
+import path from 'path';
 
 export async function GET() {
+  const galleryDirectory = path.join(process.cwd(), 'uploads/gallery');
+
   try {
-    // Dynamically get unique categories from the gallery data
-    const categories = [...new Set(galleryData.map(image => image.category))]
-    
-    return NextResponse.json(categories)
+    const categories = fs.readdirSync(galleryDirectory, { withFileTypes: true })
+      .filter((dirent: Dirent) => dirent.isDirectory())
+      .map((dirent: Dirent) => dirent.name);
+
+    return NextResponse.json(categories);
   } catch (error) {
-    console.error("Failed to fetch gallery categories:", error)
-    return new NextResponse("Internal Server Error", { status: 500 })
+    console.error('Failed to read gallery categories:', error);
+    return NextResponse.json({ error: 'Failed to load gallery categories.' }, { status: 500 });
   }
-}
+} 

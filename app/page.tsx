@@ -1,272 +1,573 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import type { Metadata } from 'next'
-// TODO: Re-implement useQuery to fetch dynamic data for rooms, testimonials, and activities
-// For now, using static placeholder data.
-// import { useQuery } from '@tanstack/react-query'
+"use client"
 
-// TODO: Replace with a valid image path from the /public directory
-const heroPoolImage = "/hero-pool-image.png"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath } from "lucide-react"
+import Image from "next/image"
 
-export const metadata: Metadata = {
-  title: "Ko Lake Villa | Your Luxury Accommodation Catalyst",
-  description: "Experience boutique lakeside luxury in Ahangama, Sri Lanka with personalized service and stunning lake views. Your luxury accommodation catalyst for unforgettable memories.",
-  keywords: "Ko Lake Villa, Ahangama accommodation, Galle villa, Sri Lanka lakefront, Koggala Lake, boutique villa, family suite, group accommodation, infinity pool, direct booking, luxury villa Sri Lanka",
-}
+export default function KoLakeVilla() {
+  const [currentPage, setCurrentPage] = useState("home")
 
-export default function HomePage() {
+  const roomTypes = [
+    {
+      id: "KNP",
+      name: "Entire Villa Exclusive",
+      airbnbPrice: 431,
+      directPrice: 388,
+      savings: 43,
+      discount: "10%",
+      guests: 12,
+      bedrooms: 6,
+      bathrooms: 4,
+      image: "/placeholder.svg?height=300&width=400&text=Entire+Villa+View",
+      features: ["Private Pool", "Lake Views", "Full Kitchen", "6 Bedrooms"],
+    },
+    {
+      id: "KNP1",
+      name: "Master Family Suite",
+      airbnbPrice: 119,
+      directPrice: 107,
+      savings: 12,
+      discount: "10%",
+      guests: 4,
+      bedrooms: 1,
+      bathrooms: 1,
+      image: "/placeholder.svg?height=300&width=400&text=Master+Suite",
+      features: ["Lake View", "Private Balcony", "King Bed", "En-suite Bath"],
+    },
+    {
+      id: "KNP3",
+      name: "Triple/Twin Rooms",
+      airbnbPrice: 70,
+      directPrice: 63,
+      savings: 7,
+      discount: "10%",
+      guests: 3,
+      bedrooms: 1,
+      bathrooms: 1,
+      image: "/placeholder.svg?height=300&width=400&text=Twin+Room",
+      features: ["Garden View", "Twin/Triple Beds", "Shared Facilities", "AC"],
+    },
+    {
+      id: "KNP6",
+      name: "Group Room",
+      airbnbPrice: 250,
+      directPrice: 225,
+      savings: 25,
+      discount: "10%",
+      guests: 6,
+      bedrooms: 2,
+      bathrooms: 2,
+      image: "/placeholder.svg?height=300&width=400&text=Group+Room",
+      features: ["Multiple Beds", "Shared Space", "Group Friendly", "Lake Access"],
+    },
+  ]
 
-  // Placeholder data to match the original component's structure
-  const roomsLoading = true;
-  const rooms = []; 
-  const testimonialsLoading = true;
-  const testimonials = [];
-  const activitiesLoading = true;
-  const activities = [
-    { id: 1, name: "Koggala Lake Safari", description: "Private boat tours through pristine mangrove islands.", imageUrl: "/placeholder.svg?height=300&width=400&text=Lake Safari" },
-    { id: 2, name: "Whale Watching", description: "Encounter majestic blue whales in Mirissa waters.", imageUrl: "/placeholder.svg?height=300&width=400&text=Whale Watching" },
-    { id: 3, name: "Cultural Immersion", description: "Traditional stilt fishing and local artisan visits.", imageUrl: "/placeholder.svg?height=300&width=400&text=Cultural Experience" },
-  ];
+  const galleryImages = [
+    { src: "/placeholder.svg?height=300&width=400&text=Villa+Exterior", title: "Villa Exterior" },
+    { src: "/placeholder.svg?height=300&width=400&text=Pool+Area", title: "Pool Area" },
+    { src: "/placeholder.svg?height=300&width=400&text=Lake+View", title: "Lake View" },
+    { src: "/placeholder.svg?height=300&width=400&text=Master+Bedroom", title: "Master Bedroom" },
+    { src: "/placeholder.svg?height=300&width=400&text=Living+Room", title: "Living Room" },
+    { src: "/placeholder.svg?height=300&width=400&text=Dining+Area", title: "Dining Area" },
+  ]
 
-  return (
-    <>
-      {/* SEO Head component content will be handled by Next.js Head in layout.tsx */}
-      
+  const renderNavigation = () => (
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <h1 className="text-2xl font-bold text-blue-900 cursor-pointer" onClick={() => setCurrentPage("home")}>
+            Ko Lake Villa
+          </h1>
+          <div className="flex space-x-6">
+            <button
+              onClick={() => setCurrentPage("home")}
+              className={`${currentPage === "home" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => setCurrentPage("rooms")}
+              className={`${currentPage === "rooms" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+            >
+              Rooms
+            </button>
+            <button
+              onClick={() => setCurrentPage("gallery")}
+              className={`${currentPage === "gallery" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+            >
+              Gallery
+            </button>
+            <button
+              onClick={() => setCurrentPage("contact")}
+              className={`${currentPage === "contact" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+            >
+              Contact
+            </button>
+            <Button onClick={() => setCurrentPage("booking")}>Book Now</Button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+
+  const renderHomePage = () => (
+    <div>
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center">
-        {/* Background Image and Overlay */}
-        <div className="absolute inset-0 z-0">
+      <section className="relative h-[70vh] bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="absolute inset-0">
           <Image
-            src={heroPoolImage}
-            alt="Stunning sunset pool view at Ko Lake Villa"
+            src="/hero-main.jpg"
+            alt="Ko Lake Villa Pool and Lake View"
             fill
             className="object-cover"
-            priority
           />
-          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
         </div>
-
-        {/* Foreground Content */}
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <h1 className="text-3xl md:text-4xl text-white font-display font-light mb-3 tracking-wider">Ko Lake Villa</h1>
-          <p className="text-base md:text-lg text-white mb-8 font-light opacity-90">Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/gallery" className="bg-white bg-opacity-10 backdrop-blur-sm text-white px-5 py-2 rounded-full border border-white border-opacity-30 hover:bg-opacity-20 transition-all text-sm font-light">
-              View Gallery
-            </Link>
-            <Link href="/contact" className="bg-transparent text-white px-5 py-2 rounded-full border border-white border-opacity-50 hover:bg-white hover:bg-opacity-10 transition-all text-sm font-light">
-              Request Info
-            </Link>
-            <Link href="/accommodation" className="bg-white bg-opacity-15 backdrop-blur-sm text-white px-5 py-2 rounded-full border border-white border-opacity-40 hover:bg-opacity-25 transition-all text-sm font-medium">
-              Book Direct – Save 10%
-            </Link>
+        <div className="relative z-10 flex items-center justify-center h-full text-center bg-black bg-opacity-30">
+          <div className="max-w-4xl mx-auto px-4">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
+            <p className="text-xl md:text-2xl mb-4">Luxury Lakefront Accommodation in Sri Lanka</p>
+            <div className="flex items-center justify-center mb-8">
+              <MapPin className="w-5 h-5 mr-2" />
+              <span className="text-lg">Koggala Lake, Galle District</span>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                className="bg-white text-blue-900 hover:bg-gray-100"
+                onClick={() => setCurrentPage("rooms")}
+              >
+                View Rooms & Rates
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-white border-white hover:bg-white hover:text-black"
+                onClick={() => setCurrentPage("gallery")}
+              >
+                Explore Gallery
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Ko Lake Theme Showcase */}
-      <section className="kolake-theme py-16">
-        <div className="container mx-auto px-4">
+      {/* Quick Stats */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-blue-900 mb-2">12</div>
+              <div className="text-gray-600">Max Guests</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-blue-900 mb-2">6</div>
+              <div className="text-gray-600">Bedrooms</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-blue-900 mb-2">4.9</div>
+              <div className="text-gray-600 flex items-center justify-center">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
+                Rating
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-blue-900 mb-2">15%</div>
+              <div className="text-gray-600">Save Direct</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Room Preview */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="kolake-heading text-3xl md:text-4xl font-display font-bold mb-4">Discover Tranquility</h2>
-            <p className="text-lg text-gray-700 mb-8">Experience the Ko Lake Villa lifestyle on your terms</p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Link href="/booking" className="kolake-btn primary">Book Direct – Save 10%</Link>
-              <Link href="/experiences" className="kolake-btn accent">Explore Experiences</Link>
-            </div>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="kolake-card text-center">
-              <i className="fas fa-leaf text-4xl mb-4" style={{color: 'var(--kolake-accent)'}}></i>
-              <h3 className="kolake-heading text-xl font-bold mb-2">Tropical Paradise</h3>
-              <p>Immerse yourself in the natural beauty of Ahangama's lakeside setting</p>
-            </div>
-            <div className="kolake-card text-center">
-              <i className="fas fa-crown text-4xl mb-4" style={{color: 'var(--kolake-primary)'}}></i>
-              <h3 className="kolake-heading text-xl font-bold mb-2">Luxury Experience</h3>
-              <p>Indulge in premium amenities and personalized Sri Lankan hospitality</p>
-            </div>
-            <div className="kolake-card text-center">
-              <i className="fas fa-heart text-4xl mb-4" style={{color: 'var(--kolake-secondary)'}}></i>
-              <h3 className="kolake-heading text-xl font-bold mb-2">Authentic Connection</h3>
-              <p>Connect with local culture and create lasting memories</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Introduction Section */}
-      <section className="py-20 bg-[#FDF6EE]">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 mb-10 md:mb-0 md:pr-10">
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-6">Welcome to Lakeside Luxury</h2>
-              <p className="text-[#8B5E3C] mb-6 leading-relaxed">Ko Lake Villa is a boutique accommodation nestled on the shores of a serene lake in Ahangama, Galle, offering a perfect blend of luxury, comfort, and natural beauty. Our villa provides an exclusive retreat for travelers seeking tranquility and authentic Sri Lankan elegance.</p>
-              <p className="text-[#8B5E3C] mb-6 leading-relaxed">With spectacular views, personalized service, and attention to detail, we create memorable experiences for our guests - whether you're planning a family vacation, a romantic getaway, or a wellness retreat.</p>
-              <div className="flex space-x-6 mt-8">
-                <div className="text-center">
-                  <i className="fas fa-bed text-[#FF914D] text-3xl mb-2"></i>
-                  <p className="text-[#8B5E3C] font-medium">Luxurious Rooms</p>
-                </div>
-                <div className="text-center">
-                  <i className="fas fa-utensils text-[#FF914D] text-3xl mb-2"></i>
-                  <p className="text-[#8B5E3C] font-medium">Gourmet Dining</p>
-                </div>
-                <div className="text-center">
-                  <i className="fas fa-swimming-pool text-[#FF914D] text-3xl mb-2"></i>
-                  <p className="text-[#8B5E3C] font-medium">Lake Access</p>
-                </div>
-              </div>
-            </div>
-            <div className="md:w-1/2">
-              {/* TODO: This is an external image. It should be downloaded and served locally. */}
-              <img 
-                src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=503,h=464,fit=crop/AGB2Mlr1kBCLQG4w/4-3--min-AoPWZwGn9yH5QvLd.jpg" 
-                alt="Ko Lake House interior" 
-                className="rounded-lg shadow-lg w-full h-auto" 
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Property Section */}
-      <section className="py-20 bg-[#FDF6EE]">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">Our Property</h2>
-            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Discover Ko Lake Villa - an exclusive lakefront retreat with stunning infinity pool, rooftop terraces, and panoramic views of Koggala Lake and Madol Duwa Island.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            <div className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
-               {/* TODO: Replace with local images from /public directory */}
-              <img 
-                src="/placeholder.svg?height=256&width=400&text=Infinity Pool"
-                alt="Ko Lake Villa Infinity Pool"
-                className="w-full h-64 object-cover"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">60-ft Infinity Pool</h3>
-                <p className="text-[#8B5E3C] mb-4">Stunning lakefront infinity pool with panoramic views of Koggala Lake</p>
-                <Link href="/gallery" className="text-[#8B5E3C] font-medium hover:underline">
-                  View Photo Gallery →
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
-              <img 
-                src="/placeholder.svg?height=256&width=400&text=Rooftop Terrace"
-                alt="Ko Lake Villa Rooftop Terrace"
-                className="w-full h-64 object-cover"
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">Rooftop Terrace</h3>
-                <p className="text-[#8B5E3C] mb-4">360° views of lake, paddy fields, and Madol Duwa Island</p>
-                <div className="flex flex-wrap">
-                  <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">5 Triple Rooms + 2 Suites</span>
-                  <span className="bg-[#E6D9C7] text-[#8B5E3C] px-2 py-1 rounded text-sm mr-2 mb-2">Lakefront</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg overflow-hidden shadow-lg border-2 border-green-200">
-              <div className="p-6">
-                <div className="text-center mb-4">
-                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">SPECIAL OFFER</span>
-                </div>
-                <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2 text-center">Late Booking Deals</h3>
-                <p className="text-[#8B5E3C] mb-4 text-center">Book within 3 days of check-in</p>
-                <div className="text-center mb-4">
-                  <span className="text-2xl font-bold text-green-600">15% OFF</span>
-                  <p className="text-sm text-[#8B5E3C]">Instead of regular 10% discount</p>
-                </div>
-                <div className="space-y-2 text-sm text-[#8B5E3C]">
-                  <div className="flex justify-between">
-                    <span>Entire Villa:</span>
-                    <span className="font-bold text-green-600">From $366</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Family Suite:</span>
-                    <span className="font-bold text-green-600">From $101</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Perfect Stay</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              From intimate suites to the entire villa, we offer flexible accommodation options with significant savings
+              when you book direct.
+            </p>
           </div>
 
-          <div className="text-center">
-            <Link href="/accommodation" className="inline-block bg-[#8B5E3C] text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-[#7A5232] transition-colors shadow-lg">
-              Book Now - Direct Booking Saves 10%
-            </Link>
-            <p className="text-[#8B5E3C] mt-4">No booking fees • Best rate guarantee • Direct support</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Activities Section Preview */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">Activities & Experiences</h2>
-            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Discover the natural beauty and cultural richness of the surrounding area with our curated activities and experiences.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {activitiesLoading ? (
-              // Loading skeleton
-              Array(3).fill(0).map((_, i) => (
-                <div key={i} className="bg-white rounded-lg overflow-hidden shadow-lg animate-pulse">
-                  <div className="w-full h-56 bg-gray-300"></div>
-                  <div className="p-6">
-                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-full mb-4"></div>
-                    <div className="h-4 bg-gray-300 rounded w-1/4"></div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              activities?.map((activity) => (
-                <div key={activity.id} className="bg-white rounded-lg overflow-hidden shadow-lg hover-scale">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {roomTypes.map((room) => (
+              <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative">
                   <Image
-                    src={activity.imageUrl}
-                    alt={activity.name}
+                    src={room.image || "/placeholder.svg"}
+                    alt={room.name}
                     width={400}
-                    height={225}
-                    className="w-full h-56 object-cover" 
+                    height={300}
+                    className="w-full h-48 object-cover"
                   />
-                  <div className="p-6">
-                    <h3 className="text-xl font-display font-bold text-[#8B5E3C] mb-2">{activity.name}</h3>
-                    <p className="text-[#8B5E3C] mb-4">{activity.description}</p>
-                    <Link href="/experiences" className="text-[#FF914D] hover:text-[#8B5E3C] transition-colors font-medium">
-                      Learn More <i className="fas fa-arrow-right ml-1"></i>
-                    </Link>
+                  <Badge className="absolute top-3 right-3 bg-red-500">Save {room.discount}</Badge>
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold mb-2">{room.name}</h3>
+                  <p className="text-gray-600 mb-4">{room.guests} guests</p>
+
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-500 line-through">Airbnb: ${room.airbnbPrice}</span>
+                      <span className="text-sm text-green-600 font-medium">Save ${room.savings}</span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-900">
+                      ${room.directPrice}
+                      <span className="text-sm font-normal text-gray-500">/night</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    {room.features.slice(0, 2).map((feature, index) => (
+                      <div key={index} className="text-sm text-gray-600">
+                        • {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button className="w-full" onClick={() => setCurrentPage("booking")}>
+                    Book Direct & Save
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+
+  const renderRoomsPage = () => (
+    <div>
+      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl font-bold mb-4">Our Accommodation</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto">
+            Choose from our range of luxury accommodation options, each offering unique experiences with significant
+            savings when you book direct.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-16">
+            {roomTypes.map((room, index) => (
+              <Card key={room.id} className="overflow-hidden shadow-lg">
+                <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? "lg:grid-flow-col-dense" : ""}`}>
+                  <div className={`relative ${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
+                    <Image
+                      src={room.image || "/placeholder.svg"}
+                      alt={room.name}
+                      width={600}
+                      height={400}
+                      className="w-full h-96 lg:h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      <Badge className="bg-red-500">Save {room.discount}</Badge>
+                      <Badge className="bg-green-500">≤3 days: 15%</Badge>
+                    </div>
+                  </div>
+
+                  <CardContent
+                    className={`p-8 flex flex-col justify-between ${index % 2 === 1 ? "lg:col-start-1" : ""}`}
+                  >
+                    <div>
+                      <h2 className="text-3xl font-bold text-gray-900 mb-2">{room.name}</h2>
+                      <p className="text-lg text-gray-600 mb-6">Perfect for {room.guests} guests</p>
+
+                      <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="text-center">
+                          <Users className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                          <div className="text-sm text-gray-600">Up to</div>
+                          <div className="font-semibold">{room.guests} guests</div>
+                        </div>
+                        <div className="text-center">
+                          <Bed className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                          <div className="text-sm text-gray-600">Bedrooms</div>
+                          <div className="font-semibold">{room.bedrooms}</div>
+                        </div>
+                        <div className="text-center">
+                          <Bath className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                          <div className="text-sm text-gray-600">Bathrooms</div>
+                          <div className="font-semibold">{room.bathrooms}</div>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-lg text-gray-500 line-through">Airbnb: ${room.airbnbPrice}/night</span>
+                          <span className="text-lg text-green-600 font-semibold">You Save: ${room.savings}</span>
+                        </div>
+                        <div className="text-3xl font-bold text-blue-900">
+                          ${room.directPrice}
+                          <span className="text-lg font-normal text-gray-500">/night direct</span>
+                        </div>
+                      </div>
+
+                      <div className="mb-6">
+                        <h4 className="font-semibold text-gray-900 mb-3">Key Features</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {room.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-center text-sm text-gray-600">
+                              <Star className="w-4 h-4 mr-2 text-yellow-500 fill-current" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button className="w-full" onClick={() => setCurrentPage("booking")}>
+                      Book Direct & Save
+                    </Button>
+                  </CardContent>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+
+  const renderGalleryPage = () => (
+    <div>
+      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl font-bold mb-4">Photo Gallery</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto">
+            Explore the beauty of Ko Lake Villa through our comprehensive photo gallery.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryImages.map((image, index) => (
+              <div
+                key={index}
+                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
+              >
+                <Image
+                  src={image.src || "/placeholder.svg"}
+                  alt={image.title}
+                  width={400}
+                  height={300}
+                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-end">
+                  <div className="p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="font-semibold text-lg">{image.title}</h3>
                   </div>
                 </div>
-              ))
-            )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
-      
-      {/* Testimonials */}
-      <section className="py-20 bg-[#FDF6EE]">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-[#8B5E3C] mb-4">What Our Guests Say</h2>
-            <p className="text-[#8B5E3C] max-w-3xl mx-auto">Our commitment to excellence is reflected in the words of our guests.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-             {/* // TODO: Fetch and map testimonials */}
-             {testimonialsLoading ? (
-                <p>Loading testimonials...</p>
-             ) : (
-                <p className="text-center col-span-full">Testimonials will be displayed here.</p>
-             )}
+    </div>
+  )
+
+  const renderBookingPage = () => (
+    <div>
+      <section className="py-12 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl font-bold mb-4">Book Your Stay</h1>
+          <p className="text-xl">Complete the form below and we'll confirm your reservation within 2 hours</p>
+        </div>
+      </section>
+
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card>
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold mb-6">Booking Request</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-300 rounded-md"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    className="w-full p-3 border border-gray-300 rounded-md"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Check-in Date</label>
+                    <input type="date" className="w-full p-3 border border-gray-300 rounded-md" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Check-out Date</label>
+                    <input type="date" className="w-full p-3 border border-gray-300 rounded-md" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
+                  <select className="w-full p-3 border border-gray-300 rounded-md">
+                    <option>Select room type</option>
+                    {roomTypes.map((room) => (
+                      <option key={room.id} value={room.id}>
+                        {room.name} - ${room.directPrice}/night
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Special Requests</label>
+                  <textarea
+                    className="w-full p-3 border border-gray-300 rounded-md"
+                    rows={4}
+                    placeholder="Any special requests?"
+                  ></textarea>
+                </div>
+                <Button className="w-full" size="lg">
+                  Submit Booking Request
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    </div>
+  )
+
+  const renderContactPage = () => (
+    <div>
+      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto">
+            Get in touch with our friendly team. We're here to help you plan the perfect stay.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <Card>
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                    <input type="text" className="w-full p-3 border border-gray-300 rounded-md" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" className="w-full p-3 border border-gray-300 rounded-md" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <textarea className="w-full p-3 border border-gray-300 rounded-md" rows={5}></textarea>
+                  </div>
+                  <Button className="w-full">Send Message</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-8">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4">Get in Touch</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <Phone className="w-5 h-5 text-blue-600" />
+                      <div>
+                        <div className="font-medium">Phone</div>
+                        <div className="text-gray-600">+94 123 456 789</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <MessageCircle className="w-5 h-5 text-green-600" />
+                      <div>
+                        <div className="font-medium">WhatsApp</div>
+                        <div className="text-gray-600">Quick responses, 24/7</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="w-5 h-5 text-orange-600" />
+                      <div>
+                        <div className="font-medium">Location</div>
+                        <div className="text-gray-600">Koggala Lake, Galle District</div>
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-6 bg-green-600 hover:bg-green-700">
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Chat on WhatsApp
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-white">
+      {renderNavigation()}
+
+      {currentPage === "home" && renderHomePage()}
+      {currentPage === "rooms" && renderRoomsPage()}
+      {currentPage === "gallery" && renderGalleryPage()}
+      {currentPage === "booking" && renderBookingPage()}
+      {currentPage === "contact" && renderContactPage()}
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4">Ko Lake Villa</h3>
+              <p className="text-gray-400">Luxury lakefront accommodation in Sri Lanka's southern coast.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Contact</h4>
+              <div className="space-y-2 text-gray-400">
+                <div>+94 123 456 789</div>
+                <div>info@kolakevilla.com</div>
+                <div>Koggala Lake, Galle</div>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Why Book Direct?</h4>
+              <div className="space-y-2 text-gray-400">
+                <div>• Save up to 15%</div>
+                <div>• Best Rate Guarantee</div>
+                <div>• Personalized Service</div>
+                <div>• Flexible Cancellation</div>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Follow Us</h4>
+              <div className="space-y-2 text-gray-400">
+                <div>Facebook</div>
+                <div>Instagram</div>
+                <div>TripAdvisor</div>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2024 Ko Lake Villa. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }

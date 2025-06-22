@@ -1,10 +1,5 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-    service: "Ko Lake Villa API",
-    version: "1.0.0",
-  })
-}
+  return NextResponse.json({ status: 'ok' }, { status: 200 });
+} 
