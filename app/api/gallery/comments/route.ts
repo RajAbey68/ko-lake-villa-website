@@ -1,58 +1,64 @@
 import { NextResponse } from 'next/server';
 
-// Placeholder for in-memory comment storage
-let comments: Record<string, any[]> = {
-  '1': [
-    { id: 'c1', author: 'Jane Doe', text: 'Absolutely stunning view!', timestamp: new Date().toISOString() },
-    { id: 'c2', author: 'John Smith', text: 'I could stay here forever.', timestamp: new Date().toISOString() },
-  ],
-  '2': [
-    { id: 'c3', author: 'Emily White', text: 'So peaceful and serene.', timestamp: new Date().toISOString() },
-  ]
-};
+interface Comment {
+  id: string;
+  imagePath: string;
+  author: string;
+  content: string;
+  timestamp: string;
+  rating?: number;
+}
 
-// GET handler to fetch comments for a specific image
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const imageId = searchParams.get('imageId');
+// In-memory storage for comments (in production, this would be a database)
+let comments: Comment[] = [];
 
-  if (!imageId) {
-    return new NextResponse('Image ID is required', { status: 400 });
-  }
-
+export async function GET() {
   try {
-    const imageComments = comments[imageId] || [];
-    return NextResponse.json(imageComments);
+    return NextResponse.json(comments);
   } catch (error) {
-    console.error(`Failed to fetch comments for image ${imageId}:`, error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to load comments:', error);
+    return NextResponse.json({ error: 'Failed to load comments.' }, { status: 500 });
   }
 }
 
-// POST handler to add a new comment
 export async function POST(request: Request) {
   try {
-    const { imageId, author, text } = await request.json();
-
-    if (!imageId || !author || !text) {
-      return new NextResponse('Missing required fields (imageId, author, text)', { status: 400 });
+    const body = await request.json();
+    
+    // Validate required fields
+    if (!body.imagePath || !body.author || !body.content) {
+      return NextResponse.json(
+        { error: 'Image path, author, and content are required.' },
+        { status: 400 }
+      );
     }
 
-    const newComment = {
-      id: `c${Date.now()}`, // Simple unique ID
-      author,
-      text,
+    // Create new comment
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      imagePath: body.imagePath,
+      author: body.author,
+      content: body.content,
       timestamp: new Date().toISOString(),
+      rating: body.rating || undefined
     };
 
-    if (!comments[imageId]) {
-      comments[imageId] = [];
-    }
-    comments[imageId].push(newComment);
+    // Add to comments array
+    comments.push(newComment);
 
-    return NextResponse.json(newComment, { status: 201 });
+    return NextResponse.json(
+      { 
+        success: true, 
+        comment: newComment,
+        message: 'Comment added successfully!' 
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Failed to post comment:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to add comment:', error);
+    return NextResponse.json(
+      { error: 'Failed to add comment. Please try again.' },
+      { status: 500 }
+    );
   }
 } 

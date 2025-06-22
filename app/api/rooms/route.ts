@@ -1,64 +1,156 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from 'next/server';
 
-// Data based on replit_source/server/koLakeRoomData.js
-// In a real application, this would come from a database or CMS.
-const rooms = [
-  {
-    id: "knp",
-    name: "Entire Villa Exclusive (KNP)",
-    description: "Book the entire Ko Lake Villa for an exclusive and private luxury experience. Perfect for large groups, families, or special events, ensuring you have the whole property to yourselves.",
-    capacity: "16-25 Guests",
-    size: "500", // in sqm
-    features: ["All 7 Rooms", "Private 60-ft Pool", "Rooftop Terrace", "Full Lakefront Access", "Private Chef & Staff"],
-    airbnbPrice: 1800,
-    directPrice: 1620, // Example 10% discount
-    imageUrl: "/placeholder.svg?height=400&width=600&text=Entire+Villa",
-    slug: "entire-villa-exclusive"
-  },
-  {
-    id: "knp1",
-    name: "Master Family Suite (KNP1)",
-    description: "A spacious and luxurious suite designed for families. Features multiple sleeping areas and a private living space to relax and connect with loved ones.",
-    capacity: "6 Guests",
-    size: "120",
-    features: ["2 Bedrooms", "Private Balcony", "Lake Views", "En-suite Bathroom", "Pool Access"],
-    airbnbPrice: 450,
-    directPrice: 405,
-    imageUrl: "/placeholder.svg?height=400&width=600&text=Family+Suite",
-    slug: "master-family-suite"
-  },
-  {
-    id: "knp3",
-    name: "Triple/Twin Rooms (KNP3)",
-    description: "Four versatile rooms that can be configured for three individuals or as a twin-bedded room. Ideal for friends or smaller family groups seeking comfort and style.",
-    capacity: "3 Guests per room",
-    size: "40",
-    features: ["Flexible Bedding (3 twins or 1 double + 1 twin)", "Garden Views", "Modern Amenities", "Shared Bathroom"],
-    airbnbPrice: 180,
-    directPrice: 162,
-    imageUrl: "/placeholder.svg?height=400&width=600&text=Triple+Room",
-    slug: "triple-twin-rooms"
-  },
-  {
-    id: "knp6",
-    name: "Group Room (KNP6)",
-    description: "A large, dynamic space designed for groups of friends or collaborators. Fosters a communal atmosphere while providing personal space and comfort.",
-    capacity: "4 Guests",
-    size: "60",
-    features: ["Bunk-style Beds", "Communal Lounge Area", "Team Layout", "Garden Access"],
-    airbnbPrice: 250,
-    directPrice: 225,
-    imageUrl: "/placeholder.svg?height=400&width=600&text=Group+Room",
-    slug: "group-room"
-  }
-];
+interface Room {
+  id: string;
+  name: string;
+  subtitle: string;
+  airbnbPrice: number;
+  directPrice: number;
+  savings: number;
+  discount: string;
+  lastMinuteDiscount: string;
+  guests: number;
+  bedrooms: number;
+  bathrooms: number;
+  image: string;
+  gallery: string[];
+  features: string[];
+  amenities: string[];
+}
 
 export async function GET() {
   try {
-    // In a real app, you might add logic for fetching/calculating dynamic prices here
-    return NextResponse.json(rooms);
+    // Return the exact room structure expected by the new UI
+    const roomsData: Room[] = [
+      {
+        id: "KNP",
+        name: "Entire Villa Exclusive",
+        subtitle: "Perfect for Large Groups & Special Occasions",
+        airbnbPrice: 431,
+        directPrice: 388,
+        savings: 43,
+        discount: "10%",
+        lastMinuteDiscount: "15%",
+        guests: 12,
+        bedrooms: 6,
+        bathrooms: 4,
+        image: "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
+        gallery: [
+          "/uploads/gallery/default/1747314600586-813125493-20250418_070924.jpg",
+          "/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg",
+          "/uploads/gallery/lake-garden/KoggalaNinePeaks_lake-garden_0.jpg",
+          "/uploads/gallery/front-garden/KoggalaNinePeaks_front-garden_0.jpg",
+        ],
+        features: [
+          "Exclusive use of entire property",
+          "Private infinity pool with lake views",
+          "Fully equipped modern kitchen",
+          "Multiple living and dining areas",
+          "Private boat dock access",
+          "Dedicated parking for 4 cars",
+          "Garden and terrace spaces",
+          "Premium lake-facing bedrooms",
+        ],
+        amenities: ["Private Pool", "Lake Access", "Full Kitchen", "Free Parking", "WiFi", "AC"],
+      },
+      {
+        id: "KNP1",
+        name: "Master Family Suite",
+        subtitle: "Luxury Suite with Stunning Lake Views",
+        airbnbPrice: 119,
+        directPrice: 107,
+        savings: 12,
+        discount: "10%",
+        lastMinuteDiscount: "15%",
+        guests: 4,
+        bedrooms: 1,
+        bathrooms: 1,
+        image: "/uploads/gallery/family-suite/KoLakeHouse_family-suite_0.jpg",
+        gallery: [
+          "/uploads/gallery/family-suite/KoLakeHouse_family-suite_0.jpg",
+          "/uploads/gallery/family-suite/KoLakeHouse_family-suite_1.png",
+          "/uploads/gallery/family-suite/cake-1.jpg",
+          "/uploads/gallery/family-suite/cake-2.jpg",
+        ],
+        features: [
+          "Spacious king-size bedroom",
+          "Private balcony with lake views",
+          "Luxury en-suite bathroom",
+          "Sitting area with lake views",
+          "Premium bedding and linens",
+          "Mini-fridge and coffee station",
+          "Direct lake access",
+          "Shared pool and garden access",
+        ],
+        amenities: ["Lake View", "Private Balcony", "En-suite Bath", "Pool Access", "WiFi", "AC"],
+      },
+      {
+        id: "KNP3",
+        name: "Triple/Twin Rooms",
+        subtitle: "Comfortable Accommodation for Small Groups",
+        airbnbPrice: 70,
+        directPrice: 63,
+        savings: 7,
+        discount: "10%",
+        lastMinuteDiscount: "15%",
+        guests: 3,
+        bedrooms: 1,
+        bathrooms: 1,
+        image: "/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_0.jpg",
+        gallery: [
+          "/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_0.jpg",
+          "/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_1.jpg",
+          "/uploads/gallery/dining-area/cake-1.jpg",
+          "/uploads/gallery/dining-area/cake-2.jpg",
+        ],
+        features: [
+          "Flexible twin or triple bed setup",
+          "Garden and partial lake views",
+          "Shared bathroom facilities",
+          "Access to common areas",
+          "Shared kitchen facilities",
+          "Pool and garden access",
+          "Budget-friendly option",
+          "Perfect for backpackers",
+        ],
+        amenities: ["Garden View", "Shared Kitchen", "Pool Access", "WiFi", "AC", "Parking"],
+      },
+      {
+        id: "KNP6",
+        name: "Group Room",
+        subtitle: "Ideal for Friends & Family Groups",
+        airbnbPrice: 250,
+        directPrice: 225,
+        savings: 25,
+        discount: "10%",
+        lastMinuteDiscount: "15%",
+        guests: 6,
+        bedrooms: 2,
+        bathrooms: 2,
+        image: "/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg",
+        gallery: [
+          "/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg",
+          "/uploads/gallery/group-room/KoggalaNinePeaks_group-room_1.jpg",
+          "/uploads/gallery/excursions/KoggalaNinePeaks_excursions_0.jpg",
+          "/uploads/gallery/excursions/KoggalaNinePeaks_excursions_1.jpg",
+        ],
+        features: [
+          "Multiple bed configurations",
+          "Shared living and dining space",
+          "Two bathroom facilities",
+          "Direct lake access",
+          "Shared kitchen access",
+          "Group-friendly layout",
+          "Pool and garden access",
+          "Perfect for friend groups",
+        ],
+        amenities: ["Multiple Beds", "Shared Space", "Lake Access", "Pool Access", "WiFi", "AC"],
+      },
+    ];
+
+    return NextResponse.json(roomsData);
   } catch (error) {
-    console.error('Failed to fetch rooms:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Failed to load rooms data:', error);
+    return NextResponse.json({ error: 'Failed to load rooms data.' }, { status: 500 });
   }
-}
+} 
