@@ -1,19 +1,64 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import { Star, MapPin, Clock, Users, Wifi, Waves, Car, Utensils } from "lucide-react"
 
-export default function HomePage() {
+export default function Home() {
+  const features = [
+    {
+      icon: Waves,
+      title: "Private Pool",
+      description: "Relax in our infinity pool overlooking Koggala Lake"
+    },
+    {
+      icon: Wifi,
+      title: "Free WiFi",
+      description: "High-speed internet throughout the property"
+    },
+    {
+      icon: Car,
+      title: "Free Parking",
+      description: "Secure parking available for all guests"
+    },
+    {
+      icon: Utensils,
+      title: "Restaurant",
+      description: "Authentic Sri Lankan cuisine with lake views"
+    }
+  ]
+
+  const testimonials = [
+    {
+      name: "Sarah & Mike",
+      location: "London, UK",
+      rating: 5,
+      comment: "Absolutely stunning location! The lake views are breathtaking and the staff went above and beyond."
+    },
+    {
+      name: "The Johnson Family",
+      location: "Melbourne, Australia",
+      rating: 5,
+      comment: "Perfect for families. Our kids loved the pool and the boat safari was unforgettable."
+    },
+    {
+      name: "David & Emma",
+      location: "Toronto, Canada",
+      rating: 5,
+      comment: "The best villa experience we've ever had. Highly recommend the stilt fishing experience!"
+    }
+  ]
+
   return (
-    <div className="min-h-screen relative">
-      {/* Header - Exact replica */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100/20">
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo - Exact positioning and styling */}
           <Link href="/" className="text-2xl font-semibold text-amber-900 tracking-tight">
             Ko Lake Villa
           </Link>
 
-          {/* Navigation - Exact spacing and colors */}
           <nav className="hidden lg:flex items-center space-x-8">
             <Link
               href="/"
@@ -65,61 +110,122 @@ export default function HomePage() {
             </Link>
           </nav>
 
-          {/* Book Now Button - Exact styling */}
           <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-sm px-6 py-2.5 rounded-md shadow-sm transition-all duration-200">
             Book Now
           </Button>
         </div>
       </header>
 
-      {/* Hero Section - Exact replica */}
+      {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image - Exact positioning */}
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="https://sjc.microlink.io/-llAJQf-CPVh7tNIxiNbaTnOy4Csorx_ezydgBAslpMUzUuNbMgCflf-FYeAE_f2VFlI_EMDbx7WXicXKXV0Gw.jpeg"
-            alt="Ko Lake Villa Pool and Villa View"
+            src="/placeholder.svg?height=800&width=1920&text=Ko+Lake+Villa+Hero"
+            alt="Ko Lake Villa - Luxury Lakefront Accommodation"
             fill
             className="object-cover object-center"
             priority
-            quality={100}
           />
-          {/* Overlay - Exact opacity */}
-          <div className="absolute inset-0 bg-black/25"></div>
+          <div className="absolute inset-0 bg-black/30"></div>
         </div>
 
-        {/* Hero Content - Exact positioning and typography */}
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          {/* Main Heading - Exact font size and spacing */}
-          <h1 className="text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 tracking-tight leading-none">Ko Lake Villa</h1>
-
-          {/* Subtitle - Exact text and styling */}
-          <p className="text-xl lg:text-2xl mb-12 font-light tracking-wide leading-relaxed">
-            Relax. Revive. Reconnect by the Lake in Ahangama, Sri Lanka.
+        <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
+          <h1 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight">
+            Relax. Revive. Reconnect.
+          </h1>
+          <p className="text-xl lg:text-2xl font-light mb-8 tracking-wide max-w-3xl mx-auto">
+            Experience luxury lakefront accommodation in the heart of Ahangama, Sri Lanka. 
+            Where tranquility meets adventure.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-lg px-8 py-4 rounded-md shadow-lg hover:shadow-xl transition-all duration-300">
+              Book Your Stay
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 font-medium text-lg px-8 py-4 rounded-md shadow-lg hover:shadow-xl transition-all duration-300">
+              View Experiences
+            </Button>
+          </div>
+        </div>
 
-          {/* Action Buttons - Exact spacing and styling */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              variant="outline"
-              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black font-medium text-base px-8 py-3 rounded-md transition-all duration-300 min-w-[140px]"
-            >
-              View Gallery
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Stats */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-orange-500 mb-2">4.9</div>
+              <div className="text-gray-600">Guest Rating</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-500 mb-2">7</div>
+              <div className="text-gray-600">Room Types</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-500 mb-2">18</div>
+              <div className="text-gray-600">Max Guests</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-500 mb-2">24/7</div>
+              <div className="text-gray-600">Support</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose Ko Lake Villa?</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Experience the perfect blend of luxury, comfort, and authentic Sri Lankan hospitality
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow duration-300">
+                <CardHeader>
+                  <div className="mx-auto w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <feature.icon className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <CardTitle className="text-lg text-gray-900">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-gray-600">{feature.description}</CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-orange-50">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Ready for Your Perfect Getaway?</h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Book direct and save 10% on your stay. Experience the magic of Koggala Lake.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-lg px-8 py-4 rounded-md shadow-lg hover:shadow-xl transition-all duration-300">
+              Check Availability
             </Button>
-            <Button
-              variant="outline"
-              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-black font-medium text-base px-8 py-3 rounded-md transition-all duration-300 min-w-[140px]"
-            >
-              Request Info
-            </Button>
-            <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-base px-8 py-3 rounded-md shadow-lg transition-all duration-300 min-w-[180px]">
-              Book Direct - Save 10%
+            <Button size="lg" variant="outline" className="border-orange-400 text-orange-600 hover:bg-orange-400 hover:text-white font-medium text-lg px-8 py-4 rounded-md shadow-lg hover:shadow-xl transition-all duration-300">
+              Contact Us
             </Button>
           </div>
         </div>
       </section>
 
-      {/* WhatsApp Chat Widget - Exact positioning and styling */}
+      {/* WhatsApp Widget */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           size="lg"

@@ -43,7 +43,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body style={{ margin: 0, fontFamily: 'sans-serif' }}>
+        {children}
+      </body>
     </html>
   )
 }
