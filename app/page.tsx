@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MessageCircle, Star, MapPin, Phone, Mail, Calendar, Users, Utensils, Camera } from "lucide-react"
+import { MessageCircle, Star, MapPin, Phone, Mail, Calendar, Users, Utensils, Camera, Waves } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function HomePage() {
