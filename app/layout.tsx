@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import GlobalHeader from "@/components/navigation/global-header"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,7 +20,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <GlobalHeader />
         <main>{children}</main>
       </body>
     </html>
