@@ -1,4 +1,3 @@
-sh: next: command not found
-zsh: command not found: # 
-cd /Users/arajiv/GitHub/ko-lake-villa-main 
-node    6043 arajiv   18u  IPv6 ...  TCP localhost:9323 (LISTEN) 
+{
+  "version": 2
+} 
