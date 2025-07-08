@@ -78,34 +78,46 @@ export default function KoLakeVilla() {
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <h1 className="text-2xl font-bold text-blue-900 cursor-pointer" onClick={() => setCurrentPage("home")}>
+          <h1 className="text-2xl font-bold text-amber-800 cursor-pointer" onClick={() => setCurrentPage("home")}>
             Ko Lake Villa
           </h1>
           <div className="flex space-x-6">
             <button
               onClick={() => setCurrentPage("home")}
-              className={`${currentPage === "home" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+              className={`${currentPage === "home" ? "text-orange-500 font-medium" : "text-amber-700 hover:text-orange-500"}`}
             >
               Home
             </button>
-            <button
-              onClick={() => setCurrentPage("rooms")}
-              className={`${currentPage === "rooms" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+            <a
+              href="/accommodation"
+              className="text-amber-700 hover:text-orange-500 py-2"
             >
-              Rooms
-            </button>
-            <button
-              onClick={() => setCurrentPage("gallery")}
-              className={`${currentPage === "gallery" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+              Accommodation
+            </a>
+            <a
+              href="/dining"
+              className="text-amber-700 hover:text-orange-500 py-2"
+            >
+              Dining
+            </a>
+            <a
+              href="/experiences"
+              className="text-amber-700 hover:text-orange-500 py-2"
+            >
+              Experiences
+            </a>
+            <a
+              href="/gallery"
+              className="text-amber-700 hover:text-orange-500 py-2"
             >
               Gallery
-            </button>
-            <button
-              onClick={() => setCurrentPage("contact")}
-              className={`${currentPage === "contact" ? "text-blue-900 font-medium" : "text-gray-700 hover:text-blue-900"}`}
+            </a>
+            <a
+              href="/contact"
+              className="text-amber-700 hover:text-orange-500 py-2"
             >
               Contact
-            </button>
+            </a>
             <Button onClick={() => setCurrentPage("booking")}>Book Now</Button>
           </div>
         </div>
@@ -116,10 +128,10 @@ export default function KoLakeVilla() {
   const renderHomePage = () => (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[70vh] bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="absolute inset-0">
           <Image
-            src="/hero-main.jpg"
+            src="/images/hero-pool.jpg"
             alt="Ko Lake Villa Pool and Lake View"
             fill
             className="object-cover"
@@ -134,21 +146,23 @@ export default function KoLakeVilla() {
               <span className="text-lg">Koggala Lake, Galle District</span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-white text-blue-900 hover:bg-gray-100"
-                onClick={() => setCurrentPage("rooms")}
-              >
-                View Rooms & Rates
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-white border-white hover:bg-white hover:text-black"
-                onClick={() => setCurrentPage("gallery")}
-              >
-                Explore Gallery
-              </Button>
+              <a href="/accommodation">
+                <Button
+                  size="lg"
+                  className="bg-white text-amber-900 hover:bg-amber-50 hover:text-amber-900 w-full"
+                >
+                  View Rooms & Rates
+                </Button>
+              </a>
+              <a href="/gallery">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-white border-white hover:bg-white hover:text-amber-900 w-full"
+                >
+                  Explore Gallery
+                </Button>
+              </a>
             </div>
           </div>
         </div>
@@ -159,22 +173,22 @@ export default function KoLakeVilla() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-blue-900 mb-2">12</div>
+              <div className="text-3xl font-bold text-amber-800 mb-2">12</div>
               <div className="text-gray-600">Max Guests</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-900 mb-2">6</div>
+              <div className="text-3xl font-bold text-amber-800 mb-2">6</div>
               <div className="text-gray-600">Bedrooms</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-900 mb-2">4.9</div>
+              <div className="text-3xl font-bold text-amber-800 mb-2">4.9</div>
               <div className="text-gray-600 flex items-center justify-center">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
                 Rating
               </div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-900 mb-2">15%</div>
+              <div className="text-3xl font-bold text-amber-800 mb-2">15%</div>
               <div className="text-gray-600">Save Direct</div>
             </div>
           </div>
@@ -214,7 +228,7 @@ export default function KoLakeVilla() {
                       <span className="text-sm text-gray-500 line-through">Airbnb: ${room.airbnbPrice}</span>
                       <span className="text-sm text-green-600 font-medium">Save ${room.savings}</span>
                     </div>
-                    <div className="text-2xl font-bold text-blue-900">
+                    <div className="text-2xl font-bold text-amber-800">
                       ${room.directPrice}
                       <span className="text-sm font-normal text-gray-500">/night</span>
                     </div>
@@ -228,7 +242,7 @@ export default function KoLakeVilla() {
                     ))}
                   </div>
 
-                  <Button className="w-full" onClick={() => setCurrentPage("booking")}>
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={() => setCurrentPage("booking")}>
                     Book Direct & Save
                   </Button>
                 </CardContent>
@@ -485,10 +499,10 @@ export default function KoLakeVilla() {
                   <h3 className="text-xl font-bold mb-4">Get in Touch</h3>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <Phone className="w-5 h-5 text-blue-600" />
+                      <Phone className="w-5 h-5 text-orange-600" />
                       <div>
                         <div className="font-medium">Phone</div>
-                        <div className="text-gray-600">+94 123 456 789</div>
+                        <div className="text-gray-600">+94 711 730 345</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -540,9 +554,9 @@ export default function KoLakeVilla() {
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
               <div className="space-y-2 text-gray-400">
-                <div>+94 123 456 789</div>
-                <div>info@kolakevilla.com</div>
-                <div>Koggala Lake, Galle</div>
+                <div>+94 711 730 345</div>
+                <div>contact@KoLakeHouse.com</div>
+                <div>Kathaluwa West, Koggala Lake</div>
               </div>
             </div>
             <div>

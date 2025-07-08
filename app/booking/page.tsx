@@ -155,7 +155,7 @@ export default function BookingPage() {
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-blue-900">
+            <Link href="/" className="text-2xl font-bold text-amber-800">
               Ko Lake Villa
             </Link>
             <div className="hidden md:flex space-x-8">
@@ -177,7 +177,7 @@ export default function BookingPage() {
       </nav>
 
       {/* Header */}
-      <section className="py-12 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-12 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-bold mb-4">Book Your Stay</h1>
           <p className="text-xl">Complete the form below and we'll confirm your reservation within 2 hours</p>
@@ -335,10 +335,10 @@ export default function BookingPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-blue-600" />
+                    <Phone className="w-5 h-5 text-orange-600" />
                     <div>
                       <div className="font-medium">Call Us</div>
-                      <div className="text-sm text-gray-600">+94 123 456 789</div>
+                      <div className="text-sm text-gray-600">+94 711 730 345</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -349,15 +349,15 @@ export default function BookingPage() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Mail className="w-5 h-5 text-purple-600" />
+                    <Mail className="w-5 h-5 text-amber-600" />
                     <div>
                       <div className="font-medium">Email</div>
-                      <div className="text-sm text-gray-600">info@kolakevilla.com</div>
+                      <div className="text-sm text-gray-600">contact@KoLakeHouse.com</div>
                     </div>
                   </div>
                   <Button
                     className="w-full bg-green-600 hover:bg-green-700"
-                    onClick={() => window.open("https://wa.me/1234567890", "_blank")}
+                    onClick={() => window.open("https://wa.me/94711730345", "_blank")}
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Chat on WhatsApp

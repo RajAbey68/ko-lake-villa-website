@@ -76,24 +76,30 @@ export default function GalleryPage() {
       <nav className="bg-white shadow-sm border-b sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-blue-900">
+            <Link href="/" className="text-2xl font-bold text-amber-800">
               Ko Lake Villa
             </Link>
             <div className="hidden md:flex space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-blue-900">
+              <Link href="/" className="text-amber-700 hover:text-orange-500">
                 Home
               </Link>
-              <Link href="/accommodation" className="text-gray-700 hover:text-blue-900">
-                Rooms
+              <Link href="/accommodation" className="text-amber-700 hover:text-orange-500">
+                Accommodation
               </Link>
-              <Link href="/gallery" className="text-blue-900 font-medium">
+              <Link href="/dining" className="text-amber-700 hover:text-orange-500">
+                Dining
+              </Link>
+              <Link href="/experiences" className="text-amber-700 hover:text-orange-500">
+                Experiences
+              </Link>
+              <Link href="/gallery" className="text-orange-500 font-medium">
                 Gallery
               </Link>
-              <Link href="/contact" className="text-gray-700 hover:text-blue-900">
+              <Link href="/contact" className="text-amber-700 hover:text-orange-500">
                 Contact
               </Link>
             </div>
-            <Button asChild>
+            <Button asChild className="bg-orange-500 hover:bg-orange-600">
               <Link href="/booking">Book Now</Link>
             </Button>
           </div>
@@ -101,7 +107,7 @@ export default function GalleryPage() {
       </nav>
 
       {/* Header */}
-      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-4">Photo Gallery</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
@@ -220,18 +226,18 @@ export default function GalleryPage() {
       )}
 
       {/* CTA Section */}
-      <section className="py-16 bg-blue-900 text-white">
+      <section className="py-16 bg-amber-900 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-4">Ready to Experience This Paradise?</h2>
           <p className="text-xl mb-8">Book your stay at Ko Lake Villa and create your own unforgettable memories.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100" asChild>
+            <Button size="lg" className="bg-white text-amber-900 hover:bg-amber-50" asChild>
               <Link href="/booking">Book Your Stay</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-blue-900"
+              className="border-white text-white hover:bg-white hover:text-amber-900"
               asChild
             >
               <Link href="/accommodation">View Room Options</Link>

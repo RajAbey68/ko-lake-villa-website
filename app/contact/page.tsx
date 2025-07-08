@@ -43,20 +43,26 @@ export default function ContactPage() {
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-blue-900">
+            <Link href="/" className="text-2xl font-bold text-amber-800">
               Ko Lake Villa
             </Link>
             <div className="hidden md:flex space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-blue-900">
+              <Link href="/" className="text-amber-700 hover:text-orange-500">
                 Home
               </Link>
-              <Link href="/accommodation" className="text-gray-700 hover:text-blue-900">
-                Rooms
+              <Link href="/accommodation" className="text-amber-700 hover:text-orange-500">
+                Accommodation
               </Link>
-              <Link href="/gallery" className="text-gray-700 hover:text-blue-900">
+              <Link href="/dining" className="text-amber-700 hover:text-orange-500">
+                Dining
+              </Link>
+              <Link href="/experiences" className="text-amber-700 hover:text-orange-500">
+                Experiences
+              </Link>
+              <Link href="/gallery" className="text-amber-700 hover:text-orange-500">
                 Gallery
               </Link>
-              <Link href="/contact" className="text-blue-900 font-medium">
+              <Link href="/contact" className="text-orange-500 font-medium">
                 Contact
               </Link>
             </div>
@@ -68,7 +74,7 @@ export default function ContactPage() {
       </nav>
 
       {/* Header */}
-      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
@@ -178,12 +184,12 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <Phone className="w-6 h-6 text-blue-600" />
+                    <div className="bg-orange-100 p-3 rounded-full">
+                      <Phone className="w-6 h-6 text-orange-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Phone</h3>
-                      <p className="text-gray-600">+94 123 456 789</p>
+                      <p className="text-gray-600">+94 711 730 345</p>
                       <p className="text-sm text-gray-500">Available 8 AM - 10 PM daily</p>
                     </div>
                   </div>
@@ -194,12 +200,12 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">WhatsApp</h3>
-                      <p className="text-gray-600">+94 123 456 789</p>
+                      <p className="text-gray-600">+94 711 730 345</p>
                       <p className="text-sm text-gray-500">Quick responses, 24/7</p>
                       <Button
                         size="sm"
                         className="mt-2 bg-green-600 hover:bg-green-700"
-                        onClick={() => window.open("https://wa.me/1234567890", "_blank")}
+                        onClick={() => window.open("https://wa.me/94711730345", "_blank")}
                       >
                         Chat Now
                       </Button>
@@ -207,12 +213,12 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start space-x-4">
-                    <div className="bg-purple-100 p-3 rounded-full">
-                      <Mail className="w-6 h-6 text-purple-600" />
+                    <div className="bg-amber-100 p-3 rounded-full">
+                      <Mail className="w-6 h-6 text-amber-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">info@kolakevilla.com</p>
+                      <p className="text-gray-600">contact@KoLakeHouse.com</p>
                       <p className="text-sm text-gray-500">Response within 24 hours</p>
                     </div>
                   </div>
@@ -223,8 +229,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Location</h3>
-                      <p className="text-gray-600">Koggala Lake</p>
-                      <p className="text-gray-600">Galle District, Sri Lanka</p>
+                      <p className="text-gray-600">Kathaluwa West</p>
+                      <p className="text-gray-600">Koggala Lake, Galle District</p>
                       <p className="text-sm text-gray-500">2 hours from Colombo Airport</p>
                     </div>
                   </div>
@@ -331,13 +337,13 @@ export default function ContactPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-blue-900 text-white">
+      <section className="py-16 bg-amber-900 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-4">Ready to Book Your Stay?</h2>
           <p className="text-xl mb-8">
             Don't wait - secure your dates at Ko Lake Villa today and save with our direct booking rates.
           </p>
-          <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100" asChild>
+          <Button size="lg" className="bg-white text-amber-900 hover:bg-amber-50" asChild>
             <Link href="/booking">Book Your Stay</Link>
           </Button>
         </div>
