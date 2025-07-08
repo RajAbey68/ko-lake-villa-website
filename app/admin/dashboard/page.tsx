@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Calendar, MessageSquare, Settings, Mail, Phone, MapPin, Star } from "lucide-react"
+import { Users, Calendar, MessageSquare, Settings, Mail, Phone, MapPin, Star, Home, Image, BarChart3, LogOut, Upload, FileText } from "lucide-react"
+import Link from "next/link"
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -26,6 +27,10 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("adminAuth")
     localStorage.removeItem("userAuth")
+    
+    // Clear auth cookie
+    document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    
     router.push("/")
   }
 
@@ -47,7 +52,82 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
-      {/* Header */}
+      {/* Admin Navigation Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link href="/admin/dashboard" className="flex items-center">
+                <h1 className="text-xl font-bold text-gray-900">Ko Lake Villa Admin</h1>
+              </Link>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-700"
+              >
+                <Home className="w-4 h-4" />
+                <span>Dashboard</span>
+              </Link>
+              <Link
+                href="/admin/gallery"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <Image className="w-4 h-4" />
+                <span>Gallery Manager</span>
+              </Link>
+              <Link
+                href="/admin/analytics"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span>Analytics</span>
+              </Link>
+              <Link
+                href="/admin/content"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Content</span>
+              </Link>
+              <Link
+                href="/admin/bookings"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Bookings</span>
+              </Link>
+              <Link
+                href="/admin/upload"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Upload</span>
+              </Link>
+            </nav>
+
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                href="/"
+                className="text-sm border border-gray-300 rounded-md px-3 py-1 bg-white hover:bg-gray-50"
+              >
+                View Site
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
