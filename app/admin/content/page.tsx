@@ -17,31 +17,6 @@ export default function AdminContent() {
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth")
-    const userAuth = localStorage.getItem("userAuth")
-    
-    if (adminAuth === "true" || userAuth) {
-      setIsAuthenticated(true)
-    } else {
-      router.push("/admin/login")
-    }
-  }, [router])
-
-  const logout = () => {
-    localStorage.removeItem("adminAuth")
-    localStorage.removeItem("userAuth")
-    
-    // Clear auth cookie
-    document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    
-    router.push("/admin/login")
-  }
-
-  if (!isAuthenticated) {
-    return <div>Loading...</div>
-  }
-
   // Mock content data - in real app this would come from a database
   const [content, setContent] = useState({
     homepage: {
@@ -74,6 +49,27 @@ export default function AdminContent() {
       description: "Contact us to plan your perfect getaway at Ko Lake Villa."
     }
   })
+
+  useEffect(() => {
+    const adminAuth = localStorage.getItem("adminAuth")
+    const userAuth = localStorage.getItem("userAuth")
+    
+    if (adminAuth === "true" || userAuth) {
+      setIsAuthenticated(true)
+    } else {
+      router.push("/admin/login")
+    }
+  }, [router])
+
+  const logout = () => {
+    localStorage.removeItem("adminAuth")
+    localStorage.removeItem("userAuth")
+    
+    // Clear auth cookie
+    document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    
+    router.push("/admin/login")
+  }
 
   const handleSave = (section: string, field: string, value: string) => {
     setContent(prev => ({
@@ -109,8 +105,7 @@ export default function AdminContent() {
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium capitalize">{field.replace(/([A-Z])/g, ' $1').trim()}</Label>
           <Button
-            size="sm"
-            variant="ghost"
+            className="h-8 w-8 p-0 hover:bg-gray-100"
             onClick={() => setIsEditing(isEditable ? null : `${section}-${field}`)}
           >
             <Edit className="w-3 h-3" />
@@ -135,20 +130,18 @@ export default function AdminContent() {
             )}
             <div className="flex space-x-2">
               <Button
-                size="sm"
                 onClick={() => handleSave(section, field, editValue)}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="h-8 px-3 bg-amber-600 hover:bg-amber-700 text-white text-sm"
               >
                 <Save className="w-3 h-3 mr-1" />
                 Save
               </Button>
               <Button
-                size="sm"
-                variant="outline"
                 onClick={() => {
                   setEditValue(value)
                   setIsEditing(null)
                 }}
+                className="h-8 px-3 border border-gray-300 hover:bg-gray-50 text-sm"
               >
                 Cancel
               </Button>
@@ -161,6 +154,10 @@ export default function AdminContent() {
         )}
       </div>
     )
+  }
+
+  if (!isAuthenticated) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -214,7 +211,7 @@ export default function AdminContent() {
                 <Home className="w-4 h-4" />
                 <span>View Site</span>
               </Link>
-              <Button onClick={logout} variant="outline" size="sm">
+              <Button onClick={logout} className="h-8 px-3 border border-gray-300 hover:bg-gray-50 text-sm">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -465,13 +462,13 @@ export default function AdminContent() {
               <CardContent>
                 <div className="flex space-x-4">
                   <Link href="/">
-                    <Button variant="outline">
+                    <Button className="border border-gray-300 hover:bg-gray-50">
                       <Eye className="w-4 h-4 mr-2" />
                       Preview Site
                     </Button>
                   </Link>
                   <Link href="/admin/gallery">
-                    <Button variant="outline">
+                    <Button className="border border-gray-300 hover:bg-gray-50">
                       <Camera className="w-4 h-4 mr-2" />
                       Manage Gallery
                     </Button>
