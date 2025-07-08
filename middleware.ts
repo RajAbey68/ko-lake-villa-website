@@ -2,17 +2,15 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
-  // Protect admin routes
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    // Skip login page
-    if (request.nextUrl.pathname === "/admin/login") {
-      return NextResponse.next()
-    }
-
-    // Check for auth token in cookies or headers
+  // Only protect admin routes (except login)
+  if (request.nextUrl.pathname.startsWith("/admin") && 
+      request.nextUrl.pathname !== "/admin/login") {
+    
+    // Check for auth cookie
     const authToken = request.cookies.get("authToken")?.value
-
-    if (!authToken) {
+    
+    // If no auth token, redirect to login
+    if (!authToken || authToken !== "admin-authenticated") {
       return NextResponse.redirect(new URL("/admin/login", request.url))
     }
   }
@@ -21,5 +19,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
-}
+  matcher: ["/admin/:path*"]
+} 

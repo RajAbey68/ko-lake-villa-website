@@ -4,173 +4,170 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { BarChart3, Calendar, Users, Home, Image, Settings, LogOut, Search, Filter, Eye, Edit, Phone, Mail, MapPin, Bed, Clock, DollarSign, CheckCircle, XCircle, AlertCircle } from "lucide-react"
+import { BarChart3, Calendar, Users, Home, Image, Settings, LogOut, Search, Filter, Eye, CheckCircle, XCircle, Clock, DollarSign, Mail, Phone, MapPin } from "lucide-react"
 import Link from "next/link"
+
+// Mock booking data
+const mockBookings = [
+  {
+    id: "BK001",
+    guestName: "John Smith",
+    email: "john@email.com",
+    phone: "+1 555-0123",
+    roomType: "Deluxe Suite",
+    checkIn: "2024-01-15",
+    checkOut: "2024-01-18",
+    nights: 3,
+    guests: 2,
+    amount: 450,
+    status: "confirmed" as const,
+    paymentStatus: "paid" as const,
+    bookingDate: "2024-01-10",
+    specialRequests: "Late check-in requested"
+  },
+  {
+    id: "BK002", 
+    guestName: "Sarah Johnson",
+    email: "sarah@email.com",
+    phone: "+1 555-0456",
+    roomType: "Family Room",
+    checkIn: "2024-01-20",
+    checkOut: "2024-01-23", 
+    nights: 3,
+    guests: 4,
+    amount: 600,
+    status: "pending" as const,
+    paymentStatus: "pending" as const,
+    bookingDate: "2024-01-12",
+    specialRequests: "Ground floor room preferred"
+  },
+  {
+    id: "BK003",
+    guestName: "Mike Wilson", 
+    email: "mike@email.com",
+    phone: "+1 555-0789",
+    roomType: "Standard Room",
+    checkIn: "2024-01-25",
+    checkOut: "2024-01-27",
+    nights: 2,
+    guests: 2,
+    amount: 300,
+    status: "cancelled" as const,
+    paymentStatus: "refunded" as const,
+    bookingDate: "2024-01-14",
+    specialRequests: "None"
+  }
+]
 
 export default function AdminBookings() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [selectedBooking, setSelectedBooking] = useState<any>(null)
-  const [filterStatus, setFilterStatus] = useState("all")
+  const [isLoading, setIsLoading] = useState(true)
+  const [bookings] = useState(mockBookings)
+  const [filteredBookings, setFilteredBookings] = useState(mockBookings)
   const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedBooking, setSelectedBooking] = useState<typeof mockBookings[0] | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    const adminAuth = localStorage.getItem("adminAuth")
-    const userAuth = localStorage.getItem("userAuth")
-    
-    if (adminAuth === "true" || userAuth) {
+    const checkAuth = () => {
+      const adminAuth = localStorage.getItem("adminAuth")
+      const userAuth = localStorage.getItem("userAuth")
+      
+      const authenticated = adminAuth === "true" || !!userAuth
+      if (!authenticated) {
+        router.push("/admin/login")
+        return
+      }
       setIsAuthenticated(true)
-    } else {
-      router.push("/admin/login")
+      setIsLoading(false)
     }
+
+    checkAuth()
   }, [router])
+
+  useEffect(() => {
+    let filtered = bookings
+
+    if (searchTerm) {
+      filtered = filtered.filter(booking => 
+        booking.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.id.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(booking => booking.status === statusFilter)
+    }
+
+    setFilteredBookings(filtered)
+  }, [bookings, searchTerm, statusFilter])
 
   const logout = () => {
     localStorage.removeItem("adminAuth")
     localStorage.removeItem("userAuth")
-    
-    // Clear auth cookie
-    document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    
+    document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT"
     router.push("/admin/login")
   }
 
-  if (!isAuthenticated) {
-    return <div>Loading...</div>
-  }
-
-  // Mock bookings data - in real app this would come from a database
-  const [bookings] = useState([
-    {
-      id: "BK-001",
-      guestName: "Samantha Wilson",
-      email: "samantha@email.com",
-      phone: "+94 771 234 567",
-      checkIn: "2025-07-15",
-      checkOut: "2025-07-18",
-      nights: 3,
-      guests: 2,
-      roomType: "Family Suite",
-      totalAmount: 450,
-      status: "confirmed",
-      paymentStatus: "paid",
-      specialRequests: "Late check-in requested",
-      bookingDate: "2025-06-20"
-    },
-    {
-      id: "BK-002", 
-      guestName: "Michael Chen",
-      email: "mchen@email.com",
-      phone: "+1 555 987 6543",
-      checkIn: "2025-07-20",
-      checkOut: "2025-07-25",
-      nights: 5,
-      guests: 4,
-      roomType: "Group Room",
-      totalAmount: 750,
-      status: "pending",
-      paymentStatus: "pending",
-      specialRequests: "Anniversary celebration",
-      bookingDate: "2025-06-25"
-    },
-    {
-      id: "BK-003",
-      guestName: "Sarah Johnson",
-      email: "sarah.j@email.com", 
-      phone: "+44 7700 900123",
-      checkIn: "2025-07-10",
-      checkOut: "2025-07-12",
-      nights: 2,
-      guests: 2,
-      roomType: "Triple Room",
-      totalAmount: 300,
-      status: "confirmed",
-      paymentStatus: "paid",
-      specialRequests: "Vegetarian meals",
-      bookingDate: "2025-06-15"
-    },
-    {
-      id: "BK-004",
-      guestName: "David Kumar",
-      email: "davidk@email.com",
-      phone: "+94 771 456 789",
-      checkIn: "2025-08-01",
-      checkOut: "2025-08-05",
-      nights: 4,
-      guests: 3,
-      roomType: "Family Suite",
-      totalAmount: 600,
-      status: "cancelled",
-      paymentStatus: "refunded",
-      specialRequests: "Airport transfer",
-      bookingDate: "2025-06-30"
-    },
-    {
-      id: "BK-005",
-      guestName: "Emma Thompson",
-      email: "emma.t@email.com",
-      phone: "+61 404 123 456",
-      checkIn: "2025-07-28",
-      checkOut: "2025-08-02",
-      nights: 5,
-      guests: 2,
-      roomType: "Triple Room",
-      totalAmount: 750,
-      status: "confirmed",
-      paymentStatus: "deposit",
-      specialRequests: "Yoga mat requested",
-      bookingDate: "2025-07-01"
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "confirmed":
+        return <CheckCircle className="w-4 h-4 text-green-600" />
+      case "pending":
+        return <Clock className="w-4 h-4 text-yellow-600" />
+      case "cancelled":
+        return <XCircle className="w-4 h-4 text-red-600" />
+      default:
+        return null
     }
-  ])
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmed": return "bg-green-100 text-green-800"
-      case "pending": return "bg-yellow-100 text-yellow-800"
-      case "cancelled": return "bg-red-100 text-red-800"
-      default: return "bg-gray-100 text-gray-800"
+      case "confirmed":
+        return "bg-green-100 text-green-800 border-green-200"
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200"
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200"
     }
   }
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case "paid": return "bg-green-100 text-green-800"
-      case "deposit": return "bg-blue-100 text-blue-800"
-      case "pending": return "bg-yellow-100 text-yellow-800"
-      case "refunded": return "bg-gray-100 text-gray-800"
-      default: return "bg-gray-100 text-gray-800"
+      case "paid":
+        return "bg-green-100 text-green-800 border-green-200"
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+      case "refunded":
+        return "bg-blue-100 text-blue-800 border-blue-200"
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200"
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "confirmed": return <CheckCircle className="w-4 h-4" />
-      case "pending": return <AlertCircle className="w-4 h-4" />
-      case "cancelled": return <XCircle className="w-4 h-4" />
-      default: return <AlertCircle className="w-4 h-4" />
-    }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
-  const filteredBookings = bookings.filter(booking => {
-    const matchesStatus = filterStatus === "all" || booking.status === filterStatus
-    const matchesSearch = booking.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.email.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
-
-  const stats = {
-    total: bookings.length,
-    confirmed: bookings.filter(b => b.status === "confirmed").length,
-    pending: bookings.filter(b => b.status === "pending").length,
-    cancelled: bookings.filter(b => b.status === "cancelled").length,
-    revenue: bookings.filter(b => b.status === "confirmed").reduce((sum, b) => sum + b.totalAmount, 0)
+  if (!isAuthenticated) {
+    return null
   }
 
   return (
@@ -216,13 +213,16 @@ export default function AdminBookings() {
                   <Settings className="w-4 h-4" />
                   <span>Content</span>
                 </Link>
-                <span className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium bg-amber-100 text-amber-800">
+                <Link
+                  href="/admin/bookings"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium bg-amber-100 text-amber-700"
+                >
                   <Calendar className="w-4 h-4" />
                   <span>Bookings</span>
-                </span>
+                </Link>
               </nav>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Link
                 href="/"
@@ -231,6 +231,7 @@ export default function AdminBookings() {
                 <Home className="w-4 h-4" />
                 <span>View Site</span>
               </Link>
+              
               <Button onClick={logout} variant="outline" size="sm">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -240,91 +241,74 @@ export default function AdminBookings() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Bookings Management</h1>
-          <p className="text-gray-600 mt-2">Manage reservations and guest bookings</p>
+          <p className="mt-2 text-gray-600">Manage reservations and guest information</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-2xl font-bold">{bookings.length}</div>
             </CardContent>
           </Card>
-
+          
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.confirmed}</div>
+              <div className="text-2xl font-bold">{bookings.filter(b => b.status === "confirmed").length}</div>
             </CardContent>
           </Card>
-
+          
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending</CardTitle>
-              <AlertCircle className="h-4 w-4 text-yellow-600" />
+              <Clock className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+              <div className="text-2xl font-bold">{bookings.filter(b => b.status === "pending").length}</div>
             </CardContent>
           </Card>
-
+          
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cancelled</CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.cancelled}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.revenue}</div>
+              <div className="text-2xl font-bold">${bookings.reduce((sum, b) => sum + b.amount, 0)}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters and Search */}
+        {/* Search and Filter */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filter & Search</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
-                <Label htmlFor="search">Search Bookings</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    id="search"
-                    placeholder="Search by name, booking ID, or email..."
+                    placeholder="Search by guest name, email, or booking ID..."
+                    className="pl-10"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   />
                 </div>
               </div>
-              <div className="w-48">
-                <Label htmlFor="status">Filter by Status</Label>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <div className="sm:w-48">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger>
-                    <SelectValue placeholder="All Statuses" />
+                    <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
@@ -338,157 +322,130 @@ export default function AdminBookings() {
           </CardContent>
         </Card>
 
-        {/* Bookings Table */}
+        {/* Bookings List */}
         <Card>
           <CardHeader>
             <CardTitle>Bookings ({filteredBookings.length})</CardTitle>
-            <CardDescription>
-              Manage all guest reservations and bookings
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {filteredBookings.map((booking) => (
                 <div key={booking.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <span className="font-semibold text-lg">{booking.guestName}</span>
-                        <Badge className={getStatusColor(booking.status)}>
-                          {getStatusIcon(booking.status)}
-                          <span className="ml-1 capitalize">{booking.status}</span>
-                        </Badge>
-                        <Badge className={getPaymentStatusColor(booking.paymentStatus)}>
-                          <DollarSign className="w-3 h-3 mr-1" />
-                          {booking.paymentStatus}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
-                        <div>
-                          <div className="font-medium">Booking ID</div>
-                          <div>{booking.id}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold">{booking.guestName}</h3>
+                          <span className="text-sm text-gray-500">#{booking.id}</span>
                         </div>
-                        <div>
-                          <div className="font-medium">Check-in / Check-out</div>
-                          <div>{booking.checkIn} - {booking.checkOut}</div>
-                        </div>
-                        <div>
-                          <div className="font-medium">Room & Guests</div>
-                          <div>{booking.roomType} • {booking.guests} guests</div>
-                        </div>
-                        <div>
-                          <div className="font-medium">Total Amount</div>
-                          <div>${booking.totalAmount} ({booking.nights} nights)</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                        <div className="flex items-center space-x-1">
-                          <Mail className="w-3 h-3" />
-                          <span>{booking.email}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Phone className="w-3 h-3" />
-                          <span>{booking.phone}</span>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <span>{booking.roomType}</span>
+                          <span>•</span>
+                          <span>{booking.checkIn} to {booking.checkOut}</span>
+                          <span>•</span>
+                          <span>{booking.nights} night{booking.nights > 1 ? 's' : ''}</span>
+                          <span>•</span>
+                          <span>{booking.guests} guest{booking.guests > 1 ? 's' : ''}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex space-x-2">
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <div className="font-semibold">${booking.amount}</div>
+                        <div className="flex items-center space-x-2">
+                          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(booking.status)}`}>
+                            {getStatusIcon(booking.status)}
+                            <span className="ml-1 capitalize">{booking.status}</span>
+                          </div>
+                          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getPaymentStatusColor(booking.paymentStatus)}`}>
+                            <span className="capitalize">{booking.paymentStatus}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => setSelectedBooking(booking)}
                           >
                             <Eye className="w-4 h-4 mr-2" />
-                            View Details
+                            View
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl">
                           <DialogHeader>
-                            <DialogTitle>Booking Details - {booking.id}</DialogTitle>
+                            <DialogTitle>Booking Details - {selectedBooking?.id}</DialogTitle>
                             <DialogDescription>
-                              Complete booking information for {booking.guestName}
+                              Complete information for this reservation
                             </DialogDescription>
                           </DialogHeader>
+                          
                           {selectedBooking && (
                             <div className="space-y-6">
                               <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                  <div>
-                                    <Label className="font-semibold">Guest Information</Label>
-                                    <div className="mt-2 space-y-2">
-                                      <div><span className="font-medium">Name:</span> {selectedBooking.guestName}</div>
-                                      <div><span className="font-medium">Email:</span> {selectedBooking.email}</div>
-                                      <div><span className="font-medium">Phone:</span> {selectedBooking.phone}</div>
+                                <div>
+                                  <h4 className="font-semibold mb-3">Guest Information</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                      <Users className="w-4 h-4 text-gray-400" />
+                                      <span>{selectedBooking.guestName}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Mail className="w-4 h-4 text-gray-400" />
+                                      <span>{selectedBooking.email}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Phone className="w-4 h-4 text-gray-400" />
+                                      <span>{selectedBooking.phone}</span>
                                     </div>
                                   </div>
-                                  
-                                  <div>
-                                    <Label className="font-semibold">Booking Status</Label>
-                                    <div className="mt-2 space-y-2">
-                                      <div className="flex items-center space-x-2">
-                                        <span className="font-medium">Status:</span>
-                                        <Badge className={getStatusColor(selectedBooking.status)}>
-                                          {getStatusIcon(selectedBooking.status)}
-                                          <span className="ml-1 capitalize">{selectedBooking.status}</span>
-                                        </Badge>
+                                </div>
+                                
+                                <div>
+                                  <h4 className="font-semibold mb-3">Booking Details</h4>
+                                  <div className="space-y-2">
+                                    <div><strong>Room:</strong> {selectedBooking.roomType}</div>
+                                    <div><strong>Check-in:</strong> {selectedBooking.checkIn}</div>
+                                    <div><strong>Check-out:</strong> {selectedBooking.checkOut}</div>
+                                    <div><strong>Nights:</strong> {selectedBooking.nights}</div>
+                                    <div><strong>Guests:</strong> {selectedBooking.guests}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-6">
+                                <div>
+                                  <h4 className="font-semibold mb-3">Payment & Status</h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                      <span><strong>Amount:</strong> ${selectedBooking.amount}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <span><strong>Status:</strong></span>
+                                      <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getStatusColor(selectedBooking.status)}`}>
+                                        {getStatusIcon(selectedBooking.status)}
+                                        <span className="ml-1 capitalize">{selectedBooking.status}</span>
                                       </div>
-                                      <div className="flex items-center space-x-2">
-                                        <span className="font-medium">Payment:</span>
-                                        <Badge className={getPaymentStatusColor(selectedBooking.paymentStatus)}>
-                                          <DollarSign className="w-3 h-3 mr-1" />
-                                          {selectedBooking.paymentStatus}
-                                        </Badge>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <span><strong>Payment:</strong></span>
+                                      <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getPaymentStatusColor(selectedBooking.paymentStatus)}`}>
+                                        <span className="capitalize">{selectedBooking.paymentStatus}</span>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                                 
-                                <div className="space-y-4">
-                                  <div>
-                                    <Label className="font-semibold">Stay Details</Label>
-                                    <div className="mt-2 space-y-2">
-                                      <div><span className="font-medium">Check-in:</span> {selectedBooking.checkIn}</div>
-                                      <div><span className="font-medium">Check-out:</span> {selectedBooking.checkOut}</div>
-                                      <div><span className="font-medium">Nights:</span> {selectedBooking.nights}</div>
-                                      <div><span className="font-medium">Guests:</span> {selectedBooking.guests}</div>
-                                      <div><span className="font-medium">Room:</span> {selectedBooking.roomType}</div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div>
-                                    <Label className="font-semibold">Financial Details</Label>
-                                    <div className="mt-2 space-y-2">
-                                      <div><span className="font-medium">Total Amount:</span> ${selectedBooking.totalAmount}</div>
-                                      <div><span className="font-medium">Per Night:</span> ${(selectedBooking.totalAmount / selectedBooking.nights).toFixed(0)}</div>
-                                      <div><span className="font-medium">Booking Date:</span> {selectedBooking.bookingDate}</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {selectedBooking.specialRequests && (
                                 <div>
-                                  <Label className="font-semibold">Special Requests</Label>
-                                  <div className="mt-2 p-3 bg-gray-50 rounded-md">
-                                    {selectedBooking.specialRequests}
+                                  <h4 className="font-semibold mb-3">Additional Information</h4>
+                                  <div className="space-y-2">
+                                    <div><strong>Booking Date:</strong> {selectedBooking.bookingDate}</div>
+                                    <div><strong>Special Requests:</strong> {selectedBooking.specialRequests}</div>
                                   </div>
                                 </div>
-                              )}
-                              
-                              <div className="flex space-x-2 pt-4 border-t">
-                                <Button className="bg-amber-600 hover:bg-amber-700">
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Edit Booking
-                                </Button>
-                                <Button variant="outline">
-                                  <Mail className="w-4 h-4 mr-2" />
-                                  Send Email
-                                </Button>
                               </div>
                             </div>
                           )}
@@ -500,20 +457,14 @@ export default function AdminBookings() {
               ))}
               
               {filteredBookings.length === 0 && (
-                <div className="text-center py-12">
-                  <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
-                  <p className="text-gray-500">
-                    {searchTerm || filterStatus !== "all" 
-                      ? "Try adjusting your search or filter criteria" 
-                      : "No bookings have been made yet"}
-                  </p>
+                <div className="text-center py-8 text-gray-500">
+                  No bookings found matching your criteria
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   )
 } 
