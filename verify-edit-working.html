@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Dialog Test</title>
+</head>
+<body>
+    <script>
+    // Run this test in browser console on /admin/gallery
+    function testEditDialog() {
+        console.log('Testing edit dialog...');
+        
+        const editBtn = document.querySelector('button[title*="Edit"]');
+        if (editBtn) {
+            editBtn.click();
+            
+            setTimeout(() => {
+                const dialog = document.querySelector('.fixed.inset-0.z-50');
+                if (dialog) {
+                    console.log('✓ Edit dialog opens successfully');
+                    const closeBtn = dialog.querySelector('button');
+                    if (closeBtn) closeBtn.click();
+                } else {
+                    console.log('✗ Edit dialog failed to open');
+                }
+            }, 500);
+        }
+    }
+    
+    console.log('Run testEditDialog() in gallery admin');
+    </script>
+</body>
+</html>

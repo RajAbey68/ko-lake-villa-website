@@ -1,0 +1,36 @@
+2025-05-30T17:32:47.943Z [INFO] 🚀 Starting comprehensive deployment tests...
+2025-05-30T17:32:47.943Z [INFO] Starting routing tests...
+2025-05-30T17:32:48.639Z [SUCCESS] ROUTING - Homepage: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:48.755Z [SUCCESS] ROUTING - Accommodation Page: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:48.875Z [SUCCESS] ROUTING - Dining Page: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:48.993Z [SUCCESS] ROUTING - Experiences Page: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:49.117Z [SUCCESS] ROUTING - Gallery Page: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:49.789Z [SUCCESS] ROUTING - Contact Page: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:49.935Z [SUCCESS] ROUTING - Booking Page: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:50.056Z [ERROR] ROUTING - 404 Error Handling: FAIL - Expected 404, got 200
+2025-05-30T17:32:50.056Z [INFO] Starting admin tests...
+2025-05-30T17:32:50.189Z [SUCCESS] ROUTING - Admin Landing: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:50.312Z [SUCCESS] ROUTING - Admin Login: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:50.430Z [SUCCESS] ROUTING - Admin Dashboard: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:50.552Z [SUCCESS] ROUTING - Content Manager: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:50.714Z [SUCCESS] ROUTING - Gallery Manager: PASS - 200 - Page loaded successfully
+2025-05-30T17:32:50.832Z [ERROR] ROUTING - Admin 404 Handling: FAIL - Expected 404, got 200
+2025-05-30T17:32:50.832Z [INFO] Starting API tests...
+2025-05-30T17:32:50.955Z [SUCCESS] API - GET /api/content: PASS - 200 - Response received
+2025-05-30T17:32:51.069Z [SUCCESS] API - GET /api/gallery: PASS - 200 - Response received
+2025-05-30T17:32:51.180Z [SUCCESS] API - GET /api/testimonials: PASS - 200 - Response received
+2025-05-30T17:32:51.295Z [SUCCESS] API - GET /api/rooms: PASS - 200 - Response received
+2025-05-30T17:32:51.417Z [SUCCESS] API - GET /api/pricing: PASS - 200 - Response received
+2025-05-30T17:32:51.562Z [ERROR] API - POST /api/contact: FAIL - 400 - Bad Request
+2025-05-30T17:32:51.683Z [SUCCESS] API - POST /api/newsletter: PASS - 201 - Response received
+2025-05-30T17:32:51.683Z [INFO] Starting content management tests...
+2025-05-30T17:32:51.792Z [SUCCESS] CONTENT - home page content: PASS - 2 sections found
+2025-05-30T17:32:51.792Z [SUCCESS] CONTENT - accommodation page content: PASS - 1 sections found
+2025-05-30T17:32:51.792Z [SUCCESS] CONTENT - dining page content: PASS - 2 sections found
+2025-05-30T17:32:51.792Z [SUCCESS] CONTENT - experiences page content: PASS - 2 sections found
+2025-05-30T17:32:51.792Z [SUCCESS] CONTENT - gallery page content: PASS - 2 sections found
+2025-05-30T17:32:51.792Z [SUCCESS] CONTENT - contact page content: PASS - 2 sections found
+2025-05-30T17:32:51.792Z [INFO] Starting mobile and performance tests...
+2025-05-30T17:32:51.909Z [SUCCESS] MOBILE - Mobile User Agent: PASS - Page loads on mobile (116ms)
+2025-05-30T17:32:51.909Z [SUCCESS] MOBILE - Page Load Performance: PASS - Load time: 116ms
+2025-05-30T17:32:51.909Z [INFO] ✅ All tests completed. Started: 2025-05-30T17:32:47.943Z, Ended: 2025-05-30T17:32:51.909Z

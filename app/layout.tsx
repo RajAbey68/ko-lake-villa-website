@@ -1,27 +1,20 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Ko Lake Villa - Luxury Villa in Ahangama, Sri Lanka",
-  description:
-    "Relax. Revive. Connect by Koggala Lake in Ahangama, Sri Lanka. Experience luxury accommodation with stunning lake views.",
-    generator: 'v0.dev'
+  title: 'v0 App',
+  description: 'Created with v0',
+  generator: 'v0.dev',
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <main>{children}</main>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

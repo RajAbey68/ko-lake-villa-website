@@ -1,0 +1,20 @@
+Feature,Test Action,Expected Result,Validation Criteria
+Upload Button,Click upload -> open dialog,Dialog opens with form,Form opens
+Submit Upload,Fill form and submit,Image is uploaded and visible,Image saved in DB and listed
+Category Dropdown,Select category from list,Correct value assigned,Category maps correctly
+Tag Autofill,Choose category -> tags auto-fill,Tags contain category,Tag-category consistency enforced
+Sort Order Input,Change order value,Image position changes,Order reflected in display
+Edit Button,Click edit -> modify -> save,Updates saved,Image info updates correctly
+Delete Button,Click delete and confirm,Image removed,Deleted from DB and UI
+Bulk Upload,Select multiple files -> upload,All files uploaded,Bulk insert successful
+Category Filter,Click category filter,Gallery updates,Only filtered images shown
+Image Modal,Click image thumbnail,Modal opens,Full image with metadata visible
+Modal Close,Click close on modal,Modal closes,Returns to grid view
+AI Suggest Tags,Upload image with AI,Tags auto-generated,AI results match confidence criteria
+Fallback Tag Logic,AI fails or <0.7 confidence,User tags used,Proper fallback logic
+Upload with Missing Field,Submit form with missing category,Validation error,Upload prevented
+Invalid File Type,Upload .exe file,Rejected,Filetype blocked
+Gallery View A,Use grid layout,More click-throughs,Measure engagement
+Gallery View B,Use carousel layout,Compare clicks,Track via analytics
+CTA Button A,Book Now button top,User interaction recorded,Track conversions
+CTA Button B,Book Now button bottom,User interaction recorded,Compare with A

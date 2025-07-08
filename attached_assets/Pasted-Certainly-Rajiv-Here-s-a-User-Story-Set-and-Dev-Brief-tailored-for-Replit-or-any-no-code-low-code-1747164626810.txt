@@ -1,0 +1,119 @@
+Certainly, Rajiv. Here’s a User Story Set and Dev Brief tailored for Replit (or any no-code/low-code MVP platform) to unify the two sites into a single branded website for Ko Lake Villa.
+
+⸻
+
+🧾 Development Brief for Replit / Bubble / No-Code MVP
+
+Project Name:
+Ko Lake Villa – Boutique Stay by the Lake
+
+Purpose:
+Create a unified, responsive, visually elegant website for Ko Lake Villa combining the rich accommodation offering of kolakehouse.com and the boutique experience of koggalaninepeaks.com, while being completely independent of ninepeaksgroup.com.
+
+Target Users:
+	•	International and local tourists seeking serene, boutique lakefront stays
+	•	Luxury group travelers, families, and couples
+	•	Digital nomads and wellness retreat seekers
+
+⸻
+
+👤 User Stories (for MVP Build)
+
+🏡 Home Page
+
+As a guest,
+I want to see beautiful images of the villa and lake when I land on the homepage,
+So that I feel inspired to explore and book my stay.
+
+⸻
+
+🛌 Accommodation Pages
+
+As a prospective guest,
+I want to browse detailed room descriptions with photos and occupancy info,
+So that I can choose a room that suits my group size and comfort preferences.
+
+⸻
+
+📆 Booking Feature
+
+As a customer,
+I want to check availability and request a booking,
+So that I can reserve my preferred room or the whole villa.
+
+⸻
+
+🍽️ Dining & Services
+
+As a food-loving traveler,
+I want to see what dining options, chef services, and meal plans are available,
+So that I can plan my meals in advance or bring my own groceries.
+
+⸻
+
+🌊 Activities & Local Area
+
+As an explorer,
+I want to learn what lake, beach, and cultural activities are nearby,
+So that I can plan a varied itinerary during my stay.
+
+⸻
+
+🖼️ Photo Gallery
+
+As a visual browser,
+I want to see a rich photo gallery of interiors, exteriors, lake views, and surroundings,
+So that I get a true sense of what to expect.
+
+⸻
+
+📞 Contact
+
+As a potential guest,
+I want to quickly find WhatsApp, phone, and email contact details,
+So that I can message or call directly for tailored bookings or questions.
+
+⸻
+
+🔒 Owner/Admin Portal (Optional Phase 2)
+
+As the property owner,
+I want to log in to update room rates, add offers, or update availability,
+So that I don’t need a developer every time I want to make a change.
+
+⸻
+
+🛠️ Pages to Build in Replit
+
+Page Name	Description
+index.html	Hero banner, intro to Ko Lake Villa, CTA to “Book Now”
+accommodation.html	Room-by-room breakdown with details and photos
+booking.html	Form or API for booking inquiries (linked to email or calendar integration)
+dining.html	Overview of in-house chef services, local dining, and food policies
+experiences.html	Activities and nearby attractions
+gallery.html	Photo gallery (image slider or grid)
+contact.html	Phone, email, WhatsApp, map integration
+
+
+⸻
+
+📁 Suggested Folder Structure (Replit)
+
+/KoLakeVilla
+  /images
+  /styles
+    style.css
+  /scripts
+    main.js
+  index.html
+  accommodation.html
+  booking.html
+  dining.html
+  experiences.html
+  gallery.html
+  contact.html
+
+
+⸻
+
+Would you like me to generate sample HTML + CSS stubs for these pages or structure it for Bubble.io if that’s your preference?

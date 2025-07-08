@@ -1,0 +1,31 @@
+2025-06-13T08:11:44.390Z [INFO] 🚀 Starting comprehensive deployment tests...
+2025-06-13T08:11:44.390Z [INFO] Starting routing tests...
+2025-06-13T08:11:44.527Z [SUCCESS] ROUTING - Homepage: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:44.669Z [SUCCESS] ROUTING - Accommodation Page: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:44.799Z [SUCCESS] ROUTING - Dining Page: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:44.927Z [SUCCESS] ROUTING - Experiences Page: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:45.057Z [SUCCESS] ROUTING - Gallery Page: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:45.188Z [SUCCESS] ROUTING - Contact Page: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:45.319Z [SUCCESS] ROUTING - Booking Page: PASS - 200 - Page loaded successfully
+2025-06-13T08:11:45.446Z [ERROR] ROUTING - 404 Error Handling: FAIL - Expected 404, got 200
+2025-06-13T08:11:45.446Z [INFO] Starting admin tests...
+2025-06-13T08:11:45.576Z [ERROR] ROUTING - Admin Landing: FAIL - Expected 200, got 404
+2025-06-13T08:11:45.696Z [ERROR] ROUTING - Admin Login: FAIL - Expected 200, got 404
+2025-06-13T08:11:45.826Z [ERROR] ROUTING - Admin Dashboard: FAIL - Expected 200, got 404
+2025-06-13T08:11:45.951Z [ERROR] ROUTING - Content Manager: FAIL - Expected 200, got 404
+2025-06-13T08:11:46.077Z [ERROR] ROUTING - Gallery Manager: FAIL - Expected 200, got 404
+2025-06-13T08:11:46.203Z [SUCCESS] ROUTING - Admin 404 Handling: PASS - 404 - Page loaded successfully
+2025-06-13T08:11:46.203Z [INFO] Starting API tests...
+2025-06-13T08:11:46.327Z [SUCCESS] API - GET /api/content: PASS - 200 - Response received
+2025-06-13T08:11:46.652Z [SUCCESS] API - GET /api/gallery: PASS - 200 - Response received
+2025-06-13T08:11:46.818Z [SUCCESS] API - GET /api/testimonials: PASS - 200 - Response received
+2025-06-13T08:11:46.980Z [SUCCESS] API - GET /api/rooms: PASS - 200 - Response received
+2025-06-13T08:11:47.111Z [SUCCESS] API - GET /api/pricing: PASS - 200 - Response received
+2025-06-13T08:11:47.273Z [ERROR] API - POST /api/contact: FAIL - 400 - 
+2025-06-13T08:11:47.478Z [ERROR] API - POST /api/newsletter: FAIL - 400 - 
+2025-06-13T08:11:47.478Z [INFO] Starting content management tests...
+2025-06-13T08:11:47.604Z [ERROR] CONTENT - Content API: FAIL - API request failed: _.filter is not a function
+2025-06-13T08:11:47.604Z [INFO] Starting mobile and performance tests...
+2025-06-13T08:11:47.731Z [SUCCESS] MOBILE - Mobile User Agent: PASS - Page loads on mobile (127ms)
+2025-06-13T08:11:47.731Z [SUCCESS] MOBILE - Page Load Performance: PASS - Load time: 127ms
+2025-06-13T08:11:47.731Z [INFO] ✅ All tests completed. Started: 2025-06-13T08:11:44.390Z, Ended: 2025-06-13T08:11:47.731Z

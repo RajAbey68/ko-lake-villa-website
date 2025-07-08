@@ -3,343 +3,345 @@
 import type React from "react"
 
 import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { MapPin, Phone, Mail, MessageCircle, Clock, Star } from "lucide-react"
+import Link from "next/link"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    checkIn: "",
-    checkOut: "",
-    guests: "",
+    subject: "",
     message: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log("Form submitted:", formData)
-    alert("Thank you for your inquiry! We'll get back to you within 24 hours.")
-  }
+    setIsSubmitting(true)
 
-  const contactInfo = [
-    {
-      icon: MapPin,
-      title: "Location",
-      details: ["Ko Lake Villa, Ahangama", "Southern Province, Sri Lanka", "Koggala Lake Waterfront"],
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      details: ["+94 77 123 4567", "+94 91 234 5678", "Available 24/7"],
-    },
-    {
-      icon: Mail,
-      title: "Email",
-      details: ["info@kolakevilla.com", "bookings@kolakevilla.com", "Response within 24 hours"],
-    },
-    {
-      icon: Clock,
-      title: "Check-in/out",
-      details: ["Check-in: 2:00 PM", "Check-out: 11:00 AM", "Early/late arrangements available"],
-    },
-  ]
+    // Simulate form submission
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    setIsSubmitting(false)
+    setSubmitted(true)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="text-2xl font-bold text-blue-900">
+              Ko Lake Villa
+            </Link>
+            <div className="hidden md:flex space-x-8">
+              <Link href="/" className="text-gray-700 hover:text-blue-900">
+                Home
+              </Link>
+              <Link href="/accommodation" className="text-gray-700 hover:text-blue-900">
+                Rooms
+              </Link>
+              <Link href="/gallery" className="text-gray-700 hover:text-blue-900">
+                Gallery
+              </Link>
+              <Link href="/contact" className="text-blue-900 font-medium">
+                Contact
+              </Link>
+            </div>
+            <Button asChild>
+              <Link href="/booking">Book Now</Link>
+            </Button>
+          </div>
+        </div>
+      </nav>
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-semibold text-amber-900 tracking-tight">
-            Ko Lake Villa
-          </Link>
-
-          <nav className="hidden lg:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Home
-            </Link>
-            <Link
-              href="/deals"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Deals
-            </Link>
-            <Link
-              href="/accommodation"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Accommodation
-            </Link>
-            <Link
-              href="/dining"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Dining
-            </Link>
-            <Link
-              href="/experiences"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Experiences
-            </Link>
-            <Link
-              href="/gallery"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Gallery
-            </Link>
-            <Link
-              href="/faq"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              FAQ
-            </Link>
-            <Link
-              href="/contact"
-              className="text-orange-500 font-medium text-sm hover:text-orange-600 transition-colors duration-200"
-            >
-              Contact
-            </Link>
-          </nav>
-
-          <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-sm px-6 py-2.5 rounded-md shadow-sm transition-all duration-200">
-            Book Now
-          </Button>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src="/placeholder.svg?height=400&width=1200&text=Contact+Us"
-            alt="Ko Lake Villa Contact"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40"></div>
-        </div>
-
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl lg:text-6xl font-bold mb-4 tracking-tight">Contact Us</h1>
-          <p className="text-xl lg:text-2xl font-light tracking-wide">
-            Get in touch to plan your perfect lakefront getaway
+      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
+          <p className="text-xl mb-8 max-w-3xl mx-auto">
+            Get in touch with our friendly team. We're here to help you plan the perfect stay at Ko Lake Villa.
           </p>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Get In Touch</h2>
-
-              <div className="grid sm:grid-cols-2 gap-6 mb-8">
-                {contactInfo.map((info, index) => (
-                  <Card key={index} className="hover:shadow-md transition-shadow duration-300">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-orange-100 rounded-lg">
-                          <info.icon className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <CardTitle className="text-lg text-gray-900">{info.title}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      {info.details.map((detail, detailIndex) => (
-                        <p key={detailIndex} className="text-gray-600 text-sm mb-1 last:mb-0">
-                          {detail}
-                        </p>
-                      ))}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Quick Contact Options */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Contact</h3>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4" />
-                    WhatsApp
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-orange-200 text-orange-600 hover:bg-orange-50 flex items-center gap-2"
-                  >
-                    <Phone className="w-4 h-4" />
-                    Call Now
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-orange-200 text-orange-600 hover:bg-orange-50 flex items-center gap-2"
-                  >
-                    <Mail className="w-4 h-4" />
-                    Email
-                  </Button>
-                </div>
-              </div>
-            </div>
-
+      {/* Contact Content */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div>
-              <Card className="shadow-lg">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl text-gray-900">Send Us a Message</CardTitle>
-                  <CardDescription>Fill out the form below and we'll get back to you within 24 hours</CardDescription>
+                  <CardTitle className="text-2xl">Send us a Message</CardTitle>
+                  <p className="text-gray-600">Fill out the form below and we'll get back to you within 24 hours.</p>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-4">
+                  {submitted ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold text-green-600 mb-2">Message Sent!</h3>
+                      <p className="text-gray-600 mb-4">Thank you for contacting us. We'll respond within 24 hours.</p>
+                      <Button onClick={() => setSubmitted(false)}>Send Another Message</Button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="name">Full Name *</Label>
+                          <Input
+                            id="name"
+                            value={formData.name}
+                            onChange={(e) => handleInputChange("name", e.target.value)}
+                            required
+                            placeholder="Your full name"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email Address *</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange("email", e.target.value)}
+                            required
+                            placeholder="your@email.com"
+                          />
+                        </div>
+                      </div>
+
                       <div>
-                        <Label htmlFor="name">Full Name *</Label>
+                        <Label htmlFor="phone">Phone Number</Label>
                         <Input
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
+                          id="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                          placeholder="+94 123 456 789"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="subject">Subject *</Label>
+                        <Input
+                          id="subject"
+                          value={formData.subject}
+                          onChange={(e) => handleInputChange("subject", e.target.value)}
                           required
-                          className="mt-1"
+                          placeholder="What can we help you with?"
                         />
                       </div>
+
                       <div>
-                        <Label htmlFor="email">Email Address *</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
+                        <Label htmlFor="message">Message *</Label>
+                        <Textarea
+                          id="message"
+                          value={formData.message}
+                          onChange={(e) => handleInputChange("message", e.target.value)}
                           required
-                          className="mt-1"
+                          placeholder="Tell us more about your inquiry..."
+                          rows={5}
                         />
                       </div>
-                    </div>
 
-                    <div>
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div className="grid sm:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="checkIn">Check-in Date</Label>
-                        <Input
-                          id="checkIn"
-                          name="checkIn"
-                          type="date"
-                          value={formData.checkIn}
-                          onChange={handleInputChange}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="checkOut">Check-out Date</Label>
-                        <Input
-                          id="checkOut"
-                          name="checkOut"
-                          type="date"
-                          value={formData.checkOut}
-                          onChange={handleInputChange}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="guests">Number of Guests</Label>
-                        <Input
-                          id="guests"
-                          name="guests"
-                          type="number"
-                          min="1"
-                          max="18"
-                          value={formData.guests}
-                          onChange={handleInputChange}
-                          className="mt-1"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="message">Message *</Label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        required
-                        rows={4}
-                        className="mt-1"
-                        placeholder="Tell us about your stay preferences, special requests, or any questions you have..."
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full bg-orange-400 hover:bg-orange-500 text-white">
-                      Send Message
-                    </Button>
-                  </form>
+                      <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                        {isSubmitting ? "Sending Message..." : "Send Message"}
+                      </Button>
+                    </form>
+                  )}
                 </CardContent>
               </Card>
             </div>
-          </div>
 
-          {/* Map Section */}
-          <div className="mt-16">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Find Us</h3>
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-lg font-medium">Interactive Map</p>
-                  <p className="text-sm">Ko Lake Villa, Ahangama, Sri Lanka</p>
-                  <p className="text-sm">Koggala Lake Waterfront</p>
-                </div>
-              </div>
+            {/* Contact Information */}
+            <div className="space-y-8">
+              {/* Quick Contact */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">Get in Touch</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-blue-100 p-3 rounded-full">
+                      <Phone className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Phone</h3>
+                      <p className="text-gray-600">+94 123 456 789</p>
+                      <p className="text-sm text-gray-500">Available 8 AM - 10 PM daily</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-green-100 p-3 rounded-full">
+                      <MessageCircle className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">WhatsApp</h3>
+                      <p className="text-gray-600">+94 123 456 789</p>
+                      <p className="text-sm text-gray-500">Quick responses, 24/7</p>
+                      <Button
+                        size="sm"
+                        className="mt-2 bg-green-600 hover:bg-green-700"
+                        onClick={() => window.open("https://wa.me/1234567890", "_blank")}
+                      >
+                        Chat Now
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-purple-100 p-3 rounded-full">
+                      <Mail className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Email</h3>
+                      <p className="text-gray-600">info@kolakevilla.com</p>
+                      <p className="text-sm text-gray-500">Response within 24 hours</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-orange-100 p-3 rounded-full">
+                      <MapPin className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Location</h3>
+                      <p className="text-gray-600">Koggala Lake</p>
+                      <p className="text-gray-600">Galle District, Sri Lanka</p>
+                      <p className="text-sm text-gray-500">2 hours from Colombo Airport</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Operating Hours */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center">
+                    <Clock className="w-5 h-5 mr-2" />
+                    Operating Hours
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Check-in</span>
+                      <span className="font-medium">2:00 PM - 8:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Check-out</span>
+                      <span className="font-medium">11:00 AM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Reception</span>
+                      <span className="font-medium">8:00 AM - 10:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">WhatsApp Support</span>
+                      <span className="font-medium">24/7</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>Early check-in or late check-out?</strong> Contact us to arrange special timing.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Reviews Snippet */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">What Our Guests Say</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="border-l-4 border-blue-500 pl-4">
+                      <div className="flex items-center mb-2">
+                        <div className="flex text-yellow-400">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="w-4 h-4 fill-current" />
+                          ))}
+                        </div>
+                        <span className="ml-2 text-sm text-gray-600">Sarah M.</span>
+                      </div>
+                      <p className="text-gray-700 text-sm">
+                        "Absolutely stunning location with incredible lake views. The team was so responsive and
+                        helpful!"
+                      </p>
+                    </div>
+                    <div className="border-l-4 border-green-500 pl-4">
+                      <div className="flex items-center mb-2">
+                        <div className="flex text-yellow-400">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="w-4 h-4 fill-current" />
+                          ))}
+                        </div>
+                        <span className="ml-2 text-sm text-gray-600">David L.</span>
+                      </div>
+                      <p className="text-gray-700 text-sm">
+                        "Booking direct saved us money and the personal service was exceptional. Highly recommend!"
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* WhatsApp Widget */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          size="lg"
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full w-14 h-14 p-0 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-          aria-label="Chat on WhatsApp"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.893 3.488" />
-          </svg>
-        </Button>
-      </div>
+      {/* Map Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Find Us</h2>
+            <p className="text-xl text-gray-600">Located on the beautiful Koggala Lake in Sri Lanka's southern coast</p>
+          </div>
+
+          <div className="bg-gray-300 rounded-lg h-96 flex items-center justify-center">
+            <div className="text-center">
+              <MapPin className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">Ko Lake Villa</h3>
+              <p className="text-gray-600">Koggala Lake, Galle District</p>
+              <p className="text-gray-600">Sri Lanka</p>
+              <Button className="mt-4" variant="outline">
+                Get Directions
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 bg-blue-900 text-white">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl font-bold mb-4">Ready to Book Your Stay?</h2>
+          <p className="text-xl mb-8">
+            Don't wait - secure your dates at Ko Lake Villa today and save with our direct booking rates.
+          </p>
+          <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100" asChild>
+            <Link href="/booking">Book Your Stay</Link>
+          </Button>
+        </div>
+      </section>
     </div>
   )
 }

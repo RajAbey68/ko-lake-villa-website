@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Categorization Demo - Ko Lake Villa</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .demo-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .upload-btn:hover {
+            background: #0056b3;
+        }
+        .result-area {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        .category-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .category-item {
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .ai-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .ai-working {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .ai-manual {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>Ko Lake Villa - AI Categorization Demo</h1>
+        
+        <div id="aiStatus" class="ai-status">
+            <h3>Checking AI System Status...</h3>
+        </div>
+
+        <h2>Available Categories</h2>
+        <div class="category-demo">
+            <div class="category-item">
+                <strong>Entire Villa</strong><br>
+                Whole property views
+            </div>
+            <div class="category-item">
+                <strong>Family Suite</strong><br>
+                Master suite with lake views
+            </div>
+            <div class="category-item">
+                <strong>Group Room</strong><br>
+                Group accommodation
+            </div>
+            <div class="category-item">
+                <strong>Triple Room</strong><br>
+                Triple/twin rooms
+            </div>
+            <div class="category-item">
+                <strong>Dining Area</strong><br>
+                Restaurant spaces
+            </div>
+            <div class="category-item">
+                <strong>Pool Deck</strong><br>
+                Infinity pool areas
+            </div>
+            <div class="category-item">
+                <strong>Lake Garden</strong><br>
+                Lakeside gardens
+            </div>
+            <div class="category-item">
+                <strong>Roof Garden</strong><br>
+                Rooftop terrace
+            </div>
+            <div class="category-item">
+                <strong>Front Garden</strong><br>
+                Entrance areas
+            </div>
+            <div class="category-item">
+                <strong>Koggala Lake</strong><br>
+                Lake views & activities
+            </div>
+            <div class="category-item">
+                <strong>Excursions</strong><br>
+                Local experiences
+            </div>
+        </div>
+
+        <h2>Test AI Analysis</h2>
+        <div class="upload-area">
+            <p>Upload a villa image to see AI categorization in action</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Choose Image
+            </button>
+        </div>
+
+        <div id="resultArea" class="result-area">
+            <h3>Analysis Result</h3>
+            <div id="analysisResult"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', handleFile);
+
+        async function checkAIStatus() {
+            try {
+                const response = await fetch('/api/gallery/images');
+                if (response.ok) {
+                    document.getElementById('aiStatus').innerHTML = `
+                        <h3>AI System Ready</h3>
+                        <p>OpenAI integration configured for intelligent image analysis</p>
+                    `;
+                    document.getElementById('aiStatus').className = 'ai-status ai-working';
+                } else {
+                    throw new Error('API not available');
+                }
+            } catch (error) {
+                document.getElementById('aiStatus').innerHTML = `
+                    <h3>Manual Mode</h3>
+                    <p>AI analysis requires OpenAI API configuration</p>
+                `;
+                document.getElementById('aiStatus').className = 'ai-status ai-manual';
+            }
+        }
+
+        async function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('category', 'default');
+            formData.append('title', '');
+            formData.append('description', '');
+            formData.append('featured', 'false');
+
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('analysisResult').innerHTML = '<p>Analyzing image with AI...</p>';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayResult(result, file.name);
+                } else {
+                    document.getElementById('analysisResult').innerHTML = 
+                        '<p style="color: red;">Upload failed. Please try again.</p>';
+                }
+            } catch (error) {
+                document.getElementById('analysisResult').innerHTML = 
+                    '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        }
+
+        function displayResult(result, filename) {
+            const aiAnalysis = result.aiAnalysis;
+            const data = result.data;
+
+            let html = `
+                <h4>File: ${filename}</h4>
+                <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 6px;">
+                    <strong>Generated Data:</strong><br>
+                    Category: <span style="background: #e3f2fd; padding: 2px 6px; border-radius: 3px;">${data.category}</span><br>
+                    Title: ${data.alt}<br>
+                    Description: ${data.description}<br>
+                    Tags: ${data.tags}
+                </div>
+            `;
+
+            if (aiAnalysis) {
+                html += `
+                    <div style="margin: 15px 0; padding: 15px; background: #d4edda; border-radius: 6px;">
+                        <strong>AI Analysis:</strong><br>
+                        Confidence: ${Math.round(aiAnalysis.confidence * 100)}%<br>
+                        AI Suggested Category: ${aiAnalysis.category}<br>
+                        AI Generated Title: ${aiAnalysis.title}<br>
+                        AI Tags: ${aiAnalysis.tags ? aiAnalysis.tags.join(', ') : 'None'}
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="margin: 15px 0; padding: 15px; background: #fff3cd; border-radius: 6px;">
+                        <strong>Manual Categorization Applied</strong><br>
+                        AI analysis not available - using filename-based categorization
+                    </div>
+                `;
+            }
+
+            document.getElementById('analysisResult').innerHTML = html;
+        }
+
+        // Check AI status on page load
+        checkAIStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+Thanks for the screenshot — your Gallery Management interface clearly displays all available categories, but here’s what I’m seeing based on your note and visual:
+
+⸻
+
+❗ Current Issues
+
+1. 🎯 Category Buttons Are Not Working (Unclickable or No Filtering)
+
+Observed: Clicking on a category (e.g. Family Suite, Dining Area) has no visible effect.
+
+Likely Causes:
+	•	The buttons are not triggering the filtering logic
+	•	onClick handler might not be mapped
+	•	activeCategory state not being passed to the gallery display component
+	•	CSS or layout issue hiding the filtered results
+
+✅ Fix Recommendation:
+Make sure each button is bound like this:
+
+<button
+  key={category.value}
+  className={activeCategory === category.value ? 'active' : ''}
+  onClick={() => setActiveCategory(category.value)}
+>
+  {category.label}
+</button>
+
+Then filter:
+
+const filteredImages = activeCategory
+  ? images.filter((img) => img.category === activeCategory)
+  : images;
+
+
+⸻
+
+2. 🎥 No Videos Showing in Gallery
+
+You’ve uploaded videos but:
+	•	They don’t show up in Admin
+	•	No thumbnails or media previews
+	•	Possibly not parsed/displayed due to mediaType !== 'video'
+
+✅ Fix Recommendation:
+In your Gallery rendering logic:
+
+{image.mediaType === 'video' ? (
+  <video controls>
+    <source src={image.imageUrl} type="video/mp4" />
+  </video>
+) : (
+  <img src={image.imageUrl} alt={image.alt} />
+)}
+
+Also ensure the upload logic:
+	•	Accepts video/mp4 MIME types
+	•	Saves mediaType: 'video' to DB
+
+⸻
+
+✅ Suggested Improvements
+
+Area	Issue	Fix
+Category Buttons	No filtering or UI response	Hook onClick to state + filtering logic
+Video Support	Not rendered or differentiated	Conditional rendering <video> tag
+UX Feedback	No “No images for this category” message	Add fallback message when filtered list is empty
+Tag Editing	No interactive input	Use chip/token tag input
+AI Button Missing	AI suggestion tool not accessible	Add ✨ Suggest Tags trigger
+
+
+⸻
+
+Would you like me to now:
+	1.	Generate a React/TSX patch for category filtering and video support?
+	2.	Add a Playwright test to verify video playback in gallery?
+	3.	Push these to your Replit Git integration or as a .patch file?
+
+Let’s tighten this admin UX so it’s functional and guest-ready.

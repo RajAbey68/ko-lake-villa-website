@@ -1,0 +1,201 @@
+Perfect — from now on, I’ll always include fully copy-pasteable code alongside the Replit Agent prompts so you (or the agent) can run it without extra rework.
+
+⸻
+
+Here’s the complete package you need to launch the first version of your ASIMOV-aligned conversational UI audit tool on Replit — including:
+	1.	✅ Replit Agent Prompt (what to paste into Replit)
+	2.	🧱 SQLite DB Schema (Python script to generate the DB)
+	3.	📦 Sample JSON of questions
+	4.	🧑‍💻 Flask App (Basic version to ask questions, record answers)
+
+⸻
+
+🔧 1. ✅ Replit Agent Prompt (Paste This Into Replit)
+
+Project: ASIMOV Conversational Audit Tool
+
+Goal: Build a web app that asks AI governance audit questions in a conversational style, using dropdowns (Always = 4 → Rarely/Never = 1) and stores results in a SQLite DB.
+
+Instructions:
+1. Use Flask (Python) for backend
+2. SQLite for storage
+3. Load questions from a JSON file
+4. For each question:
+   - Show a text prompt (e.g., "Is a governance committee in place?")
+   - Show a dropdown: Always (4), Often (3), Occasionally (2), Rarely/Never (1)
+   - Add free text input for references or URLs
+5. Store answers in a SQLite DB with session ID, timestamp, and scores
+6. After submission, show a summary page with a per-pillar score breakdown
+
+Output:
+- `app.py` (Flask server)
+- `questions.json` (audit questions)
+- `init_db.py` (database setup)
+- `templates/` folder with HTML (Jinja2)
+
+
+⸻
+
+🧱 2. init_db.py – Database Initialization (Copy & Run Once)
+
+import sqlite3
+
+conn = sqlite3.connect('audit_controls.db')
+cursor = conn.cursor()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS responses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT,
+    pillar TEXT,
+    control_code TEXT,
+    question_text TEXT,
+    response_score INTEGER,
+    reference_text TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+''')
+
+conn.commit()
+conn.close()
+print("✅ Database and table created.")
+
+
+⸻
+
+📦 3. questions.json – Sample Question File (Place in root)
+
+[
+  {
+    "pillar": "Accountability",
+    "control_code": "A1",
+    "question": "Do you define clear RACI roles for AI initiatives?"
+  },
+  {
+    "pillar": "Integrity",
+    "control_code": "I2",
+    "question": "Do you test models for fairness and bias before deployment?"
+  }
+]
+
+
+⸻
+
+🧑‍💻 4. app.py – Main Flask App
+
+from flask import Flask, render_template, request, redirect, url_for
+import sqlite3, uuid, json
+
+app = Flask(__name__)
+
+with open('questions.json') as f:
+    questions = json.load(f)
+
+@app.route('/')
+def index():
+    session_id = str(uuid.uuid4())
+    return redirect(url_for('question', q=0, session_id=session_id))
+
+@app.route('/question/<int:q>')
+def question(q):
+    session_id = request.args.get('session_id')
+    if q < len(questions):
+        return render_template('question.html', question=questions[q], q=q, session_id=session_id)
+    else:
+        return redirect(url_for('summary', session_id=session_id))
+
+@app.route('/submit/<int:q>', methods=['POST'])
+def submit(q):
+    session_id = request.form['session_id']
+    answer = request.form['response_score']
+    notes = request.form['reference_text']
+    qdata = questions[q]
+
+    conn = sqlite3.connect('audit_controls.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO responses (session_id, pillar, control_code, question_text, response_score, reference_text)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (session_id, qdata['pillar'], qdata['control_code'], qdata['question'], int(answer), notes))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('question', q=q+1, session_id=session_id))
+
+@app.route('/summary')
+def summary():
+    session_id = request.args.get('session_id')
+    conn = sqlite3.connect('audit_controls.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT pillar, AVG(response_score) FROM responses
+        WHERE session_id=?
+        GROUP BY pillar
+    ''', (session_id,))
+    scores = cursor.fetchall()
+    conn.close()
+    return render_template('summary.html', scores=scores, session_id=session_id)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+⸻
+
+🖼️ 5. templates/question.html (Jinja2 Template)
+
+<!DOCTYPE html>
+<html>
+<head><title>ASIMOV Audit</title></head>
+<body>
+  <h2>{{ question.pillar }} — {{ question.control_code }}</h2>
+  <p>{{ question.question }}</p>
+  <form action="{{ url_for('submit', q=q) }}" method="post">
+    <input type="hidden" name="session_id" value="{{ session_id }}">
+    <label for="response_score">Your response:</label>
+    <select name="response_score" required>
+      <option value="4">Always</option>
+      <option value="3">Often</option>
+      <option value="2">Occasionally</option>
+      <option value="1">Rarely/Never</option>
+    </select><br><br>
+    <label for="reference_text">Add reference or URL:</label><br>
+    <textarea name="reference_text" rows="4" cols="50"></textarea><br><br>
+    <button type="submit">Next</button>
+  </form>
+</body>
+</html>
+
+
+⸻
+
+🧾 6. templates/summary.html (Simple Output)
+
+<!DOCTYPE html>
+<html>
+<head><title>Audit Summary</title></head>
+<body>
+  <h2>🧾 Audit Summary for Session {{ session_id }}</h2>
+  <ul>
+    {% for pillar, avg in scores %}
+      <li><strong>{{ pillar }}</strong>: {{ "%.2f"|format(avg) }} / 4</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
+
+
+⸻
+
+✅ Final Instructions for You
+	1.	Create a new Replit project (Flask template)
+	2.	Paste in these files:
+	•	init_db.py → Run once to set up DB
+	•	questions.json → Store in root
+	•	app.py → Main logic
+	•	templates/ folder → With both .html files
+	3.	Run the Flask app and open / to begin the audit
+
+⸻
+
+Would you like me to prepare export to PDF or Bubble.io API compatibility next?
