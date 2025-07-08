@@ -10,7 +10,7 @@ export default function AdminLogin() {
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleEmailLogin = async (e) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
@@ -96,7 +96,7 @@ export default function AdminLogin() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-amber-200 rounded focus:border-orange-400 focus:outline-none"
               placeholder="contact@kolakehouse.com"
               required
@@ -111,7 +111,7 @@ export default function AdminLogin() {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-amber-200 rounded focus:border-orange-400 focus:outline-none"
               placeholder="admin123"
               required
