@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -35,7 +35,7 @@ interface Room {
   amenities: string[];
 }
 
-export default function BookingPage() {
+function BookingContent() {
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
     guestName: "",
@@ -137,7 +137,7 @@ export default function BookingPage() {
                 <Button asChild>
                   <Link href="/">Return to Home</Link>
                 </Button>
-                <Button variant="outline" onClick={() => window.open("https://wa.me/1234567890", "_blank")}>
+                <Button className="border border-gray-300 hover:bg-gray-50" onClick={() => window.open("https://wa.me/1234567890", "_blank")}>
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Chat on WhatsApp
                 </Button>
@@ -271,7 +271,7 @@ export default function BookingPage() {
                           <Label htmlFor="roomType">Room Type *</Label>
                           <Select
                             value={formData.roomType}
-                            onValueChange={(value) => handleInputChange("roomType", value)}
+                            onValueChange={(value: string) => handleInputChange("roomType", value)}
                             required
                           >
                             <SelectTrigger>
@@ -406,5 +406,13 @@ export default function BookingPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BookingContent />
+    </Suspense>
   )
 }
