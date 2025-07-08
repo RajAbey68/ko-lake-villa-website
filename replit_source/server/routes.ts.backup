@@ -1,0 +1,2961 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import express from "express";
+import { storage as dataStorage } from "./storage";
+import { serverCache, CACHE_KEYS, CACHE_TTL } from "./cache";
+
+// Media processing utility function
+function processMediaItem(item: any) {
+  if (!item.imageUrl) return item;
+
+  const fileExtension = item.imageUrl.toLowerCase().split('.').pop() || '';
+  const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv', 'm4v', 'ogv'];
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tiff', 'ico'];
+
+  let mediaType = 'image';
+  if (videoExtensions.includes(fileExtension)) {
+    mediaType = 'video';
+  } else if (item.mediaType === 'video') {
+    mediaType = 'video';
+  }
+
+  return {
+    ...item,
+    mediaType,
+    loading: 'lazy',
+    decoding: 'async',
+    mimeType: mediaType === 'video' ? "video/" + arguments + "" : "image/" + arguments + "",
+    // Enhanced alt text for accessibility
+    alt: item.alt || item.title || "" + arguments + " at Ko Lake Villa",
+    // Responsive image sizing
+    sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+  };
+}
+import {
+  insertBookingInquirySchema,
+  insertContactMessageSchema,
+  insertNewsletterSubscriberSchema,
+  insertGalleryImageSchema,
+  virtualTours,
+  insertVirtualTourSchema,
+  adminAuditLogs,
+  insertAdminAuditLogSchema
+} from "@shared/schema";
+import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from 'url';
+import { registerAIRoutes } from './aiRoutes';
+import { requireAdminAuth, adminRateLimit } from './middleware/auth';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import OpenAI from "openai";
+
+// Email and WhatsApp notification services
+async function sendEmail(to: string, subject: string, html: string, text: string) {
+  // Skip email in development if SMTP not configured
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+    console.log('Email SMTP not configured, skipping email to:', to);
+    return;
+  }
+
+  try {
+    const nodemailer = require('nodemailer');
+
+    // Configure SMTP (you can use Gmail, Outlook, or any SMTP service)
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', // Use your preferred SMTP service
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+      }
+    });
+
+    await transporter.sendMail({
+      from: '"Ko Lake House" <contact@kolakehouse.com>',
+      to,
+      subject,
+      text,
+      html
+    });
+    console.log("LOG:", arguments);
+  } catch (error) {
+    console.error('Email sending failed:', error);
+    throw error;
+  }
+}
+
+async function sendWhatsAppMessage(to: string, message: string) {
+  // Using Twilio WhatsApp API
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    console.log('Twilio credentials not configured, skipping WhatsApp message');
+    return;
+  }
+
+  try {
+    const twilio = require('twilio')(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
+    );
+
+    await twilio.messages.create({
+      from: 'whatsapp:+14155238886', // Twilio WhatsApp sandbox number
+      to: "whatsapp:" + arguments + "",
+      body: message
+    });
+    console.log("LOG:", arguments);
+  } catch (error) {
+    console.error('WhatsApp sending failed:', error);
+    throw error;
+  }
+}
+
+async function sendBookingNotifications(bookingData: any) {
+  const {
+    name,
+    email,
+    phone,
+    checkInDate,
+    checkOutDate,
+    guests,
+    roomType,
+    specialRequests,
+    id
+  } = bookingData;
+
+  // Format dates nicely
+  const checkIn = new Date(checkInDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const checkOut = new Date(checkOutDate).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  // 1. Send confirmation email to guest
+  const guestEmailHtml = "
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #8B5E3C;">Booking Confirmation - Ko Lake House</h2>
+
+      <p>Dear ",</p>
+
+      <p>Thank you for your booking request! We have received your inquiry and will contact you within 24 hours to confirm availability and finalize your reservation.</p>
+
+      <div style="background: #F8F6F2; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #8B5E3C; margin-top: 0;">Booking Details</h3>
+        <p><strong>Guest Name:</strong> "</p>
+        <p><strong>Email:</strong> "</p>
+        "
+        <p><strong>Check-in:</strong> "</p>
+        <p><strong>Check-out:</strong> "</p>
+        <p><strong>Guests:</strong> "</p>
+        <p><strong>Room Type:</strong> "</p>
+        "
+        <p><strong>Booking Reference:</strong> KLH-"</p>
+      </div>
+
+      <p>We look forward to hosting you at Ko Lake House for an unforgettable experience by Koggala Lake.</p>
+
+      <p>Best regards,<br>
+      Ko Lake House Team<br>
+      <a href="mailto:contact@kolakehouse.com">contact@kolakehouse.com</a><br>
+      +94 071 173 0345</p>
+    </div>
+  ";
+
+  const guestEmailText = "
+    Booking Confirmation - Ko Lake House
+
+    Dear ",
+
+    Thank you for your booking request! We have received your inquiry and will contact you within 24 hours to confirm availability and finalize your reservation.
+
+    Booking Details:
+    - Guest Name: "
+    - Email: "
+    "
+    - Check-in: "
+    - Check-out: "
+    - Guests: "
+    - Room Type: "
+    "
+    - Booking Reference: KLH-"
+
+    We look forward to hosting you at Ko Lake House for an unforgettable experience by Koggala Lake.
+
+    Best regards,
+    Ko Lake House Team
+    contact@kolakehouse.com
+    +94 071 173 0345
+  ";
+
+  // 2. Send notification email to admin
+  const adminEmailHtml = "
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #FF914D;">🏨 New Booking Request - Ko Lake House</h2>
+
+      <p><strong>A new booking request has been submitted and requires your attention.</strong></p>
+
+      <div style="background: #FDF6EE; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #FF914D;">
+        <h3 style="color: #8B5E3C; margin-top: 0;">Guest Information</h3>
+        <p><strong>Name:</strong> "</p>
+        <p><strong>Email:</strong> <a href="mailto:"">"</a></p>
+        "">" + arguments + "</a></p>" : ''}
+
+        <h3 style="color: #8B5E3C;">Booking Details</h3>
+        <p><strong>Check-in:</strong> "</p>
+        <p><strong>Check-out:</strong> "</p>
+        <p><strong>Guests:</strong> "</p>
+        <p><strong>Room Type:</strong> "</p>
+        "
+        <p><strong>Booking Reference:</strong> KLH-"</p>
+      </div>
+
+      <p><strong>Next Steps:</strong></p>
+      <ul>
+        <li>Contact guest within 24 hours to confirm availability</li>
+        <li>Send final confirmation with payment details</li>
+        <li>Update booking status in admin dashboard</li>
+      </ul>
+
+      <p>View full booking details in your <a href=""/admin/dashboard">admin dashboard</a>.</p>
+    </div>
+  ";
+
+  // 3. WhatsApp message to admin
+  const adminWhatsAppMessage = "
+🏨 NEW BOOKING REQUEST - Ko Lake House
+
+Guest: "
+📧 "
+"
+
+📅 " → "
+👥 " guests
+🏠 "
+
+"
+
+Booking Ref: KLH-"
+
+⏰ Please contact guest within 24 hours to confirm.
+  ";
+
+  // 4. WhatsApp message to guest (if phone provided)
+  let guestWhatsAppMessage = '';
+  if (phone) {
+    guestWhatsAppMessage = "
+🏨 Ko Lake House - Booking Confirmation
+
+Hello "! 
+
+Thank you for your booking request. We've received your inquiry for:
+
+📅 " to "
+👥 " guests
+🏠 "
+
+We'll contact you within 24 hours to confirm availability and finalize your reservation.
+
+Booking Reference: KLH-"
+
+Looking forward to hosting you! 🌊
+
+Ko Lake House Team
+contact@kolakehouse.com
+    ";
+  }
+
+  // Send all notifications
+  const notifications = [];
+
+  // Send guest confirmation email
+  notifications.push(
+    sendEmail(
+      email,
+      'Booking Confirmation - Ko Lake House',
+      guestEmailHtml,
+      guestEmailText
+    ).catch(err => console.error('Guest email failed:', err))
+  );
+
+  // Send admin notification email
+  notifications.push(
+    sendEmail(
+      'contact@kolakehouse.com',
+      "New Booking Request - " (KLH-" + arguments + ")",
+      adminEmailHtml,
+      adminWhatsAppMessage
+    ).catch(err => console.error('Admin email failed:', err))
+  );
+
+  // Send admin WhatsApp
+  notifications.push(
+    sendWhatsAppMessage('+940711730345', adminWhatsAppMessage)
+      .catch(err => console.error('Admin WhatsApp failed:', err))
+  );
+
+  // Send guest WhatsApp if phone provided
+  if (phone && guestWhatsAppMessage) {
+    notifications.push(
+      sendWhatsAppMessage(phone, guestWhatsAppMessage)
+        .catch(err => console.error('Guest WhatsApp failed:', err))
+    );
+  }
+
+  // Wait for all notifications to complete
+  await Promise.allSettled(notifications);
+}
+
+// Initialize OpenAI for AI-powered content generation
+let openai: OpenAI | null = null;
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+} catch (error: any) {
+  console.log('OpenAI not available:', error.message);
+}
+
+// AI-powered content generation for gallery images
+async function generateImageContent(filename: string, category: string, isVideo: boolean = false): Promise<{title: string, description: string}> {
+  if (!openai) {
+    // Fallback to rule-based generation if OpenAI is not available
+    return generateFallbackContent(filename, category, isVideo);
+  }
+
+  try {
+    const mediaType = isVideo ? 'video' : 'image';
+    const prompt = "You are creating content for Ko Lake Villa, a luxury lakeside retreat in Ahangama, Galle, Sri Lanka. 
+
+    Generate a beautiful title and description for this " in the """ category.
+
+    Guidelines:
+    - Title should be elegant and guest-friendly (2-6 words)
+    - Description should be enticing and descriptive (1-2 sentences)
+    - Focus on the luxury experience and beautiful lake setting
+    - Make it sound inviting for potential guests
+
+    Category context:
+    - family-suite: Spacious family accommodations with lake views
+    - friends: Fun social spaces and experiences
+    - dining-area: Culinary experiences and dining spaces
+    - pool-deck: Private pool and relaxation areas
+    - lake-view: Stunning views of Koggala Lake
+    - gardens: Tropical landscaping and outdoor spaces
+
+    Respond in JSON format: {"title": "Beautiful Title", "description": "Engaging description that makes guests want to visit."}";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      max_tokens: 200
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return {
+      title: result.title || generateFallbackContent(filename, category, isVideo).title,
+      description: result.description || generateFallbackContent(filename, category, isVideo).description
+    };
+  } catch (error) {
+    console.error('AI content generation error:', error);
+    return generateFallbackContent(filename, category, isVideo);
+  }
+}
+
+// Fallback content generation when AI is not available
+function generateFallbackContent(filename: string, category: string, isVideo): {title: string, description: string} {
+  const categoryTitles: Record<string, string> = {
+    'family-suite': 'Family Suite',
+    'friends': 'Friends & Fun',
+    'events': 'Villa Events',
+    'dining-area': 'Dining Experience',
+    'pool-deck': 'Pool & Deck',
+    'lake-view': 'Lake Views',
+    'gardens': 'Tropical Gardens',
+    'exterior': 'Villa Architecture',
+    'amenities': 'Villa Amenities',
+    'default': 'Ko Lake Villa'
+  };
+
+  const categoryDescriptions: Record<string, string> = {
+    'family-suite': 'Spacious family accommodations with stunning lake views and modern amenities for the perfect getaway.',
+    'friends': 'Create unforgettable memories with friends in our beautiful lakeside villa setting.',
+    'events': 'Host your special celebrations with breathtaking lake views and elegant villa spaces.',
+    'dining-area': 'Enjoy delicious Sri Lankan cuisine and international dishes in elegant settings.',
+    'pool-deck': 'Relax by our private pool deck with panoramic views of Koggala Lake.',
+    'lake-view': 'Wake up to stunning views of Koggala Lake from every window.',
+    'gardens': 'Stroll through beautifully landscaped tropical gardens filled with local flora.',
+    'exterior': 'Traditional Sri Lankan architecture blended with modern luxury amenities.',
+    'amenities': 'Premium amenities that make your stay at Ko Lake Villa truly special.',
+    'default': 'Experience the beauty and tranquility of Ko Lake Villa, your luxury lakeside retreat.'
+  };
+
+  const title = categoryTitles[category] || 'Ko Lake Villa Experience';
+  const description = categoryDescriptions[category] || 'Beautiful moments at Ko Lake Villa, your luxury lakeside retreat in Ahangama.';
+
+  return {
+    title: isVideo ? "" + arguments + " - Video" : title,
+    description
+  };
+}
+
+// File upload configuration
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+
+// Ensure upload directories exist
+const uploadPaths = [
+  path.join(UPLOAD_DIR, 'gallery', 'default'),
+  path.join(UPLOAD_DIR, 'gallery', 'entire-villa'),
+  path.join(UPLOAD_DIR, 'gallery', 'family-suite'),
+  path.join(UPLOAD_DIR, 'gallery', 'group-room'),
+  path.join(UPLOAD_DIR, 'gallery', 'triple-room'),
+  path.join(UPLOAD_DIR, 'gallery', 'dining-area'),
+  path.join(UPLOAD_DIR, 'gallery', 'pool-deck'),
+  path.join(UPLOAD_DIR, 'gallery', 'lake-garden'),
+  path.join(UPLOAD_DIR, 'gallery', 'roof-garden'),
+  path.join(UPLOAD_DIR, 'gallery', 'front-garden'),
+  path.join(UPLOAD_DIR, 'gallery', 'koggala-lake'),
+  path.join(UPLOAD_DIR, 'gallery', 'excursions')
+];
+
+uploadPaths.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const category = req.body.category || 'default';
+    const uploadPath = path.join(UPLOAD_DIR, 'gallery', 'default');
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
+    cb(null, ""-"" + arguments + "");
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|mp4|mov|avi|webm/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images and videos are allowed'));
+    }
+  }
+});
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Direct file serving to bypass Vite middleware interference with uploads
+  app.get('/uploads/*', (req, res) => {
+    const filePath = path.join(process.cwd(), req.path);
+
+    try {
+      if (!fs.existsSync(filePath)) {
+        console.warn("File not found: " + JSON.stringify(arguments) + "");
+        return res.status(404).send('File not found');
+      }
+
+      const stats = fs.statSync(filePath);
+      if (stats.size === 0) {
+        console.warn("Empty file: " + JSON.stringify(arguments) + "");
+        return res.status(404).send('Empty file');
+      }
+
+      // Determine content type
+      let contentType = 'application/octet-stream';
+      if (filePath.match(/\.(jpg|jpeg)$/i)) contentType = 'image/jpeg';
+      else if (filePath.match(/\.png$/i)) contentType = 'image/png';
+      else if (filePath.match(/\.gif$/i)) contentType = 'image/gif';
+      else if (filePath.match(/\.webp$/i)) contentType = 'image/webp';
+      else if (filePath.match(/\.(mp4|mov|webm|avi)$/i)) contentType = 'video/mp4';
+
+      // Enhanced headers for better caching and loading
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Length', stats.size);
+      res.setHeader('Last-Modified', stats.mtime.toUTCString());
+      res.setHeader('ETag', """-" + arguments + """);
+
+      // Disable caching for debugging - can be re-enabled later
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
+      // CORS headers for cross-origin access
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Range');
+
+      // Handle HEAD requests
+      if (req.method === 'HEAD') {
+        return res.end();
+      }
+
+      // Handle video range requests
+      if (contentType.startsWith('video/') && req.headers.range) {
+        const range = req.headers.range;
+        const fileSize = stats.size;
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunkSize = (end - start) + 1;
+
+        res.writeHead(206, {
+          'Content-Range': "bytes "-"/" + arguments + "",
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+          'Content-Type': contentType
+        });
+
+        return fs.createReadStream(filePath, { start, end }).pipe(res);
+      }
+
+      // Stream the file
+      const stream = fs.createReadStream(filePath);
+      stream.on('error', (error) => {
+        console.error("Stream error for ", arguments, ":", error);
+        if (!res.headersSent) {
+          res.status(500).send('Stream error');
+        }
+      });
+
+      return stream.pipe(res);
+    } catch (error) {
+      console.error("Error serving file: ", arguments, "", error);
+      return res.status(500).send('Server error');
+    }
+  });
+  // Serve uploaded files
+  app.use('/uploads', express.static(UPLOAD_DIR));
+
+  console.log("LOG:", arguments);
+
+  // Consolidated gallery upload endpoint
+  app.post("/api/upload", (req, res) => {
+    console.log("Gallery upload endpoint hit");
+
+    upload.single('image')(req, res, async (err) => {
+      if (err) {
+        console.error("Upload error:", err);
+        return res.status(500).json({ 
+          success: false,
+          message: "File upload failed", 
+          error: err.message 
+        });
+      }
+
+      try {
+        if (!req.file) {
+          return res.status(400).json({ 
+            success: false,
+            message: "No file provided" 
+          });
+        }
+
+        console.log("Processing file:", req.file.originalname);
+
+        const file = req.file;
+        const category = req.body.category || 'entire-villa';
+        let title = req.body.title || req.body.alt;
+        let description = req.body.description || '';
+        const featured = req.body.featured === 'true';
+        let tags = req.body.tags || '';
+
+        // Generate AI-powered title and description if not provided
+        if (!title || !description) {
+          try {
+            const aiContent = await generateImageContent(file.originalname, category, file.mimetype.startsWith('video/'));
+            if (!title) title = aiContent.title;
+            if (!description) description = aiContent.description;
+            console.log("LOG:", arguments);
+          } catch (aiError) {
+            console.error('AI content generation failed:', aiError);
+            // Fallback to filename-based title
+            if (!title) title = file.originalname.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            if (!description) description = "Beautiful " + arguments + " at Ko Lake Villa";
+          }
+        }
+
+        const isVideoFile = file.mimetype.startsWith('video/') || 
+                            file.originalname.toLowerCase().match(/\.(mp4|mov|avi|webm)$/);
+
+        const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
+        const fileUrl = "/uploads/gallery/default/" + arguments + "";
+
+        const galleryImageData = {
+          imageUrl: fileUrl,
+          title: title,
+          alt: title,
+          description,
+          category,
+          tags,
+          featured,
+          mediaType,
+          sortOrder: 0
+        };
+
+        const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+        console.log("Gallery image created:", galleryImage.id);
+
+        // Invalidate cache
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+
+        res.status(201).json({
+          success: true,
+          message: "File uploaded successfully",
+          data: galleryImage
+        });
+
+      } catch (error: any) {
+        console.error("Upload processing error:", error);
+        res.status(500).json({ 
+          success: false,
+          message: "Upload failed",
+          error: error?.message || 'Processing error'
+        });
+      }
+    });
+  });
+
+  // API Routes with caching
+  app.get("/api/rooms", async (req, res) => {
+    // Check cache first
+    let rooms = serverCache.get(CACHE_KEYS.ROOMS);
+    if (!rooms) {
+      rooms = await dataStorage.getRooms();
+      serverCache.set(CACHE_KEYS.ROOMS, rooms, CACHE_TTL.MEDIUM);
+    }
+    res.json(rooms);
+  });
+
+  app.get("/api/testimonials", async (req, res) => {
+    // Check cache first
+    let testimonials = serverCache.get(CACHE_KEYS.TESTIMONIALS);
+    if (!testimonials) {
+      testimonials = await dataStorage.getTestimonials();
+      serverCache.set(CACHE_KEYS.TESTIMONIALS, testimonials, CACHE_TTL.MEDIUM);
+    }
+    res.json(testimonials);
+  });
+
+  app.get("/api/activities", async (req, res) => {
+    // Check cache first
+    let activities = serverCache.get(CACHE_KEYS.ACTIVITIES);
+    if (!activities) {
+      activities = await dataStorage.getActivities();
+      serverCache.set(CACHE_KEYS.ACTIVITIES, activities, CACHE_TTL.MEDIUM);
+    }
+    res.json(activities);
+  });
+
+  app.get("/api/dining-options", async (req, res) => {
+    const diningOptions = await dataStorage.getDiningOptions();
+    res.json(diningOptions);
+  });
+
+  // Get all gallery images with optional category filtering
+  app.get("/api/gallery", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      let galleryImages;
+
+      if (category && category !== 'all') {
+        galleryImages = await dataStorage.getGalleryImagesByCategory(category);
+      } else {
+        galleryImages = await dataStorage.getGalleryImages();
+      }
+
+      console.log("LOG:", arguments);
+      res.json(galleryImages);
+    } catch (error) {
+      console.error("Gallery fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch gallery images" });
+    }
+  });
+
+  // POST endpoint to add gallery images
+  app.post("/api/gallery", async (req, res) => {
+    try {
+      const { imageUrl, alt, title, description, category, mediaType, featured, sortOrder } = req.body;
+
+      const galleryImageData = {
+        title: title || alt,
+        imageUrl,
+        alt,
+        description,
+        category,
+        mediaType: mediaType || 'image',
+        featured: featured || false,
+        sortOrder: sortOrder || 0
+      };
+
+      const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+
+      // Invalidate gallery cache after creating new image
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+
+      res.status(201).json(galleryImage);
+    } catch (error) {
+      console.error('Gallery POST error:', error);
+      res.status(500).json({ message: "Failed to create gallery image" });
+    }
+  });
+
+  // Gallery upload endpoint with metadata handling
+  app.post("/api/gallery/upload", (req, res) => {
+    console.log("Gallery upload endpoint hit");
+
+    upload.any()(req, res, async (err) => {
+      if (err) {
+        console.error("Multer error:", err);
+        return res.status(500).json({ 
+          success: false,
+          message: "File upload error", 
+          error: err.message 
+        });
+      }
+
+      try {
+        console.log("Files received:", req.files);
+        console.log("Body received:", req.body);
+
+        if (!req.files || req.files.length === 0) {
+          console.log("No files uploaded");
+          return res.status(400).json({ 
+            success: false,
+            message: "No files uploaded" 
+          });
+        }
+
+        const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+        const results = [];
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          let metadata;
+
+          try {
+            // Handle metadata for each file
+            if (req.body["metadata[" + arguments + "]"]) {
+              metadata = JSON.parse(req.body["metadata[" + arguments + "]"]);
+            } else {
+              // Fallback to single file metadata
+              metadata = {
+                title: req.body.title || file.originalname.replace(/\.[^/.]+$/, ""),
+                description: req.body.description || '',
+                category: req.body.category || 'entire-villa',
+                tags: req.body.tags || '',
+                featured: req.body.featured === 'true' || req.body.featured === true,
+                alt: req.body.alt || req.body.title || file.originalname.replace(/\.[^/.]+$/, "")
+              };
+            }
+          } catch (parseError) {
+            console.error("Error parsing metadata:", parseError);
+            metadata = {
+              title: file.originalname.replace(/\.[^/.]+$/, ""),
+              description: '',
+              category: 'entire-villa',
+              tags: '',
+              featured: false,
+              alt: file.originalname.replace(/\.[^/.]+$/, "")
+            };
+          }
+
+          const isVideoFile = file.mimetype.startsWith('video/') || 
+                            file.originalname.toLowerCase().endsWith('.mp4') ||
+                            file.originalname.toLowerCase().endsWith('.mov') ||
+                            file.originalname.toLowerCase().endsWith('.avi');
+
+          const mediaType: 'image' | 'video' = isVideoFile ? 'video' : 'image';
+          const fileUrl = "/uploads/gallery/default/" + arguments + "";
+
+          const galleryImageData = {
+            imageUrl: fileUrl,
+            alt: metadata.alt,
+            title: metadata.title,
+            description: metadata.description,
+            category: metadata.category,
+            tags: metadata.tags,
+            featured: metadata.featured,
+            mediaType,
+            sortOrder: 0
+          };
+
+          console.log("Creating gallery image with data:", galleryImageData);
+
+          try {
+            const galleryImage = await dataStorage.createGalleryImage(galleryImageData);
+            console.log("Gallery image created:", galleryImage.id);
+            results.push(galleryImage);
+          } catch (dbError) {
+            console.error("Database error creating gallery image:", dbError);
+            throw new Error("Failed to save image metadata: " + arguments + "");
+          }
+        }
+
+        res.status(201).json({
+          success: true,
+          message: "" + arguments + " file(s) uploaded successfully!",
+          data: results
+        });
+
+      } catch (error: any) {
+        console.error("Upload processing error:", error);
+        res.status(500).json({ 
+          success: false,
+          message: "Failed to process uploaded files",
+          error: error?.message || 'Unknown error'
+        });
+      }
+    });
+  });
+
+  // Gallery management API endpoints (protected)
+  app.get('/api/admin/gallery', requireAdminAuth, adminRateLimit, async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      res.json(images);
+    } catch (error) {
+      console.error('Error fetching gallery images:', error);
+      res.status(500).json({ error: 'Failed to fetch gallery images' });
+    }
+  });
+
+  app.put('/api/admin/gallery/:id', requireAdminAuth, adminRateLimit, async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const updates = req.body;
+
+      const updatedImage = await dataStorage.updateGalleryImage(imageId, updates);"""tool_code
+      res.json({ success: true, data: updatedImage });
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      res.status(500).json({ success: false, error: 'Failed to update image' });
+    }
+  });
+
+  // Public gallery update endpoint for fixing file paths
+  app.put('/api/gallery/:id', async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const updates = req.body;
+
+      const updatedImage = await dataStorage.updateGalleryImage(imageId, updates);
+      res.json({ success: true, data: updatedImage });
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      res.status(500).json({ success: false, error: 'Failed to update image' });
+    }
+  });
+
+  // Gallery deletion - both admin and public routes
+  app.delete("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      console.log("[DELETE] Attempting to delete gallery image", id);
+      const success = await dataStorage.deleteGalleryImage(id);
+      if (success) {
+        // Invalidate gallery cache after delete
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+
+        console.log("[DELETE] Successfully deleted gallery image", id);
+        return res.json({ 
+          success: true, 
+          message: "Gallery image deleted successfully!" 
+        });
+      }
+      console.log("[DELETE] Gallery image not found:", id);
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      console.error("[DELETE] Error deleting gallery image", id,, error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // AI content generation endpoint for existing gallery images
+  app.post("/api/admin/generate-gallery-content", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+      let updatedCount = 0;
+
+      for (const image of images) {
+        // Only generate content if title or description is missing
+        if (!image.title || !image.description || image.title.trim() === '' || image.description.trim() === '') {
+          const isVideo = image.mediaType === 'video' || image.imageUrl?.endsWith('.mp4') || image.imageUrl?.endsWith('.mov');
+          const generatedContent = await generateImageContent(image.imageUrl, image.category, isVideo);
+
+          // Update the image with AI-generated content
+          await dataStorage.updateGalleryImage(image.id, {
+            title: generatedContent.title,
+            description: generatedContent.description
+          });
+
+          updatedCount++;
+        }
+      }
+
+      res.json({ 
+        message: "Successfully generated content for " + updatedCount + " images",
+        updated: updatedCount,
+        total: images.length
+      });
+    } catch (error) {
+      console.error('AI content generation error:', error);
+      res.status(500).json({ message: "Failed to generate AI content" });
+    }
+  });
+
+  // Booking inquiry with notifications
+  app.post("/api/booking", async (req, res) => {
+    try {
+      const validatedData = insertBookingInquirySchema.parse(req.body);
+      const bookingInquiry = await dataStorage.createBookingInquiry(validatedData);
+
+      // Send notifications after successful booking storage
+      try {
+        await sendBookingNotifications(bookingInquiry);
+      } catch (notificationError) {
+        console.error('Notification error (booking still saved):', notificationError);
+        // Don't fail the booking if notifications fail
+      }
+
+      res.status(201).json({
+        message: "Booking inquiry submitted successfully! You'll receive a confirmation email and we'll contact you within 24 hours.",
+        data: bookingInquiry
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Booking validation error:', error.errors);
+        return res.status(400).json({ 
+          message: "Invalid booking data", 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        });
+      }
+      console.error('Booking submission error:', error);
+      res.status(500).json({ message: "Failed to submit booking inquiry" });
+    }
+  });
+
+  // Contact form
+  app.post("/api/contact", async (req, res) => {
+    try {
+      console.log('Contact form submission:', req.body);
+
+      // Clean and prepare data with all optional fields handled properly
+      const cleanedData = {
+        name: req.body.name?.trim() || '',
+        email: req.body.email?.trim() || '',
+        phone: req.body.phone?.trim() || null,
+        timezone: req.body.timezone || "Asia/Colombo",
+        familiarity: req.body.familiarity || null,
+        messageType: req.body.messageType || null,
+        subject: req.body.subject?.trim() || '',
+        message: req.body.message?.trim() || ''
+      };
+
+      // Validate required fields
+      if (!cleanedData.name || !cleanedData.email || !cleanedData.message) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, and message are required fields"
+        });
+      }
+
+      // Remove null values to avoid validation issues
+      Object.keys(cleanedData).forEach(key => {
+        if (cleanedData[key] === null || cleanedData[key] === undefined) {
+          delete cleanedData[key];
+        }
+      });
+
+      const validatedData = insertContactMessageSchema.parse(cleanedData);
+      const contactMessage = await dataStorage.createContactMessage(validatedData);
+      res.status(201).json({
+        success: true,
+        message: "Message sent successfully!",
+        data: contactMessage
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Contact form validation error:', error.errors);
+        return res.status(400).json({ 
+          success: false,
+          message: "Invalid contact form data", 
+          errors: error.errors.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        });
+      }
+      console.error('Contact form submission error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to send message" 
+      });
+    }
+  });
+
+  // Newsletter subscription
+  app.post("/api/newsletter", async (req, res) => {
+    try {
+      console.log('Newsletter submission:', req.body);
+
+      // Clean the data before validation
+      const email = req.body.email?.trim();
+
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is required"
+        });
+      }
+
+      const cleanedData = { email };
+
+      const validatedData = insertNewsletterSubscriberSchema.parse(cleanedData);
+
+      // Check for existing subscription
+      try {
+        const subscriber = await dataStorage.subscribeToNewsletter(validatedData);
+        res.status(201).json({
+          success: true,
+          message: "Subscribed to newsletter successfully!",
+          data: subscriber
+        });
+      } catch (dbError) {
+        // Handle duplicate email case
+        if (dbError.message?.includes('duplicate') || dbError.code === '23505') {
+          return res.status(400).json({
+            success: false,
+            message: "This email is already subscribed to our newsletter"
+          });
+        }
+        throw dbError;
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Newsletter validation error:', error.errors);
+        return res.status(400).json({ 
+          success: false,
+          message: "Invalid email format", 
+          errors: error.errors.map(e => ({ field: e.path.join('.'), message: e.message }))
+        });
+      }
+      console.error('Newsletter subscription error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to subscribe to newsletter" 
+      });
+    }
+  });
+
+  // Admin Gallery Management
+  app.post("/api/admin/gallery", async (req, res) => {
+    try {
+      const validatedData = insertGalleryImageSchema.parse(req.body);
+      const galleryImage = await dataStorage.createGalleryImage(validatedData);
+      res.status(201).json({
+        message: "Gallery image added successfully!",
+        data: galleryImage
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid gallery image data", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Failed to add gallery image" });
+    }
+  });
+
+  // Admin Gallery Update (PATCH) - This was missing!
+  app.patch("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      console.log("[ADMIN PATCH] Updating gallery item ", arguments, " with:", req.body);
+
+      const existingImage = await dataStorage.getGalleryImageById(id);
+      if (!existingImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+
+      // Merge updates with existing data, preserving all fields
+      const updates = {
+        ...existingImage,
+        ...req.body,
+        id // Ensure ID is preserved
+      };
+
+      console.log("[ADMIN PATCH] Merged update data:", updates);
+
+      const updatedImage = await dataStorage.updateGalleryImage({ id, ...req.body });
+
+      // Invalidate gallery cache after update
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+
+      console.log("LOG:", arguments);
+
+      res.json({
+        message: "Gallery image updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error("[ADMIN PATCH] Error updating gallery item ", arguments, ":", error);
+      res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
+  // Gallery deletion - both admin and public routes
+  app.delete("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      console.log("[DELETE] Attempting to delete gallery image", id);
+      const success = await dataStorage.deleteGalleryImage(id);
+      if (success) {
+        // Invalidate gallery cache after delete
+        serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+        serverCache.invalidatePattern('gallery:category:.*');
+
+        console.log("[DELETE] Successfully deleted gallery image", id);
+        return res.json({ 
+          success: true, 
+          message: "Gallery image deleted successfully!" 
+        });
+      }
+      console.log("[DELETE] Gallery image not found:", id);
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      console.error("[DELETE] Error deleting gallery image", id,, error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // Handle OPTIONS requests for CORS
+  app.options("/api/gallery/:id", (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.sendStatus(200);
+  });
+
+  // Update gallery image metadata (for SEO tagging)
+  app.patch("/api/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      const galleryImage = await dataStorage.getGalleryImageById(id);
+      if (!galleryImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+
+      // Update with provided metadata
+      const updatedData = {
+        id,
+        alt: req.body.alt || galleryImage.alt,
+        description: req.body.description || galleryImage.description,
+        category: req.body.category || galleryImage.category,
+        tags: req.body.tags || galleryImage.tags,
+        featured: req.body.featured !== undefined ? req.body.featured : galleryImage.featured,
+        sortOrder: req.body.sortOrder !== undefined ? req.body.sortOrder : galleryImage.sortOrder,
+        mediaType: req.body.mediaType || galleryImage.mediaType,
+        imageUrl: galleryImage.imageUrl
+      };
+
+      const updatedImage = await dataStorage.updateGalleryImage(updatedData);
+
+      res.json({
+        message: "Gallery image metadata updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error('Gallery metadata update error:', error);
+      res.status(500).json({ message: "Failed to update gallery image metadata" });
+    }
+  });
+
+  // Delete all gallery images and videos
+  app.delete("/api/gallery/all", async (req, res) => {
+    try {
+      // Get all gallery images
+      const images = await dataStorage.getGalleryImages();
+
+      if (images.length === 0) {
+        return res.json({ message: "No images to delete" });
+      }
+
+      // Delete each image from database
+      let deletedCount = 0;
+      for (const image of images) {
+        try {
+          const success = await dataStorage.deleteGalleryImage(image.id);
+          if (success) {
+            deletedCount++;
+          }
+        } catch (error) {
+          console.error("Failed to delete image ", arguments, ":", error);
+        }
+      }
+
+      // Invalidate gallery cache after bulk delete
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+
+      res.json({ 
+        message: "Successfully deleted " + arguments + " images and videos",
+        deleted: deletedCount,
+        total: images.length
+      });
+    } catch (error) {
+      console.error('Delete all error:', error);
+      res.status(500).json({ message: "Failed to delete all gallery images" });
+    }
+  });
+
+  // Gallery function test page
+  app.get("/test/gallery", (req, res) => {
+    const testHTML = fs.readFileSync(path.join(process.cwd(), 'admin-gallery-function-test.html'), 'utf8');
+    res.send(testHTML);
+  });
+
+  // Admin gallery deletion (alias)
+  app.delete("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      const success = await dataStorage.deleteGalleryImage(id);
+      if (success) {
+        return res.json({ message: "Gallery image deleted successfully!" });
+      }
+      res.status(404).json({ message: "Gallery image not found" });
+    } catch (error) {
+      console.error('Admin delete error:', error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // Comments endpoints for images/videos
+  app.get("/api/gallery/:id/comments", async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      if (isNaN(imageId)) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
+
+      // For now, return empty comments array - implement database storage later
+      res.json({ comments: [], imageId });
+    } catch (error) {
+      console.error('Comments fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch comments" });
+    }
+  });
+
+  app.post("/api/gallery/:id/comments", async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const { text, author } = req.body;
+
+      if (isNaN(imageId) || !text || !author) {
+        return res.status(400).json({ error: "Invalid comment data" });
+      }
+
+      // Basic comment structure - implement database storage later
+      const comment = {
+        id: Date.now(),
+        imageId,
+        text,
+        author,
+        timestamp: new Date().toISOString()
+      };
+
+      res.json({ success: true, comment });
+    } catch (error) {
+      console.error('Comment post error:', error);
+      res.status(500).json({ error: "Failed to post comment" });
+    }
+  });
+
+  // AI-powered media analysis endpoint
+  app.post("/api/analyze-media", async (req, res) => {
+    try {
+      const { imageUrl, category } = req.body;
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image URL required" });
+      }
+
+      // Generate intelligent tags based on image path and category
+      const filename = imageUrl.split('/').pop() || '';
+      const pathSegments = imageUrl.split('/');
+
+      let suggestedTags = ['ko-lake-villa', 'property'];
+      let title = 'Ko Lake Villa';
+      let description = 'Authentic property content';
+
+      // Intelligent categorization based on file path
+      if (filename.includes('pool') || pathSegments.includes('pool')) {
+        suggestedTags.push('pool', 'swimming', 'water');
+        title = 'Ko Lake Villa Pool Area';
+        description = 'Beautiful infinity pool with lake views';
+      } else if (filename.includes('lake') || pathSegments.includes('lake')) {
+        suggestedTags.push('lake', 'koggala-lake', 'nature', 'water');
+        title = 'Koggala Lake Views';
+        description = 'Serene lake views from Ko Lake Villa';
+      } else if (filename.includes('suite') || pathSegments.includes('family-suite')) {
+        suggestedTags.push('accommodation', 'suite', 'bedroom');
+        title = 'Family Suite';
+        description = 'Luxurious family accommodation with lake views';
+      } else if (filename.includes('dining') || pathSegments.includes('dining')) {
+        suggestedTags.push('dining', 'restaurant', 'food');
+        title = 'Dining Experience';
+        description = 'Authentic Sri Lankan dining at Ko Lake Villa';
+      } else if (filename.includes('garden') || pathSegments.includes('garden')) {
+        suggestedTags.push('garden', 'landscape', 'nature');
+        title = 'Villa Gardens';
+        description = 'Tropical gardens surrounding Ko Lake Villa';
+      }
+
+      res.json({
+        title,
+        description,
+        category: category || 'default',
+        tags: suggestedTags,
+        confidence: 0.8,
+        source: 'intelligent-path-analysis'
+      });
+
+    } catch (error) {
+      console.error('Media analysis error:', error);
+      res.status(500).json({ error: "Media analysis failed" });
+    }
+  });
+
+  // Search functionality for gallery
+  app.get("/api/gallery/search", async (req, res) => {
+    try {
+      const { q, category, tags } = req.query;
+      const images = await dataStorage.getGalleryImages();
+
+      let filtered = images;
+
+      if (q) {
+        const query = String(q).toLowerCase();
+        filtered = filtered.filter(img => 
+          img.title?.toLowerCase().includes(query) ||
+          img.description?.toLowerCase().includes(query) ||
+          img.alt?.toLowerCase().includes(query) ||
+          img.tags?.toLowerCase().includes(query)
+        );
+      }
+
+      if (category) {
+        filtered = filtered.filter(img => img.category === category);
+      }
+
+      if (tags) {
+        const searchTags = String(tags).toLowerCase().split(',');
+        filtered = filtered.filter(img => 
+          searchTags.some(tag => img.tags?.toLowerCase().includes(tag.trim()))
+        );
+      }
+
+      res.json(filtered);
+    } catch (error) {
+      console.error('Search error:', error);
+      res.status(500).json({ error: "Search failed" });
+    }
+  });
+
+  // Gallery categories endpoint
+  app.get("/api/gallery/categories", async (req, res) => {
+    try {
+      const categories = [
+        { id: 'entire-villa', name: 'Entire Villa', count: 0 },
+        { id: 'family-suite', name: 'Family Suite', count: 0 },
+        { id: 'group-room', name: 'Group Room', count: 0 },
+        { id: 'triple-room', name: 'Triple Room', count: 0 },
+        { id: 'dining-area', name: 'Dining Area', count: 0 },
+        { id: 'pool-deck', name: 'Pool & Deck', count: 0 },
+        { id: 'lake-garden', name: 'Lake Garden', count: 0 },
+        { id: 'roof-garden', name: 'Roof Garden', count: 0 },
+        { id: 'front-garden', name: 'Front Garden', count: 0 },
+        { id: 'koggala-lake', name: 'Koggala Lake', count: 0 },
+        { id: 'excursions', name: 'Excursions', count: 0 },
+        { id: 'events', name: 'Events', count: 0 },
+        { id: 'amenities', name: 'Amenities', count: 0 },
+        { id: 'spa-wellness', name: 'Spa & Wellness', count: 0 },
+        { id: 'activities', name: 'Activities', count: 0 },
+        { id: 'default', name: 'Other', count: 0 }
+      ];
+
+      // Get actual counts from database
+      const images = await dataStorage.getGalleryImages();
+      const categoryCounts = {};
+
+      images.forEach(image => {
+        const category = image.category || 'default';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      });
+
+      // Update counts
+      categories.forEach(category => {
+        category.count = categoryCounts[category.id] || 0;
+      });
+
+      res.json({ categories, total: images.length });
+    } catch (error) {
+      console.error('Gallery categories error:', error);
+      res.status(500).json({ error: "Failed to fetch gallery categories" });
+    }
+  });
+
+  // Bulk delete endpoint for admin
+  app.post("/api/admin/gallery/bulk-delete", async (req, res) => {
+    try {
+      const { ids } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: "Invalid or empty image IDs array" });
+      }
+
+      let deletedCount = 0;
+      const errors: string[] = [];
+
+      for (const id of ids) {
+        try {
+          const success = await dataStorage.deleteGalleryImage(parseInt(id));
+          if (success) {
+            deletedCount++;
+          } else {
+            errors.push("Image " + arguments + " not found");
+          }
+        } catch (error) {
+          console.error("Failed to delete image ", arguments, ":", error);
+          errors.push("Failed to delete image " + arguments + "");
+        }
+      }
+
+      res.json({
+        message: "Successfully deleted " of " + arguments + " images",
+        deleted: deletedCount,
+        total: ids.length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      res.status(500).json({ message: "Failed to perform bulk delete" });
+    }
+  });
+
+  app.patch("/api/admin/gallery/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid gallery image ID" });
+    }
+
+    try {
+      const galleryImage = await dataStorage.getGalleryImageById(id);
+      if (!galleryImage) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+
+      // Prepare update data (without ID in the updates object)
+      const updates = {
+        alt: req.body.alt || galleryImage.alt,
+        description: req.body.description || galleryImage.description,
+        category: req.body.category || galleryImage.category,
+        tags: req.body.tags || galleryImage.tags,
+        featured: req.body.featured !== undefined ? req.body.featured : galleryImage.featured,
+        sortOrder: req.body.sortOrder !== undefined ? req.body.sortOrder : galleryImage.sortOrder,
+        mediaType: req.body.mediaType || galleryImage.mediaType,
+        title: req.body.title || galleryImage.title || galleryImage.alt
+      };
+
+      const updatedImage = await dataStorage.updateGalleryImage({ id, ...updates });
+
+      // Invalidate gallery cache after update
+      serverCache.invalidate(CACHE_KEYS.GALLERY_ALL);
+      serverCache.invalidatePattern('gallery:category:.*');
+
+      res.json({
+        message: "Gallery image updated successfully!",
+        data: updatedImage
+      });
+    } catch (error) {
+      console.error('Gallery update error:', error);
+      res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
+  // Smart analysis endpoint for individual images (protected)
+  app.post("/api/analyze-media/:id", requireAdminAuth, async (req, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+
+      if (!imageId) {
+        return res.status(400).json({ error: "Invalid image ID" });
+      }
+
+      // Get the existing image from database
+      const image = await dataStorage.getGalleryImageById(imageId);
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      // Intelligent categorization based on filename and metadata
+      const filename = image.imageUrl.toLowerCase();
+      const basename = filename.split('/').pop() || '';
+
+      let enhancedTitle = image.title || image.alt || '';
+      let enhancedDescription = image.description || '';
+      let enhancedCategory = image.category || 'entire-villa';
+      let enhancedTags = image.tags || '';
+
+      // Smart categorization logic
+      if (basename.includes('pool') || basename.includes('deck') || basename.includes('swimming')) {
+        enhancedCategory = 'pool-deck';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Ko Lake Villa Infinity Pool';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Stunning infinity pool with breathtaking Koggala Lake views and tropical surroundings';
+        }
+        enhancedTags = enhancedTags || 'infinity pool, swimming, lake views, relaxation, tropical paradise';
+      } else if (basename.includes('dining') || basename.includes('restaurant') || basename.includes('food')) {
+        enhancedCategory = 'dining-area';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Ko Lake Villa Dining Experience';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Authentic Sri Lankan dining with fresh local ingredients and lake views';
+        }
+        enhancedTags = enhancedTags || 'dining, sri lankan cuisine, restaurant, local food, lake dining';
+      } else if (basename.includes('lake') || basename.includes('water') || basename.includes('koggala') || basename.includes('boat')) {
+        enhancedCategory = 'koggala-lake';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Koggala Lake Views from Ko Lake Villa';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Pristine Koggala Lake with traditional fishing boats and tropical wildlife';
+        }
+        enhancedTags = enhancedTags || 'koggala lake, water views, fishing boats, nature, wildlife';
+      } else if (basename.includes('family') || basename.includes('suite')) {
+        enhancedCategory = 'family-suite';
+        if (!enhancedTitle || enhancedTitle.trim() === '') {
+          enhancedTitle = 'Ko Lake Villa Family Suite';
+        }
+        if (!enhancedDescription || enhancedDescription.trim() === '') {
+          enhancedDescription = 'Spacious family accommodation with private lake views and modern amenities';
+        }
+        enhancedTags = enhancedTags || 'family suite, accommodation, bedroom, lake view, spacious';
+      }
+
+      // Ensure we have meaningful content
+      if (!enhancedTitle || enhancedTitle.trim() === '') {
+        enhancedTitle = 'Ko Lake Villa Property';
+      }
+      if (!enhancedDescription || enhancedDescription.trim() === '') {
+        enhancedDescription = 'Beautiful Ko Lake Villa accommodation in Ahangama, Sri Lanka';
+      }
+      if (!enhancedTags || enhancedTags.trim() === '') {
+        enhancedTags = 'ko lake villa, sri lanka, accommodation';
+      }
+
+      // Force update with enhanced content
+      await dataStorage.updateGalleryImage({
+        id: imageId,
+        title: enhancedTitle,
+        alt: enhancedTitle,
+        description: enhancedDescription,
+        category: enhancedCategory,
+        tags: enhancedTags
+      });
+
+      res.json({
+        message: "Smart categorization completed successfully",
+        title: enhancedTitle,
+        description: enhancedDescription,
+        category: enhancedCategory,
+        tags: enhancedTags,
+        confidence: 0.85
+      });
+
+    } catch (error) {
+      console.error('Smart categorization error:', error);
+      res.status(500).json({ error: "Smart analysis failed: " + error.message });
+    }
+  });
+
+  // AI-powered automatic categorization for lake images
+  app.post("/api/auto-categorize-lakes", async (req, res) => {
+    try {
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: "OpenAI API key not configured" });
+      }
+
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      // Get all gallery images
+      const allImages = await dataStorage.getAllGalleryImages();
+      let categorizedCount = 0;
+
+      for (const image of allImages) {
+        try {
+          // Skip if already categorized as koggala-lake
+          if (image.category === 'koggala-lake') continue;
+
+          // Analyze image for lake content
+          const analysisResult = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              {
+                role: "system",
+                content: "You are an AI that analyzes images to detect lakes, water bodies, and lake-related activities. 
+
+                Analyze the image and determine if it contains:
+                - Lakes, lagoons, or large water bodies
+                - Boats, kayaks, or water activities on lakes
+                - Lake views, shorelines, or lake landscapes
+                - Wildlife or birds associated with lakes
+
+                Respond with JSON in this format:
+                {
+                  "hasLake": boolean,
+                  "confidence": number (0-1),
+                  "description": "Brief description of lake content if found",
+                  "suggestedCategory": "koggala-lake" or current category
+                }
+
+                Only suggest "koggala-lake" category if you're confident (>0.7) that the image shows lake content."
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Analyze this image for lake content. Current category: ". Alt text: ". Description: " + arguments + ""
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: image.imageUrl.startsWith('http') ? image.imageUrl : ""://"" + arguments + ""
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 300,
+            response_format: { type: "json_object" }
+          });
+
+          const analysis = JSON.parse(analysisResult.choices[0].message.content || '{}');
+
+          // Auto-categorize if AI detects lake content with high confidence
+          if (analysis.hasLake && analysis.confidence > 0.7 && analysis.suggestedCategory === 'koggala-lake') {
+            await dataStorage.updateGalleryImage({
+              id: image.id,
+              category: 'koggala-lake',
+              tags: image.tags ? "" + arguments + ", lake, water, koggala" : 'lake, water, koggala',
+              imageUrl: image.imageUrl,
+              alt: image.alt,
+              title: image.title,
+              description: image.description,
+              featured: image.featured,
+              sortOrder: image.sortOrder,
+              mediaType: image.mediaType
+            });
+            categorizedCount++;
+          }
+        } catch (error) {
+          console.error("Error analyzing image ", arguments, ":", error);
+        }
+      }
+
+      res.json({
+        message: "Auto-categorization completed. " + arguments + " images categorized as Koggala Lake.",
+        categorizedCount,
+        totalProcessed: allImages.length
+      });
+
+    } catch (error) {
+      console.error('Auto-categorization error:', error);
+      res.status(500).json({ error: "Failed to auto-categorize lake images" });
+    }
+  });
+
+  // Legacy endpoint for backward compatibility
+  app.post("/api/generate-content", async (req, res) => {
+    try {
+      const { imageId } = req.body;
+
+      if (!imageId) {
+        return res.status(400).json({ error: "No image ID provided" });
+      }
+
+      const image = await dataStorage.getGalleryImageById(parseInt(imageId));
+      if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+
+      // Generate content using AI
+      const generatedContent = await generateImageContent(
+        image.imageUrl, 
+        image.category, 
+        image.mediaType === 'video'
+      );
+
+      // Update the image with generated content
+      await dataStorage.updateGalleryImage(image.id, {
+        alt: generatedContent.title,
+        description: generatedContent.description
+      });
+
+      res.json({
+        message: "Image analyzed and updated successfully",
+        title: generatedContent.title,
+        description: generatedContent.description
+      });
+    } catch (error) {
+      console.error('Media analysis error:', error);
+      res.status(500).json({ error: "Failed to analyze media" });
+    }
+  });
+
+  // Admin health check and route verification
+  app.get('/api/admin/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      routes: {
+        gallery: '/api/admin/gallery',
+        pricing: '/api/admin/pricing',
+        upload: '/api/admin/upload'
+      }
+    });
+  });
+
+  // Admin routes
+  app.get('/admin/page-images', async (req, res) => {
+    try {
+      // In a real-world scenario, you might fetch these from a database
+      const pageImages = [
+        { id: 1, page: 'home', imageUrl: '/uploads/home-banner.jpg', altText: 'Home Banner' },
+        { id: 2, page: 'rooms', imageUrl: '/uploads/rooms-banner.jpg', altText: 'Rooms Banner' },
+      ];
+      res.json(pageImages);
+    } catch (error) {
+      console.error('Error fetching page images:', error);
+      res.status(500).json({ error: 'Failed to fetch page images' });
+    }
+  });
+
+
+
+  // Admin API health endpoints
+  app.get('/api/admin/gallery', async (req, res) => {
+    try {
+      const allImages = await dataStorage.getGalleryImages();
+      res.json(allImages);
+    } catch (error) {
+      console.error('Admin gallery API error:', error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
+  app.get('/api/admin/pricing', (req, res) => {
+    try {
+      // Return sample pricing data for admin
+      const pricing = {
+        rooms: {
+          KNP: { basePrice: 431, directPrice: 388 },
+          KNP1: { basePrice: 119, directPrice: 107 },
+          KNP3: { basePrice: 70, directPrice: 63 },
+          KNP6: { basePrice: 250, directPrice: 225 }
+        },
+        lastUpdated: new Date().toISOString()
+      };
+      res.json(pricing);
+    } catch (error) {
+      console.error('Admin pricing API error:', error);
+      res.status(500).json({ message: "Failed to fetch pricing data" });
+    }
+  });
+
+  // Deal configuration endpoints
+  app.post('/admin/deal-config', async (req, res) => {
+    try {
+      const { earlyBirdDays, earlyBirdDiscount, lateDealDays, lateDealDiscount, baseDiscountPercent } = req.body;
+
+      // Save to database or file
+      const dealConfig = {
+        earlyBirdDays: parseInt(earlyBirdDays) || 30,
+        earlyBirdDiscount: parseInt(earlyBirdDiscount) || 15,
+        lateDealDays: parseInt(lateDealDays) || 3,
+        lateDealDiscount: parseInt(lateDealDiscount) || 20,
+        baseDiscountPercent: parseInt(baseDiscountPercent) || 10,
+        updatedAt: new Date().toISOString()
+      };
+
+      // For now, save to a JSON file
+      const configPath = path.join(__dirname, '../shared/deal-config.json');
+      fs.writeFileSync(configPath, JSON.stringify(dealConfig, null, 2));
+
+      res.json({ success: true, config: dealConfig });
+    } catch (error) {
+      console.error('Error saving deal config:', error);
+      res.status(500).json({ error: 'Failed to save deal configuration' });
+    }
+  });
+
+  app.get('/admin/deal-config', async (req, res) => {
+    try {
+      const configPath = path.join(__dirname, '../shared/deal-config.json');
+
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        res.json(config);
+      } else {
+        // Default configuration
+        const defaultConfig = {
+          earlyBirdDays: 30,
+          earlyBirdDiscount: 15,
+          lateDealDays: 3,
+          lateDealDiscount: 20,
+          baseDiscountPercent: 10
+        };
+        res.json(defaultConfig);
+      }
+    } catch (error) {
+      console.error('Error loading deal config:', error);
+      res.status(500).json({ error: 'Failed to load deal configuration' });
+    }
+  });
+
+  // Booking endpoints
+  app.get('/admin/bookings', async (req, res) => {
+    try {
+      // For demo purposes, return sample bookings
+      // In production, this would query your booking database
+      const sampleBookings = [
+        {
+          id: '1',
+          room: 'KNP',
+          guestName: 'John Smith',
+          checkIn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          checkOut: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+          guests: 6,
+          originalPrice: 431,
+          status: 'confirmed'
+        },
+        {
+          id: '2',
+          room: 'KNP1',
+          guestName: 'Sarah Johnson',
+          checkIn: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+          checkOut: new Date(Date.now() + 48 * 24 * 60 * 60 * 1000).toISOString(),
+          guests: 4,
+          originalPrice: 119,
+          status: 'confirmed'
+        }
+      ];
+
+      res.json(sampleBookings);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      res.status(500).json({ error: 'Failed to fetch bookings' });
+    }
+  });
+
+  // Deals routes
+  app.get('/api/deals', (req, res) => {
+    const deals = [
+      {
+        id: '1',
+        type: 'early-bird',
+        discount: 15,
+        minDays: 14,
+        description: 'Book 14+ days in advance',
+        active: true
+      },
+      {
+        id: '2', 
+        type: 'late-deal',
+        discount: 25,
+        minDays: 3,
+        description: 'Last-minute bookings (3 days or less)',
+        active: true
+      }
+    ];
+    res.json(deals);
+  });
+
+  app.post('/api/deals', (req, res) => {
+    const { type, discount, minDays, description } = req.body;
+    const newDeal = {
+      id: Date.now().toString(),
+      type,
+      discount,
+      minDays,
+      description,
+      active: true
+    };
+    res.json(newDeal);
+  });
+
+  app.get('/api/bookings', (req, res) => {
+    const mockBookings = [
+      {
+        id: '1',
+        guestName: 'John Smith',
+        checkIn: '2025-06-01',
+        checkOut: '2025-06-05',
+        room: 'Family Suite',
+        guests: 4,
+        status: 'confirmed',
+        totalAmount: 800
+      },
+      {
+        id: '2',
+        guestName: 'Sarah Johnson',
+        checkIn: '2025-06-03',
+        checkOut: '2025-06-07',
+        room: 'Entire Villa',
+        guests: 8,
+        status: 'pending',
+        totalAmount: 1500
+      }
+    ];
+    res.json(mockBookings);
+  });
+
+  // Analytics routes
+  app.get('/api/analytics/stats', (req, res) => {
+    // Mock stats
+    const stats = {
+      totalRevenue: 50000,
+      newCustomers: 200,
+      bookingsThisMonth: 50
+    };
+    res.json(stats);
+  });
+
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version || '1.0.0'
+    });
+  });
+
+// Download test matrix zip
+app.get('/download/test-matrix', (req, res) => {
+  const filePath = path.join(__dirname, '..', 'ko-lake-villa-complete-test-matrix.zip');
+  res.download(filePath, 'ko-lake-villa-complete-test-matrix.zip');
+});
+
+  // Basic API test endpoint
+  app.get('/api/status', (req, res) => {
+    res.json({
+      api: 'working',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    });
+  });
+
+  // Activities API endpoints
+  app.get('/api/activities', async (req, res) => {
+    try {
+      const activities = await dataStorage.getActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+      res.status(500).json({ message: "Failed to fetch activities" });
+    }
+  });
+
+  app.get('/api/activities/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const activity = await dataStorage.getActivityById(id);
+
+      if (!activity) {
+        return res.status(404).json({ message: "Activity not found" });
+      }
+
+      res.json(activity);
+    } catch (error) {
+      console.error('Error fetching activity:', error);
+      res.status(500).json({ message: "Failed to fetch activity" });
+    }
+  });
+
+  app.post('/api/activities', async (req, res) => {
+    try {
+      // Validate request body structure
+      const activityData = req.body;
+
+      if (!activityData.name || !activityData.description) {
+        return res.status(400).json({ message: "Name and description are required" });
+      }
+
+      const newActivity = await dataStorage.createActivity(activityData);
+      res.status(201).json(newActivity);
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      res.status(500).json({ message: "Failed to create activity" });
+    }
+  });
+
+  // Missing API endpoints from test logs
+
+  // Content API
+  app.get('/api/content', async (req, res) => {
+    try {
+      const content = await dataStorage.getAllContent();
+      res.json(content);
+    } catch (error) {
+      console.error('Content API error:', error);
+      res.status(500).json({ message: "Failed to fetch content" });
+    }
+  });
+
+  app.post('/api/content', async (req, res) => {
+    try {
+      const { content } = req.body;
+      if (!Array.isArray(content)) {
+        return res.status(400).json({ message: "Content must be an array" });
+      }
+      await dataStorage.saveContent(content);
+      res.json({ message: "Content saved successfully" });
+    } catch (error) {
+      console.error('Content save error:', error);
+      res.status(500).json({ message: "Failed to save content" });
+    }
+  });
+
+  // Dining API
+  app.get('/api/dining', async (req, res) => {
+    try {
+      const diningOptions = await dataStorage.getDiningOptions();
+      res.json(diningOptions);
+    } catch (error) {
+      console.error('Dining API error:', error);
+      res.status(500).json({ message: "Failed to fetch dining options" });
+    }
+  });
+
+  // Pricing API
+  app.get('/api/pricing', (req, res) => {
+    const pricing = {
+      rooms: {
+        "KLV1": {
+          basePrice: 107,
+          directPrice: 107,
+          airbnbPrice: 119,
+          savings: 12
+        },
+        "KLV3": {
+          basePrice: 63,
+          directPrice: 63,
+          airbnbPrice: 70,
+          savings: 7
+        },
+        "KLV6": {
+          basePrice: 225,
+          directPrice: 225,
+          airbnbPrice: 250,
+          savings: 25
+        },
+        "KNP": {
+          basePrice: 388,
+          directPrice: 388,
+          airbnbPrice: 431,
+          savings: 43
+        }
+      },
+      currency: "USD",
+      lastUpdated: new Date().toISOString()
+    };
+    res.json(pricing);
+  });
+
+  // Admin pricing endpoint
+  app.get('/api/admin/pricing', (req, res) => {
+    const pricing = {
+      rooms: {
+        "KLV1": {
+          basePrice: 107,
+          directPrice: 107,
+          airbnbPrice: 119,
+          savings: 12,
+          rates: {
+            sun: 107,
+            mon: 107,
+            tue: 107,
+            wed: 107,
+            thu: 107,
+            fri: 107,
+            sat: 107
+          }
+        },
+        "KLV3": {
+          basePrice: 63,
+          directPrice: 63,
+          airbnbPrice: 70,
+          savings: 7,
+          rates: {
+            sun: 63,
+            mon: 63,
+            tue: 63,
+            wed: 63,
+            thu: 63,
+            fri: 63,
+            sat: 63
+          }
+        },
+        "KLV6": {
+          basePrice: 225,
+          directPrice: 225,
+          airbnbPrice: 250,
+          savings: 25,
+          rates: {
+            sun: 225,
+            mon: 225,
+            tue: 225,
+            wed: 225,
+            thu: 225,
+            fri: 225,
+            sat: 225
+          }
+        },
+        "KNP": {
+          basePrice: 388,
+          directPrice: 388,
+          airbnbPrice: 431,
+          savings: 43,
+          rates: {
+            sun: 388,
+            mon: 388,
+            tue: 388,
+            wed: 388,
+            thu: 388,
+            fri: 388,
+            sat: 388
+          }
+        }
+      },
+      currency: "USD",
+      lastUpdated: new Date().toISOString(),
+      rates: {
+        "knp": { "sun": 431, "mon": 431, "tue": 431 },
+        "knp1": { "sun": 119, "mon": 119, "tue": 119 },
+        "knp3": { "sun": 70, "mon": 70, "tue": 70 },
+        "knp6": { "sun": 250, "mon": 250, "tue": 250 }
+      },
+      updated: new Date().toISOString()
+    };
+    res.json(pricing);
+  });
+
+  // Admin audit log endpoints
+  app.get('/api/admin/audit-logs', async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const action = req.query.action as string;
+      const adminEmail = req.query.adminEmail as string;
+
+      // Mock audit logs for now - in production, query from database
+      const mockLogs = [
+        {
+          id: 1,
+          adminId: 'admin1',
+          adminEmail: 'admin@kolakevilla.com',
+          action: 'gallery_upload',
+          resource: 'gallery_image',
+          resourceId: '123',
+          details: { filename: 'villa-exterior.jpg', size: 1024000 },
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          timestamp: new Date().toISOString(),
+          status: 'success'
+        },
+        {
+          id: 2,
+          adminId: 'admin1',
+          adminEmail: 'admin@kolakevilla.com',
+          action: 'content_update',
+          resource: 'content_page',
+          resourceId: 'homepage',
+          details: { section: 'hero', changes: ['title', 'description'] },
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          status: 'success'
+        }
+      ];
+
+      let filteredLogs = mockLogs;
+
+      if (action) {
+        filteredLogs = filteredLogs.filter(log => log.action.includes(action));
+      }
+
+      if (adminEmail) {
+        filteredLogs = filteredLogs.filter(log => log.adminEmail.includes(adminEmail));
+      }
+
+      const startIndex = (page - 1) * limit;
+      const paginatedLogs = filteredLogs.slice(startIndex, startIndex + limit);
+
+      res.json({
+        logs: paginatedLogs,
+        pagination: {
+          page,
+          limit,
+          total: filteredLogs.length,
+          totalPages: Math.ceil(filteredLogs.length / limit)
+        }
+      });
+    } catch (error) {
+      console.error('Failed to fetch audit logs:', error);
+      res.status(500).json({ message: 'Failed to fetch audit logs' });
+    }
+  });
+
+  // Log admin action endpoint
+  app.post('/api/admin/audit-logs', async (req, res) => {
+    try {
+      const auditData = {
+        adminId: req.body.adminId || 'unknown',
+        adminEmail: req.body.adminEmail || 'unknown@admin.com',
+        action: req.body.action,
+        resource: req.body.resource,
+        resourceId: req.body.resourceId,
+        details: req.body.details,
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || 'unknown',
+        status: req.body.status || 'success'
+      };
+
+      const validatedData = insertAdminAuditLogSchema.parse(auditData);
+
+      // In production, save to database
+      // await db.insert(adminAuditLogs).values(validatedData);
+
+      console.log("LOG:", arguments);
+
+      res.status(201).json({ message: 'Audit log created successfully', data: validatedData });
+    } catch (error) {
+      console.error('Failed to create audit log:', error);
+      res.status(500).json({ message: 'Failed to create audit log' });
+    }
+  });
+
+  // Admin dashboard endpoint - moved before 404 handler
+  app.get("/api/admin/dashboard", async (req, res) => {
+    try {
+      const images = await dataStorage.getGalleryImages();
+
+      // Define categories locally since method doesn't exist
+      const categoryList = [
+        { id: 'entire-villa', name: 'Entire Villa' },
+        { id: 'family-suite', name: 'Family Suite' },
+        { id: 'group-room', name: 'Group Room' },
+        { id: 'triple-room', name: 'Triple Room' },
+        { id: 'dining-area', name: 'Dining Area' },
+        { id: 'pool-deck', name: 'Pool & Deck' },
+        { id: 'lake-garden', name: 'Lake Garden' },
+        { id: 'roof-garden', name: 'Roof Garden' },
+        { id: 'front-garden', name: 'Front Garden' },
+        { id: 'koggala-lake', name: 'Koggala Lake' },
+        { id: 'excursions', name: 'Excursions' },
+        { id: 'events', name: 'Events' },
+        { id: 'amenities', name: 'Amenities' },
+        { id: 'spa-wellness', name: 'Spa & Wellness' },
+        { id: 'activities', name: 'Activities' },
+        { id: 'default', name: 'Other' }
+      ];
+
+      // Dashboard metrics
+      const stats = {
+        totalImages: images.length,
+        totalVideos: images.filter(img => img.isVideo).length,
+        categoryCounts: categoryList.reduce((acc, cat) => {
+          acc[cat.id] = images.filter(img => img.category === cat.id).length;
+          return acc;
+        }, {}),
+        recentUploads: images
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 10),
+        systemHealth: {
+          database: 'connected',
+          storage: 'active',
+          apis: 'operational'
+        }
+      };
+
+      res.json({
+        success: true,
+        dashboard: stats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Admin dashboard error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Dashboard data unavailable" 
+      });
+    }
+  });
+
+  // Handle 404 for API routes (must be last)
+  app.use('/api/*', (req, res) => {
+    console.log("LOG:", arguments);
+    res.status(404).json({ 
+      success: false,
+      message: 'API endpoint not found',
+      path: req.path,
+      method: req.method,
+      availableEndpoints: [
+        '/api/gallery',
+        '/api/gallery/categories',
+        '/api/gallery/search',
+        '/api/analyze-media',
+        '/api/upload',
+        '/api/contact',
+        '/api/booking',
+        '/api/newsletter',
+        '/api/virtual-tours',
+        '/api/content',
+        '/api/pricing',
+        '/api/admin/dashboard',
+        '/api/admin/gallery',
+        '/api/admin/pricing'
+      ]
+    });
+  });
+
+  // Handle admin routes - allow Vite dev server to handle in development
+  // In production, this would serve the built files
+  if (process.env.NODE_ENV === 'production') {
+    app.get('/admin*', (req, res) => {
+      const indexPath = path.join(__dirname, '../client/dist/index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).json({
+          message: 'Admin interface not built. Run npm run build first.',
+          path: req.path
+        });
+      }
+    });
+  }
+
+  // Note: Catch-all route removed to allow Vite development server to handle all routes
+
+  // Global error handler (only for actual errors)
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error('Server error:', err);
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+      });
+    }
+  });
+
+  // AI Media Analysis endpoint for bulk uploader (protected)
+  app.post("/api/analyze-media", requireAdminAuth, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const filename = req.file.originalname.toLowerCase();
+      let suggestedCategory = 'entire-villa';
+      let title = '';
+      let description = '';
+      let tags = [];
+      let confidence = 0.8;
+
+      // Try OpenAI Vision API first for better titles and descriptions
+      if (process.env.OPENAI_API_KEY) {
+        try {
+          const OpenAI = (await import('openai')).default;
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+          // Convert image to base64
+          const imageBuffer = fs.readFileSync(req.file.path);
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = req.file.mimetype;
+
+          const response = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Analyze this image from Ko Lake Villa, a luxury holiday rental in Ahangama, Sri Lanka. Generate:
+1. A compelling, descriptive title (2-5 words)
+2. A marketing description highlighting luxury and comfort
+3. The most appropriate category from: entire-villa, family-suite, group-room, triple-room, dining-area, pool-deck, lake-garden, roof-garden, front-garden, koggala-lake, excursions, events, amenities, spa-wellness, activities
+4. Relevant tags (3-5 keywords)
+
+Respond in JSON format:
+{
+  "title": "Descriptive Title",
+  "description": "Marketing description",
+  "category": "category-name",
+  "tags": ["tag1", "tag2", "tag3"],
+  "confidence": 0.9
+}"
+                  },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: "data:";base64," + arguments + ""
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 500,
+            response_format: { type: "json_object" }
+          });
+
+          if (response.choices[0]?.message?.content) {
+            const aiResult = JSON.parse(response.choices[0].message.content);
+            title = aiResult.title || 'Ko Lake Villa Experience';
+            description = aiResult.description || 'Luxury accommodation at Ko Lake Villa';
+            suggestedCategory = aiResult.category || 'entire-villa';
+            tags = aiResult.tags || ['luxury', 'villa', 'sri lanka'];
+            confidence = aiResult.confidence || 0.9;
+
+            console.log("LOG:", arguments);
+          }
+        } catch (aiError) {
+          console.error('OpenAI Vision API error:', aiError);
+          // Fall back to filename-based analysis
+        }
+      }
+
+      // Enhanced filename-based categorization as fallback
+      if (!title) {
+        if (filename.includes('pool') || filename.includes('swimming')) {
+          suggestedCategory = 'pool-deck';
+          title = 'Infinity Pool Paradise';
+          description = 'Stunning infinity pool with panoramic lake views';
+          tags = ['pool', 'infinity', 'relaxation', 'lake views'];
+        } else if (filename.includes('dining') || filename.includes('food') || filename.includes('cake') || filename.includes('restaurant')) {
+          suggestedCategory = 'dining-area';
+          title = 'Lakeside Dining Experience';
+          description = 'Exquisite dining with breathtaking lake views';
+          tags = ['dining', 'gourmet', 'lake views', 'cuisine'];
+        } else if (filename.includes('family') || filename.includes('suite')) {
+          suggestedCategory = 'family-suite';
+          title = 'Luxury Family Retreat';
+          description = 'Spacious family suite with modern amenities and comfort';
+          tags = ['family', 'luxury', 'suite', 'comfort'];
+        } else if (filename.includes('garden') || filename.includes('plants') || filename.includes('flowers')) {
+          if (filename.includes('lake')) {
+            suggestedCategory = 'lake-garden';
+            title = 'Tranquil Lake Gardens';
+            description = 'Serene tropical gardens overlooking Koggala Lake';
+          } else if (filename.includes('roof')) {
+            suggestedCategory = 'roof-garden';
+            title = 'Elevated Garden Sanctuary';
+            description = 'Private rooftop garden with panoramic views';
+          } else {
+            suggestedCategory = 'front-garden';
+            title = 'Tropical Garden Paradise';
+            description = 'Lush tropical landscaping surrounding the villa';
+          }
+          tags = ['garden', 'tropical', 'nature', 'landscaping'];
+        } else if (filename.includes('lake') || filename.includes('koggala')) {
+          suggestedCategory = 'koggala-lake';
+          title = 'Koggala Lake Panorama';
+          description = 'Spectacular views across pristine Koggala Lake';
+          tags = ['lake', 'koggala', 'panorama', 'nature'];
+        } else if (filename.includes('triple')) {
+          suggestedCategory = 'triple-room';
+          title = 'Comfortable Triple Accommodation';
+          description = 'Modern triple room with premium amenities';
+          tags = ['triple', 'modern', 'accommodation', 'comfort'];
+        } else if (filename.includes('group')) {
+          suggestedCategory = 'group-room';
+          title = 'Group Living Space';
+          description = 'Perfect accommodation for group gatherings';
+          tags = ['group', 'spacious', 'social', 'gathering'];
+        } else {
+          // Default for entire villa
+          title = 'Ko Lake Villa Luxury';
+          description = 'Experience ultimate luxury at Ko Lake Villa, Ahangama';
+          tags = ['luxury', 'villa', 'ahangama', 'sri lanka'];
+        }
+      }
+
+      // Clean up temp file
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+
+      res.json({
+        suggestedCategory,
+        category: suggestedCategory,
+        title,
+        description,
+        tags: tags.join(', '),
+        confidence,
+        analysis: "Smart categorization based on filename and content patterns"
+      });
+
+    } catch (error) {
+      console.error('AI analysis error:', error);
+
+      // Clean up temp file on error
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+
+      res.status(500).json({ 
+        error: 'Analysis failed',
+        category: 'entire-villa',
+        confidence: 0.5,
+        description: 'Default categorization due to analysiserror'
+      });
+    }
+  });
+
+  // Stripe setup intent for card validation without charging
+  app.post("/api/create-setup-intent", async (req, res) => {
+    try {
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(500).json({ error: "Stripe not configured" });
+      }
+
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      const { booking } = req.body;
+
+      // Create setup intent for card validation
+      const setupIntent = await stripe.setupIntents.create({
+        payment_method_types: ['card'],
+        usage: 'off_session', // For future payments
+        metadata: {
+          booking_room: booking?.roomName || 'Unknown',
+          booking_checkin: booking?.checkIn || '',
+          booking_checkout: booking?.checkOut || '',
+          booking_guests: booking?.guests?.toString() || '0',
+          validation_type: 'ko_lake_villa_booking'
+        }
+      });
+
+      res.json({ 
+        clientSecret: setupIntent.client_secret,
+        setupIntentId: setupIntent.id
+      });
+    } catch (error: any) {
+      console.error('Setup intent creation error:', error);
+      res
+        .status(500)
+        .json({ message: "Error creating setup intent: " + error.message });
+    }
+  });
+
+  // Virtual Tours API endpoints
+  app.get('/api/virtual-tours', async (req, res) => {
+    try {
+      const tours = await db.select()
+        .from(virtualTours)
+        .where(eq(virtualTours.isActive, true))
+        .orderBy(asc(virtualTours.sortOrder));
+
+      res.json(tours);
+    } catch (error) {
+      console.error('Error fetching virtual tours:', error);
+      res.status(500).json({ error: 'Failed to fetch virtual tours' });
+    }
+  });
+
+  app.get('/api/virtual-tours/:roomId', async (req, res) => {
+    try {
+      const { roomId } = req.params;
+      const tour = await db.select()
+        .from(virtualTours)
+        .where(and(
+          eq(virtualTours.roomId, roomId),
+          eq(virtualTours.isActive, true)
+        ))
+        .limit(1);
+
+      if (tour.length === 0) {
+        return res.status(404).json({ error: 'Virtual tour not found' });
+      }
+
+      res.json(tour[0]);
+    } catch (error) {
+      console.error('Error fetching virtual tour:', error);
+      res.status(500).json({ error: 'Failed to fetch virtual tour' });
+    }
+  });
+
+  app.post('/api/virtual-tours', async (req, res) => {
+    try {
+      const validatedData = insertVirtualTourSchema.parse(req.body);
+      const newTour = await db.insert(virtualTours).values(validatedData).returning();
+      res.json(newTour[0]);
+    } catch (error) {
+      console.error('Error creating virtual tour:', error);
+      res.status(500).json({ error: 'Failed to create virtual tour' });
+    }
+  });
+
+// Update gallery image
+  app.patch('/api/gallery/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+
+      console.log("Updating gallery image ", arguments, " with:", updates);
+
+      // Get the existing image first
+      const existingImage = await dataStorage.getGalleryImageById(id);
+      if (!existingImage) {
+        return res.status(404).json({ error: 'Gallery image not found' });
+      }
+
+      // Merge updates with existing data
+      const updatedData = {
+        ...existingImage,
+        ...updates,
+        id // Ensure ID is preserved
+      };
+
+      const updatedImage = await dataStorage.updateGalleryImage(updatedData);
+      console.log("LOG:", arguments);
+
+      res.json(updatedImage);
+    } catch (error) {
+      console.error('Error updating gallery image:', error);
+      res.status(500).json({ error: 'Failed to update gallery image' });
+    }
+  });
+
+
+  // Cache monitoring and management endpoints
+  app.get("/api/cache/stats", async (req, res) => {
+    res.json({
+      stats: serverCache.getStats(),
+      performance: {
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+      }
+    });
+  });
+
+  app.post("/api/cache/clear", async (req, res) => {
+    serverCache.clear();
+    res.json({ message: "Cache cleared successfully" });
+  });
+
+  app.post("/api/cache/invalidate/:pattern", async (req, res) => {
+    const pattern = req.params.pattern;
+    serverCache.invalidatePattern(pattern);
+    res.json({ message: "Cache invalidated for pattern: " + arguments + "" });
+  });
+
+  // Content management API endpoints with caching
+  app.get("/api/content", async (req, res) => {
+    try {
+      let content = serverCache.get(CACHE_KEYS.CONTENT);
+      if (!content) {
+        content = await dataStorage.getAllContent();
+        serverCache.set(CACHE_KEYS.CONTENT, content, CACHE_TTL.MEDIUM);
+        res.setHeader('X-Cache', 'MISS');
+      } else {
+        res.setHeader('X-Cache', 'HIT');
+      }
+      res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minutes
+      res.json(content); // Returns array format as expected by tests
+    } catch (error) {
+      console.error('Content API error:', error);
+      res.status(500).json({ error: 'Failed to fetch content' });
+    }
+  });
+
+  app.post("/api/content", async (req, res) => {
+    try {
+      const { content } = req.body;
+      await dataStorage.saveContent(content);
+      // Invalidate content cache after update
+      serverCache.invalidate(CACHE_KEYS.CONTENT);
+      res.json({ success: true, message: 'Content saved successfully' });
+    } catch (error) {
+      console.error('Content save error:', error);
+      res.status(500).json({ error: 'Failed to save content' });
+    }
+  });
+
+  // Emergency Gallery Backup and Restore System
+  app.post('/api/admin/gallery/backup', async (req, res) => {
+    try {
+      const { reason, performedBy } = req.body;
+
+      // Create immediate backup of current gallery state
+      const backupResult = await db.execute("
+        INSERT INTO gallery_images_backup (
+          backup_reason, original_id, image_url, alt, title, description,
+          category, tags, featured, sort_order, media_type, created_at, updated_at
+        )
+        SELECT 
+          $1, id, image_url, alt, title, description,
+          category, tags, featured, sort_order, media_type, created_at, updated_at
+        FROM gallery_images
+        RETURNING backup_id
+      ", [reason || 'Manual backup']);
+
+      const backupId = backupResult.rows[0]?.backup_id;
+
+      res.json({ 
+        success: true, 
+        backupId, 
+        message: 'Gallery backup created successfully' 
+      });
+    } catch (error) {
+      console.error('Backup failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to create backup' 
+      });
+    }
+  });
+
+  app.get('/api/admin/gallery/backups', async (req, res) => {
+    try {
+      const backups = await db.execute("
+        SELECT DISTINCT backup_id, backup_timestamp, backup_reason,
+               COUNT(*) as image_count
+        FROM gallery_images_backup 
+        GROUP BY backup_id, backup_timestamp, backup_reason
+        ORDER BY backup_timestamp DESC
+        LIMIT 10
+      ");
+
+      res.json(backups.rows);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to get backups' });
+    }
+  });
+
+  app.post('/api/admin/gallery/restore/:backupId', async (req, res) => {
+    try {
+      const backupId = parseInt(req.params.backupId);
+      const { performedBy, reason } = req.body;
+
+      // Get backup timestamp
+      const backupInfo = await db.execute("
+        SELECT backup_timestamp FROM gallery_images_backup 
+        WHERE backup_id = $1 LIMIT 1
+      ", [backupId]);
+
+      if (backupInfo.rows.length === 0) {
+        return res.status(404).json({ error: 'Backup not found' });
+      }
+
+      const backupTimestamp = backupInfo.rows[0].backup_timestamp;
+
+      // Clear current gallery
+      await db.execute('DELETE FROM gallery_images');
+
+      // Restore from backup
+      const restoreResult = await db.execute("
+        INSERT INTO gallery_images (
+          image_url, alt, title, description, category, tags,
+          featured, sort_order, media_type
+        )
+        SELECT 
+          image_url, alt, title, description, category, tags,
+          featured, sort_order, media_type
+        FROM gallery_images_backup 
+        WHERE backup_timestamp = $1
+      ", [backupTimestamp]);
+
+      res.json({ 
+        success: true, 
+        restored: restoreResult.rowCount,
+        message: "Restored " + arguments + " images from backup" 
+      });
+
+    } catch (error) {
+      console.error('Restore failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to restore from backup' 
+      });
+    }
+  });
+
+  // Short URL redirects to listing URLs (configurable for myGuesty migration)
+  app.get('/klv', (req, res) => {
+    const url = process.env.AIRBNB_KLV_URL || 'https://airbnb.co.uk/h/klv';
+    res.redirect(301, url);
+  });
+
+  app.get('/klv1', (req, res) => {
+    const url = process.env.AIRBNB_KLV1_URL || 'https://airbnb.co.uk/h/klv1';
+    res.redirect(301, url);
+  });
+
+  app.get('/klv3', (req, res) => {
+    const url = process.env.AIRBNB_KLV3_URL || 'https://airbnb.co.uk/h/klv3';
+    res.redirect(301, url);
+  });
+
+  app.get('/klv6', (req, res) => {
+    const url = process.env.AIRBNB_KLV6_URL || 'https://airbnb.co.uk/h/klv6';
+    res.redirect(301, url);
+  });
+
+  // OpenAI Vision API endpoint for real-time image analysis
+  app.post("/api/ai/analyze-image", async (req, res) => {
+    try {
+      const { imageUrl } = req.body;
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image URL is required" });
+      }
+
+      // Convert relative URL to absolute path for local images
+      let fullImageUrl = imageUrl;
+      if (imageUrl.startsWith('/uploads/')) {
+        fullImageUrl = "http://localhost:5000" + arguments + "";
+      }
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': "Bearer " + arguments + "",
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Analyze this image from Ko Lake Villa, a luxury lakeside accommodation in Ahangama, Sri Lanka. Generate 3-5 relevant tags that describe what you see. Focus on: room features, dining areas, outdoor spaces, lake views, architecture, activities, or amenities. Return only a JSON array of tags, no other text."
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: fullImageUrl
+                  }
+                }
+              ]
+            }
+          ],
+          max_tokens: 100
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices[0]?.message?.content?.trim();
+
+        try {
+          const tags = JSON.parse(content);
+          res.json({ 
+            success: true, 
+            tags: Array.isArray(tags) ? tags : [content] 
+          });
+        } catch (parseError) {
+          // If JSON parsing fails, extract tags from text response
+          const fallbackTags = content
+            .replace(/["\[\]]/g, '')
+            .split(',')
+            .map((tag: string) => tag.trim())
+            .filter((tag: string) => tag.length > 0)
+            .slice(0, 5);
+
+          res.json({ 
+            success: true, 
+            tags: fallbackTags.length > 0 ? fallbackTags : ['villa', 'koggala', 'sri-lanka'] 
+          });
+        }
+      } else {
+        console.error('OpenAI Vision API error:', response.status, await response.text());
+        res.status(500).json({ 
+          error: "AI analysis failed", 
+          tags: ['villa', 'koggala', 'sri-lanka'] 
+        });
+      }
+    } catch (error) {
+      console.error('Image analysis error:', error);
+      res.status(500).json({ 
+        error: "Failed to analyze image", 
+        tags: ['villa', 'koggala', 'sri-lanka'] 
+      });
+    }
+  });
+
+  // 404 handler for API routes
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
+  });
+
+  // Note: No catch-all handler here - Vite development server handles frontend routes
+
+  const httpServer = createServer(app);
+  return httpServer;
+}

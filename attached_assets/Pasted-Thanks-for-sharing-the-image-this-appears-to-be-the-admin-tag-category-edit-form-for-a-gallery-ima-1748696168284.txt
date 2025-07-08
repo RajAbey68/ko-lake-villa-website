@@ -1,0 +1,78 @@
+Thanks for sharing the image — this appears to be the admin tag/category edit form for a gallery image. Based on the UI and issues you’ve noted, here’s a breakdown of key UX and functionality flaws plus next-step recommendations:
+
+⸻
+
+🔍 What’s Not Working or Confusing
+
+1. 🏷️ Tags Cannot Be Edited or Removed Easily
+	•	You typed "beach, sunset, relaxing" into Additional Tags.
+	•	But there’s no way to remove individual tags once saved — no visible “x” on each tag.
+	•	Issue: Input appears static after save. No feedback. Not tokenized properly.
+
+✅ Fix Recommendation:
+Replace with a multi-tag component like:
+
+import { TagsInput } from "@components/ui/tags-input"  // example or custom chip input
+
+Let users:
+	•	Add tags dynamically
+	•	See them as chips
+	•	Remove with x
+
+⸻
+
+2. 🧠 AI Suggestion Button Missing
+	•	You have AI image insight functionality, but there’s no visible button to invoke it.
+
+✅ Fix Recommendation:
+	•	Add a “Suggest Tags with AI” button beside the tags field.
+	•	Optional: On image upload, auto-suggest from AI based on category.
+
+Example UX:
+
+<Button onClick={handleAISuggestTags}>✨ Suggest Tags</Button>
+
+
+⸻
+
+3. 📂 Category Cannot Be Easily Changed
+	•	The dropdown is present, but:
+	•	There’s no visual cue that changing it will reset or update tags.
+	•	Doesn’t show dependencies or lock state.
+	•	May be disabled on existing records unless manually reset in DB.
+
+✅ Fix Recommendation:
+	•	Enable category switching unless tied to image locking.
+	•	Trigger onCategoryChange to:
+	•	Re-validate tags
+	•	Reset defaultTag if needed
+
+⸻
+
+4. 🟠 “Category will be automatically included” Message is Unclear
+	•	It’s a passive message with no visibility into which tag is system-generated.
+	•	If the UI adds “triple-room” silently, users can’t see or trust it.
+
+✅ Fix Recommendation:
+	•	Add #triple-room visibly but greyed out with (auto) badge.
+	•	Tooltip: “Tag auto-included from category”
+
+⸻
+
+🔧 Recommended Changes to UI Logic
+
+🔄 Refactor GalleryEditDialog.tsx or similar:
+	•	Use a chip-style tag input (allow add/remove)
+	•	Auto-include category as the first tag (visibly shown)
+	•	Add “AI Tag Suggestion” button
+	•	Validate that the category is from GALLERY_CATEGORIES
+	•	Reorder field logic: Category → Title → Tags → Description
+
+⸻
+
+Would you like me to:
+	1.	Patch the React form logic and send updated JSX/TSX?
+	2.	Write a Playwright test for gallery tag editing?
+	3.	Bundle this into your next admin UI upgrade sprint?
+
+Let’s fix this cleanly.

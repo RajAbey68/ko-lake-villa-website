@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ko Lake Villa - Image Uploader</title>
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: #FDF6EE;
+      color: #8B5E3C;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-family: Georgia, serif;
+      color: #8B5E3C;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    select, input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #A0B985;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #FF914D;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      display: block;
+      margin: 20px auto;
+    }
+    button:hover {
+      background-color: #e67e3e;
+    }
+    .message {
+      text-align: center;
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .file-list {
+      margin-top: 20px;
+    }
+    .file-item {
+      background: white;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .file-name {
+      flex: 1;
+    }
+    .file-controls button {
+      margin: 0 5px;
+      padding: 5px 10px;
+    }
+    .drop-area {
+      border: 2px dashed #A0B985;
+      border-radius: 8px;
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      background-color: rgba(160, 185, 133, 0.1);
+    }
+    .drop-area.highlight {
+      background-color: rgba(160, 185, 133, 0.2);
+      border-color: #8B5E3C;
+    }
+    .instructions {
+      background-color: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .instructions h3 {
+      margin-top: 0;
+      color: #8B5E3C;
+    }
+    .instructions ol {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ko Lake Villa - Image Organizer</h1>
+  
+  <div class="instructions">
+    <h3>Instructions:</h3>
+    <ol>
+      <li>Select a category for your images</li>
+      <li>Drag and drop images into the box or click to select files</li>
+      <li>Add a description if needed</li>
+      <li>Click "Prepare Files" to organize them</li>
+      <li>Download the organized file package</li>
+    </ol>
+    <p><strong>Note:</strong> This tool prepares your images for easy upload to the website later. No Internet connection needed!</p>
+  </div>
+  
+  <div id="messageContainer"></div>
+  
+  <form id="uploadForm">
+    <div class="form-group">
+      <label for="category">Category:</label>
+      <select id="category" name="category" required>
+        <option value="">Select a category</option>
+        <option value="Family Suite">Family Suite</option>
+        <option value="Group Room">Group Room</option>
+        <option value="Triple Room">Triple Room</option>
+        <option value="Dining Area">Dining Area</option>
+        <option value="Pool Deck">Pool Deck</option>
+        <option value="Lake Garden">Lake Garden</option>
+        <option value="Roof Garden">Roof Garden</option>
+        <option value="Front Garden and Entrance">Front Garden and Entrance</option>
+        <option value="Koggala Lake Ahangama and Surrounding">Koggala Lake Ahangama and Surrounding</option>
+        <option value="Excursions">Excursions</option>
+      </select>
+    </div>
+    
+    <div class="drop-area" id="dropArea">
+      <p>Drag & drop images here or <button type="button" id="fileSelectButton">Select Files</button></p>
+      <input type="file" id="files" name="files" multiple accept="image/*" hidden>
+    </div>
+    
+    <div class="form-group">
+      <label for="description">Description (Optional):</label>
+      <textarea id="description" name="description" rows="3"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label>
+        <input type="checkbox" id="featured" name="featured">
+        Mark as Featured Images
+      </label>
+    </div>
+    
+    <div class="file-list" id="fileList"></div>
+    
+    <button type="submit">Prepare Files for Upload</button>
+  </form>
+  
+  <script>
+    // DOM Elements
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('files');
+    const fileList = document.getElementById('fileList');
+    const dropArea = document.getElementById('dropArea');
+    const fileSelectButton = document.getElementById('fileSelectButton');
+    
+    // Add selected files to the list
+    function handleFiles(files) {
+      // Clear previous list if any
+      if (fileList.children.length > 0) {
+        if (!confirm('Replace currently selected files?')) {
+          return;
+        }
+        fileList.innerHTML = '';
+      }
+      
+      // Display each file in the list
+      Array.from(files).forEach(file => {
+        // Create file item
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        
+        // File name
+        const fileName = document.createElement('div');
+        fileName.className = 'file-name';
+        fileName.textContent = file.name;
+        fileItem.appendChild(fileName);
+        
+        // Remove button
+        const fileControls = document.createElement('div');
+        fileControls.className = 'file-controls';
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', () => {
+          fileItem.remove();
+        });
+        
+        fileControls.appendChild(removeBtn);
+        fileItem.appendChild(fileControls);
+        
+        // Add to list
+        fileList.appendChild(fileItem);
+        
+        // Show file preview if it's an image
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const preview = document.createElement('img');
+            preview.src = e.target.result;
+            preview.style.width = '50px';
+            preview.style.height = '50px';
+            preview.style.objectFit = 'cover';
+            preview.style.marginRight = '10px';
+            preview.style.borderRadius = '4px';
+            fileItem.insertBefore(preview, fileName);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+    
+    // Handle file select via button
+    fileSelectButton.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', e => {
+      handleFiles(e.target.files);
+    });
+    
+    // Handle drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add('highlight');
+      }, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove('highlight');
+      }, false);
+    });
+    
+    dropArea.addEventListener('drop', e => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFiles(files);
+    }, false);
+    
+    // Handle form submission
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      
+      const category = document.getElementById('category').value;
+      const description = document.getElementById('description').value;
+      const featured = document.getElementById('featured').checked;
+      
+      // Validate form
+      if (!category) {
+        showMessage('Please select a category', 'error');
+        return;
+      }
+      
+      if (fileList.children.length === 0) {
+        showMessage('Please select at least one file', 'error');
+        return;
+      }
+      
+      // Prepare file information
+      const fileDetails = [];
+      Array.from(fileList.children).forEach(item => {
+        const fileName = item.querySelector('.file-name').textContent;
+        fileDetails.push({
+          name: fileName,
+          category: category,
+          description: description,
+          featured: featured
+        });
+      });
+      
+      // Create a downloadable JSON file with image metadata
+      const jsonData = JSON.stringify(fileDetails, null, 2);
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create download link
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${category.replace(/\s+/g, '_')}_image_data.json`;
+      
+      // Trigger download
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      showMessage(`Prepared ${fileDetails.length} images for category "${category}". You can now upload these to your website using the admin interface.`, 'success');
+    });
+    
+    // Show message
+    function showMessage(message, type) {
+      const container = document.getElementById('messageContainer');
+      const messageElement = document.createElement('div');
+      messageElement.className = 'message ' + (type || 'info');
+      messageElement.textContent = message;
+      
+      // Clear previous messages
+      container.innerHTML = '';
+      container.appendChild(messageElement);
+      
+      // Scroll to message
+      messageElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gallery Debug Test</title>
+</head>
+<body>
+    <h1>Gallery API Debug Test</h1>
+    <div id="output"></div>
+
+    <script>
+        async function testGallery() {
+            try {
+                const response = await fetch('/api/gallery?category=dining-area');
+                const data = await response.json();
+                
+                const output = document.getElementById('output');
+                output.innerHTML = `
+                    <h2>Dining Area Images (${data.length} items):</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        ${data.map(item => `
+                            <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                                <h3>${item.title}</h3>
+                                <p><strong>Type:</strong> ${item.mediaType}</p>
+                                <p><strong>URL:</strong> ${item.imageUrl}</p>
+                                <p><strong>Description:</strong> ${item.description}</p>
+                                ${item.mediaType === 'image' ? 
+                                    `<img src="${item.imageUrl}" style="width: 100%; max-height: 200px; object-fit: cover;" 
+                                          onerror="this.style.border='2px solid red'; this.alt='Failed to load'">` 
+                                    : `<video controls style="width: 100%; max-height: 200px;"><source src="${item.imageUrl}"></video>`
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `Error: ${error.message}`;
+            }
+        }
+        
+        testGallery();
+    </script>
+</body>
+</html>
