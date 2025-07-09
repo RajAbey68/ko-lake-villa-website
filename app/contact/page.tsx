@@ -343,14 +343,25 @@ export default function ContactPage() {
                 <h3 className="font-semibold text-gray-900 mb-2">Exact Location</h3>
                 <p className="text-gray-600 text-sm">Kathaluwa West, Koggala Lake</p>
                 <p className="text-gray-600 text-sm">Galle District, Sri Lanka</p>
-                <Button 
-                  className="mt-3" 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.open("https://maps.google.com/maps?q=Koggala+Lake,+Sri+Lanka", "_blank")}
-                >
-                  Get Directions
-                </Button>
+                <p className="text-xs text-amber-600 font-mono">📍 wifely.rebuff.vented</p>
+                <div className="space-y-2">
+                  <Button 
+                    className="mt-3 w-full" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.open("https://maps.google.com/maps?q=Koggala+Lake,+Sri+Lanka", "_blank")}
+                  >
+                    Google Maps
+                  </Button>
+                  <Button 
+                    className="w-full" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.open("https://what3words.com/wifely.rebuff.vented", "_blank")}
+                  >
+                    what3words
+                  </Button>
+                </div>
               </CardContent>
             </Card>
             

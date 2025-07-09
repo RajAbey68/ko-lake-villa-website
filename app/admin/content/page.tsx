@@ -45,7 +45,7 @@ export default function AdminContent() {
     contact: {
       phone: "+94711730345",
       email: "contact@KoLakeHouse.com",
-      address: "Ko Lake Villa, Koggala Lake, Sri Lanka",
+      address: "Kathaluwa West, Koggala Lake, Galle District, Sri Lanka",
       description: "Contact us to plan your perfect getaway at Ko Lake Villa."
     }
   })
