@@ -140,10 +140,21 @@ export default function KoLakeVilla() {
         <div className="relative z-10 flex items-center justify-center h-full text-center bg-black bg-opacity-30">
           <div className="max-w-4xl mx-auto px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
-            <p className="text-xl md:text-2xl mb-4">Luxury Lakefront Accommodation in Sri Lanka</p>
-            <div className="flex items-center justify-center mb-8">
+            <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
+            <p className="text-lg md:text-xl mb-4 font-light italic">Relax, Revive, Connect</p>
+            <div className="flex items-center justify-center mb-4">
               <MapPin className="w-5 h-5 mr-2" />
               <span className="text-lg">Koggala Lake, Galle District</span>
+            </div>
+            <div className="flex items-center justify-center mb-8 space-x-6">
+              <div className="flex items-center">
+                <Phone className="w-5 h-5 mr-2" />
+                <a href="tel:+94711730345" className="text-lg hover:text-amber-200">+94711730345</a>
+              </div>
+              <div className="flex items-center">
+                <MessageCircle className="w-5 h-5 mr-2" />
+                <a href="https://wa.me/94711730345" target="_blank" rel="noopener noreferrer" className="text-lg hover:text-amber-200">WhatsApp</a>
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="/accommodation">
@@ -256,7 +267,7 @@ export default function KoLakeVilla() {
 
   const renderRoomsPage = () => (
     <div>
-      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-4">Our Accommodation</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
@@ -295,17 +306,17 @@ export default function KoLakeVilla() {
 
                       <div className="grid grid-cols-3 gap-4 mb-6">
                         <div className="text-center">
-                          <Users className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                          <Users className="w-6 h-6 mx-auto mb-2 text-amber-600" />
                           <div className="text-sm text-gray-600">Up to</div>
                           <div className="font-semibold">{room.guests} guests</div>
                         </div>
                         <div className="text-center">
-                          <Bed className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                          <Bed className="w-6 h-6 mx-auto mb-2 text-amber-600" />
                           <div className="text-sm text-gray-600">Bedrooms</div>
                           <div className="font-semibold">{room.bedrooms}</div>
                         </div>
                         <div className="text-center">
-                          <Bath className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                          <Bath className="w-6 h-6 mx-auto mb-2 text-amber-600" />
                           <div className="text-sm text-gray-600">Bathrooms</div>
                           <div className="font-semibold">{room.bathrooms}</div>
                         </div>
@@ -316,7 +327,7 @@ export default function KoLakeVilla() {
                           <span className="text-lg text-gray-500 line-through">Airbnb: ${room.airbnbPrice}/night</span>
                           <span className="text-lg text-green-600 font-semibold">You Save: ${room.savings}</span>
                         </div>
-                        <div className="text-3xl font-bold text-blue-900">
+                        <div className="text-3xl font-bold text-amber-900">
                           ${room.directPrice}
                           <span className="text-lg font-normal text-gray-500">/night direct</span>
                         </div>
@@ -350,7 +361,7 @@ export default function KoLakeVilla() {
 
   const renderGalleryPage = () => (
     <div>
-      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-4">Photo Gallery</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
@@ -389,7 +400,7 @@ export default function KoLakeVilla() {
 
   const renderBookingPage = () => (
     <div>
-      <section className="py-12 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-12 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-bold mb-4">Book Your Stay</h1>
           <p className="text-xl">Complete the form below and we'll confirm your reservation within 2 hours</p>
@@ -460,7 +471,7 @@ export default function KoLakeVilla() {
 
   const renderContactPage = () => (
     <div>
-      <section className="py-16 bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
@@ -520,10 +531,12 @@ export default function KoLakeVilla() {
                       </div>
                     </div>
                   </div>
-                  <Button className="w-full mt-6 bg-green-600 hover:bg-green-700">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Chat on WhatsApp
-                  </Button>
+                  <a href="https://wa.me/94711730345" target="_blank" rel="noopener noreferrer" className="w-full">
+                    <Button className="w-full mt-6 bg-green-600 hover:bg-green-700">
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Chat on WhatsApp
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
             </div>
