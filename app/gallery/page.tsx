@@ -17,13 +17,52 @@ interface MediaItem {
   category: string
 }
 
+// Static gallery data for Ko Lake Villa
+const staticGalleryData = {
+  "pool-facilities": [
+    "/images/hero-pool.jpg",
+    "/placeholder.svg?height=400&width=600&text=Pool+at+Sunset",
+    "/placeholder.svg?height=400&width=600&text=Pool+Side+Lounge",
+    "/placeholder.svg?height=400&width=600&text=Pool+Deck"
+  ],
+  "accommodation": [
+    "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
+    "/placeholder.svg?height=400&width=600&text=Lake+View+Room",
+    "/placeholder.svg?height=400&width=600&text=Living+Area",
+    "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
+  ],
+  "dining": [
+    "/placeholder.svg?height=400&width=600&text=Dining+Area",
+    "/placeholder.svg?height=400&width=600&text=Kitchen",
+    "/placeholder.svg?height=400&width=600&text=Chef+Preparation",
+    "/placeholder.svg?height=400&width=600&text=Outdoor+Dining"
+  ],
+  "experiences": [
+    "/images/excursions-hero.jpg",
+    "/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4",
+    "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
+    "/placeholder.svg?height=400&width=600&text=Lake+Activities",
+    "/placeholder.svg?height=400&width=600&text=Local+Tours",
+    "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
+  ],
+  "lake-views": [
+    "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
+    "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
+    "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
+    "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
+    "/placeholder.svg?height=400&width=600&text=Lake+Wildlife"
+  ]
+}
+
+const staticCategories = Object.keys(staticGalleryData)
+
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [categories, setCategories] = useState<string[]>([])
-  const [galleryData, setGalleryData] = useState<Record<string, string[]>>({})
-  const [loading, setLoading] = useState(true)
+  const [categories, setCategories] = useState<string[]>(staticCategories)
+  const [galleryData, setGalleryData] = useState<Record<string, string[]>>(staticGalleryData)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Helper functions
@@ -44,63 +83,7 @@ export default function GalleryPage() {
     return path.split('/').pop() || ''
   }
 
-  // Static gallery data (replacing API calls)
-  useEffect(() => {
-    // Simulate loading for smooth UX
-    const loadStaticData = () => {
-      console.log('Loading static gallery data...')
-      
-      // Static gallery data for Ko Lake Villa
-      const staticGalleryData = {
-        "pool-facilities": [
-          "/images/hero-pool.jpg",
-          "/placeholder.svg?height=400&width=600&text=Pool+at+Sunset",
-          "/placeholder.svg?height=400&width=600&text=Pool+Side+Lounge",
-          "/placeholder.svg?height=400&width=600&text=Pool+Deck"
-        ],
-        "accommodation": [
-          "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
-          "/placeholder.svg?height=400&width=600&text=Lake+View+Room",
-          "/placeholder.svg?height=400&width=600&text=Living+Area",
-          "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
-        ],
-        "dining": [
-          "/placeholder.svg?height=400&width=600&text=Dining+Area",
-          "/placeholder.svg?height=400&width=600&text=Kitchen",
-          "/placeholder.svg?height=400&width=600&text=Chef+Preparation",
-          "/placeholder.svg?height=400&width=600&text=Outdoor+Dining"
-        ],
-        "experiences": [
-          "/images/excursions-hero.jpg",
-          "/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4",
-          "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
-          "/placeholder.svg?height=400&width=600&text=Lake+Activities",
-          "/placeholder.svg?height=400&width=600&text=Local+Tours",
-          "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
-        ],
-        "lake-views": [
-          "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
-          "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
-          "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
-          "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
-          "/placeholder.svg?height=400&width=600&text=Lake+Wildlife"
-        ]
-      }
-      
-      const staticCategories = Object.keys(staticGalleryData)
-      
-      console.log('Static categories:', staticCategories)
-      console.log('Static gallery data keys:', Object.keys(staticGalleryData))
-
-      setCategories(staticCategories)
-      setGalleryData(staticGalleryData)
-      setLoading(false)
-      setError(null)
-    }
-
-    // Add small delay to show loading state briefly
-    setTimeout(loadStaticData, 500)
-  }, [])
+  // Gallery data now initialized directly in state
 
   // Convert gallery data to MediaItem format
   const allImages: MediaItem[] = []
@@ -159,19 +142,7 @@ export default function GalleryPage() {
     setSelectedItem(filteredImages[newIndex])
   }
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-          <p className="text-lg text-gray-600">Loading gallery images...</p>
-          <div className="mt-4 text-sm text-gray-500">
-            Debug: Fetching data from API endpoints
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // Remove loading state display - go directly to content
 
   if (error) {
     return (
