@@ -157,7 +157,7 @@ export default function GlobalHeader() {
             <div className="hidden xl:flex items-center space-x-4 text-sm text-amber-600">
               <div className="flex items-center space-x-1">
                 <Phone className="w-4 h-4" />
-                <span>+94 123 456 789</span>
+                <span>+94711730345</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Mail className="w-4 h-4" />
@@ -308,7 +308,7 @@ export default function GlobalHeader() {
               <div className="pt-4 border-t border-orange-100 space-y-2">
                 <div className="flex items-center space-x-2 text-sm text-amber-600 px-2">
                   <Phone className="w-4 h-4" />
-                  <span>+94 123 456 789</span>
+                  <span>+94711730345</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-amber-600 px-2">
                   <Mail className="w-4 h-4" />

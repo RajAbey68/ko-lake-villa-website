@@ -464,7 +464,7 @@ export default function ExcursionsPage() {
               className="bg-transparent border-white text-white hover:bg-white hover:text-amber-800"
             >
               <Phone className="w-4 h-4 mr-2" />
-              Call Us: +94 123 456 789
+              Call Us: +94711730345
             </Button>
             <Button className="bg-orange-500 hover:bg-orange-600">
               <Calendar className="w-4 h-4 mr-2" />
