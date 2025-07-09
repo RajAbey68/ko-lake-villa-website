@@ -74,56 +74,7 @@ export default function KoLakeVilla() {
     { src: "/placeholder.svg?height=300&width=400&text=Dining+Area", title: "Dining Area" },
   ]
 
-  const renderNavigation = () => (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <h1 className="text-2xl font-bold text-amber-800 cursor-pointer" onClick={() => setCurrentPage("home")}>
-            Ko Lake Villa
-          </h1>
-          <div className="flex space-x-6">
-            <button
-              onClick={() => setCurrentPage("home")}
-              className={`${currentPage === "home" ? "text-orange-500 font-medium" : "text-amber-700 hover:text-orange-500"}`}
-            >
-              Home
-            </button>
-            <a
-              href="/accommodation"
-              className="text-amber-700 hover:text-orange-500 py-2"
-            >
-              Accommodation
-            </a>
-            <a
-              href="/dining"
-              className="text-amber-700 hover:text-orange-500 py-2"
-            >
-              Dining
-            </a>
-            <a
-              href="/experiences"
-              className="text-amber-700 hover:text-orange-500 py-2"
-            >
-              Experiences
-            </a>
-            <a
-              href="/gallery"
-              className="text-amber-700 hover:text-orange-500 py-2"
-            >
-              Gallery
-            </a>
-            <a
-              href="/contact"
-              className="text-amber-700 hover:text-orange-500 py-2"
-            >
-              Contact
-            </a>
-            <Button onClick={() => setCurrentPage("booking")}>Book Now</Button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  )
+
 
   const renderHomePage = () => (
     <div>
@@ -513,7 +464,7 @@ export default function KoLakeVilla() {
                       <Phone className="w-5 h-5 text-orange-600" />
                       <div>
                         <div className="font-medium">Phone</div>
-                        <div className="text-gray-600">+94 711 730 345</div>
+                        <div className="text-gray-600">+94711730345</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -548,8 +499,6 @@ export default function KoLakeVilla() {
 
   return (
     <div className="min-h-screen bg-white">
-      {renderNavigation()}
-
       {currentPage === "home" && renderHomePage()}
       {currentPage === "rooms" && renderRoomsPage()}
       {currentPage === "gallery" && renderGalleryPage()}
@@ -567,7 +516,7 @@ export default function KoLakeVilla() {
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
               <div className="space-y-2 text-gray-400">
-                <div>+94 711 730 345</div>
+                <div>+94711730345</div>
                 <div>contact@KoLakeHouse.com</div>
                 <div>Kathaluwa West, Koggala Lake</div>
               </div>

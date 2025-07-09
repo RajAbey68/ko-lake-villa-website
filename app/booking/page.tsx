@@ -137,7 +137,7 @@ function BookingContent() {
                 <Button asChild>
                   <Link href="/">Return to Home</Link>
                 </Button>
-                <Button className="border border-gray-300 hover:bg-gray-50" onClick={() => window.open("https://wa.me/1234567890", "_blank")}>
+                                  <Button className="border border-gray-300 hover:bg-gray-50" onClick={() => window.open("https://wa.me/94711730345", "_blank")}>
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Chat on WhatsApp
                 </Button>
@@ -232,7 +232,7 @@ function BookingContent() {
                           value={formData.guestPhone}
                           onChange={(e) => handleInputChange("guestPhone", e.target.value)}
                           required
-                          placeholder="+94 123 456 789"
+                          placeholder="+94711730345"
                         />
                       </div>
                     </div>
@@ -338,7 +338,7 @@ function BookingContent() {
                     <Phone className="w-5 h-5 text-orange-600" />
                     <div>
                       <div className="font-medium">Call Us</div>
-                      <div className="text-sm text-gray-600">+94 711 730 345</div>
+                      <div className="text-sm text-gray-600">+94711730345</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

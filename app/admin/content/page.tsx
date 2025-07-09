@@ -43,7 +43,7 @@ export default function AdminContent() {
       activities: "From lake adventures to cultural tours, we offer a range of activities to make your stay memorable."
     },
     contact: {
-      phone: "+94 711 730 345",
+      phone: "+94711730345",
       email: "contact@KoLakeHouse.com",
       address: "Ko Lake Villa, Koggala Lake, Sri Lanka",
       description: "Contact us to plan your perfect getaway at Ko Lake Villa."

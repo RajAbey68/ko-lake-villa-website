@@ -25,7 +25,7 @@ export default function AdminLogin() {
     
     console.log("Processed email:", JSON.stringify(emailProcessed))
     console.log("Processed password:", JSON.stringify(passwordProcessed))
-    console.log("Expected email:", JSON.stringify("contact@kolakehouse.com"))
+    console.log("Expected email:", JSON.stringify("contact@KoLakeHouse.com"))
     console.log("Expected password:", JSON.stringify("admin123"))
     
     // Use Replit admin credentials
@@ -58,7 +58,7 @@ export default function AdminLogin() {
       console.log("❌ AUTHENTICATION FAILED")
       console.log("Email mismatch details:", {
         input: emailProcessed,
-        expected: "contact@kolakehouse.com",
+        expected: "contact@KoLakeHouse.com",
         match: emailMatch
       })
       console.log("Password mismatch details:", {
@@ -98,7 +98,7 @@ export default function AdminLogin() {
               value={email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-amber-200 rounded focus:border-orange-400 focus:outline-none"
-              placeholder="contact@kolakehouse.com"
+              placeholder="contact@KoLakeHouse.com"
               required
             />
           </div>

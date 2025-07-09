@@ -139,7 +139,7 @@ export default function ContactPage() {
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => handleInputChange("phone", e.target.value)}
-                          placeholder="+94 123 456 789"
+                          placeholder="+94711730345"
                         />
                       </div>
 
@@ -189,7 +189,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Phone</h3>
-                      <p className="text-gray-600">+94 711 730 345</p>
+                      <p className="text-gray-600">+94711730345</p>
                       <p className="text-sm text-gray-500">Available 8 AM - 10 PM daily</p>
                     </div>
                   </div>
@@ -200,7 +200,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">WhatsApp</h3>
-                      <p className="text-gray-600">+94 711 730 345</p>
+                      <p className="text-gray-600">+94711730345</p>
                       <p className="text-sm text-gray-500">Quick responses, 24/7</p>
                       <Button
                         size="sm"

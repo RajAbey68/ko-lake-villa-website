@@ -72,11 +72,14 @@ export default function GalleryPage() {
         ],
         "experiences": [
           "/images/excursions-hero.jpg",
+          "/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4",
+          "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
           "/placeholder.svg?height=400&width=600&text=Lake+Activities",
           "/placeholder.svg?height=400&width=600&text=Local+Tours",
           "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
         ],
         "lake-views": [
+          "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
           "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
           "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
           "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
@@ -106,12 +109,32 @@ export default function GalleryPage() {
       const filename = getFilename(imagePath)
       const fileType = isVideo(filename) ? 'video' : 'image'
       
+      // Generate better titles for videos
+      let title = filename.replace(/\.[^/.]+$/, "").replace(/-/g, ' ').replace(/_/g, ' ')
+      let description = `${formatCategoryName(category)} - ${filename}`
+      
+      // Special handling for villa videos
+      if (fileType === 'video') {
+        if (imagePath.includes('164235')) {
+          title = "Complete Villa Walkthrough Tour"
+          description = "Comprehensive tour showcasing all villa spaces and amenities"
+        } else if (imagePath.includes('170745')) {
+          title = "Lake View Experience"
+          description = "Beautiful views of Koggala Lake from the villa"
+        } else if (imagePath.includes('170537')) {
+          title = "Sunset Over Lake"
+          description = "Stunning sunset views from Ko Lake Villa"
+        } else {
+          title = title.charAt(0).toUpperCase() + title.slice(1) + " Video"
+        }
+      }
+      
       allImages.push({
         id: imagePath,
         type: fileType,
         url: imagePath,
-        title: filename.replace(/\.[^/.]+$/, "").replace(/-/g, ' ').replace(/_/g, ' '),
-        description: `${formatCategoryName(category)} - ${filename}`,
+        title,
+        description,
         category: formatCategoryName(category)
       })
     })
@@ -234,6 +257,11 @@ export default function GalleryPage() {
                   className="w-full h-full object-cover"
                   preload="metadata"
                   muted
+                  onError={(e) => {
+                    console.error('Video failed to load:', item.url)
+                    e.currentTarget.style.display = 'none'
+                  }}
+                  poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
                 />
               )}
 
@@ -323,6 +351,28 @@ export default function GalleryPage() {
                     className="w-full h-full object-contain bg-black"
                     controls
                     autoPlay
+                    onError={(e) => {
+                      console.error('Video failed to load in lightbox:', selectedItem.url)
+                      const target = e.currentTarget
+                      target.style.display = 'none'
+                      const errorDiv = document.createElement('div')
+                      errorDiv.className = 'flex items-center justify-center h-full text-white text-center'
+                      errorDiv.innerHTML = `
+                        <div>
+                          <h3 className="text-xl font-semibold mb-2">Video Unavailable</h3>
+                          <p className="text-gray-300">Unable to load video: ${selectedItem.title}</p>
+                          <p className="text-sm text-gray-400 mt-2">Please try again later</p>
+                        </div>
+                      `
+                      target.parentNode?.appendChild(errorDiv)
+                    }}
+                    onLoadStart={() => {
+                      console.log('Video loading started:', selectedItem.url)
+                    }}
+                    onCanPlay={() => {
+                      console.log('Video can play:', selectedItem.url)
+                    }}
+                    poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
                   />
                 )}
               </div>
