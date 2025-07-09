@@ -1,51 +1,104 @@
-import { defineConfig, devices } from '@playwright/test';
-
 /**
- * Ko Lake Villa Gallery System - Playwright Configuration
- * Comprehensive testing setup for gallery management functionality
+ * Ko Lake Villa - Playwright Test Configuration
+ * For integration and visual regression testing
+ * 
+ * Install Playwright to use: npm install -D @playwright/test
+ * Then run: npx playwright install
  */
 
-export default defineConfig({
+module.exports = {
   testDir: './tests',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
   
+  /* Run tests in files in parallel */
+  fullyParallel: true,
+  
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  forbidOnly: !!process.env.CI,
+  
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
+  
+  /* Opt out of parallel tests on CI. */
+  workers: process.env.CI ? 1 : undefined,
+  
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['line']
+  ],
+  
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: 'http://localhost:5000',
+    /* Base URL to use in actions like `await page.goto('/')`. */
+    baseURL: 'http://localhost:3000',
+    
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    
+    /* Take screenshot on failure */
     screenshot: 'only-on-failure',
+    
+    /* Record video on failure */
     video: 'retain-on-failure',
   },
 
+  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { browserName: 'chromium' },
     },
+
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { browserName: 'firefox' },
     },
+
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { browserName: 'webkit' },
     },
+
+    /* Test against mobile viewports. */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { 
+        browserName: 'chromium',
+        viewport: { width: 393, height: 851 }
+      },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: { 
+        browserName: 'webkit',
+        viewport: { width: 390, height: 844 }
+      },
     },
   ],
 
+  /* Run your local dev server before starting the tests */
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5000',
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000, // 2 minutes for server to start
   },
-});
+
+  /* Global test timeout */
+  timeout: 30000,
+
+  /* Expect timeout */
+  expect: {
+    timeout: 5000,
+  },
+
+  /* Visual comparison settings are included in the main use section above */
+
+  /* Output directory for test artifacts */
+  outputDir: 'test-results/',
+  
+  /* Global setup/teardown - create these files if needed */
+  // globalSetup: require.resolve('./tests/global-setup.js'),
+  // globalTeardown: require.resolve('./tests/global-teardown.js'),
+};

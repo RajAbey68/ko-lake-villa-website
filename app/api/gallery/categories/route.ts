@@ -3,7 +3,7 @@ import fs, { Dirent } from 'fs';
 import path from 'path';
 
 export async function GET() {
-  const galleryDirectory = path.join(process.cwd(), 'uploads/gallery');
+  const galleryDirectory = path.join(process.cwd(), 'public/uploads/gallery');
 
   try {
     const categories = fs.readdirSync(galleryDirectory, { withFileTypes: true })

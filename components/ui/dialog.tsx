@@ -108,6 +108,8 @@ const DialogDescription = React.forwardRef<
 ))
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
+const VisuallyHidden = DialogPrimitive.Root // Placeholder for accessibility
+
 export {
   Dialog,
   DialogPortal,
@@ -119,4 +121,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  VisuallyHidden,
 }
