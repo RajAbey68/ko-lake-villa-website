@@ -322,16 +322,64 @@ export default function ContactPage() {
             <p className="text-xl text-gray-600">Located on the beautiful Koggala Lake in Sri Lanka's southern coast</p>
           </div>
 
-          <div className="bg-gray-300 rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">Ko Lake Villa</h3>
-              <p className="text-gray-600">Koggala Lake, Galle District</p>
-              <p className="text-gray-600">Sri Lanka</p>
-              <Button className="mt-4" variant="outline">
-                Get Directions
-              </Button>
-            </div>
+          <div className="bg-white rounded-lg overflow-hidden shadow-lg h-96">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3973.6662481293687!2d80.32421547535898!3d5.968364194074179!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae173bb6932fccf%3A0x4a35b903f9c64c9e!2sKoggala%20Lake!5e0!3m2!1sen!2slk!4v1704747600000!5m2!1sen!2slk"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Ko Lake Villa Location - Koggala Lake, Sri Lanka"
+            ></iframe>
+          </div>
+          
+          {/* Map Info & Directions */}
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <MapPin className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+                <h3 className="font-semibold text-gray-900 mb-2">Exact Location</h3>
+                <p className="text-gray-600 text-sm">Kathaluwa West, Koggala Lake</p>
+                <p className="text-gray-600 text-sm">Galle District, Sri Lanka</p>
+                <Button 
+                  className="mt-3" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open("https://maps.google.com/maps?q=Koggala+Lake,+Sri+Lanka", "_blank")}
+                >
+                  Get Directions
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Clock className="w-8 h-8 text-amber-600 mx-auto mb-3" />
+                <h3 className="font-semibold text-gray-900 mb-2">Travel Time</h3>
+                <p className="text-gray-600 text-sm">2 hours from Colombo Airport</p>
+                <p className="text-gray-600 text-sm">30 minutes from Galle</p>
+                <p className="text-gray-600 text-sm">15 minutes from Ahangama</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Phone className="w-8 h-8 text-green-600 mx-auto mb-3" />
+                <h3 className="font-semibold text-gray-900 mb-2">Need Help?</h3>
+                <p className="text-gray-600 text-sm">Call us for directions</p>
+                <p className="text-gray-600 text-sm">WhatsApp location sharing</p>
+                <Button 
+                  className="mt-3 bg-green-600 hover:bg-green-700" 
+                  size="sm"
+                  onClick={() => window.open("https://wa.me/94711730345?text=Hi! Can you help me with directions to Ko Lake Villa?", "_blank")}
+                >
+                  <MessageCircle className="w-4 h-4 mr-1" />
+                  WhatsApp Us
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
