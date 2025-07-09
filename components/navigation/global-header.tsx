@@ -30,6 +30,11 @@ export default function GlobalHeader() {
   const router = useRouter()
   const pathname = usePathname()
 
+  // Don't show GlobalHeader on admin pages - let admin layout handle navigation
+  if (pathname.startsWith('/admin')) {
+    return null
+  }
+
   const navigationItems = [
     { id: "home", label: "Home", href: "/" },
     { id: "accommodation", label: "Accommodation", href: "/#accommodation" },

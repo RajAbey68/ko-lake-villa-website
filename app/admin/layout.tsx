@@ -21,13 +21,24 @@ export default function AdminLayout({
       const adminAuth = localStorage.getItem("adminAuth")
       const userAuth = localStorage.getItem("userAuth")
       
-      const authenticated = adminAuth === "true" || !!userAuth
-      if (!authenticated && pathname !== "/admin/login") {
-        router.push("/admin/login")
-        return
-      }
-      setIsAuthenticated(true)
+      // Check multiple authentication sources
+      const authenticated = adminAuth === "true" || 
+                          !!userAuth || 
+                          document.cookie.includes("authToken=admin-authenticated") ||
+                          document.cookie.includes("adminAuth=true")
+      
+      setIsAuthenticated(authenticated)
       setIsLoading(false)
+      
+      // Only redirect to login if not authenticated and not already on login page
+      if (!authenticated && pathname !== "/admin/login") {
+        // Give a small delay to allow authentication to settle
+        setTimeout(() => {
+          if (!localStorage.getItem("adminAuth") && !localStorage.getItem("userAuth")) {
+            router.push("/admin/login")
+          }
+        }, 100)
+      }
     }
 
     checkAuth()
@@ -43,24 +54,39 @@ export default function AdminLayout({
     router.push("/admin/login")
   }
 
-  // Don't show admin navigation on login page
+  // Show login page without admin navigation
   if (pathname === "/admin/login") {
     return <>{children}</>
   }
 
-  if (isLoading) {
+  // Show admin navigation for all other admin pages (loading or authenticated)
+  const showNavigation = !isLoading || isAuthenticated
+
+  if (isLoading && !isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Admin Header - even during loading */}
+        <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">KL</span>
+                </div>
+                <span className="font-semibold text-gray-900">Ko Lake Villa Admin</span>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <main className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </main>
       </div>
     )
-  }
-
-  if (!isAuthenticated) {
-    return null
   }
 
   const navigationItems = [
