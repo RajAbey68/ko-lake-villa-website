@@ -1,269 +1,269 @@
 {
   "summary": {
     "total": 36,
-    "passed": 35,
-    "failed": 1,
+    "passed": 36,
+    "failed": 0,
     "warnings": 6,
-    "timestamp": "2025-07-09T14:54:12.937Z"
+    "timestamp": "2025-07-09T14:55:20.715Z"
   },
   "details": [
     {
       "test": "Clean Build",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:53:54.995Z"
+      "timestamp": "2025-07-09T14:55:08.720Z"
     },
     {
       "test": "Build Output Exists",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:53:54.995Z"
+      "timestamp": "2025-07-09T14:55:08.720Z"
     },
     {
       "test": "All Pages Generated",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:53:54.995Z"
+      "timestamp": "2025-07-09T14:55:08.720Z"
     },
     {
       "test": "TypeScript Compilation",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:01.683Z"
+      "timestamp": "2025-07-09T14:55:10.834Z"
     },
     {
       "test": "ESLint Validation",
       "passed": null,
       "details": "Linting issues found (non-blocking)",
-      "timestamp": "2025-07-09T14:54:02.302Z",
+      "timestamp": "2025-07-09T14:55:11.369Z",
       "warning": true
     },
     {
       "test": "Component: app/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.369Z"
     },
     {
       "test": "Component: app/layout.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.369Z"
     },
     {
       "test": "Component: app/gallery/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.369Z"
     },
     {
       "test": "Component: app/accommodation/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.369Z"
     },
     {
       "test": "Component: app/dining/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.370Z"
     },
     {
       "test": "Component: app/experiences/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.370Z"
     },
     {
       "test": "Component: app/admin/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.370Z"
     },
     {
       "test": "Component: components/ui/button.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.370Z"
     },
     {
       "test": "Component: components/ui/card.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.302Z"
+      "timestamp": "2025-07-09T14:55:11.370Z"
     },
     {
       "test": "Gallery: No API Dependencies",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.303Z"
+      "timestamp": "2025-07-09T14:55:11.371Z"
     },
     {
       "test": "Asset: public/images/hero-pool.jpg",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.303Z"
+      "timestamp": "2025-07-09T14:55:11.371Z"
     },
     {
       "test": "Asset: public/images/excursions-hero.jpg",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.303Z"
+      "timestamp": "2025-07-09T14:55:11.372Z"
     },
     {
       "test": "Asset: public/placeholder.svg",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.303Z"
+      "timestamp": "2025-07-09T14:55:11.372Z"
     },
     {
       "test": "Placeholder Usage: app/page.tsx",
       "passed": null,
       "details": "Uses placeholder.svg - replace with real images",
-      "timestamp": "2025-07-09T14:54:02.303Z",
+      "timestamp": "2025-07-09T14:55:11.385Z",
       "warning": true
     },
     {
       "test": "Placeholder Usage: app/gallery/page.tsx",
       "passed": null,
       "details": "Uses placeholder.svg - replace with real images",
-      "timestamp": "2025-07-09T14:54:02.303Z",
+      "timestamp": "2025-07-09T14:55:11.386Z",
       "warning": true
     },
     {
       "test": "Placeholder Usage: components/public-gallery.tsx",
       "passed": null,
       "details": "Uses placeholder.svg - replace with real images",
-      "timestamp": "2025-07-09T14:54:02.304Z",
+      "timestamp": "2025-07-09T14:55:11.386Z",
       "warning": true
     },
     {
       "test": "Package.json Valid",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.386Z"
     },
     {
       "test": "No pnpm-lock.yaml",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.386Z"
     },
     {
       "test": "npm package-lock.json exists",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.386Z"
     },
     {
       "test": "Next.js Config Exists",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.386Z"
     },
     {
       "test": "vercel.json Exists",
       "passed": null,
       "details": "Manual Vercel config - may cause deployment issues",
-      "timestamp": "2025-07-09T14:54:02.304Z",
+      "timestamp": "2025-07-09T14:55:11.386Z",
       "warning": true
     },
     {
       "test": "Brand: Brand Name",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.387Z"
     },
     {
       "test": "Brand: Tagline",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.387Z"
     },
     {
       "test": "Brand: Phone Number",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.387Z"
     },
     {
       "test": "Brand: Brand Colors (Amber)",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.387Z"
     },
     {
       "test": "Brand: WhatsApp Integration",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.387Z"
     },
     {
       "test": "Brand: No Blue Colors",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:02.304Z"
+      "timestamp": "2025-07-09T14:55:11.387Z"
     },
     {
       "test": "Homepage Size Optimal",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.877Z"
+      "timestamp": "2025-07-09T14:55:20.646Z"
     },
     {
       "test": "Gallery: Uses Static Data",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.879Z"
+      "timestamp": "2025-07-09T14:55:20.647Z"
     },
     {
       "test": "Package Manager: No Conflicts",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.879Z"
+      "timestamp": "2025-07-09T14:55:20.647Z"
     },
     {
       "test": "Import: No Pool from lucide-react",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.879Z"
+      "timestamp": "2025-07-09T14:55:20.647Z"
     },
     {
       "test": "API Directory",
       "passed": null,
       "details": "app/api exists - may cause deployment issues if empty",
-      "timestamp": "2025-07-09T14:54:12.880Z",
+      "timestamp": "2025-07-09T14:55:20.647Z",
       "warning": true
     },
     {
       "test": "Git: No Uncommitted Changes",
-      "passed": false,
-      "details": "Uncommitted changes found",
-      "timestamp": "2025-07-09T14:54:12.937Z"
+      "passed": true,
+      "details": "",
+      "timestamp": "2025-07-09T14:55:20.714Z"
     },
     {
       "test": "Deployment: package.json",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.937Z"
+      "timestamp": "2025-07-09T14:55:20.714Z"
     },
     {
       "test": "Deployment: next.config.mjs",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.937Z"
+      "timestamp": "2025-07-09T14:55:20.714Z"
     },
     {
       "test": "Deployment: tailwind.config.ts",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.937Z"
+      "timestamp": "2025-07-09T14:55:20.714Z"
     },
     {
       "test": "Deployment: tsconfig.json",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-09T14:54:12.937Z"
+      "timestamp": "2025-07-09T14:55:20.714Z"
     }
   ]
 }
