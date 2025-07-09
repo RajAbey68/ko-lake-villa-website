@@ -1,250 +1,351 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X, ChevronLeft, ChevronRight, Filter } from "lucide-react"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { ImageIcon, Video, Play, X, ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
-import useSWR from 'swr'
-import axios from 'axios'
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data)
-
-// Helper to format category names
-const formatCategoryName = (name: string) => {
-  return name.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+interface MediaItem {
+  id: string
+  type: "image" | "video"
+  url: string
+  title: string
+  description: string
+  category: string
 }
 
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null)
-  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [categories, setCategories] = useState<string[]>([])
+  const [galleryData, setGalleryData] = useState<Record<string, string[]>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Fetch categories and images from API
-  const { data: categories = [], isLoading: loadingCategories, error: errorCategories } = useSWR<string[]>('/api/gallery/categories', fetcher)
-  const { data: galleryData, isLoading: loadingImages, error: errorImages } = useSWR<Record<string, string[]>>('/api/gallery', fetcher)
-
-  // Flatten images for 'all' view and add title
-  const allImages = galleryData
-    ? Object.entries(galleryData).flatMap(([category, images]) => 
-        images.map(src => ({ 
-          category, 
-          src,
-          title: formatCategoryName(src.split('/').pop()?.split('.')[0] ?? 'Gallery Image') 
-        }))
-      )
-    : []
-
-  const filteredImages =
-    selectedCategory === "all"
-      ? allImages
-      : allImages.filter(img => img.category === selectedCategory)
-
-  // Loading and error states
-  if (loadingCategories || loadingImages) {
-    return <div className="min-h-screen flex items-center justify-center">Loading gallery...</div>
-  }
-  if (errorCategories || errorImages) {
-    return <div className="min-h-screen flex items-center justify-center text-red-600">Failed to load gallery. Please try again later.</div>
+  // Helper functions
+  const formatCategoryName = (name: string) => {
+    return name.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase())
   }
 
-  const openLightbox = (imageSrc: string, index: number) => {
-    setLightboxImage(imageSrc)
-    setLightboxIndex(index)
+  const getFileExtension = (filename: string) => {
+    return filename.split('.').pop()?.toLowerCase() || ''
   }
 
-  const closeLightbox = () => {
-    setLightboxImage(null)
+  const isVideo = (filename: string) => {
+    const videoExtensions = ['mp4', 'mov', 'avi', 'webm', 'ogg']
+    return videoExtensions.includes(getFileExtension(filename))
   }
 
-  const nextImage = () => {
-    const nextIndex = (lightboxIndex + 1) % filteredImages.length
-    setLightboxIndex(nextIndex)
-    setLightboxImage(filteredImages[nextIndex].src)
+  const getFilename = (path: string) => {
+    return path.split('/').pop() || ''
   }
 
-  const prevImage = () => {
-    const prevIndex = lightboxIndex === 0 ? filteredImages.length - 1 : lightboxIndex - 1
-    setLightboxIndex(prevIndex)
-    setLightboxImage(filteredImages[prevIndex].src)
+  // Static gallery data (replacing API calls)
+  useEffect(() => {
+    // Simulate loading for smooth UX
+    const loadStaticData = () => {
+      console.log('Loading static gallery data...')
+      
+      // Static gallery data for Ko Lake Villa
+      const staticGalleryData = {
+        "pool-facilities": [
+          "/images/hero-pool.jpg",
+          "/placeholder.svg?height=400&width=600&text=Pool+at+Sunset",
+          "/placeholder.svg?height=400&width=600&text=Pool+Side+Lounge",
+          "/placeholder.svg?height=400&width=600&text=Pool+Deck"
+        ],
+        "accommodation": [
+          "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
+          "/placeholder.svg?height=400&width=600&text=Lake+View+Room",
+          "/placeholder.svg?height=400&width=600&text=Living+Area",
+          "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
+        ],
+        "dining": [
+          "/placeholder.svg?height=400&width=600&text=Dining+Area",
+          "/placeholder.svg?height=400&width=600&text=Kitchen",
+          "/placeholder.svg?height=400&width=600&text=Chef+Preparation",
+          "/placeholder.svg?height=400&width=600&text=Outdoor+Dining"
+        ],
+        "experiences": [
+          "/images/excursions-hero.jpg",
+          "/placeholder.svg?height=400&width=600&text=Lake+Activities",
+          "/placeholder.svg?height=400&width=600&text=Local+Tours",
+          "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
+        ],
+        "lake-views": [
+          "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
+          "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
+          "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
+          "/placeholder.svg?height=400&width=600&text=Lake+Wildlife"
+        ]
+      }
+      
+      const staticCategories = Object.keys(staticGalleryData)
+      
+      console.log('Static categories:', staticCategories)
+      console.log('Static gallery data keys:', Object.keys(staticGalleryData))
+
+      setCategories(staticCategories)
+      setGalleryData(staticGalleryData)
+      setLoading(false)
+      setError(null)
+    }
+
+    // Add small delay to show loading state briefly
+    setTimeout(loadStaticData, 500)
+  }, [])
+
+  // Convert gallery data to MediaItem format
+  const allImages: MediaItem[] = []
+  Object.entries(galleryData).forEach(([category, images]) => {
+    images.forEach((imagePath) => {
+      const filename = getFilename(imagePath)
+      const fileType = isVideo(filename) ? 'video' : 'image'
+      
+      allImages.push({
+        id: imagePath,
+        type: fileType,
+        url: imagePath,
+        title: filename.replace(/\.[^/.]+$/, "").replace(/-/g, ' ').replace(/_/g, ' '),
+        description: `${formatCategoryName(category)} - ${filename}`,
+        category: formatCategoryName(category)
+      })
+    })
+  })
+
+  const filteredImages = selectedCategory === "all" 
+    ? allImages 
+    : allImages.filter(item => item.category === selectedCategory)
+
+  const openLightbox = (item: MediaItem) => {
+    setSelectedItem(item)
+    setCurrentIndex(filteredImages.findIndex((i) => i.id === item.id))
+  }
+
+  const navigateLightbox = (direction: "prev" | "next") => {
+    const newIndex =
+      direction === "prev"
+        ? (currentIndex - 1 + filteredImages.length) % filteredImages.length
+        : (currentIndex + 1) % filteredImages.length
+
+    setCurrentIndex(newIndex)
+    setSelectedItem(filteredImages[newIndex])
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+          <p className="text-lg text-gray-600">Loading gallery images...</p>
+          <div className="mt-4 text-sm text-gray-500">
+            Debug: Fetching data from API endpoints
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+          <p className="text-lg text-red-600">Error: {error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (allImages.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+          <p className="text-lg text-gray-600">No images found</p>
+          <div className="mt-4 text-sm text-gray-500">
+            Debug: Categories: {categories.length}, Gallery data keys: {Object.keys(galleryData).length}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-amber-800">
-              Ko Lake Villa
-            </Link>
-            <div className="hidden md:flex space-x-8">
-              <Link href="/" className="text-amber-700 hover:text-orange-500">
-                Home
-              </Link>
-              <Link href="/accommodation" className="text-amber-700 hover:text-orange-500">
-                Accommodation
-              </Link>
-              <Link href="/dining" className="text-amber-700 hover:text-orange-500">
-                Dining
-              </Link>
-              <Link href="/experiences" className="text-amber-700 hover:text-orange-500">
-                Experiences
-              </Link>
-              <Link href="/gallery" className="text-orange-500 font-medium">
-                Gallery
-              </Link>
-              <Link href="/contact" className="text-amber-700 hover:text-orange-500">
-                Contact
-              </Link>
-            </div>
-            <Button asChild className="bg-orange-500 hover:bg-orange-600">
-              <Link href="/booking">Book Now</Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Header */}
-      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-4">Photo Gallery</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
-            Explore the beauty of Ko Lake Villa through our comprehensive photo gallery. From luxurious interiors to
-            stunning lake views, see what makes us special.
-          </p>
-        </div>
-      </section>
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          Explore Ko Lake Villa's stunning spaces, luxury amenities, and beautiful surroundings
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          {allImages.length} media items across {categories.length} categories
+        </p>
+      </div>
 
       {/* Category Filter */}
-      <section className="py-8 bg-gray-50 sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-              <Filter className="w-6 h-6 mr-2" />
-              Filter Photos
-            </h2>
-            <div className="text-sm text-gray-600">
-              Showing {filteredImages.length} of {allImages.length} photos
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <Button
+          variant={selectedCategory === "all" ? "default" : "outline"}
+          onClick={() => setSelectedCategory("all")}
+          className={selectedCategory === "all" ? "bg-amber-600 hover:bg-amber-700" : ""}
+        >
+          All Photos ({allImages.length})
+        </Button>
+        {categories.map((category) => {
+          const categoryName = formatCategoryName(category)
+          const categoryCount = allImages.filter(item => item.category === categoryName).length
+          return (
             <Button
-              key="all"
-              variant={selectedCategory === "all" ? "default" : "outline"}
-              onClick={() => setSelectedCategory("all")}
+              key={category}
+              variant={selectedCategory === categoryName ? "default" : "outline"}
+              onClick={() => setSelectedCategory(categoryName)}
+              className={selectedCategory === categoryName ? "bg-amber-600 hover:bg-amber-700" : ""}
             >
-              All Photos
+              {categoryName} ({categoryCount})
             </Button>
-            {categories?.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {formatCategoryName(category)}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </section>
+          )
+        })}
+      </div>
 
       {/* Gallery Grid */}
-      <section className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredImages.map((image, index) => (
-              <div
-                key={image.src}
-                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
-                onClick={() => openLightbox(image.src, index)}
-              >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredImages.map((item) => (
+          <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="relative aspect-video bg-gray-100" onClick={() => openLightbox(item)}>
+              {item.type === "image" ? (
                 <Image
-                  src={image.src || "/placeholder.svg"}
-                  alt={image.title}
-                  width={400}
-                  height={300}
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                  src={item.url}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-end">
-                  <div className="p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                    <h3 className="font-semibold text-lg">{image.title}</h3>
+              ) : (
+                <video
+                  src={item.url}
+                  className="w-full h-full object-cover"
+                  preload="metadata"
+                  muted
+                />
+              )}
+
+              {/* Media Type Indicator */}
+              <div className="absolute top-3 left-3">
+                <Badge variant="secondary" className="bg-white/90 text-gray-800">
+                  {item.type === "image" ? <ImageIcon className="w-3 h-3 mr-1" /> : <Video className="w-3 h-3 mr-1" />}
+                  {item.type}
+                </Badge>
+              </div>
+
+              {/* Play Button for Videos */}
+              {item.type === "video" && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-black/50 rounded-full p-4">
+                    <Play className="w-8 h-8 text-white fill-white" />
+                  </div>
+                </div>
+              )}
+
+              {/* Category Badge */}
+              <div className="absolute top-3 right-3">
+                <Badge className="bg-amber-600 text-white text-xs">{item.category}</Badge>
+              </div>
+
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-end">
+                <div className="p-4 text-white opacity-0 hover:opacity-100 transition-opacity">
+                  <h3 className="font-semibold">{item.title}</h3>
+                  <p className="text-sm">{item.description}</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Lightbox */}
+      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+        <DialogContent className="max-w-4xl w-full p-0">
+          {selectedItem && (
+            <div className="relative">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute top-4 right-4 z-10 bg-black/50 text-white hover:bg-black/70"
+                onClick={() => setSelectedItem(null)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+
+              {/* Navigation Buttons */}
+              {filteredImages.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
+                    onClick={() => navigateLightbox("prev")}
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
+                    onClick={() => navigateLightbox("next")}
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </Button>
+                </>
+              )}
+
+              {/* Media Content */}
+              <div className="aspect-video">
+                {selectedItem.type === "image" ? (
+                  <Image
+                    src={selectedItem.url}
+                    alt={selectedItem.title}
+                    fill
+                    className="object-contain bg-black"
+                  />
+                ) : (
+                  <video
+                    src={selectedItem.url}
+                    className="w-full h-full object-contain bg-black"
+                    controls
+                    autoPlay
+                  />
+                )}
+              </div>
+
+              {/* Media Info */}
+              <div className="p-6 bg-white">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-amber-800 mb-2">{selectedItem.title}</h2>
+                    <p className="text-gray-600 mb-3">{selectedItem.description}</p>
+                    <div className="flex gap-2">
+                      <Badge variant="outline">{selectedItem.category}</Badge>
+                      <Badge className="bg-amber-100 text-amber-800">
+                        {selectedItem.type === "image" ? "Photo" : "Video"}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {filteredImages.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No images found for this category.</p>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Lightbox Modal */}
-      {lightboxImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-          <div className="relative max-w-6xl max-h-full">
-            <button onClick={closeLightbox} className="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
-              <X className="w-8 h-8" />
-            </button>
-
-            <button
-              onClick={prevImage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-10"
-            >
-              <ChevronLeft className="w-8 h-8" />
-            </button>
-
-            <button
-              onClick={nextImage}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-10"
-            >
-              <ChevronRight className="w-8 h-8" />
-            </button>
-
-            <Image
-              src={lightboxImage || "/placeholder.svg"}
-              alt={filteredImages[lightboxIndex]?.title || "Gallery image"}
-              width={1200}
-              height={800}
-              className="max-w-full max-h-full object-contain"
-            />
-
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-center">
-              <h3 className="font-semibold mb-2">{filteredImages[lightboxIndex]?.title}</h3>
-              <p className="text-sm opacity-90">
-                {lightboxIndex + 1} of {filteredImages.length}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CTA Section */}
-      <section className="py-16 bg-amber-900 text-white">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold mb-4">Ready to Experience This Paradise?</h2>
-          <p className="text-xl mb-8">Book your stay at Ko Lake Villa and create your own unforgettable memories.</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-amber-900 hover:bg-amber-50" asChild>
-              <Link href="/booking">Book Your Stay</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-amber-900"
-              asChild
-            >
-              <Link href="/accommodation">View Room Options</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+        </DialogContent>
+      </Dialog>
     </div>
   )
-}
+} 
