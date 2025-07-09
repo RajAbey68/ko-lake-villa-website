@@ -342,7 +342,7 @@ export default function AdminAnalytics() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <MapPin className="w-5 h-5 text-amber-600" />
-                    <span>Ko Lake Villa, Sri Lanka</span>
+                    <span>Kathaluwa West, Koggala Lake, Sri Lanka</span>
                   </div>
                 </CardContent>
               </Card>
