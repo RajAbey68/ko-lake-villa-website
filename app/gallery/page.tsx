@@ -64,6 +64,7 @@ export default function GalleryPage() {
   const [galleryData, setGalleryData] = useState<Record<string, string[]>>(staticGalleryData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showVideoHelp, setShowVideoHelp] = useState(true)
 
   // Helper functions
   const formatCategoryName = (name: string) => {
@@ -182,6 +183,33 @@ export default function GalleryPage() {
         <p className="text-sm text-gray-500 mt-2">
           {allImages.length} media items across {categories.length} categories
         </p>
+        
+        {/* Video Help Instructions */}
+        {showVideoHelp && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl mx-auto">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-2">
+                <Video className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                <div className="text-left">
+                  <p className="text-sm font-medium text-blue-800">
+                    🎥 How to play videos: Click on thumbnails with <Play className="w-4 h-4 inline mx-1" /> play button
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Videos will open in full-screen modal with controls
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowVideoHelp(false)}
+                className="text-blue-600 hover:text-blue-800 p-1"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Category Filter */}

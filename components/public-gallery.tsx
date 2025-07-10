@@ -222,12 +222,34 @@ export default function PublicGallery() {
                     className="w-full h-full object-contain bg-black"
                   />
                 ) : (
-                  <div className="w-full h-full bg-black flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Video className="w-16 h-16 mx-auto mb-4" />
-                      <p>Video Player Would Load Here</p>
-                    </div>
-                  </div>
+                  <video
+                    src={selectedItem.url}
+                    className="w-full h-full object-contain bg-black"
+                    controls
+                    autoPlay
+                    onError={(e) => {
+                      console.error('Video failed to load in lightbox:', selectedItem.url)
+                      const target = e.currentTarget
+                      target.style.display = 'none'
+                      const errorDiv = document.createElement('div')
+                      errorDiv.className = 'flex items-center justify-center h-full text-white text-center'
+                      errorDiv.innerHTML = `
+                        <div>
+                          <h3 class="text-xl font-semibold mb-2">Video Unavailable</h3>
+                          <p class="text-gray-300">Unable to load video: ${selectedItem.title}</p>
+                          <p class="text-sm text-gray-400 mt-2">Please try again later</p>
+                        </div>
+                      `
+                      target.parentNode?.appendChild(errorDiv)
+                    }}
+                    onLoadStart={() => {
+                      console.log('Video loading started:', selectedItem.url)
+                    }}
+                    onCanPlay={() => {
+                      console.log('Video can play:', selectedItem.url)
+                    }}
+                    poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
+                  />
                 )}
               </div>
 
