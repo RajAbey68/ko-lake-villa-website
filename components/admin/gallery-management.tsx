@@ -351,7 +351,6 @@ export default function GalleryManagement() {
 
       // Update the item in local state to reflect changes immediately
       setMediaItems(prev => prev.map(i => i.id === item.id ? item : i))
-      setEditingItem(null)
       
       // Also reload gallery items to ensure complete sync with server
       await loadGalleryItems()
@@ -367,6 +366,8 @@ export default function GalleryManagement() {
       })
     } finally {
       setIsSaving(false)
+      // Always close the edit dialog after save attempt (success or failure)
+      setEditingItem(null)
     }
   }
 
