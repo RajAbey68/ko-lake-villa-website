@@ -102,53 +102,107 @@ export async function PUT(
   { params }: { params: Promise<{ imageId: string }> }
 ) {
   const { imageId } = await params
+  
+  console.log('PUT request received for imageId:', imageId)
+  
   try {
     if (!imageId) {
+      console.log('No imageId provided')
       return NextResponse.json({ error: 'Image ID is required' }, { status: 400 })
     }
 
     // Parse the request body
     const body = await request.json()
+    console.log('PUT request body:', body)
+    
     const { title, description, category, tags, seoTitle, seoDescription, altText } = body
 
     // Decode the imageId which should be the relative path like "default/filename.jpg"
     const decodedPath = decodeURIComponent(imageId)
+    console.log('Decoded path:', decodedPath)
+    
+    // Handle different ID formats - sometimes it might be just a filename
+    let relativePath = decodedPath
+    
+    // If it doesn't contain a slash, it might be just a filename in the default folder
+    if (!decodedPath.includes('/')) {
+      relativePath = `default/${decodedPath}`
+      console.log('Using default folder for path:', relativePath)
+    }
     
     // Construct the full file path
-    const fullPath = path.join(process.cwd(), 'public', 'uploads', 'gallery', decodedPath)
+    let fullPath = path.join(process.cwd(), 'public', 'uploads', 'gallery', relativePath)
+    console.log('Full file path:', fullPath)
     
     // Check if file exists
     if (!existsSync(fullPath)) {
-      return NextResponse.json({ error: 'Image not found' }, { status: 404 })
+      console.log('File not found at path:', fullPath)
+      
+      // Try alternative paths if the file wasn't found
+      const galleryDir = path.join(process.cwd(), 'public', 'uploads', 'gallery')
+      const categories = ['default', 'entire-villa', 'family-suite', 'group-room', 'triple-room', 
+                         'dining-area', 'pool-deck', 'lake-garden', 'roof-garden', 'front-garden', 
+                         'koggala-lake', 'excursions']
+      
+      let foundPath = null
+      const filename = path.basename(decodedPath)
+      
+      for (const category of categories) {
+        const testPath = path.join(galleryDir, category, filename)
+        if (existsSync(testPath)) {
+          foundPath = testPath
+          console.log('Found file in alternative path:', testPath)
+          break
+        }
+      }
+      
+      if (!foundPath) {
+        return NextResponse.json({ 
+          error: 'Image not found', 
+          searchedPath: relativePath,
+          fullPath: fullPath
+        }, { status: 404 })
+      }
+      
+      // Update the path to the found file
+      fullPath = foundPath
+      relativePath = path.relative(path.join(process.cwd(), 'public', 'uploads', 'gallery'), foundPath)
     }
+
+    console.log('Updating metadata for file:', fullPath)
 
     // Create metadata object
     const metadata = {
       title: title || '',
       description: description || '',
       category: category || 'default',
-      tags: tags || [],
+      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map((t: string) => t.trim()) : []),
       seoTitle: seoTitle || '',
       seoDescription: seoDescription || '',
       altText: altText || '',
       updatedAt: new Date().toISOString()
     }
 
+    console.log('Saving metadata:', metadata)
+
     // Save metadata to a .meta.json file
     const metadataPath = fullPath + '.meta.json'
     await writeFile(metadataPath, JSON.stringify(metadata, null, 2))
+    
+    console.log('Metadata saved to:', metadataPath)
 
     return NextResponse.json({ 
       success: true, 
       message: 'Image metadata updated successfully',
       metadata,
-      imagePath: decodedPath
+      imagePath: relativePath
     })
   } catch (error) {
     console.error('Error updating image metadata:', error)
     return NextResponse.json({ 
       error: 'Failed to update image metadata',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      imageId: imageId
     }, { status: 500 })
   }
 } 

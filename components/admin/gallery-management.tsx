@@ -219,7 +219,19 @@ export default function GalleryManagement() {
     setIsSaving(true)
 
     try {
+      console.log('Saving item:', item.id, 'with data:', {
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        tags: item.tags,
+        seoTitle: item.seoTitle,
+        seoDescription: item.seoDescription,
+        altText: item.altText,
+      })
+
       const encodedId = encodeURIComponent(item.id)
+      console.log('Encoded ID for save:', encodedId)
+      
       const response = await fetch(`/api/gallery/${encodedId}`, {
         method: 'PUT',
         headers: {
@@ -236,26 +248,33 @@ export default function GalleryManagement() {
         }),
       })
 
+      console.log('Save response status:', response.status)
+
       if (!response.ok) {
-        throw new Error('Failed to update item')
+        const errorData = await response.json()
+        console.error('Save failed with response:', errorData)
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to save changes`)
       }
 
       const result = await response.json()
+      console.log('Save successful:', result)
       
       toast({
         title: "Success",
         description: "Item updated successfully",
       })
 
-      // Update item in local state
+      // Update the item in local state to reflect changes
       setMediaItems(prev => prev.map(i => i.id === item.id ? item : i))
       setEditingItem(null)
 
     } catch (error) {
-      console.error('Update error:', error)
+      console.error('Save error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save changes'
+      
       toast({
         title: "Error",
-        description: "Failed to update item",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {

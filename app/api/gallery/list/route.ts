@@ -75,12 +75,46 @@ export async function GET() {
         // Generate a unique ID based on category and filename
         const imageId = `${category}/${file}`
         
-        // Extract title from filename (remove timestamp and extension)
-        const title = file
-          .replace(/^\d+-\d+-/, '') // Remove timestamp prefix
-          .replace(/\.[^/.]+$/, '') // Remove extension
-          .replace(/[-_]/g, ' ') // Replace dashes and underscores with spaces
-          .replace(/\b\w/g, l => l.toUpperCase()) // Capitalize first letter of each word
+        // Check for metadata file
+        const metadataPath = filePath + '.meta.json'
+        let metadata = null
+        
+        if (fs.existsSync(metadataPath)) {
+          try {
+            const metadataContent = fs.readFileSync(metadataPath, 'utf-8')
+            metadata = JSON.parse(metadataContent)
+            console.log(`Loaded metadata for ${imageId}:`, metadata)
+          } catch (error) {
+            console.error(`Error reading metadata for ${imageId}:`, error)
+          }
+        }
+        
+        // Use metadata if available, otherwise generate from filename
+        let title, description, categoryDisplay, tags, seoTitle, seoDescription, altText
+        
+        if (metadata) {
+          title = metadata.title || file.replace(/^\d+-\d+-/, '').replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          description = metadata.description || `${isVideo ? 'Video' : 'Image'} from ${category.replace(/[-_]/g, ' ')} category`
+          categoryDisplay = metadata.category || category.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          tags = Array.isArray(metadata.tags) ? metadata.tags : [category, isVideo ? 'video' : 'image']
+          seoTitle = metadata.seoTitle || `${title} | Ko Lake Villa Gallery`
+          seoDescription = metadata.seoDescription || `${title} at Ko Lake Villa - luxury accommodation in Ahangama, Sri Lanka`
+          altText = metadata.altText || `${title} at Ko Lake Villa`
+        } else {
+          // Generate default metadata from filename
+          title = file
+            .replace(/^\d+-\d+-/, '') // Remove timestamp prefix
+            .replace(/\.[^/.]+$/, '') // Remove extension
+            .replace(/[-_]/g, ' ') // Replace dashes and underscores with spaces
+            .replace(/\b\w/g, l => l.toUpperCase()) // Capitalize first letter of each word
+          
+          description = `${isVideo ? 'Video' : 'Image'} from ${category.replace(/[-_]/g, ' ')} category`
+          categoryDisplay = category.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          tags = [category, isVideo ? 'video' : 'image']
+          seoTitle = `${title} | Ko Lake Villa Gallery`
+          seoDescription = `${title} at Ko Lake Villa - luxury accommodation in Ahangama, Sri Lanka`
+          altText = `${title} at Ko Lake Villa`
+        }
 
         // Get publish status for this image
         const publishInfo = publishStatus[imageId] || { isPublished: false }
@@ -90,12 +124,12 @@ export async function GET() {
           type: isVideo ? 'video' : 'image',
           url: `/uploads/gallery/${category}/${file}`,
           title,
-          description: `${isVideo ? 'Video' : 'Image'} from ${category.replace(/[-_]/g, ' ')} category`,
-          category: category.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-          tags: [category, isVideo ? 'video' : 'image'],
-          seoTitle: `${title} | Ko Lake Villa Gallery`,
-          seoDescription: `${title} at Ko Lake Villa - luxury accommodation in Ahangama, Sri Lanka`,
-          altText: `${title} at Ko Lake Villa`,
+          description,
+          category: categoryDisplay,
+          tags,
+          seoTitle,
+          seoDescription,
+          altText,
           uploadDate: stats.birthtime.toISOString().split('T')[0],
           filename: file,
           size: stats.size,
