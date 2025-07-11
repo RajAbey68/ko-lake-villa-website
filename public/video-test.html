@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Test - Ko Lake Villa</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .video-test { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        video { width: 100%; max-width: 600px; height: auto; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Ko Lake Villa - Video Accessibility Test</h1>
+    <p>This page tests if videos are properly served by Next.js</p>
+    
+    
+    <div class="video-test">
+        <h3>Video 1: 1747345835546-656953027-20250420_170537.mp4</h3>
+        <video controls preload="metadata" 
+               onloadstart="updateStatus('1747345835546-656953027-20250420_170537.mp4', 'Loading...', 'info')"
+               oncanplay="updateStatus('1747345835546-656953027-20250420_170537.mp4', 'Ready to play', 'success')"
+               onerror="updateStatus('1747345835546-656953027-20250420_170537.mp4', 'Failed to load', 'error')">
+            <source src="/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="status-1747345835546-656953027-20250420_170537.mp4" class="status">Initializing...</div>
+        <p><strong>URL:</strong> /uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4</p>
+    </div>
+    
+    <div class="video-test">
+        <h3>Video 2: 1747346948159-145995621-20250420_170258 (copy).mp4</h3>
+        <video controls preload="metadata" 
+               onloadstart="updateStatus('1747346948159-145995621-20250420_170258 (copy).mp4', 'Loading...', 'info')"
+               oncanplay="updateStatus('1747346948159-145995621-20250420_170258 (copy).mp4', 'Ready to play', 'success')"
+               onerror="updateStatus('1747346948159-145995621-20250420_170258 (copy).mp4', 'Failed to load', 'error')">
+            <source src="/uploads/gallery/default/1747346948159-145995621-20250420_170258 (copy).mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="status-1747346948159-145995621-20250420_170258 (copy).mp4" class="status">Initializing...</div>
+        <p><strong>URL:</strong> /uploads/gallery/default/1747346948159-145995621-20250420_170258 (copy).mp4</p>
+    </div>
+    
+    <div class="video-test">
+        <h3>Video 3: 1747346948159-145995621-20250420_170258.mp4</h3>
+        <video controls preload="metadata" 
+               onloadstart="updateStatus('1747346948159-145995621-20250420_170258.mp4', 'Loading...', 'info')"
+               oncanplay="updateStatus('1747346948159-145995621-20250420_170258.mp4', 'Ready to play', 'success')"
+               onerror="updateStatus('1747346948159-145995621-20250420_170258.mp4', 'Failed to load', 'error')">
+            <source src="/uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div id="status-1747346948159-145995621-20250420_170258.mp4" class="status">Initializing...</div>
+        <p><strong>URL:</strong> /uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4</p>
+    </div>
+    
+    
+    <script>
+        function updateStatus(filename, message, type) {
+            const statusEl = document.getElementById('status-' + filename);
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : '');
+        }
+        
+        // Test direct URL access
+        
+        fetch('/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4', { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ 1747345835546-656953027-20250420_170537.mp4 is accessible via HTTP');
+                } else {
+                    console.error('❌ 1747345835546-656953027-20250420_170537.mp4 HTTP error:', response.status);
+                    updateStatus('1747345835546-656953027-20250420_170537.mp4', 'HTTP Error: ' + response.status, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('❌ 1747345835546-656953027-20250420_170537.mp4 fetch error:', error);
+                updateStatus('1747345835546-656953027-20250420_170537.mp4', 'Network error: ' + error.message, 'error');
+            });
+        
+        fetch('/uploads/gallery/default/1747346948159-145995621-20250420_170258 (copy).mp4', { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ 1747346948159-145995621-20250420_170258 (copy).mp4 is accessible via HTTP');
+                } else {
+                    console.error('❌ 1747346948159-145995621-20250420_170258 (copy).mp4 HTTP error:', response.status);
+                    updateStatus('1747346948159-145995621-20250420_170258 (copy).mp4', 'HTTP Error: ' + response.status, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('❌ 1747346948159-145995621-20250420_170258 (copy).mp4 fetch error:', error);
+                updateStatus('1747346948159-145995621-20250420_170258 (copy).mp4', 'Network error: ' + error.message, 'error');
+            });
+        
+        fetch('/uploads/gallery/default/1747346948159-145995621-20250420_170258.mp4', { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ 1747346948159-145995621-20250420_170258.mp4 is accessible via HTTP');
+                } else {
+                    console.error('❌ 1747346948159-145995621-20250420_170258.mp4 HTTP error:', response.status);
+                    updateStatus('1747346948159-145995621-20250420_170258.mp4', 'HTTP Error: ' + response.status, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('❌ 1747346948159-145995621-20250420_170258.mp4 fetch error:', error);
+                updateStatus('1747346948159-145995621-20250420_170258.mp4', 'Network error: ' + error.message, 'error');
+            });
+        
+    </script>
+</body>
+</html>

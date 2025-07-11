@@ -144,11 +144,15 @@ export default function GlobalHeader() {
             <div className="hidden xl:flex items-center space-x-4 text-sm text-amber-600">
               <div className="flex items-center space-x-1">
                 <Phone className="w-4 h-4" />
-                <span>+94711730345</span>
+                <a href="tel:+94711730345" className="hover:text-orange-500 transition-colors">
+                  +94711730345
+                </a>
               </div>
               <div className="flex items-center space-x-1">
                 <Mail className="w-4 h-4" />
-                <span>contact@KoLakeHouse.com</span>
+                <a href="mailto:contact@KoLakeHouse.com" className="hover:text-orange-500 transition-colors">
+                  contact@KoLakeHouse.com
+                </a>
               </div>
             </div>
 
@@ -296,11 +300,15 @@ export default function GlobalHeader() {
               <div className="pt-4 border-t border-orange-100 space-y-2">
                 <div className="flex items-center space-x-2 text-sm text-amber-600 px-2">
                   <Phone className="w-4 h-4" />
-                  <span>+94711730345</span>
+                  <a href="tel:+94711730345" className="hover:text-orange-500 transition-colors">
+                    +94711730345
+                  </a>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-amber-600 px-2">
                   <Mail className="w-4 h-4" />
-                  <span>contact@KoLakeHouse.com</span>
+                  <a href="mailto:contact@KoLakeHouse.com" className="hover:text-orange-500 transition-colors">
+                    contact@KoLakeHouse.com
+                  </a>
                 </div>
               </div>
 

@@ -352,7 +352,9 @@ function BookingContent() {
                     <Mail className="w-5 h-5 text-amber-600" />
                     <div>
                       <div className="font-medium">Email</div>
-                      <div className="text-sm text-gray-600">contact@KoLakeHouse.com</div>
+                      <a href="mailto:contact@KoLakeHouse.com" className="text-sm text-gray-600 hover:text-amber-600 transition-colors">
+                        contact@KoLakeHouse.com
+                      </a>
                     </div>
                   </div>
                   <Button

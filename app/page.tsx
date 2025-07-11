@@ -502,8 +502,16 @@ export default function KoLakeVilla() {
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
               <div className="space-y-2 text-gray-400">
-                <div>+94711730345</div>
-                <div>contact@KoLakeHouse.com</div>
+                <div>
+                  <a href="tel:+94711730345" className="hover:text-amber-400 transition-colors">
+                    +94711730345
+                  </a>
+                </div>
+                <div>
+                  <a href="mailto:contact@KoLakeHouse.com" className="hover:text-amber-400 transition-colors">
+                    contact@KoLakeHouse.com
+                  </a>
+                </div>
                 <div>Kathaluwa West, Koggala Lake</div>
               </div>
             </div>

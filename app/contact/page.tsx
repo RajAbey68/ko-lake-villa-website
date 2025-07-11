@@ -218,7 +218,9 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">contact@KoLakeHouse.com</p>
+                      <a href="mailto:contact@KoLakeHouse.com" className="text-gray-600 hover:text-amber-600 transition-colors">
+                        contact@KoLakeHouse.com
+                      </a>
                       <p className="text-sm text-gray-500">Response within 24 hours</p>
                     </div>
                   </div>

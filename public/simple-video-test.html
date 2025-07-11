@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Video Test - Ko Lake Villa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .video-container {
+            margin: 20px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        video {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 4px;
+            background: #000;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Ko Lake Villa - Simple Video Test</h1>
+        <p>This page tests video playback functionality with the exact files from your gallery.</p>
+        
+        <div id="test-log"></div>
+        
+        <!-- Villa Walkthrough Tour -->
+        <div class="video-container">
+            <h3>Video 1: Complete Villa Walkthrough Tour (52MB)</h3>
+            <video id="video1" controls preload="metadata" poster="/placeholder.svg?height=400&width=600&text=Villa+Tour">
+                <source src="/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div id="status1" class="test-result info">Ready to test...</div>
+            <button class="btn" onclick="testVideo(1)">▶ Test Play Video 1</button>
+            <button class="btn" onclick="checkVideoDetails(1)">📊 Check Details</button>
+        </div>
+
+        <!-- Lake View Experience -->
+        <div class="video-container">
+            <h3>Video 2: Lake View Experience (13MB)</h3>
+            <video id="video2" controls preload="metadata" poster="/placeholder.svg?height=400&width=600&text=Lake+View">
+                <source src="/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div id="status2" class="test-result info">Ready to test...</div>
+            <button class="btn" onclick="testVideo(2)">▶ Test Play Video 2</button>
+            <button class="btn" onclick="checkVideoDetails(2)">📊 Check Details</button>
+        </div>
+
+        <!-- Sunset Over Lake -->
+        <div class="video-container">
+            <h3>Video 3: Sunset Over Lake (23MB)</h3>
+            <video id="video3" controls preload="metadata" poster="/placeholder.svg?height=400&width=600&text=Sunset">
+                <source src="/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div id="status3" class="test-result info">Ready to test...</div>
+            <button class="btn" onclick="testVideo(3)">▶ Test Play Video 3</button>
+            <button class="btn" onclick="checkVideoDetails(3)">📊 Check Details</button>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #e9ecef; border-radius: 4px;">
+            <h4>🔧 Troubleshooting Guide</h4>
+            <ul>
+                <li><strong>Video won't load:</strong> Check browser console (F12) for errors</li>
+                <li><strong>No controls visible:</strong> Try different browser (Chrome, Safari, Firefox)</li>
+                <li><strong>Autoplay blocked:</strong> Click play button manually</li>
+                <li><strong>Format issues:</strong> Videos are MP4 H.264 - should work on all modern browsers</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function updateStatus(videoId, message, type) {
+            const statusEl = document.getElementById(`status${videoId}`);
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `test-result ${type}`;
+            }
+        }
+
+        function testVideo(videoId) {
+            const video = document.getElementById(`video${videoId}`);
+            if (!video) {
+                log(`❌ Video ${videoId} element not found`, 'error');
+                return;
+            }
+
+            log(`🔄 Testing video ${videoId}...`, 'info');
+            updateStatus(videoId, 'Testing playback...', 'info');
+
+            // Reset video
+            video.currentTime = 0;
+            
+            // Try to play
+            const playPromise = video.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        log(`✅ Video ${videoId} started playing successfully`, 'success');
+                        updateStatus(videoId, '✅ Playing successfully!', 'success');
+                        
+                        // Pause after 3 seconds for testing
+                        setTimeout(() => {
+                            video.pause();
+                            log(`⏸️ Video ${videoId} paused for testing`, 'info');
+                        }, 3000);
+                    })
+                    .catch((error) => {
+                        log(`❌ Video ${videoId} failed to play: ${error.message}`, 'error');
+                        updateStatus(videoId, `❌ Failed: ${error.message}`, 'error');
+                    });
+            } else {
+                log(`⚠️ Video ${videoId} play() returned undefined`, 'error');
+                updateStatus(videoId, '⚠️ Playback promise unavailable', 'error');
+            }
+        }
+
+        function checkVideoDetails(videoId) {
+            const video = document.getElementById(`video${videoId}`);
+            if (!video) {
+                log(`❌ Video ${videoId} element not found`, 'error');
+                return;
+            }
+
+            const details = {
+                readyState: video.readyState,
+                networkState: video.networkState,
+                duration: video.duration,
+                videoWidth: video.videoWidth,
+                videoHeight: video.videoHeight,
+                currentSrc: video.currentSrc
+            };
+
+            log(`📊 Video ${videoId} Details:`, 'info');
+            log(`   Ready State: ${details.readyState} (0=HAVE_NOTHING, 1=HAVE_METADATA, 2=HAVE_CURRENT_DATA, 3=HAVE_FUTURE_DATA, 4=HAVE_ENOUGH_DATA)`, 'info');
+            log(`   Network State: ${details.networkState} (0=EMPTY, 1=IDLE, 2=LOADING, 3=NO_SOURCE)`, 'info');
+            log(`   Duration: ${details.duration} seconds`, 'info');
+            log(`   Dimensions: ${details.videoWidth} x ${details.videoHeight}`, 'info');
+            log(`   Source URL: ${details.currentSrc}`, 'info');
+
+            updateStatus(videoId, `Ready State: ${details.readyState}, Duration: ${details.duration}s`, 'info');
+        }
+
+        // Set up event listeners for all videos
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Simple Video Test Initialized', 'success');
+            
+            for (let i = 1; i <= 3; i++) {
+                const video = document.getElementById(`video${i}`);
+                if (video) {
+                    video.addEventListener('loadstart', () => {
+                        log(`🔄 Video ${i} started loading`, 'info');
+                        updateStatus(i, 'Loading...', 'info');
+                    });
+
+                    video.addEventListener('loadedmetadata', () => {
+                        log(`✅ Video ${i} metadata loaded`, 'success');
+                        updateStatus(i, '✅ Metadata loaded', 'success');
+                    });
+
+                    video.addEventListener('canplay', () => {
+                        log(`✅ Video ${i} can play`, 'success');
+                        updateStatus(i, '✅ Ready to play', 'success');
+                    });
+
+                    video.addEventListener('error', (e) => {
+                        const error = video.error;
+                        const errorMessage = error ? `Error ${error.code}: ${error.message}` : 'Unknown error';
+                        log(`❌ Video ${i} error: ${errorMessage}`, 'error');
+                        updateStatus(i, `❌ Error: ${errorMessage}`, 'error');
+                    });
+
+                    video.addEventListener('play', () => {
+                        log(`▶️ Video ${i} started playing`, 'success');
+                    });
+
+                    video.addEventListener('pause', () => {
+                        log(`⏸️ Video ${i} paused`, 'info');
+                    });
+                }
+            }
+
+            // Test URL accessibility
+            setTimeout(() => {
+                const videoUrls = [
+                    '/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4',
+                    '/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4',
+                    '/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4'
+                ];
+
+                videoUrls.forEach((url, index) => {
+                    fetch(url, { method: 'HEAD' })
+                        .then(response => {
+                            if (response.ok) {
+                                log(`✅ Video ${index + 1} URL is accessible (HTTP ${response.status})`, 'success');
+                            } else {
+                                log(`❌ Video ${index + 1} URL returned HTTP ${response.status}`, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            log(`❌ Video ${index + 1} URL fetch failed: ${error.message}`, 'error');
+                        });
+                });
+            }, 2000);
+        });
+    </script>
+</body>
+</html> 

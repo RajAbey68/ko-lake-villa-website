@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Video Test - Ko Lake Villa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-video {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 Direct Video Test - Ko Lake Villa</h1>
+        <p><strong>Browser:</strong> <span id="browser-info"></span></p>
+        <p><strong>Testing direct HTML5 video playback...</strong></p>
+        
+        <div class="status info" id="test-status">Initializing test...</div>
+        
+        <h3>Test 1: Complete Villa Walkthrough Tour</h3>
+        <video 
+            id="video1" 
+            class="test-video" 
+            controls 
+            preload="metadata"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23f0f0f0'/%3E%3Ctext x='300' y='200' text-anchor='middle' font-family='Arial' font-size='20' fill='%23666'%3EClick to Load Video%3C/text%3E%3C/svg%3E">
+            <source src="/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="status info" id="status1">Loading...</div>
+        <button onclick="testVideo1()">▶️ Test Play Video 1</button>
+        <button onclick="checkVideo1()">🔍 Check Video 1 Status</button>
+        
+        <h3>Test 2: Lake View Experience</h3>
+        <video 
+            id="video2" 
+            class="test-video" 
+            controls 
+            preload="metadata"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23f0f0f0'/%3E%3Ctext x='300' y='200' text-anchor='middle' font-family='Arial' font-size='20' fill='%23666'%3EClick to Load Video%3C/text%3E%3C/svg%3E">
+            <source src="/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="status info" id="status2">Loading...</div>
+        <button onclick="testVideo2()">▶️ Test Play Video 2</button>
+        <button onclick="checkVideo2()">🔍 Check Video 2 Status</button>
+        
+        <h3>Test 3: Sunset Over Lake</h3>
+        <video 
+            id="video3" 
+            class="test-video" 
+            controls 
+            preload="metadata"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect width='600' height='400' fill='%23f0f0f0'/%3E%3Ctext x='300' y='200' text-anchor='middle' font-family='Arial' font-size='20' fill='%23666'%3EClick to Load Video%3C/text%3E%3C/svg%3E">
+            <source src="/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </source>
+        <div class="status info" id="status3">Loading...</div>
+        <button onclick="testVideo3()">▶️ Test Play Video 3</button>
+        <button onclick="checkVideo3()">🔍 Check Video 3 Status</button>
+        
+        <h3>🔧 Browser Information</h3>
+        <div id="debug-info" style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px;"></div>
+        
+        <h3>📝 Test Instructions</h3>
+        <ol>
+            <li>Click the "Test Play" buttons to attempt autoplay</li>
+            <li>Click directly on the video player controls</li>
+            <li>Check the status messages for each video</li>
+            <li>Try playing videos in different browsers (Chrome, Firefox, Safari)</li>
+        </ol>
+    </div>
+
+    <script>
+        function updateStatus(videoId, message, type) {
+            const statusEl = document.getElementById(`status${videoId}`);
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function logInfo(message) {
+            const debugDiv = document.getElementById('debug-info');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            console.log(message);
+        }
+
+        // Browser detection
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            if (ua.includes('Chrome')) browser = 'Chrome';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Safari')) browser = 'Safari';
+            else if (ua.includes('Edge')) browser = 'Edge';
+            
+            return `${browser} - ${navigator.platform}`;
+        }
+
+        function testVideo1() {
+            const video = document.getElementById('video1');
+            video.play().then(() => {
+                updateStatus(1, '✅ Video 1 playing successfully!', 'success');
+                logInfo('Video 1 started playing');
+            }).catch(error => {
+                updateStatus(1, `❌ Error playing video 1: ${error.message}`, 'error');
+                logInfo(`Video 1 error: ${error.message}`);
+            });
+        }
+
+        function testVideo2() {
+            const video = document.getElementById('video2');
+            video.play().then(() => {
+                updateStatus(2, '✅ Video 2 playing successfully!', 'success');
+                logInfo('Video 2 started playing');
+            }).catch(error => {
+                updateStatus(2, `❌ Error playing video 2: ${error.message}`, 'error');
+                logInfo(`Video 2 error: ${error.message}`);
+            });
+        }
+
+        function testVideo3() {
+            const video = document.getElementById('video3');
+            video.play().then(() => {
+                updateStatus(3, '✅ Video 3 playing successfully!', 'success');
+                logInfo('Video 3 started playing');
+            }).catch(error => {
+                updateStatus(3, `❌ Error playing video 3: ${error.message}`, 'error');
+                logInfo(`Video 3 error: ${error.message}`);
+            });
+        }
+
+        function checkVideo1() {
+            const video = document.getElementById('video1');
+            logInfo(`Video 1 - Ready State: ${video.readyState}, Network State: ${video.networkState}, Duration: ${video.duration}`);
+        }
+
+        function checkVideo2() {
+            const video = document.getElementById('video2');
+            logInfo(`Video 2 - Ready State: ${video.readyState}, Network State: ${video.networkState}, Duration: ${video.duration}`);
+        }
+
+        function checkVideo3() {
+            const video = document.getElementById('video3');
+            logInfo(`Video 3 - Ready State: ${video.readyState}, Network State: ${video.networkState}, Duration: ${video.duration}`);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('browser-info').textContent = getBrowserInfo();
+            document.getElementById('test-status').textContent = '✅ Test page loaded successfully';
+            document.getElementById('test-status').className = 'status success';
+            
+            logInfo('🚀 Direct video test initialized');
+            logInfo(`Browser: ${getBrowserInfo()}`);
+            logInfo(`User Agent: ${navigator.userAgent}`);
+            
+            // Setup video event listeners
+            [1, 2, 3].forEach(i => {
+                const video = document.getElementById(`video${i}`);
+                
+                video.addEventListener('loadstart', () => {
+                    updateStatus(i, 'Loading video...', 'info');
+                    logInfo(`Video ${i}: Load started`);
+                });
+                
+                video.addEventListener('loadedmetadata', () => {
+                    updateStatus(i, `✅ Loaded - ${video.duration.toFixed(1)}s, ${video.videoWidth}x${video.videoHeight}`, 'success');
+                    logInfo(`Video ${i}: Metadata loaded - ${video.duration}s, ${video.videoWidth}x${video.videoHeight}`);
+                });
+                
+                video.addEventListener('error', (e) => {
+                    const error = video.error;
+                    const errorMsg = error ? `Error ${error.code}: ${getMediaErrorMessage(error.code)}` : 'Unknown error';
+                    updateStatus(i, `❌ ${errorMsg}`, 'error');
+                    logInfo(`Video ${i}: ERROR - ${errorMsg}`);
+                });
+                
+                video.addEventListener('canplay', () => {
+                    logInfo(`Video ${i}: Can play`);
+                });
+            });
+        });
+
+        function getMediaErrorMessage(code) {
+            switch(code) {
+                case 1: return 'MEDIA_ERR_ABORTED';
+                case 2: return 'MEDIA_ERR_NETWORK';
+                case 3: return 'MEDIA_ERR_DECODE';
+                case 4: return 'MEDIA_ERR_SRC_NOT_SUPPORTED';
+                default: return 'Unknown error';
+            }
+        }
+    </script>
+</body>
+</html> 
