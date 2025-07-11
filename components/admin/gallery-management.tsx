@@ -49,6 +49,7 @@ export default function GalleryManagement() {
   const [isSaving, setIsSaving] = useState(false)
   const [publishingId, setPublishingId] = useState<string | null>(null)
   const [viewingImage, setViewingImage] = useState<MediaItem | null>(null)
+  const [campaignText, setCampaignText] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -202,19 +203,56 @@ export default function GalleryManagement() {
   const generateAISEO = async (item: MediaItem) => {
     setIsGeneratingAI(true)
 
-    // Simulate AI generation
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/gallery/ai-seo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrl: item.url,
+          currentTitle: item.title,
+          currentDescription: item.description,
+          category: item.category,
+          campaignText: campaignText,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate AI content')
+      }
+
+      const aiResult = await response.json()
+      
       const updatedItem = {
         ...item,
-        seoTitle: `${item.title} | Ko Lake Villa Luxury Accommodation Sri Lanka`,
-        seoDescription: `${item.description} Perfect for luxury travelers seeking premium villa rental in Ahangama, Sri Lanka. Book direct and save 10%.`,
-        altText: `${item.title} at Ko Lake Villa - luxury villa rental in Ahangama Sri Lanka`,
+        seoTitle: aiResult.seoTitle,
+        seoDescription: aiResult.seoDescription,
+        altText: aiResult.altText,
+        tags: [...new Set([...item.tags, ...aiResult.suggestedTags])], // Merge existing tags with AI suggestions
       }
 
       setMediaItems((prev) => prev.map((i) => (i.id === item.id ? updatedItem : i)))
       setSelectedItem(updatedItem)
+      
+      toast({
+        title: "AI SEO Generated",
+        description: `Generated optimized content with ${Math.round(aiResult.confidence * 100)}% confidence`,
+      })
+
+    } catch (error) {
+      console.error('AI SEO generation error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI content'
+      
+      toast({
+        title: "AI Generation Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
       setIsGeneratingAI(false)
-    }, 2000)
+    }
   }
 
   const handleSaveEdit = async (item: MediaItem) => {
@@ -509,6 +547,38 @@ export default function GalleryManagement() {
         </TabsContent>
 
         <TabsContent value="seo" className="space-y-4">
+          {/* Campaign Text Input */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-600" />
+                Campaign Focus & Target Audience
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600">
+                  Provide campaign context to bias AI generation towards specific audiences and messaging (up to 500 words):
+                </p>
+                <Textarea
+                  placeholder="Example: Target wellness travelers and digital nomads seeking luxury eco-retreat experiences. Emphasize sustainability, yoga-friendly spaces, high-speed internet, and proximity to surf beaches. Focus on 'escape to productivity' and 'mindful luxury' themes..."
+                  value={campaignText}
+                  onChange={(e) => setCampaignText(e.target.value)}
+                  className="min-h-[120px] resize-none"
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-gray-500">
+                    This context helps AI generate more targeted SEO content and alt text
+                  </p>
+                  <span className="text-xs text-gray-500">
+                    {campaignText.length}/500
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {selectedItem ? (
             <Card>
               <CardHeader>
