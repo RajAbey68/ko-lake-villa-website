@@ -257,6 +257,11 @@ export default function GalleryManagement() {
       setMediaItems((prev) => prev.map((i) => (i.id === item.id ? updatedItem : i)))
       setSelectedItem(updatedItem)
       
+      // If this item is currently being edited, update the editing state as well
+      if (editingItem && editingItem.id === item.id) {
+        setEditingItem(updatedItem)
+      }
+      
       toast({
         title: "AI SEO Generated",
         description: `Generated optimized content with ${Math.round(aiResult.confidence * 100)}% confidence`,
@@ -862,17 +867,50 @@ export default function GalleryManagement() {
                 </div>
               </div>
 
+              {/* AI Generation Section */}
+              <div className="border-t pt-4">
+                {activeCampaign && (
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200 mb-3">
+                    <p className="text-sm text-green-800 font-medium">
+                      🎯 Active Campaign: {activeCampaign.name}
+                    </p>
+                    <p className="text-xs text-green-700">
+                      AI will generate content based on this campaign strategy
+                    </p>
+                  </div>
+                )}
+                
+                <Button
+                  onClick={() => generateAISEO(editingItem)}
+                  disabled={isGeneratingAI}
+                  variant="outline"
+                  className="w-full mb-3 border-amber-600 text-amber-600 hover:bg-amber-50"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {isGeneratingAI ? "Generating AI SEO..." : "Generate AI SEO Content"}
+                </Button>
+                
+                {isGeneratingAI && (
+                  <Alert className="mb-3">
+                    <Sparkles className="h-4 w-4" />
+                    <AlertDescription>
+                      AI is analyzing this {editingItem.type} and generating optimized SEO content...
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
               <div className="flex gap-2 justify-end pt-4">
                 <Button 
                   variant="outline" 
                   onClick={() => setEditingItem(null)}
-                  disabled={isSaving}
+                  disabled={isSaving || isGeneratingAI}
                 >
                   Cancel
                 </Button>
                 <Button 
                   onClick={() => handleSaveEdit(editingItem)}
-                  disabled={isSaving}
+                  disabled={isSaving || isGeneratingAI}
                   className="bg-amber-600 hover:bg-amber-700"
                 >
                   {isSaving ? "Saving..." : "Save Changes"}
