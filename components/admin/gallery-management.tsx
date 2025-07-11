@@ -50,6 +50,7 @@ export default function GalleryManagement() {
   const [publishingId, setPublishingId] = useState<string | null>(null)
   const [viewingImage, setViewingImage] = useState<MediaItem | null>(null)
   const [campaignText, setCampaignText] = useState("")
+  const [activeCampaign, setActiveCampaign] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -100,6 +101,26 @@ export default function GalleryManagement() {
   // Load gallery items on component mount
   useEffect(() => {
     loadGalleryItems()
+  }, [])
+
+  // Load active campaign on mount
+  useEffect(() => {
+    const loadActiveCampaign = () => {
+      const savedCampaigns = localStorage.getItem('kolake-campaigns')
+      if (savedCampaigns) {
+        try {
+          const campaigns = JSON.parse(savedCampaigns)
+          const active = campaigns.find((c: any) => c.isActive)
+          if (active) {
+            setActiveCampaign(active)
+            setCampaignText(active.campaignText)
+          }
+        } catch (error) {
+          console.error('Error loading active campaign:', error)
+        }
+      }
+    }
+    loadActiveCampaign()
   }, [])
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,6 +261,23 @@ export default function GalleryManagement() {
         title: "AI SEO Generated",
         description: `Generated optimized content with ${Math.round(aiResult.confidence * 100)}% confidence`,
       })
+
+      // Update campaign usage count if using active campaign
+      if (activeCampaign && campaignText === activeCampaign.campaignText) {
+        try {
+          const savedCampaigns = localStorage.getItem('kolake-campaigns')
+          if (savedCampaigns) {
+            const campaigns = JSON.parse(savedCampaigns)
+            const updatedCampaigns = campaigns.map((c: any) => 
+              c.id === activeCampaign.id ? { ...c, usageCount: c.usageCount + 1 } : c
+            )
+            localStorage.setItem('kolake-campaigns', JSON.stringify(updatedCampaigns))
+            setActiveCampaign({ ...activeCampaign, usageCount: activeCampaign.usageCount + 1 })
+          }
+        } catch (error) {
+          console.error('Error updating campaign usage:', error)
+        }
+      }
 
     } catch (error) {
       console.error('AI SEO generation error:', error)
@@ -553,27 +591,61 @@ export default function GalleryManagement() {
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-600" />
                 Campaign Focus & Target Audience
+                {activeCampaign && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    Active: {activeCampaign.name}
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <p className="text-sm text-gray-600">
-                  Provide campaign context to bias AI generation towards specific audiences and messaging (up to 500 words):
-                </p>
-                <Textarea
-                  placeholder="Example: Target wellness travelers and digital nomads seeking luxury eco-retreat experiences. Emphasize sustainability, yoga-friendly spaces, high-speed internet, and proximity to surf beaches. Focus on 'escape to productivity' and 'mindful luxury' themes..."
-                  value={campaignText}
-                  onChange={(e) => setCampaignText(e.target.value)}
-                  className="min-h-[120px] resize-none"
-                  maxLength={500}
-                />
-                <div className="flex justify-between items-center">
-                  <p className="text-xs text-gray-500">
-                    This context helps AI generate more targeted SEO content and alt text
+                {activeCampaign ? (
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <p className="text-sm text-green-800 font-medium mb-2">
+                      🎯 Active Campaign: {activeCampaign.name}
+                    </p>
+                    <p className="text-sm text-green-700 mb-2">
+                      <strong>Target:</strong> {activeCampaign.targetAudience}
+                    </p>
+                    <p className="text-sm text-green-700">
+                      <strong>Strategy:</strong> {activeCampaign.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {activeCampaign.keywords.slice(0, 5).map((keyword: string, index: number) => (
+                        <Badge key={index} variant="outline" className="text-xs border-green-300 text-green-700">
+                          {keyword}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                    <p className="text-sm text-amber-800">
+                      ⚠️ No active campaign found. Go to the Campaign Manager to create and activate a campaign strategy.
+                    </p>
+                  </div>
+                )}
+                
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {activeCampaign ? 'Campaign text (auto-loaded from active campaign):' : 'Manual campaign text:'}
                   </p>
-                  <span className="text-xs text-gray-500">
-                    {campaignText.length}/500
-                  </span>
+                  <Textarea
+                    placeholder="Example: Target wellness travelers and digital nomads seeking luxury eco-retreat experiences. Emphasize sustainability, yoga-friendly spaces, high-speed internet, and proximity to surf beaches. Focus on 'escape to productivity' and 'mindful luxury' themes..."
+                    value={campaignText}
+                    onChange={(e) => setCampaignText(e.target.value)}
+                    className="min-h-[120px] resize-none"
+                    maxLength={500}
+                  />
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-gray-500">
+                      This context helps AI generate more targeted SEO content and alt text
+                    </p>
+                    <span className="text-xs text-gray-500">
+                      {campaignText.length}/500
+                    </span>
+                  </div>
                 </div>
               </div>
             </CardContent>
