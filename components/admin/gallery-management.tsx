@@ -48,6 +48,7 @@ export default function GalleryManagement() {
   const [editingItem, setEditingItem] = useState<MediaItem | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [publishingId, setPublishingId] = useState<string | null>(null)
+  const [viewingImage, setViewingImage] = useState<MediaItem | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -411,7 +412,8 @@ export default function GalleryManagement() {
                     <img
                       src={item.url || "/placeholder.svg"}
                       alt={item.altText || item.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setViewingImage(item)}
                     />
                   ) : (
                     <video
@@ -763,6 +765,43 @@ export default function GalleryManagement() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Image Viewing Modal */}
+      {viewingImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+          onClick={() => setViewingImage(null)}
+        >
+          <div className="relative max-w-[90vw] max-h-[90vh] p-4">
+            <button
+              onClick={() => setViewingImage(null)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={viewingImage.url}
+              alt={viewingImage.altText || viewingImage.title}
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 rounded-b-lg">
+              <h3 className="text-white font-semibold text-lg">{viewingImage.title}</h3>
+              <p className="text-gray-200 text-sm">{viewingImage.description}</p>
+              <div className="flex gap-2 mt-2">
+                <span className="bg-amber-600 text-white text-xs px-2 py-1 rounded">
+                  {viewingImage.category}
+                </span>
+                <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded">
+                  {(viewingImage.size / 1024).toFixed(1)} KB
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
