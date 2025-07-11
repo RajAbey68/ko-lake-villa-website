@@ -37,11 +37,11 @@ export default function GlobalHeader() {
 
   const navigationItems = [
     { id: "home", label: "Home", href: "/" },
-    { id: "accommodation", label: "Accommodation", href: "/#accommodation" },
-    { id: "dining", label: "Dining", href: "/#dining" },
-    { id: "experiences", label: "Experiences", href: "/excursions" },
+    { id: "accommodation", label: "Accommodation", href: "/accommodation" },
+    { id: "dining", label: "Dining", href: "/dining" },
+    { id: "experiences", label: "Experiences", href: "/experiences" },
     { id: "gallery", label: "Gallery", href: "/gallery" },
-    { id: "contact", label: "Contact", href: "/#contact" },
+    { id: "contact", label: "Contact", href: "/contact" },
   ]
 
   useEffect(() => {
@@ -99,24 +99,6 @@ export default function GlobalHeader() {
     router.push("/")
   }
 
-  const handleNavigation = (href: string) => {
-    setIsMobileMenuOpen(false)
-
-    if (href.startsWith("/#")) {
-      // Handle anchor links
-      if (pathname === "/") {
-        const element = document.getElementById(href.substring(2))
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" })
-        }
-      } else {
-        router.push(href)
-      }
-    } else {
-      router.push(href)
-    }
-  }
-
   const getRoleColor = (role: string) => {
     switch (role) {
       case "admin":
@@ -142,9 +124,9 @@ export default function GlobalHeader() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex space-x-8">
             {navigationItems.map((item) => (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => handleNavigation(item.href)}
+                href={item.href}
                 className={`text-sm font-medium transition-colors hover:text-orange-500 ${
                   pathname === item.href || (item.href === "/" && pathname === "/")
                     ? "text-orange-500"
@@ -152,7 +134,7 @@ export default function GlobalHeader() {
                 }`}
               >
                 {item.label}
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -296,9 +278,10 @@ export default function GlobalHeader() {
           <div className="lg:hidden border-t border-orange-100 py-4">
             <nav className="flex flex-col space-y-3">
               {navigationItems.map((item) => (
-                <button
+                <Link
                   key={item.id}
-                  onClick={() => handleNavigation(item.href)}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={`text-left px-2 py-2 text-sm font-medium transition-colors hover:text-orange-500 ${
                     pathname === item.href || (item.href === "/" && pathname === "/")
                       ? "text-orange-500 bg-orange-50 rounded"
@@ -306,7 +289,7 @@ export default function GlobalHeader() {
                   }`}
                 >
                   {item.label}
-                </button>
+                </Link>
               ))}
 
               {/* Mobile Contact Info */}
