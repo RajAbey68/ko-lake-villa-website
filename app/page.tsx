@@ -92,21 +92,7 @@ export default function KoLakeVilla() {
           <div className="max-w-4xl mx-auto px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
             <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
-            <p className="text-lg md:text-xl mb-4 font-light italic">Relax, Revive, Connect</p>
-            <div className="flex items-center justify-center mb-4">
-              <MapPin className="w-5 h-5 mr-2" />
-              <span className="text-lg">Koggala Lake, Galle District</span>
-            </div>
-            <div className="flex items-center justify-center mb-8 space-x-6">
-              <div className="flex items-center">
-                <Phone className="w-5 h-5 mr-2" />
-                <a href="tel:+94711730345" className="text-lg hover:text-amber-200">+94711730345</a>
-              </div>
-              <div className="flex items-center">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                <a href="https://wa.me/94711730345" target="_blank" rel="noopener noreferrer" className="text-lg hover:text-amber-200">WhatsApp</a>
-              </div>
-            </div>
+            <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Connect</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="/accommodation">
                 <Button
