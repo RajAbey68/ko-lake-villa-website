@@ -176,9 +176,12 @@ export default function GalleryManagement() {
         description: "Item deleted successfully",
       })
 
-      // Remove item from local state
+      // Update local state immediately
       setMediaItems(prev => prev.filter(item => item.id !== itemId))
       setDeleteConfirmId(null)
+      
+      // Also reload gallery items to ensure complete sync
+      await loadGalleryItems()
 
     } catch (error) {
       console.error('Delete error:', error)
