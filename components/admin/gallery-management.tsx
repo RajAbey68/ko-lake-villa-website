@@ -268,9 +268,12 @@ export default function GalleryManagement() {
         description: "Item updated successfully",
       })
 
-      // Update the item in local state to reflect changes
+      // Update the item in local state to reflect changes immediately
       setMediaItems(prev => prev.map(i => i.id === item.id ? item : i))
       setEditingItem(null)
+      
+      // Also reload gallery items to ensure complete sync with server
+      await loadGalleryItems()
 
     } catch (error) {
       console.error('Save error:', error)
