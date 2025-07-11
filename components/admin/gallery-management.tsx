@@ -151,16 +151,25 @@ export default function GalleryManagement() {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
+      console.log('Deleting item with ID:', itemId)
+      
       const encodedId = encodeURIComponent(itemId)
+      console.log('Encoded ID for API call:', encodedId)
+      
       const response = await fetch(`/api/gallery/${encodedId}`, {
         method: 'DELETE'
       })
 
+      console.log('Delete response status:', response.status)
+      
       if (!response.ok) {
-        throw new Error('Failed to delete item')
+        const errorData = await response.json()
+        console.error('Delete failed with response:', errorData)
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to delete item`)
       }
 
       const result = await response.json()
+      console.log('Delete successful:', result)
       
       toast({
         title: "Success",
@@ -173,11 +182,16 @@ export default function GalleryManagement() {
 
     } catch (error) {
       console.error('Delete error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete item'
+      
       toast({
         title: "Error",
-        description: "Failed to delete item",
+        description: errorMessage,
         variant: "destructive",
       })
+      
+      // Still close the dialog even on error
+      setDeleteConfirmId(null)
     }
   }
 
