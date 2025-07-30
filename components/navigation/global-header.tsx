@@ -113,53 +113,51 @@ export default function GlobalHeader() {
   }
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-orange-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className="nav-header">
+      <div className="nav-container">
+        <div className="nav-content">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-amber-800 hover:text-amber-600 transition-colors">Ko Lake Villa</h1>
+          <Link href="/" className="nav-logo">
+            <h1 className="nav-logo-text">Ko Lake Villa</h1>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-8">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-orange-500 ${
-                  pathname === item.href || (item.href === "/" && pathname === "/")
-                    ? "text-orange-500"
-                    : "text-amber-700"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          <nav className="nav-desktop">
+            <div className="nav-menu">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={`nav-link ${
+                    pathname === item.href || (item.href === "/" && pathname === "/")
+                      ? "nav-link-active"
+                      : "nav-link-inactive"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </nav>
 
           {/* Right Side - Auth & Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="nav-actions">
             {/* Contact Info (Desktop) */}
-            <div className="hidden xl:flex items-center space-x-4 text-sm text-amber-600">
-              <div className="flex items-center space-x-1">
+            <div className="nav-contact-info">
+              <a href="tel:+94711730345" className="nav-contact-link">
                 <Phone className="w-4 h-4" />
-                <a href="tel:+94711730345" className="hover:text-orange-500 transition-colors">
-                  +94711730345
-                </a>
-              </div>
-              <div className="flex items-center space-x-1">
+                <span>+94711730345</span>
+              </a>
+              <a href="mailto:contact@KoLakeHouse.com" className="nav-contact-link">
                 <Mail className="w-4 h-4" />
-                <a href="mailto:contact@KoLakeHouse.com" className="hover:text-orange-500 transition-colors">
-                  contact@KoLakeHouse.com
-                </a>
-              </div>
+                <span>contact@KoLakeHouse.com</span>
+              </a>
             </div>
 
             {/* Book Now Button */}
             <Button
               onClick={() => window.open("https://www.guesty.com/ko-lake-villa", "_blank")}
-              className="hidden sm:flex bg-orange-500 hover:bg-orange-600 text-white"
+              className="nav-book-button"
             >
               Book Now
             </Button>
@@ -168,7 +166,7 @@ export default function GlobalHeader() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full flex-shrink-0">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                       <AvatarFallback className="bg-amber-100 text-amber-800">
@@ -236,7 +234,7 @@ export default function GlobalHeader() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-amber-700 border-amber-200 hover:bg-amber-50 bg-transparent"
+                    className="nav-staff-login hidden sm:flex"
                     disabled={isLoading}
                   >
                     <LogIn className="w-4 h-4 mr-2" />
@@ -269,8 +267,9 @@ export default function GlobalHeader() {
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden"
+              className="nav-mobile-button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
@@ -279,17 +278,17 @@ export default function GlobalHeader() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-orange-100 py-4">
-            <nav className="flex flex-col space-y-3">
+          <div className="nav-mobile">
+            <nav className="nav-mobile-menu">
               {navigationItems.map((item) => (
                 <Link
                   key={item.id}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`text-left px-2 py-2 text-sm font-medium transition-colors hover:text-orange-500 ${
+                  className={`nav-mobile-link ${
                     pathname === item.href || (item.href === "/" && pathname === "/")
-                      ? "text-orange-500 bg-orange-50 rounded"
-                      : "text-amber-700"
+                      ? "nav-mobile-link-active"
+                      : "nav-mobile-link-inactive"
                   }`}
                 >
                   {item.label}
@@ -297,19 +296,15 @@ export default function GlobalHeader() {
               ))}
 
               {/* Mobile Contact Info */}
-              <div className="pt-4 border-t border-orange-100 space-y-2">
-                <div className="flex items-center space-x-2 text-sm text-amber-600 px-2">
+              <div className="nav-mobile-contact">
+                <a href="tel:+94711730345" className="nav-mobile-contact-link">
                   <Phone className="w-4 h-4" />
-                  <a href="tel:+94711730345" className="hover:text-orange-500 transition-colors">
-                    +94711730345
-                  </a>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-amber-600 px-2">
+                  <span>+94711730345</span>
+                </a>
+                <a href="mailto:contact@KoLakeHouse.com" className="nav-mobile-contact-link">
                   <Mail className="w-4 h-4" />
-                  <a href="mailto:contact@KoLakeHouse.com" className="hover:text-orange-500 transition-colors">
-                    contact@KoLakeHouse.com
-                  </a>
-                </div>
+                  <span>contact@KoLakeHouse.com</span>
+                </a>
               </div>
 
               {/* Mobile Book Now */}
@@ -318,7 +313,7 @@ export default function GlobalHeader() {
                   setIsMobileMenuOpen(false)
                   window.open("https://www.guesty.com/ko-lake-villa", "_blank")
                 }}
-                className="mx-2 bg-orange-500 hover:bg-orange-600 text-white"
+                className="nav-mobile-book"
               >
                 Book Now
               </Button>

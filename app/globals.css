@@ -92,3 +92,363 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Navigation Component Styles */
+@layer components {
+  /* Main Navigation Header */
+  .nav-header {
+    @apply bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-orange-100;
+    /* Ensure consistent height and prevent content shift */
+    min-height: 64px;
+  }
+  
+  .nav-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .nav-content {
+    @apply flex justify-between items-center h-16;
+    /* Ensure proper alignment */
+    min-height: 64px;
+    gap: 1rem; /* Add gap to prevent overlap */
+  }
+  
+  /* Logo Styles */
+  .nav-logo {
+    @apply flex items-center flex-shrink-0;
+    /* Prevent logo from shrinking on small screens */
+    min-width: fit-content;
+    max-width: 200px; /* Prevent logo from taking too much space */
+  }
+  
+  .nav-logo-text {
+    @apply text-2xl font-bold text-amber-800 hover:text-amber-600 transition-colors duration-200;
+    /* Ensure text doesn't wrap */
+    white-space: nowrap;
+  }
+  
+  /* Desktop Navigation */
+  .nav-desktop {
+    @apply hidden lg:flex items-center justify-center flex-1;
+    /* Center the navigation menu */
+    min-width: 0; /* Allow shrinking */
+    margin: 0 1rem; /* Add margin to prevent overlap */
+  }
+  
+  .nav-menu {
+    @apply flex items-center justify-center;
+    /* Dynamic spacing based on screen size */
+    gap: clamp(0.5rem, 2vw, 2rem);
+    flex-wrap: nowrap;
+    min-width: 0; /* Allow shrinking */
+  }
+  
+  .nav-link {
+    @apply text-sm font-medium transition-colors duration-200 hover:text-orange-500 px-2 py-1 rounded-md;
+    /* Prevent text wrapping and ensure consistent padding */
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent link shrinking */
+  }
+  
+  .nav-link-active {
+    @apply text-orange-500 bg-orange-50;
+  }
+  
+  .nav-link-inactive {
+    @apply text-amber-700;
+  }
+  
+  /* Right Side Actions */
+  .nav-actions {
+    @apply flex items-center flex-shrink-0;
+    /* Dynamic spacing based on screen size */
+    gap: clamp(0.5rem, 1vw, 1rem);
+    min-width: fit-content;
+  }
+  
+  .nav-contact-info {
+    @apply hidden xl:flex items-center;
+    /* Dynamic spacing for contact info */
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+    min-width: fit-content;
+    font-size: 0.875rem;
+    color: rgb(217 119 6); /* amber-600 */
+  }
+  
+  .nav-contact-link {
+    @apply flex items-center hover:text-orange-500 transition-colors duration-200;
+    /* Prevent wrapping of contact info */
+    white-space: nowrap;
+    gap: 0.25rem;
+  }
+  
+  .nav-book-button {
+    @apply hidden sm:flex bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200 px-4 py-2 rounded-md font-medium text-sm;
+    /* Ensure button text doesn't wrap */
+    white-space: nowrap;
+    min-width: fit-content;
+  }
+  
+  /* Staff Login Button */
+  .nav-staff-login {
+    @apply text-amber-700 border border-amber-200 hover:bg-amber-50 bg-transparent px-3 py-1 rounded text-sm font-medium transition-colors duration-200;
+    white-space: nowrap;
+    min-width: fit-content;
+  }
+  
+  /* Mobile Menu Button */
+  .nav-mobile-button {
+    @apply lg:hidden p-2 rounded-md text-amber-700 hover:text-orange-500 hover:bg-orange-50 transition-colors duration-200;
+    /* Ensure consistent button size */
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Mobile Navigation */
+  .nav-mobile {
+    @apply lg:hidden border-t border-orange-100 py-4 bg-white/95 backdrop-blur-sm;
+    /* Ensure mobile menu appears above other content */
+    position: relative;
+    z-index: 40;
+  }
+  
+  .nav-mobile-menu {
+    @apply flex flex-col space-y-1;
+  }
+  
+  .nav-mobile-link {
+    @apply text-left px-3 py-3 text-sm font-medium transition-colors duration-200 hover:text-orange-500 hover:bg-orange-50 rounded-md;
+    /* Ensure adequate touch targets */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-mobile-link-active {
+    @apply text-orange-500 bg-orange-50;
+  }
+  
+  .nav-mobile-link-inactive {
+    @apply text-amber-700;
+  }
+  
+  .nav-mobile-contact {
+    @apply pt-4 border-t border-orange-100 space-y-3;
+  }
+  
+  .nav-mobile-contact-link {
+    @apply flex items-center space-x-2 text-sm text-amber-600 px-3 py-1 hover:text-orange-500 transition-colors duration-200;
+    /* Ensure adequate touch targets */
+    min-height: 40px;
+  }
+  
+  .nav-mobile-book {
+    @apply mx-3 bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200 font-medium text-sm px-4 py-3 rounded-md;
+    /* Ensure button is properly sized */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Admin Navigation Styles */
+  .nav-admin-header {
+    @apply bg-white shadow-sm border-b sticky top-0 z-50;
+    min-height: 64px;
+  }
+  
+  .nav-admin-content {
+    @apply flex justify-between items-center h-16;
+    min-height: 64px;
+    gap: 1rem;
+  }
+  
+  .nav-admin-brand {
+    @apply flex items-center flex-1;
+    gap: clamp(1rem, 3vw, 2rem);
+    min-width: 0;
+  }
+  
+  .nav-admin-logo {
+    @apply flex items-center flex-shrink-0;
+    gap: 0.5rem;
+    min-width: fit-content;
+  }
+  
+  .nav-admin-logo-icon {
+    @apply w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center;
+  }
+  
+  .nav-admin-logo-text {
+    @apply font-semibold text-gray-900;
+    white-space: nowrap;
+  }
+  
+  .nav-admin-menu {
+    @apply hidden lg:flex;
+    gap: clamp(0.5rem, 1.5vw, 1.5rem);
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+  
+  .nav-admin-link {
+    @apply flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  
+  .nav-admin-link-active {
+    @apply bg-amber-100 text-amber-700;
+  }
+  
+  .nav-admin-link-inactive {
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+  }
+  
+  /* Responsive Breakpoint Adjustments */
+  @media (max-width: 640px) {
+    .nav-content {
+      @apply h-14;
+      min-height: 56px;
+      gap: 0.5rem;
+    }
+    
+    .nav-logo-text {
+      @apply text-xl;
+    }
+    
+    .nav-actions {
+      gap: 0.5rem;
+    }
+    
+    /* Ensure mobile menu doesn't cause horizontal scroll */
+    .nav-mobile {
+      margin-left: -1rem;
+      margin-right: -1rem;
+      width: calc(100vw);
+    }
+  }
+  
+  @media (min-width: 640px) and (max-width: 767px) {
+    /* Small tablet adjustments */
+    .nav-actions {
+      gap: 0.75rem;
+    }
+    
+    .nav-book-button {
+      @apply px-3 py-1.5 text-xs;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .nav-menu {
+      gap: 1rem;
+    }
+    
+    /* Ensure navigation doesn't get cramped on tablets */
+    .nav-desktop {
+      margin: 0 0.5rem;
+    }
+    
+    .nav-contact-info {
+      @apply hidden; /* Hide contact info on tablet to save space */
+    }
+  }
+  
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .nav-menu {
+      gap: 1.5rem;
+    }
+    
+    .nav-desktop {
+      margin: 0 1rem;
+    }
+    
+    .nav-contact-info {
+      @apply hidden; /* Still hide contact info */
+    }
+  }
+  
+  @media (min-width: 1280px) and (max-width: 1439px) {
+    .nav-menu {
+      gap: 2rem;
+    }
+    
+    .nav-desktop {
+      margin: 0 1.5rem;
+    }
+    
+    .nav-contact-info {
+      @apply flex; /* Show contact info on large screens */
+      gap: 1rem;
+    }
+  }
+  
+  @media (min-width: 1440px) {
+    .nav-menu {
+      gap: 2rem;
+    }
+    
+    .nav-desktop {
+      margin: 0 2rem;
+    }
+    
+    .nav-contact-info {
+      @apply flex;
+      gap: 1.5rem;
+    }
+  }
+  
+  /* Focus states for accessibility */
+  .nav-link:focus,
+  .nav-mobile-link:focus,
+  .nav-admin-link:focus,
+  .nav-book-button:focus,
+  .nav-staff-login:focus {
+    @apply outline-none ring-2 ring-orange-500 ring-offset-2;
+  }
+  
+  .nav-mobile-button:focus {
+    @apply outline-none ring-2 ring-orange-500 ring-offset-2;
+  }
+  
+  /* Smooth animations */
+  .nav-mobile {
+    animation: slideDown 0.2s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Prevent overflow and ensure text doesn't break */
+  .nav-header * {
+    box-sizing: border-box;
+  }
+  
+  /* Fix any potential z-index issues */
+  .nav-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

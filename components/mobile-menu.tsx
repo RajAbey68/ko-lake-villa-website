@@ -3,9 +3,22 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
-export function MobileMenu() {
+interface NavigationItem {
+  id: string
+  label: string
+  href: string
+}
+
+interface MobileMenuProps {
+  navigationItems?: NavigationItem[]
+}
+
+export function MobileMenu({ navigationItems = defaultNavigationItems }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
 
   return (
     <div className="lg:hidden">
@@ -13,65 +26,42 @@ export function MobileMenu() {
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="text-gray-700 hover:text-orange-500"
+        className="nav-mobile-button"
+        aria-label={isOpen ? "Close menu" : "Open menu"}
       >
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </Button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-lg">
-          <nav className="flex flex-col space-y-4 px-6 py-4">
-            <a
-              href="#"
-              className="text-orange-500 font-medium text-sm hover:text-orange-600 transition-colors duration-200"
-            >
-              Home
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Deals
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Accommodation
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Dining
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Experiences
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Gallery
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              FAQ
-            </a>
-            <a
-              href="#"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Contact
-            </a>
+        <div className="absolute top-full left-0 right-0 nav-mobile">
+          <nav className="nav-mobile-menu">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className={`nav-mobile-link ${
+                  pathname === item.href || (item.href === "/" && pathname === "/")
+                    ? "nav-mobile-link-active"
+                    : "nav-mobile-link-inactive"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
       )}
     </div>
   )
 }
+
+// Default navigation items if none provided
+const defaultNavigationItems: NavigationItem[] = [
+  { id: "home", label: "Home", href: "/" },
+  { id: "accommodation", label: "Accommodation", href: "/accommodation" },
+  { id: "dining", label: "Dining", href: "/dining" },
+  { id: "experiences", label: "Experiences", href: "/experiences" },
+  { id: "gallery", label: "Gallery", href: "/gallery" },
+  { id: "contact", label: "Contact", href: "/contact" },
+]

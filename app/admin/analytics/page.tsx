@@ -85,56 +85,6 @@ export default function AdminAnalytics() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin Navigation */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/admin/dashboard" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">KL</span>
-                </div>
-                <span className="font-semibold text-gray-900">Ko Lake Villa Admin</span>
-              </Link>
-              
-              <nav className="flex space-x-6">
-                <Link
-                  href="/admin/dashboard"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Dashboard</span>
-                </Link>
-                <Link
-                  href="/admin/gallery"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                >
-                  <Image className="w-4 h-4" />
-                  <span>Gallery Manager</span>
-                </Link>
-                <span className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium bg-amber-100 text-amber-800">
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Analytics</span>
-                </span>
-              </nav>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              >
-                <Home className="w-4 h-4" />
-                <span>View Site</span>
-              </Link>
-              <Button onClick={logout} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}

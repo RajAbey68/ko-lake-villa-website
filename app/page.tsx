@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath } from "lucide-react"
 import Image from "next/image"
+import GlobalHeader from "@/components/navigation/global-header"
 
 export default function KoLakeVilla() {
   const [currentPage, setCurrentPage] = useState("home")
@@ -485,6 +486,7 @@ export default function KoLakeVilla() {
 
   return (
     <div className="min-h-screen bg-white">
+      <GlobalHeader />
       {currentPage === "home" && renderHomePage()}
       {currentPage === "rooms" && renderRoomsPage()}
       {currentPage === "gallery" && renderGalleryPage()}

@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-07-30T16:58:14.798Z",
+  "duration": "17.92s",
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "warnings": 0,
+    "skipped": 0
+  },
+  "results": {
+    "build": "PASSED",
+    "preDeployment": null,
+    "cssNavigation": "FAILED",
+    "adminConsole": null,
+    "errorHandling": null,
+    "integration": null,
+    "visualRegression": null,
+    "performance": null
+  },
+  "environment": {
+    "node": "v24.2.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "recommendations": [
+    "🎨 Address CSS/Navigation issues for consistent UI"
+  ]
+}

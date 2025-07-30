@@ -8,8 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { MapPin, Phone, Mail, MessageCircle, Clock, Star } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Star } from "lucide-react"
 import Link from "next/link"
+import GlobalHeader from "@/components/navigation/global-header"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -38,48 +40,34 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-amber-800">
-              Ko Lake Villa
-            </Link>
-            <div className="hidden md:flex space-x-8">
-              <Link href="/" className="text-amber-700 hover:text-orange-500">
-                Home
-              </Link>
-              <Link href="/accommodation" className="text-amber-700 hover:text-orange-500">
-                Accommodation
-              </Link>
-              <Link href="/dining" className="text-amber-700 hover:text-orange-500">
-                Dining
-              </Link>
-              <Link href="/experiences" className="text-amber-700 hover:text-orange-500">
-                Experiences
-              </Link>
-              <Link href="/gallery" className="text-amber-700 hover:text-orange-500">
-                Gallery
-              </Link>
-              <Link href="/contact" className="text-orange-500 font-medium">
-                Contact
-              </Link>
-            </div>
-            <Button asChild>
-              <Link href="/booking">Book Now</Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <GlobalHeader />
 
-      {/* Header */}
-      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
-            Get in touch with our friendly team. We're here to help you plan the perfect stay at Ko Lake Villa.
+          <h1 className="text-4xl md:text-5xl font-bold text-amber-900 mb-6">
+            Contact Us
+          </h1>
+          <p className="text-xl text-amber-700 max-w-3xl mx-auto mb-8">
+            Get in touch with our team for reservations, inquiries, or any assistance you need. 
+            We're here to help make your stay memorable.
           </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Badge variant="secondary" className="bg-amber-100 text-amber-800 px-4 py-2">
+              <Phone className="w-4 h-4 mr-2" />
+              24/7 Support
+            </Badge>
+            <Badge variant="secondary" className="bg-orange-100 text-orange-800 px-4 py-2">
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Quick Response
+            </Badge>
+            <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
+              <Send className="w-4 h-4 mr-2" />
+              Direct Contact
+            </Badge>
+          </div>
         </div>
       </section>
 

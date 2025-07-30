@@ -9,6 +9,11 @@
     "lint": "next lint",
     "test:quick": "node scripts/test-runner.js quick",
     "test:full": "node scripts/test-runner.js full",
+    "test:comprehensive": "node scripts/run-comprehensive-tests.js all",
+    "test:comprehensive:quick": "node scripts/run-comprehensive-tests.js quick",
+    "test:css-nav": "npx playwright test tests/css-navigation-test.spec.js",
+    "test:admin": "npx playwright test tests/admin-console-test.spec.js",
+    "test:errors": "npx playwright test tests/error-handling-test.spec.js",
     "test:predeployment": "node scripts/pre-deployment-tests.js",
     "test:visual": "node scripts/visual-regression-tests.js",
     "test:integration": "npx playwright test tests/integration-tests.spec.js",
@@ -73,6 +78,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.1",
     "@types/node": "^22.15.32",
     "@types/react": "^18",
     "@types/react-dom": "^18",

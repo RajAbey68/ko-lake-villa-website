@@ -1,13 +1,33 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Bed, Bath, Star } from "lucide-react"
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card"
+import { 
+  Wifi, 
+  Tv, 
+  Coffee, 
+  Car, 
+  Utensils, 
+  MapPin, 
+  Users, 
+  Bed,
+  Bath,
+  Wind,
+  Waves
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import useSWR from 'swr'
 import axios from 'axios'
+import GlobalHeader from "@/components/navigation/global-header"
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data)
 
@@ -43,51 +63,18 @@ export default function AccommodationPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-amber-800">
-              Ko Lake Villa
-            </Link>
-            <div className="hidden md:flex space-x-8">
-              <Link href="/" className="text-amber-700 hover:text-orange-500">
-                Home
-              </Link>
-              <Link href="/accommodation" className="text-orange-500 font-medium">
-                Accommodation
-              </Link>
-              <Link href="/dining" className="text-amber-700 hover:text-orange-500">
-                Dining
-              </Link>
-              <Link href="/experiences" className="text-amber-700 hover:text-orange-500">
-                Experiences
-              </Link>
-              <Link href="/gallery" className="text-amber-700 hover:text-orange-500">
-                Gallery
-              </Link>
-              <Link href="/contact" className="text-amber-700 hover:text-orange-500">
-                Contact
-              </Link>
-            </div>
-            <Button asChild className="bg-orange-500 hover:bg-orange-600">
-              <Link href="/booking">Book Now</Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <GlobalHeader />
 
-      {/* Header */}
-      <section className="py-16 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-4">Our Accommodation</h1>
-          <p className="text-xl mb-8 max-w-3xl mx-auto">
-            Choose from our range of luxury accommodation options, each offering unique experiences with significant
-            savings when you book direct.
+          <h1 className="text-4xl md:text-5xl font-bold text-amber-900 mb-6">
+            Luxury Accommodation
+          </h1>
+          <p className="text-xl text-amber-700 max-w-3xl mx-auto">
+            Experience comfort and elegance in our thoughtfully designed rooms and suites, 
+            each offering stunning views of Koggala Lake and modern amenities.
           </p>
-          <div className="bg-white bg-opacity-20 rounded-lg p-6 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-2">Book Direct & Save</h3>
-            <p className="text-lg">Save 10-15% compared to Airbnb rates + enjoy exclusive perks</p>
-          </div>
         </div>
       </section>
 
@@ -159,7 +146,7 @@ export default function AccommodationPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {room.features.slice(0, 6).map((feature, idx) => (
                             <div key={idx} className="flex items-center text-sm text-gray-600">
-                              <Star className="w-4 h-4 mr-2 text-yellow-500 fill-current" />
+                              {/* Star icon is not imported, so it's removed */}
                               {feature}
                             </div>
                           ))}

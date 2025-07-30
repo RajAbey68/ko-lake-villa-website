@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { ImageIcon, Video, Play, X, ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
+import GlobalHeader from "@/components/navigation/global-header"
 
 interface MediaItem {
   id: string
@@ -174,10 +175,12 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <GlobalHeader />
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Explore Ko Lake Villa's stunning spaces, luxury amenities, and beautiful surroundings
         </p>
         <p className="text-sm text-gray-500 mt-2">
@@ -395,6 +398,7 @@ export default function GalleryPage() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   )
 } 

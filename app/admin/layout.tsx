@@ -66,14 +66,14 @@ export default function AdminLayout({
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Admin Header - even during loading */}
-        <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
+        <header className="nav-admin-header">
+          <div className="nav-container">
+            <div className="nav-admin-content">
+              <div className="nav-admin-logo">
+                <div className="nav-admin-logo-icon">
                   <span className="text-white font-bold text-sm">KL</span>
                 </div>
-                <span className="font-semibold text-gray-900">Ko Lake Villa Admin</span>
+                <span className="nav-admin-logo-text">Ko Lake Villa Admin</span>
               </div>
             </div>
           </div>
@@ -101,18 +101,18 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Admin Navigation */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/admin/dashboard" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
+      <header className="nav-admin-header">
+        <div className="nav-container">
+          <div className="nav-admin-content">
+            <div className="nav-admin-brand">
+              <Link href="/admin/dashboard" className="nav-admin-logo">
+                <div className="nav-admin-logo-icon">
                   <span className="text-white font-bold text-sm">KL</span>
                 </div>
-                <span className="font-semibold text-gray-900">Ko Lake Villa Admin</span>
+                <span className="nav-admin-logo-text">Ko Lake Villa Admin</span>
               </Link>
               
-              <nav className="hidden lg:flex space-x-6">
+              <nav className="nav-admin-menu">
                 {navigationItems.map((item) => {
                   const isActive = pathname === item.href || 
                     (item.href === "/admin/dashboard" && pathname === "/admin")
@@ -122,10 +122,10 @@ export default function AdminLayout({
                     <Link
                       key={item.id}
                       href={item.href}
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      className={`nav-admin-link ${
                         isActive
-                          ? "bg-amber-100 text-amber-700"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                          ? "nav-admin-link-active"
+                          : "nav-admin-link-inactive"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -136,7 +136,7 @@ export default function AdminLayout({
               </nav>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="nav-actions">
               <Link
                 href="/"
                 className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
+import GlobalHeader from "@/components/navigation/global-header"
 
 export default function DealsPage() {
   const deals = [
@@ -44,68 +45,7 @@ export default function DealsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-semibold text-amber-900 tracking-tight">
-            Ko Lake Villa
-          </Link>
-
-          <nav className="hidden lg:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Home
-            </Link>
-            <Link
-              href="/deals"
-              className="text-orange-500 font-medium text-sm hover:text-orange-600 transition-colors duration-200"
-            >
-              Deals
-            </Link>
-            <Link
-              href="/accommodation"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Accommodation
-            </Link>
-            <Link
-              href="/dining"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Dining
-            </Link>
-            <Link
-              href="/experiences"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Experiences
-            </Link>
-            <Link
-              href="/gallery"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Gallery
-            </Link>
-            <Link
-              href="/faq"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              FAQ
-            </Link>
-            <Link
-              href="/contact"
-              className="text-gray-700 font-medium text-sm hover:text-orange-500 transition-colors duration-200"
-            >
-              Contact
-            </Link>
-          </nav>
-
-          <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-sm px-6 py-2.5 rounded-md shadow-sm transition-all duration-200">
-            Book Now
-          </Button>
-        </div>
-      </header>
+      <GlobalHeader />
 
       {/* Hero Section */}
       <section className="relative h-96 flex items-center justify-center overflow-hidden">

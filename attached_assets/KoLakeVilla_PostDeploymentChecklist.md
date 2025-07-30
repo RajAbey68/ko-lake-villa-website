@@ -1,4 +1,3 @@
-
 # ✅ Ko Lake Villa: Post-Deployment Verification Checklist
 
 ## 1. 🌐 Website Accessibility

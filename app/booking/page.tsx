@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Phone, Mail, MessageCircle, Calendar, Users, Home } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Phone, Mail, MessageCircle, Calendar, Users, Home, Star } from "lucide-react"
 import Link from "next/link"
 import useSWR from 'swr'
 import axios from 'axios'
+import GlobalHeader from "@/components/navigation/global-header"
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data)
 
@@ -96,15 +98,7 @@ function BookingContent() {
     return (
       <div className="min-h-screen bg-white">
         {/* Navigation */}
-        <nav className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link href="/" className="text-2xl font-bold text-blue-900">
-                Ko Lake Villa
-              </Link>
-            </div>
-          </div>
-        </nav>
+        <GlobalHeader />
 
         {/* Success Message */}
         <div className="flex items-center justify-center min-h-[80vh] px-4">
@@ -152,35 +146,32 @@ function BookingContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-amber-800">
-              Ko Lake Villa
-            </Link>
-            <div className="hidden md:flex space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-blue-900">
-                Home
-              </Link>
-              <Link href="/accommodation" className="text-gray-700 hover:text-blue-900">
-                Rooms
-              </Link>
-              <Link href="/gallery" className="text-gray-700 hover:text-blue-900">
-                Gallery
-              </Link>
-              <Link href="/contact" className="text-gray-700 hover:text-blue-900">
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <GlobalHeader />
 
-      {/* Header */}
-      <section className="py-12 bg-gradient-to-r from-amber-900 to-orange-700 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold mb-4">Book Your Stay</h1>
-          <p className="text-xl">Complete the form below and we'll confirm your reservation within 2 hours</p>
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-amber-900 mb-6">
+            Book Your Stay
+          </h1>
+          <p className="text-xl text-amber-700 max-w-3xl mx-auto mb-8">
+            Reserve your perfect getaway at Ko Lake Villa. Experience luxury, comfort, 
+            and the serene beauty of Koggala Lake.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Badge variant="secondary" className="bg-amber-100 text-amber-800 px-4 py-2">
+              <Calendar className="w-4 h-4 mr-2" />
+              Instant Confirmation
+            </Badge>
+            <Badge variant="secondary" className="bg-orange-100 text-orange-800 px-4 py-2">
+              <Star className="w-4 h-4 mr-2" />
+              Best Rate Guarantee
+            </Badge>
+            <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
+              <Phone className="w-4 h-4 mr-2" />
+              24/7 Support
+            </Badge>
+          </div>
         </div>
       </section>
 
