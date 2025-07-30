@@ -98,8 +98,10 @@ body {
   /* Main Navigation Header */
   .nav-header {
     @apply bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-orange-100;
-    /* Ensure consistent height and prevent content shift */
-    min-height: 64px;
+    min-height: 72px; /* Increased height for better spacing */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
   }
   
   .nav-container {
@@ -107,47 +109,46 @@ body {
   }
   
   .nav-content {
-    @apply flex justify-between items-center h-16;
-    /* Ensure proper alignment */
-    min-height: 64px;
-    gap: 1rem; /* Add gap to prevent overlap */
+    @apply flex justify-between items-center;
+    min-height: 72px; /* Match header height */
+    gap: 1.5rem; /* Increased gap */
+    padding: 0.5rem 0; /* Add vertical padding */
   }
   
-  /* Logo Styles */
+  /* Logo Styles - Fixed text wrapping */
   .nav-logo {
     @apply flex items-center flex-shrink-0;
-    /* Prevent logo from shrinking on small screens */
-    min-width: fit-content;
-    max-width: 200px; /* Prevent logo from taking too much space */
+    min-width: 160px; /* Ensure enough space for full logo */
+    max-width: none; /* Remove max-width constraint */
   }
   
   .nav-logo-text {
-    @apply text-2xl font-bold text-amber-800 hover:text-amber-600 transition-colors duration-200;
-    /* Ensure text doesn't wrap */
-    white-space: nowrap;
+    @apply text-xl font-bold text-amber-800 hover:text-amber-600 transition-colors duration-200;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: visible; /* Ensure text isn't clipped */
+    min-width: fit-content;
+    letter-spacing: 0.5px; /* Slight letter spacing for readability */
   }
   
-  /* Desktop Navigation */
+  /* Desktop Navigation - Improved spacing */
   .nav-desktop {
     @apply hidden lg:flex items-center justify-center flex-1;
-    /* Center the navigation menu */
-    min-width: 0; /* Allow shrinking */
-    margin: 0 1rem; /* Add margin to prevent overlap */
+    min-width: 0;
+    margin: 0 2rem; /* Increased margins */
   }
   
   .nav-menu {
     @apply flex items-center justify-center;
-    /* Dynamic spacing based on screen size */
-    gap: clamp(0.5rem, 2vw, 2rem);
+    gap: 1.5rem; /* Fixed gap instead of clamp for consistency */
     flex-wrap: nowrap;
-    min-width: 0; /* Allow shrinking */
+    min-width: 0;
   }
   
   .nav-link {
-    @apply text-sm font-medium transition-colors duration-200 hover:text-orange-500 px-2 py-1 rounded-md;
-    /* Prevent text wrapping and ensure consistent padding */
+    @apply text-sm font-medium transition-colors duration-200 hover:text-orange-500 px-3 py-2 rounded-md;
     white-space: nowrap;
-    flex-shrink: 0; /* Prevent link shrinking */
+    flex-shrink: 0;
+    min-width: fit-content;
   }
   
   .nav-link-active {
@@ -158,50 +159,54 @@ body {
     @apply text-amber-700;
   }
   
-  /* Right Side Actions */
+  /* Right Side Actions - Better spacing */
   .nav-actions {
     @apply flex items-center flex-shrink-0;
-    /* Dynamic spacing based on screen size */
-    gap: clamp(0.5rem, 1vw, 1rem);
+    gap: 1rem; /* Fixed gap */
     min-width: fit-content;
   }
   
+  /* Contact Info - Show on large screens with better spacing */
   .nav-contact-info {
     @apply hidden xl:flex items-center;
-    /* Dynamic spacing for contact info */
-    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+    gap: 1.25rem; /* Increased gap */
     min-width: fit-content;
-    font-size: 0.875rem;
+    font-size: 0.8rem; /* Slightly smaller text */
     color: rgb(217 119 6); /* amber-600 */
   }
   
   .nav-contact-link {
     @apply flex items-center hover:text-orange-500 transition-colors duration-200;
-    /* Prevent wrapping of contact info */
     white-space: nowrap;
-    gap: 0.25rem;
+    gap: 0.375rem; /* Increased icon gap */
+    min-width: fit-content;
   }
   
+  /* Buttons - Consistent sizing */
   .nav-book-button {
     @apply hidden sm:flex bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200 px-4 py-2 rounded-md font-medium text-sm;
-    /* Ensure button text doesn't wrap */
     white-space: nowrap;
     min-width: fit-content;
+    height: 40px; /* Fixed height */
+    align-items: center;
+    justify-content: center;
   }
   
-  /* Staff Login Button */
   .nav-staff-login {
-    @apply text-amber-700 border border-amber-200 hover:bg-amber-50 bg-transparent px-3 py-1 rounded text-sm font-medium transition-colors duration-200;
+    @apply text-amber-700 border border-amber-200 hover:bg-amber-50 bg-transparent px-3 py-2 rounded text-sm font-medium transition-colors duration-200;
     white-space: nowrap;
     min-width: fit-content;
+    height: 40px; /* Fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   /* Mobile Menu Button */
   .nav-mobile-button {
     @apply lg:hidden p-2 rounded-md text-amber-700 hover:text-orange-500 hover:bg-orange-50 transition-colors duration-200;
-    /* Ensure consistent button size */
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 48px; /* Increased for better touch target */
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -210,7 +215,6 @@ body {
   /* Mobile Navigation */
   .nav-mobile {
     @apply lg:hidden border-t border-orange-100 py-4 bg-white/95 backdrop-blur-sm;
-    /* Ensure mobile menu appears above other content */
     position: relative;
     z-index: 40;
   }
@@ -220,9 +224,8 @@ body {
   }
   
   .nav-mobile-link {
-    @apply text-left px-3 py-3 text-sm font-medium transition-colors duration-200 hover:text-orange-500 hover:bg-orange-50 rounded-md;
-    /* Ensure adequate touch targets */
-    min-height: 44px;
+    @apply text-left px-4 py-3 text-sm font-medium transition-colors duration-200 hover:text-orange-500 hover:bg-orange-50 rounded-md;
+    min-height: 48px; /* Increased touch target */
     display: flex;
     align-items: center;
   }
@@ -240,56 +243,56 @@ body {
   }
   
   .nav-mobile-contact-link {
-    @apply flex items-center space-x-2 text-sm text-amber-600 px-3 py-1 hover:text-orange-500 transition-colors duration-200;
-    /* Ensure adequate touch targets */
-    min-height: 40px;
+    @apply flex items-center space-x-2 text-sm text-amber-600 px-4 py-2 hover:text-orange-500 transition-colors duration-200;
+    min-height: 44px;
   }
   
   .nav-mobile-book {
-    @apply mx-3 bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200 font-medium text-sm px-4 py-3 rounded-md;
-    /* Ensure button is properly sized */
-    min-height: 44px;
+    @apply mx-4 bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200 font-medium text-sm px-4 py-3 rounded-md;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
   
-  /* Admin Navigation Styles */
+  /* Admin Navigation Styles - Updated to match public nav */
   .nav-admin-header {
     @apply bg-white shadow-sm border-b sticky top-0 z-50;
-    min-height: 64px;
+    min-height: 72px; /* Match public nav height */
   }
   
   .nav-admin-content {
-    @apply flex justify-between items-center h-16;
-    min-height: 64px;
-    gap: 1rem;
+    @apply flex justify-between items-center;
+    min-height: 72px; /* Match public nav height */
+    gap: 1.5rem; /* Match public nav spacing */
+    padding: 0.5rem 0;
   }
   
   .nav-admin-brand {
     @apply flex items-center flex-1;
-    gap: clamp(1rem, 3vw, 2rem);
+    gap: 2rem; /* Increased gap */
     min-width: 0;
   }
   
   .nav-admin-logo {
     @apply flex items-center flex-shrink-0;
-    gap: 0.5rem;
+    gap: 0.75rem; /* Increased gap */
     min-width: fit-content;
   }
   
   .nav-admin-logo-icon {
-    @apply w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center;
+    @apply w-9 h-9 bg-amber-600 rounded-lg flex items-center justify-center; /* Slightly larger */
   }
   
   .nav-admin-logo-text {
-    @apply font-semibold text-gray-900;
+    @apply font-semibold text-gray-900 text-lg; /* Slightly larger text */
     white-space: nowrap;
+    min-width: fit-content;
   }
   
   .nav-admin-menu {
     @apply hidden lg:flex;
-    gap: clamp(0.5rem, 1.5vw, 1.5rem);
+    gap: 1.5rem; /* Fixed gap to match public nav */
     flex-wrap: nowrap;
     min-width: 0;
   }
@@ -298,136 +301,104 @@ body {
     @apply flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200;
     white-space: nowrap;
     flex-shrink: 0;
+    min-width: fit-content;
+    height: 40px; /* Fixed height for consistency */
   }
   
   .nav-admin-link-active {
-    @apply bg-amber-100 text-amber-700;
+    @apply bg-amber-50 text-amber-700;
   }
   
   .nav-admin-link-inactive {
-    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50;
+  }
+  
+  .nav-admin-actions {
+    @apply flex items-center;
+    gap: 1rem; /* Fixed gap */
+    min-width: fit-content;
+  }
+  
+  .nav-admin-user {
+    @apply flex items-center gap-3;
+    min-width: fit-content;
   }
   
   /* Responsive Breakpoint Adjustments */
-  @media (max-width: 640px) {
-    .nav-content {
-      @apply h-14;
-      min-height: 56px;
-      gap: 0.5rem;
+  @media (max-width: 1440px) {
+    .nav-contact-info {
+      gap: 1rem; /* Reduce spacing on smaller large screens */
     }
     
-    .nav-logo-text {
-      @apply text-xl;
-    }
-    
-    .nav-actions {
-      gap: 0.5rem;
-    }
-    
-    /* Ensure mobile menu doesn't cause horizontal scroll */
-    .nav-mobile {
-      margin-left: -1rem;
-      margin-right: -1rem;
-      width: calc(100vw);
+    .nav-menu {
+      gap: 1.25rem; /* Slightly reduce menu gap */
     }
   }
   
-  @media (min-width: 640px) and (max-width: 767px) {
-    /* Small tablet adjustments */
-    .nav-actions {
+  @media (max-width: 1200px) {
+    .nav-contact-info {
+      display: none; /* Hide contact info earlier to prevent overlap */
+    }
+    
+    .nav-menu {
+      gap: 1rem; /* Further reduce menu gap */
+    }
+  }
+  
+  @media (max-width: 1024px) {
+    .nav-logo-text {
+      font-size: 1.1rem; /* Slightly smaller logo text on laptop */
+    }
+    
+    .nav-content {
+      gap: 1rem; /* Reduce overall gap */
+    }
+    
+    .nav-desktop {
+      margin: 0 1rem; /* Reduce desktop nav margins */
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .nav-header {
+      min-height: 64px; /* Slightly reduce height on tablets */
+    }
+    
+    .nav-content {
+      min-height: 64px;
       gap: 0.75rem;
     }
     
+    .nav-logo {
+      min-width: 140px; /* Reduce logo space on tablets */
+    }
+    
     .nav-book-button {
-      @apply px-3 py-1.5 text-xs;
+      display: none; /* Hide book button earlier */
     }
   }
   
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .nav-menu {
-      gap: 1rem;
+  @media (max-width: 480px) {
+    .nav-header {
+      min-height: 60px; /* Further reduce on mobile */
     }
     
-    /* Ensure navigation doesn't get cramped on tablets */
-    .nav-desktop {
-      margin: 0 0.5rem;
+    .nav-content {
+      min-height: 60px;
+      gap: 0.5rem;
     }
     
-    .nav-contact-info {
-      @apply hidden; /* Hide contact info on tablet to save space */
-    }
-  }
-  
-  @media (min-width: 1024px) and (max-width: 1279px) {
-    .nav-menu {
-      gap: 1.5rem;
+    .nav-logo {
+      min-width: 120px; /* Further reduce logo space */
     }
     
-    .nav-desktop {
-      margin: 0 1rem;
+    .nav-logo-text {
+      font-size: 1rem; /* Smaller logo text on mobile */
     }
     
-    .nav-contact-info {
-      @apply hidden; /* Still hide contact info */
-    }
-  }
-  
-  @media (min-width: 1280px) and (max-width: 1439px) {
-    .nav-menu {
-      gap: 2rem;
-    }
-    
-    .nav-desktop {
-      margin: 0 1.5rem;
-    }
-    
-    .nav-contact-info {
-      @apply flex; /* Show contact info on large screens */
-      gap: 1rem;
-    }
-  }
-  
-  @media (min-width: 1440px) {
-    .nav-menu {
-      gap: 2rem;
-    }
-    
-    .nav-desktop {
-      margin: 0 2rem;
-    }
-    
-    .nav-contact-info {
-      @apply flex;
-      gap: 1.5rem;
-    }
-  }
-  
-  /* Focus states for accessibility */
-  .nav-link:focus,
-  .nav-mobile-link:focus,
-  .nav-admin-link:focus,
-  .nav-book-button:focus,
-  .nav-staff-login:focus {
-    @apply outline-none ring-2 ring-orange-500 ring-offset-2;
-  }
-  
-  .nav-mobile-button:focus {
-    @apply outline-none ring-2 ring-orange-500 ring-offset-2;
-  }
-  
-  /* Smooth animations */
-  .nav-mobile {
-    animation: slideDown 0.2s ease-out;
-  }
-  
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    .nav-mobile-button {
+      min-width: 44px; /* Standard mobile touch target */
+      min-height: 44px;
     }
   }
   
@@ -436,19 +407,31 @@ body {
     box-sizing: border-box;
   }
   
-  /* Fix any potential z-index issues */
-  .nav-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+  /* Ensure all navigation elements use consistent font smoothing */
+  .nav-header,
+  .nav-header * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+/* Additional utility classes for navigation */
+@layer utilities {
+  .nav-nowrap {
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: initial;
   }
-  body {
-    @apply bg-background text-foreground;
+  
+  .nav-flex-shrink-0 {
+    flex-shrink: 0;
+    min-width: fit-content;
+  }
+  
+  .nav-gap-fix {
+    gap: 1rem;
+    align-items: center;
   }
 }
+
+
