@@ -137,7 +137,7 @@ export default function AccommodationPage() {
                           ${room.directPrice}
                           <span className="text-lg font-normal text-gray-500">/night direct</span>
                         </div>
-                        <div className="text-sm text-gray-600 mt-2">Book ≤3 days in advance for additional 5% off</div>
+                        <div className="text-sm text-gray-600 mt-2">IF AVAILABLE</div>
                       </div>
 
                       {/* Features */}

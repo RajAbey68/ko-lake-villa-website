@@ -86,7 +86,7 @@ export default function KoLakeVilla() {
             src="/images/hero-pool.jpg"
             alt="Ko Lake Villa Pool and Lake View"
             fill
-            className="object-cover"
+            className="object-contain"
           />
         </div>
         <div className="relative z-10 flex items-center justify-center h-full text-center bg-black bg-opacity-30">

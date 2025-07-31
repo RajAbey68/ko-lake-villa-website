@@ -32,6 +32,20 @@ const staticGalleryData = {
     "/placeholder.svg?height=400&width=600&text=Living+Area",
     "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
   ],
+  "rooms": [
+    "/uploads/gallery/family-suite/KoggalaNinePeaks_family-suite_0.png",
+    "/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_0.jpg",
+    "/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg",
+    "/placeholder.svg?height=400&width=600&text=Master+Suite+Interior",
+    "/placeholder.svg?height=400&width=600&text=Guest+Room+Setup"
+  ],
+  "garden": [
+    "/uploads/gallery/front-garden/KoggalaNinePeaks_front-garden_0.jpg",
+    "/uploads/gallery/lake-garden/KoggalaNinePeaks_lake-garden_0.jpg",
+    "/uploads/gallery/roof-garden/KoggalaNinePeaks_roof-garden_0.jpg",
+    "/placeholder.svg?height=400&width=600&text=Garden+Pathways",
+    "/placeholder.svg?height=400&width=600&text=Tropical+Plants"
+  ],
   "dining": [
     "/placeholder.svg?height=400&width=600&text=Dining+Area",
     "/placeholder.svg?height=400&width=600&text=Kitchen",
@@ -45,6 +59,14 @@ const staticGalleryData = {
     "/placeholder.svg?height=400&width=600&text=Lake+Activities",
     "/placeholder.svg?height=400&width=600&text=Local+Tours",
     "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
+  ],
+  "local-events": [
+    "/uploads/gallery/excursions/KoggalaNinePeaks_excursions_0.jpg",
+    "/uploads/gallery/excursions/KoggalaNinePeaks_excursions_1.jpg",
+    "/placeholder.svg?height=400&width=600&text=Traditional+Festival",
+    "/placeholder.svg?height=400&width=600&text=Local+Market+Day",
+    "/placeholder.svg?height=400&width=600&text=Cultural+Ceremony",
+    "/placeholder.svg?height=400&width=600&text=Village+Celebration"
   ],
   "lake-views": [
     "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",

@@ -57,11 +57,14 @@ export default function GalleryManagement() {
   const categories = [
     "Pool & Facilities",
     "Bedrooms", 
+    "Rooms",
     "Living Areas",
     "Kitchen & Dining",
+    "Garden",
     "Outdoor Spaces",
     "Villa Tour",
     "Local Area",
+    "Local Events",
     "Activities",
     "Default"
   ]
