@@ -16,78 +16,62 @@ interface MediaItem {
   title: string
   description: string
   category: string
+  tags: string[]
+  seoTitle: string
+  seoDescription: string
+  altText: string
+  uploadDate: string
+  filename: string
+  size: number
+  isPublished: boolean
+  publishedAt?: string
+  unpublishedAt?: string
+  publishedBy?: string
 }
-
-// Static gallery data for Ko Lake Villa
-const staticGalleryData = {
-  "pool-facilities": [
-    "/images/hero-pool.jpg",
-    "/placeholder.svg?height=400&width=600&text=Pool+at+Sunset",
-    "/placeholder.svg?height=400&width=600&text=Pool+Side+Lounge",
-    "/placeholder.svg?height=400&width=600&text=Pool+Deck"
-  ],
-  "accommodation": [
-    "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
-    "/placeholder.svg?height=400&width=600&text=Lake+View+Room",
-    "/placeholder.svg?height=400&width=600&text=Living+Area",
-    "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
-  ],
-  "rooms": [
-    "/uploads/gallery/family-suite/KoggalaNinePeaks_family-suite_0.png",
-    "/uploads/gallery/triple-room/KoggalaNinePeaks_triple-room_0.jpg",
-    "/uploads/gallery/group-room/KoggalaNinePeaks_group-room_0.jpg",
-    "/placeholder.svg?height=400&width=600&text=Master+Suite+Interior",
-    "/placeholder.svg?height=400&width=600&text=Guest+Room+Setup"
-  ],
-  "garden": [
-    "/uploads/gallery/front-garden/KoggalaNinePeaks_front-garden_0.jpg",
-    "/uploads/gallery/lake-garden/KoggalaNinePeaks_lake-garden_0.jpg",
-    "/uploads/gallery/roof-garden/KoggalaNinePeaks_roof-garden_0.jpg",
-    "/placeholder.svg?height=400&width=600&text=Garden+Pathways",
-    "/placeholder.svg?height=400&width=600&text=Tropical+Plants"
-  ],
-  "dining": [
-    "/placeholder.svg?height=400&width=600&text=Dining+Area",
-    "/placeholder.svg?height=400&width=600&text=Kitchen",
-    "/placeholder.svg?height=400&width=600&text=Chef+Preparation",
-    "/placeholder.svg?height=400&width=600&text=Outdoor+Dining"
-  ],
-  "experiences": [
-    "/images/excursions-hero.jpg",
-    "/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4",
-    "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
-    "/placeholder.svg?height=400&width=600&text=Lake+Activities",
-    "/placeholder.svg?height=400&width=600&text=Local+Tours",
-    "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
-  ],
-  "local-events": [
-    "/uploads/gallery/excursions/KoggalaNinePeaks_excursions_0.jpg",
-    "/uploads/gallery/excursions/KoggalaNinePeaks_excursions_1.jpg",
-    "/placeholder.svg?height=400&width=600&text=Traditional+Festival",
-    "/placeholder.svg?height=400&width=600&text=Local+Market+Day",
-    "/placeholder.svg?height=400&width=600&text=Cultural+Ceremony",
-    "/placeholder.svg?height=400&width=600&text=Village+Celebration"
-  ],
-  "lake-views": [
-    "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
-    "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
-    "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
-    "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
-    "/placeholder.svg?height=400&width=600&text=Lake+Wildlife"
-  ]
-}
-
-const staticCategories = Object.keys(staticGalleryData)
 
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [categories, setCategories] = useState<string[]>(staticCategories)
-  const [galleryData, setGalleryData] = useState<Record<string, string[]>>(staticGalleryData)
-  const [loading, setLoading] = useState(false)
+  const [categories, setCategories] = useState<string[]>([])
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showVideoHelp, setShowVideoHelp] = useState(true)
+
+  // Load gallery items from API
+  const loadGalleryItems = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetch('/api/gallery/list')
+      if (!response.ok) {
+        throw new Error('Failed to load gallery items')
+      }
+      const items: MediaItem[] = await response.json()
+      
+      // Filter to only show published items
+      const publishedItems = items.filter(item => item.isPublished)
+      
+      setMediaItems(publishedItems)
+      
+      // Extract unique categories
+      const uniqueCategories = [...new Set(publishedItems.map(item => item.category))]
+      setCategories(uniqueCategories)
+      
+      console.log(`Loaded ${publishedItems.length} published images from ${uniqueCategories.length} categories`)
+    } catch (error) {
+      console.error('Error loading gallery items:', error)
+      setError('Failed to load gallery images. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load gallery items on component mount
+  useEffect(() => {
+    loadGalleryItems()
+  }, [])
 
   // Helper functions
   const formatCategoryName = (name: string) => {
@@ -107,49 +91,9 @@ export default function GalleryPage() {
     return path.split('/').pop() || ''
   }
 
-  // Gallery data now initialized directly in state
-
-  // Convert gallery data to MediaItem format
-  const allImages: MediaItem[] = []
-  Object.entries(galleryData).forEach(([category, images]) => {
-    images.forEach((imagePath) => {
-      const filename = getFilename(imagePath)
-      const fileType = isVideo(filename) ? 'video' : 'image'
-      
-      // Generate better titles for videos
-      let title = filename.replace(/\.[^/.]+$/, "").replace(/-/g, ' ').replace(/_/g, ' ')
-      let description = `${formatCategoryName(category)} - ${filename}`
-      
-      // Special handling for villa videos
-      if (fileType === 'video') {
-        if (imagePath.includes('164235')) {
-          title = "Complete Villa Walkthrough Tour"
-          description = "Comprehensive tour showcasing all villa spaces and amenities"
-        } else if (imagePath.includes('170745')) {
-          title = "Lake View Experience"
-          description = "Beautiful views of Koggala Lake from the villa"
-        } else if (imagePath.includes('170537')) {
-          title = "Sunset Over Lake"
-          description = "Stunning sunset views from Ko Lake Villa"
-        } else {
-          title = title.charAt(0).toUpperCase() + title.slice(1) + " Video"
-        }
-      }
-      
-      allImages.push({
-        id: imagePath,
-        type: fileType,
-        url: imagePath,
-        title,
-        description,
-        category: formatCategoryName(category)
-      })
-    })
-  })
-
   const filteredImages = selectedCategory === "all" 
-    ? allImages 
-    : allImages.filter(item => item.category === selectedCategory)
+    ? mediaItems 
+    : mediaItems.filter(item => item.category === selectedCategory)
 
   const openLightbox = (item: MediaItem) => {
     setSelectedItem(item)
@@ -166,30 +110,54 @@ export default function GalleryPage() {
     setSelectedItem(filteredImages[newIndex])
   }
 
-  // Remove loading state display - go directly to content
-
-  if (error) {
+  if (loading) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-          <p className="text-lg text-red-600">Error: {error}</p>
-          <Button onClick={() => window.location.reload()} className="mt-4">
-            Retry
-          </Button>
+      <div className="min-h-screen bg-gray-50">
+        <GlobalHeader />
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+            <p className="text-lg text-gray-600">Loading gallery images...</p>
+            <div className="mt-4 flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
-  if (allImages.length === 0) {
+  if (error) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-          <p className="text-lg text-gray-600">No images found</p>
-          <div className="mt-4 text-sm text-gray-500">
-            Debug: Categories: {categories.length}, Gallery data keys: {Object.keys(galleryData).length}
+      <div className="min-h-screen bg-gray-50">
+        <GlobalHeader />
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+            <p className="text-lg text-red-600">{error}</p>
+            <Button 
+              onClick={loadGalleryItems} 
+              className="mt-4 bg-amber-600 hover:bg-amber-700"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (mediaItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <GlobalHeader />
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
+            <p className="text-lg text-gray-600">No published images found</p>
+            <div className="mt-4 text-sm text-gray-500">
+              Debug: Categories: {categories.length}, Media items: {mediaItems.length}
+            </div>
           </div>
         </div>
       </div>
@@ -206,7 +174,7 @@ export default function GalleryPage() {
           Explore Ko Lake Villa's stunning spaces, luxury amenities, and beautiful surroundings
         </p>
         <p className="text-sm text-gray-500 mt-2">
-          {allImages.length} media items across {categories.length} categories
+          {mediaItems.length} media items across {categories.length} categories
         </p>
         
         {/* Video Help Instructions */}
@@ -244,11 +212,11 @@ export default function GalleryPage() {
           onClick={() => setSelectedCategory("all")}
           className={selectedCategory === "all" ? "bg-amber-600 hover:bg-amber-700" : ""}
         >
-          All Photos ({allImages.length})
+          All Photos ({mediaItems.length})
         </Button>
         {categories.map((category) => {
           const categoryName = formatCategoryName(category)
-          const categoryCount = allImages.filter(item => item.category === categoryName).length
+          const categoryCount = mediaItems.filter(item => item.category === categoryName).length
           return (
             <Button
               key={category}
@@ -263,164 +231,170 @@ export default function GalleryPage() {
       </div>
 
       {/* Gallery Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredImages.map((item) => (
-          <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="relative aspect-video bg-gray-100" onClick={() => openLightbox(item)}>
-              {item.type === "image" ? (
-                <Image
-                  src={item.url}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              ) : (
-                <video
-                  src={item.url}
-                  className="w-full h-full object-cover"
-                  preload="metadata"
-                  muted
-                  onError={(e) => {
-                    console.error('Video failed to load:', item.url)
-                    e.currentTarget.style.display = 'none'
-                  }}
-                  poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
-                />
-              )}
-
-              {/* Media Type Indicator */}
-              <div className="absolute top-3 left-3">
-                <Badge variant="secondary" className="bg-white/90 text-gray-800">
-                  {item.type === "image" ? <ImageIcon className="w-3 h-3 mr-1" /> : <Video className="w-3 h-3 mr-1" />}
-                  {item.type}
-                </Badge>
-              </div>
-
-              {/* Play Button for Videos */}
-              {item.type === "video" && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-black/50 rounded-full p-4">
-                    <Play className="w-8 h-8 text-white fill-white" />
+          <Card 
+            key={item.id} 
+            className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+            onClick={() => openLightbox(item)}
+          >
+            <div className="relative aspect-square">
+              {item.type === 'video' ? (
+                <div className="relative w-full h-full bg-black flex items-center justify-center">
+                  <video 
+                    className="w-full h-full object-cover"
+                    poster="/placeholder.svg?height=300&width=300&text=Video+Preview"
+                    preload="metadata"
+                  >
+                    <source src={item.url} type="video/mp4" />
+                  </video>
+                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                    <Play className="w-12 h-12 text-white" />
                   </div>
+                  <Badge className="absolute top-2 left-2 bg-red-600 text-white">
+                    <Video className="w-3 h-3 mr-1" />
+                    Video
+                  </Badge>
+                </div>
+              ) : (
+                <div className="relative w-full h-full">
+                  <Image
+                    src={item.url}
+                    alt={item.altText || item.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = `/placeholder.svg?height=300&width=300&text=${encodeURIComponent(item.title)}`;
+                    }}
+                  />
+                  <Badge className="absolute top-2 left-2 bg-green-600 text-white">
+                    <ImageIcon className="w-3 h-3 mr-1" />
+                    Photo
+                  </Badge>
                 </div>
               )}
-
-              {/* Category Badge */}
-              <div className="absolute top-3 right-3">
-                <Badge className="bg-amber-600 text-white text-xs">{item.category}</Badge>
-              </div>
-
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-end">
-                <div className="p-4 text-white opacity-0 hover:opacity-100 transition-opacity">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-sm">{item.description}</p>
-                </div>
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-sm mb-1 line-clamp-2">{item.title}</h3>
+              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{item.description}</p>
+              <div className="flex justify-between items-center">
+                <Badge variant="outline" className="text-xs">
+                  {item.category}
+                </Badge>
+                <span className="text-xs text-gray-500">
+                  {getFileExtension(item.filename).toUpperCase()}
+                </span>
               </div>
             </div>
           </Card>
         ))}
       </div>
+      
+      {filteredImages.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-600">No images found in this category</p>
+        </div>
+      )}
+    </div>
 
-      {/* Lightbox */}
-      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="max-w-4xl w-full p-0">
-          {selectedItem && (
-            <div className="relative">
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-4 right-4 z-10 bg-black/50 text-white hover:bg-black/70"
-                onClick={() => setSelectedItem(null)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
+    {/* Lightbox */}
+    <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0 bg-black">
+        {selectedItem && (
+          <div className="relative w-full h-full">
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 hover:bg-opacity-70 text-white"
+              onClick={() => setSelectedItem(null)}
+            >
+              <X className="w-6 h-6" />
+            </Button>
 
-              {/* Navigation Buttons */}
-              {filteredImages.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
-                    onClick={() => navigateLightbox("prev")}
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
-                    onClick={() => navigateLightbox("next")}
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </Button>
-                </>
+            {/* Navigation Buttons */}
+            {filteredImages.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50 bg-black bg-opacity-50 hover:bg-opacity-70 text-white"
+                  onClick={() => navigateLightbox("prev")}
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50 bg-black bg-opacity-50 hover:bg-opacity-70 text-white"
+                  onClick={() => navigateLightbox("next")}
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </Button>
+              </>
+            )}
+
+            {/* Media Content */}
+            <div className="flex items-center justify-center w-full h-[80vh]">
+              {selectedItem.type === 'video' ? (
+                <video 
+                  className="max-w-full max-h-full"
+                  controls
+                  autoPlay
+                >
+                  <source src={selectedItem.url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <img
+                  src={selectedItem.url}
+                  alt={selectedItem.altText || selectedItem.title}
+                  className="max-w-full max-h-full object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = `/placeholder.svg?height=600&width=800&text=${encodeURIComponent(selectedItem.title)}`;
+                  }}
+                />
               )}
+            </div>
 
-              {/* Media Content */}
-              <div className="aspect-video">
-                {selectedItem.type === "image" ? (
-                  <Image
-                    src={selectedItem.url}
-                    alt={selectedItem.title}
-                    fill
-                    className="object-contain bg-black"
-                  />
-                ) : (
-                  <video
-                    src={selectedItem.url}
-                    className="w-full h-full object-contain bg-black"
-                    controls
-                    autoPlay
-                    onError={(e) => {
-                      console.error('Video failed to load in lightbox:', selectedItem.url)
-                      const target = e.currentTarget
-                      target.style.display = 'none'
-                      const errorDiv = document.createElement('div')
-                      errorDiv.className = 'flex items-center justify-center h-full text-white text-center'
-                      errorDiv.innerHTML = `
-                        <div>
-                          <h3 className="text-xl font-semibold mb-2">Video Unavailable</h3>
-                          <p className="text-gray-300">Unable to load video: ${selectedItem.title}</p>
-                          <p className="text-sm text-gray-400 mt-2">Please try again later</p>
-                        </div>
-                      `
-                      target.parentNode?.appendChild(errorDiv)
-                    }}
-                    onLoadStart={() => {
-                      console.log('Video loading started:', selectedItem.url)
-                    }}
-                    onCanPlay={() => {
-                      console.log('Video can play:', selectedItem.url)
-                    }}
-                    poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
-                  />
-                )}
-              </div>
-
-              {/* Media Info */}
-              <div className="p-6 bg-white">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-amber-800 mb-2">{selectedItem.title}</h2>
-                    <p className="text-gray-600 mb-3">{selectedItem.description}</p>
-                    <div className="flex gap-2">
-                      <Badge variant="outline">{selectedItem.category}</Badge>
-                      <Badge className="bg-amber-100 text-amber-800">
-                        {selectedItem.type === "image" ? "Photo" : "Video"}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+            {/* Media Info */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-4">
+              <h3 className="text-lg font-semibold mb-1">{selectedItem.title}</h3>
+              <p className="text-sm text-gray-300 mb-2">{selectedItem.description}</p>
+              <div className="flex justify-between items-center text-xs text-gray-400">
+                <span>Category: {selectedItem.category}</span>
+                <span>
+                  {currentIndex + 1} of {filteredImages.length}
+                </span>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+
+    {/* Video Help Toast */}
+    {showVideoHelp && (
+      <div className="fixed bottom-4 right-4 bg-amber-600 text-white p-4 rounded-lg shadow-lg max-w-sm">
+        <div className="flex justify-between items-start">
+          <div>
+            <h4 className="font-semibold mb-1">Video Gallery</h4>
+            <p className="text-sm">Click on video thumbnails to play them in full screen mode.</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-amber-700 ml-2"
+            onClick={() => setShowVideoHelp(false)}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
-    </div>
-  )
+    )}
+  </div>
+)
 } 
