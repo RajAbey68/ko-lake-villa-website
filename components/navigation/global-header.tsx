@@ -88,23 +88,26 @@ export default function GlobalHeader() {
         .villa-brand {
           display: flex;
           align-items: center;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
+          min-height: 48px;
         }
 
         .villa-thumbnail {
-          width: 40px;
-          height: 40px;
+          width: 45px;
+          height: 45px;
           object-fit: cover;
-          margin-right: 12px;
-          border-radius: 6px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          margin-right: 14px;
+          border-radius: 8px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          flex-shrink: 0;
         }
 
         .villa-title {
-          font-size: 1.4rem;
+          font-size: 1.5rem;
           font-weight: bold;
           color: #92400e; /* amber-700 to match your brand */
           margin: 0;
+          line-height: 1.2;
         }
 
         .villa-navbar {
@@ -160,14 +163,31 @@ export default function GlobalHeader() {
           }
         }
 
+        @media (max-width: 768px) {
+          .villa-title {
+            font-size: 1.3rem;
+          }
+          
+          .villa-thumbnail {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+          }
+          
+          .villa-brand {
+            margin-bottom: 0.5rem;
+          }
+        }
+        
         @media (max-width: 480px) {
           .villa-title {
             font-size: 1.2rem;
           }
           
           .villa-thumbnail {
-            width: 35px;
-            height: 35px;
+            width: 36px;
+            height: 36px;
+            margin-right: 10px;
           }
         }
       `}</style>
@@ -176,10 +196,10 @@ export default function GlobalHeader() {
         <div className="villa-brand">
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/hero-pool.jpg"
-              alt="Ko Lake Villa - Pool and Lake View" 
-              width={40}
-              height={40}
+              src="/logo-sala-lake.jpg"
+              alt="Ko Lake Villa - Traditional Sala by the Lake" 
+              width={45}
+              height={45}
               className="villa-thumbnail"
               priority
             />

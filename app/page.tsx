@@ -83,10 +83,10 @@ export default function KoLakeVilla() {
       <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="absolute inset-0">
           <Image
-            src="/images/hero-pool.jpg"
-            alt="Ko Lake Villa Pool and Lake View"
+            src="/hero-blue-pool.jpg"
+            alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
             fill
-            className="object-contain"
+            className="object-cover"
           />
         </div>
         <div className="relative z-10 flex items-center justify-center h-full text-center bg-black bg-opacity-30">
