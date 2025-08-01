@@ -2846,17 +2846,17 @@ Respond in JSON format:
 
   // Short URL redirects to listing URLs (configurable for myGuesty migration)
   app.get('/klv', (req, res) => {
-    const url = process.env.AIRBNB_KLV_URL || 'https://airbnb.co.uk/h/klv';
+    const url = process.env.AIRBNB_KLV_URL || 'https://airbnb.co.uk/h/eklv';
     res.redirect(301, url);
   });
 
   app.get('/klv1', (req, res) => {
-    const url = process.env.AIRBNB_KLV1_URL || 'https://airbnb.co.uk/h/klv1';
+    const url = process.env.AIRBNB_KLV1_URL || 'https://airbnb.co.uk/h/klv6';
     res.redirect(301, url);
   });
 
   app.get('/klv3', (req, res) => {
-    const url = process.env.AIRBNB_KLV3_URL || 'https://airbnb.co.uk/h/klv3';
+    const url = process.env.AIRBNB_KLV3_URL || 'https://airbnb.co.uk/h/klv2or3';
     res.redirect(301, url);
   });
 

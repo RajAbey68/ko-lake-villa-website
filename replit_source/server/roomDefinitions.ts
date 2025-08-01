@@ -21,7 +21,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
     slug: "klv",
     capacity: "18+ guests (up to 25)",
     features: ["5 Triple Rooms + 2 Suites", "60-ft infinity pool", "Rooftop terrace", "Lakefront views"],
-    link: "https://airbnb.co.uk/h/klv",
+    link: "https://airbnb.co.uk/h/eklv",
     checkinDate: "2025-06-05"
   },
   {
@@ -29,7 +29,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
     slug: "klv1", 
     capacity: "6+ guests",
     features: ["Lake views", "Master suite", "Pool access", "Private terrace"],
-    link: "https://airbnb.co.uk/h/klv1",
+    link: "https://airbnb.co.uk/h/klv6",
     checkinDate: "2025-06-05"
   },
   {
@@ -37,7 +37,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
     slug: "klv3",
     capacity: "3+ guests per room",
     features: ["Flexible bedding", "Garden views", "Shared amenities", "A/C"],
-    link: "https://airbnb.co.uk/h/klv3",
+    link: "https://airbnb.co.uk/h/klv2or3",
     checkinDate: "2025-06-05"
   },
   {

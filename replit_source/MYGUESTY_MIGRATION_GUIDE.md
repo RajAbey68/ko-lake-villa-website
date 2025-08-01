@@ -6,10 +6,9 @@ When you're ready to integrate with myGuesty, simply update these environment va
 
 ### Current Airbnb URLs
 ```
-AIRBNB_KLV_URL=https://airbnb.co.uk/h/klv
-AIRBNB_KLV1_URL=https://airbnb.co.uk/h/klv1
-AIRBNB_KLV3_URL=https://airbnb.co.uk/h/klv3
+AIRBNB_KLV_URL=https://airbnb.co.uk/h/eklv
 AIRBNB_KLV6_URL=https://airbnb.co.uk/h/klv6
+AIRBNB_KLV2OR3_URL=https://airbnb.co.uk/h/klv2or3
 ```
 
 ### Update to myGuesty URLs

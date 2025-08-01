@@ -100,33 +100,15 @@ const Accommodation = () => {
   };
 
   const getAirbnbUrl = (roomName: string) => {
-    // Use search URLs with location and property details for better reliability
-    const baseUrl = 'https://www.airbnb.com/s/Koggala--Southern-Province--Sri-Lanka';
-    const searchParams = new URLSearchParams({
-      'refinement_paths[]': '/homes',
-      'tab_id': 'home_tab',
-      'flexible_trip_lengths[]': 'one_week',
-      'place_id': 'ChIJy61EFjAd4joRgfhfvUaK3SY',
-      'search_mode': 'regular_search'
-    });
-    
+    // Use direct Airbnb URLs for Ko Lake Villa listings
     if (roomName.includes('KLV1') || roomName.includes('Family Suite')) {
-      searchParams.set('room_types[]', 'Private room');
-      searchParams.set('min_bedrooms', '2');
-      return `${baseUrl}?${searchParams.toString()}`;
+      return 'https://airbnb.co.uk/h/klv6';  // Master Family Suite
     } else if (roomName.includes('KLV3') || roomName.includes('Triple')) {
-      searchParams.set('room_types[]', 'Private room');
-      searchParams.set('min_bedrooms', '1');
-      return `${baseUrl}?${searchParams.toString()}`;
+      return 'https://airbnb.co.uk/h/klv2or3';  // Triple/Twin Rooms
     } else if (roomName.includes('KLV6') || roomName.includes('Group')) {
-      searchParams.set('room_types[]', 'Shared room');
-      searchParams.set('min_bedrooms', '3');
-      return `${baseUrl}?${searchParams.toString()}`;
+      return 'https://airbnb.co.uk/h/klv6';  // Group room / Family Suite
     } else {
-      // Entire villa - search for entire homes
-      searchParams.set('room_types[]', 'Entire home/apt');
-      searchParams.set('min_bedrooms', '4');
-      return `${baseUrl}?${searchParams.toString()}`;
+      return 'https://airbnb.co.uk/h/eklv';  // Entire villa - 7 air-conditioned ensuite bedrooms, sleeps max 23
     }
   };
 

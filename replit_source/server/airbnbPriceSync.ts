@@ -32,10 +32,9 @@ class AirbnbPriceMonitor {
       // Structure ready for implementation when you provide access
       
       const listings = {
-        knp: 'airbnb.co.uk/h/knp',     // Entire villa
-        knp1: 'airbnb.co.uk/h/knp1',  // Family suite
-        knp3: 'airbnb.co.uk/h/knp3',  // Triple rooms
-        knp6: 'airbnb.co.uk/h/knp6'   // Group room (when active)
+        eklv: 'airbnb.co.uk/h/eklv',     // Entire villa - 7 air-conditioned ensuite bedrooms, sleeps max 23
+        klv6: 'airbnb.co.uk/h/klv6',    // Master Family Suite  
+        klv2or3: 'airbnb.co.uk/h/klv2or3'  // Triple/Twin Rooms
       };
 
       // Placeholder for actual API integration

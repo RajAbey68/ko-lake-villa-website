@@ -21,7 +21,7 @@ const rooms = [
     airbnbPrice: 1800,
     capacity: "16++ guests (up to 25)",
     features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view"],
-    link: "https://airbnb.co.uk/h/knp",
+    link: "https://airbnb.co.uk/h/eklv",
     checkinDate: "2025-06-05"
   },
   {
@@ -30,7 +30,7 @@ const rooms = [
     airbnbPrice: 450,
     capacity: "6 guests",
     features: ["Lake views", "Master suite", "Pool access"],
-    link: "https://airbnb.co.uk/h/knp1",
+    link: "https://airbnb.co.uk/h/klv6",
     checkinDate: "2025-06-05"
   },
   {
@@ -39,7 +39,7 @@ const rooms = [
     airbnbPrice: 180,
     capacity: "3 guests per room (4 rooms)",
     features: ["Flexible bedding", "Garden views", "Shared amenities"],
-    link: "https://airbnb.co.uk/h/knp3",
+    link: "https://airbnb.co.uk/h/klv2or3",
     checkinDate: "2025-06-05"
   },
   {
