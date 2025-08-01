@@ -113,23 +113,34 @@ export default function KoLakeVilla() {
           
           .video-player-container {
             background: rgba(0, 0, 0, 0.8);
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 8px;
+            padding: 0.75rem;
             backdrop-filter: blur(8px);
             border: 2px solid rgba(255, 255, 255, 0.2);
+            max-width: 280px;
           }
           
           .video-placeholder {
             width: 100%;
-            height: 300px;
+            height: 150px;
             background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             border: 2px dashed rgba(255, 255, 255, 0.3);
+          }
+          
+          .video-player-container h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+          }
+          
+          .video-placeholder .text-4xl {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
           }
           
           @media (max-width: 768px) {
@@ -198,22 +209,22 @@ export default function KoLakeVilla() {
               </div>
             </div>
             
-            {/* Right side - Video Player */}
-            <div className="flex-1 max-w-md hidden lg:block">
+            {/* Right side - Video Player (Half Size) */}
+            <div className="hidden lg:block">
               <div className="video-player-container">
-                <h3 className="text-white text-lg font-semibold mb-3">Experience Ko Lake Villa</h3>
+                <h3 className="text-white font-semibold mb-2">Experience Ko Lake Villa</h3>
                 <div className="video-placeholder">
                   <div className="text-center">
                     <div className="text-4xl mb-2">🎥</div>
-                    <div>Villa Tour Video</div>
-                    <div className="text-sm text-gray-300 mt-1">Coming Soon</div>
+                    <div className="text-sm">Villa Tour Video</div>
+                    <div className="text-xs text-gray-300 mt-1">Coming Soon</div>
                   </div>
                 </div>
-                <div className="mt-3 text-center">
+                <div className="mt-2 text-center">
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="text-white border-white hover:bg-white hover:text-gray-900"
+                    className="text-white border-white hover:bg-white hover:text-gray-900 text-xs px-3 py-1"
                   >
                     Upload Video
                   </Button>
