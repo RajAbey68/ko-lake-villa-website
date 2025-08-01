@@ -454,7 +454,7 @@ export default function ContactPage() {
                       <h3 className="font-semibold text-gray-900">Location</h3>
                       <p className="text-gray-600">Kathaluwa West</p>
                       <p className="text-gray-600">Koggala Lake, Galle District</p>
-                      <p className="text-sm text-gray-500">2 hours from Colombo Airport</p>
+                      <p className="text-sm text-gray-500">2:30 hours from Colombo Airport</p>
                     </div>
                   </div>
                 </CardContent>
@@ -472,7 +472,7 @@ export default function ContactPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Check-in</span>
-                      <span className="font-medium">2:00 PM - 8:00 PM</span>
+                      <span className="font-medium">2:00 PM - 10:00 PM</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Check-out</span>
@@ -495,43 +495,7 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              {/* Reviews Snippet */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">What Our Guests Say</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-blue-500 pl-4">
-                      <div className="flex items-center mb-2">
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-current" />
-                          ))}
-                        </div>
-                        <span className="ml-2 text-sm text-gray-600">Sarah M.</span>
-                      </div>
-                      <p className="text-gray-700 text-sm">
-                        "Absolutely stunning location with incredible lake views. The team was so responsive and
-                        helpful!"
-                      </p>
-                    </div>
-                    <div className="border-l-4 border-green-500 pl-4">
-                      <div className="flex items-center mb-2">
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-current" />
-                          ))}
-                        </div>
-                        <span className="ml-2 text-sm text-gray-600">David L.</span>
-                      </div>
-                      <p className="text-gray-700 text-sm">
-                        "Booking direct saved us money and the personal service was exceptional. Highly recommend!"
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+
             </div>
           </div>
         </div>
@@ -592,9 +556,11 @@ export default function ContactPage() {
               <CardContent className="p-6 text-center">
                 <Clock className="w-8 h-8 text-amber-600 mx-auto mb-3" />
                 <h3 className="font-semibold text-gray-900 mb-2">Travel Time</h3>
-                <p className="text-gray-600 text-sm">2 hours from Colombo Airport</p>
+                <p className="text-gray-600 text-sm">2:30 hours from Colombo Airport</p>
+                <p className="text-gray-600 text-sm">2 hours from Colombo</p>
                 <p className="text-gray-600 text-sm">30 minutes from Galle</p>
                 <p className="text-gray-600 text-sm">15 minutes from Ahangama</p>
+                <p className="text-gray-600 text-sm">2:30 hours from Yala</p>
               </CardContent>
             </Card>
             
