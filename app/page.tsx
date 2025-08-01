@@ -81,180 +81,107 @@ export default function KoLakeVilla() {
   const renderHomePage = () => (
     <div>
       {/* Hero Section */}
-      <section className="relative h-screen max-h-[800px] min-h-[600px] overflow-hidden">
+      <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <style jsx>{`
-          .hero-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
+          .hero-text {
+            text-align: left;
+            margin-left: 2rem;
+            max-width: 50vw;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 12px;
+            color: #1f2937;
+            backdrop-filter: blur(8px);
           }
           
-          .hero-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-          }
-          
-          .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-              to right,
-              rgba(0, 0, 0, 0.7) 0%,
-              rgba(0, 0, 0, 0.5) 30%,
-              rgba(0, 0, 0, 0.2) 50%,
-              transparent 70%
-            );
-            z-index: 2;
-          }
-          
-          .hero-content-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            padding: 0 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-          }
-          
-          .hero-text-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 550px;
-            width: 100%;
-            margin-left: 0;
-            box-shadow: 
-              0 25px 50px -12px rgba(0, 0, 0, 0.25),
-              0 0 0 1px rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-          }
-          
-          .hero-title {
+          .hero-text h1 {
             color: #92400e;
-            font-size: 3.5rem;
-            font-weight: 800;
             margin-bottom: 1.5rem;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
+            font-weight: 800;
           }
           
-          .hero-subtitle {
+          .hero-text p {
             color: #374151;
-            font-size: 1.5rem;
             margin-bottom: 1rem;
-            font-weight: 500;
           }
           
-          .hero-tagline {
+          .hero-text .tagline {
             color: #92400e;
-            font-size: 1.25rem;
             font-style: italic;
-            margin-bottom: 2.5rem;
-            font-weight: 400;
+            margin-bottom: 2rem;
           }
           
-          .hero-buttons {
+          .video-player-container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            padding: 1rem;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+          }
+          
+          .video-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            border-radius: 8px;
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
-          }
-          
-          @media (min-width: 640px) {
-            .hero-buttons {
-              flex-direction: row;
-              gap: 1.5rem;
-            }
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
           }
           
           @media (max-width: 768px) {
-            .hero-content-container {
-              padding: 0 1rem;
+            .hero-text {
+              margin-left: 1rem;
+              max-width: 90vw;
+              padding: 1.5rem;
             }
             
-            .hero-text-box {
-              padding: 2rem;
-              max-width: 100%;
-              margin-left: 0;
-            }
-            
-            .hero-title {
+            .hero-text h1 {
               font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-              font-size: 1.25rem;
-            }
-            
-            .hero-tagline {
-              font-size: 1.1rem;
             }
           }
           
           @media (max-width: 480px) {
-            .hero-content-container {
-              padding: 0 0.75rem;
+            .hero-text {
+              margin-left: 0.5rem;
+              max-width: 95vw;
+              padding: 1rem;
             }
             
-            .hero-text-box {
-              padding: 1.5rem;
-              border-radius: 15px;
-            }
-            
-            .hero-title {
+            .hero-text h1 {
               font-size: 2rem;
-            }
-            
-            .hero-subtitle {
-              font-size: 1.1rem;
-            }
-            
-            .hero-tagline {
-              font-size: 1rem;
             }
           }
         `}</style>
         
-        {/* Background Image */}
-        <div className="hero-background">
+        <div className="absolute inset-0">
           <Image
             src="/images/hero-pool.jpg"
             alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
             fill
-            className="object-cover object-center"
+            className="object-cover"
             priority
-            sizes="100vw"
-            quality={90}
           />
         </div>
         
-        {/* Gradient Overlay */}
-        <div className="hero-overlay"></div>
+        {/* Light overlay for readability */}
+        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         
-        {/* Content */}
-        <div className="hero-wrapper">
-          <div className="hero-content-container">
-            <div className="hero-text-box">
-              <h1 className="hero-title">Ko Lake Villa</h1>
-              <p className="hero-subtitle">Luxury Lakefront Accommodation in Sri Lanka</p>
-              <p className="hero-tagline">Relax, Revive, Reconnect</p>
-              <div className="hero-buttons">
+        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+          <div className="flex w-full gap-8">
+            {/* Left side - Text content */}
+            <div className="hero-text flex-1">
+              <h1 className="text-5xl md:text-6xl font-bold">Ko Lake Villa</h1>
+              <p className="text-xl md:text-2xl">Luxury Lakefront Accommodation in Sri Lanka</p>
+              <p className="text-lg md:text-xl font-light tagline">Relax, Revive, Reconnect</p>
+              <div className="flex flex-col sm:flex-row gap-4">
                 <a href="/accommodation">
                   <Button
                     size="lg"
-                    className="bg-amber-900 text-white hover:bg-amber-800 transition-all duration-200 w-full font-medium"
+                    className="bg-amber-900 text-white hover:bg-amber-800 w-full"
                   >
                     View Rooms & Rates
                   </Button>
@@ -263,11 +190,34 @@ export default function KoLakeVilla() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-2 border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white transition-all duration-200 w-full font-medium"
+                    className="border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white w-full"
                   >
                     Explore Gallery
                   </Button>
                 </a>
+              </div>
+            </div>
+            
+            {/* Right side - Video Player */}
+            <div className="flex-1 max-w-md hidden lg:block">
+              <div className="video-player-container">
+                <h3 className="text-white text-lg font-semibold mb-3">Experience Ko Lake Villa</h3>
+                <div className="video-placeholder">
+                  <div className="text-center">
+                    <div className="text-4xl mb-2">🎥</div>
+                    <div>Villa Tour Video</div>
+                    <div className="text-sm text-gray-300 mt-1">Coming Soon</div>
+                  </div>
+                </div>
+                <div className="mt-3 text-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-white border-white hover:bg-white hover:text-gray-900"
+                  >
+                    Upload Video
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
