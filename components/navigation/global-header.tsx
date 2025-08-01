@@ -118,18 +118,18 @@ export default function GlobalHeader() {
       <div className="nav-container">
         <div className="nav-content">
           {/* Logo */}
-          <Link href="/" className="nav-logo flex flex-col items-center space-y-1">
-            <div className="logo-image-container">
+          <Link href="/" className="nav-logo flex items-center space-x-3">
+            <div className="logo-image-container flex-shrink-0">
               <Image
                 src="/logo-pavilion.jpg"
                 alt="Ko Lake Villa - Traditional Pavilion by the Lake"
-                width={60}
-                height={40}
-                className="logo-image rounded-md shadow-sm"
+                width={50}
+                height={50}
+                className="logo-image rounded-md shadow-sm object-cover"
                 priority
               />
             </div>
-            <h1 className="nav-logo-text text-center">Ko Lake Villa</h1>
+            <h1 className="nav-logo-text text-xl font-bold text-amber-900">Ko Lake Villa</h1>
           </Link>
 
           {/* Desktop Navigation */}
