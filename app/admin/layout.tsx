@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Image, Users, Settings, LogOut, Home, Calendar, FileText, Target, DollarSign } from "lucide-react"
+import { BarChart3, Image, Users, Settings, LogOut, Home, Calendar, FileText, Target, DollarSign, MessageCircle } from "lucide-react"
 
 export default function AdminLayout({
   children,
@@ -96,6 +96,7 @@ export default function AdminLayout({
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3, id: "analytics" },
     { href: "/admin/content", label: "Content", icon: FileText, id: "content" },
     { href: "/admin/pricing", label: "Pricing Manager", icon: DollarSign, id: "pricing" },
+    { href: "/admin/messages", label: "Contact Messages", icon: MessageCircle, id: "messages" },
     { href: "/admin/bookings", label: "Bookings", icon: Calendar, id: "bookings" },
   ]
 

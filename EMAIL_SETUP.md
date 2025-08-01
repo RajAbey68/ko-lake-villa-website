@@ -1,7 +1,7 @@
 # Email Setup for Ko Lake Villa Contact Form
 
 ## Overview
-The contact form is configured to send emails to multiple recipients when a visitor submits a message through the website.
+The contact form is configured to send emails to multiple recipients AND store messages in Firebase when a visitor submits a message through the website.
 
 ## Email Recipients
 All contact form submissions are automatically sent to:
@@ -43,10 +43,25 @@ SMTP_HOST=smtp.mail.yahoo.com
 SMTP_PORT=587
 ```
 
-### 3. Security Notes
+### 3. Firebase Configuration (for Message Storage)
+
+Add Firebase configuration to your `.env.local`:
+
+```env
+# Firebase Configuration for Contact Message Storage
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+### 4. Security Notes
 - Never commit `.env.local` to git (it's already in .gitignore)
 - Use app passwords, not regular account passwords
 - Ensure your SMTP account has sending permissions
+- Set up proper Firebase security rules for admin-only access
 
 ## Email Template
 The system sends formatted HTML emails with:
@@ -56,11 +71,30 @@ The system sends formatted HTML emails with:
 - Timestamp
 - Reply-to functionality (recipients can reply directly to the customer)
 
+## Dual System: Email + Firebase Storage
+
+### Email System Features:
+- Ko Lake Villa branded HTML emails
+- Contact details (name, email, phone, subject)
+- Full message content with proper formatting
+- Timestamp and source identification
+- Reply-to functionality (recipients can reply directly to customer)
+
+### Firebase Storage Features:
+- All contact messages stored in Firestore
+- Admin portal at `/admin/messages` for message management
+- Message status tracking (open/closed)
+- Search and filter functionality
+- Email delivery status tracking
+- Message deletion capability
+
 ## Testing
-1. Deploy the application with proper environment variables
+1. Deploy the application with proper environment variables (SMTP + Firebase)
 2. Submit a test message through the contact form
 3. Check all recipient emails for delivery
 4. Verify the email formatting and reply functionality
+5. Check `/admin/messages` to confirm Firebase storage
+6. Test message management features (close, reopen, delete)
 
 ## Troubleshooting
 

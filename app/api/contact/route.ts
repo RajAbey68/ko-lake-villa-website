@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ContactFormData {
   name: string;
@@ -31,6 +33,54 @@ const createTransporter = () => {
       pass: process.env.SMTP_PASSWORD || '' // Use app password for Gmail
     },
   });
+};
+
+// Store contact message in Firebase
+const storeContactMessage = async (formData: ContactFormData) => {
+  if (!db) {
+    console.warn('Firebase not initialized, skipping message storage');
+    return { success: false, error: 'Firebase not available' };
+  }
+
+  try {
+    const messageData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone || '',
+      subject: formData.subject || 'General Inquiry',
+      message: formData.message,
+      submittedAt: serverTimestamp(),
+      status: 'open', // 'open' or 'closed'
+      closedAt: null,
+      closedBy: null,
+      emailSent: false, // Will be updated after email is sent
+      emailMessageId: null
+    };
+
+    const docRef = await addDoc(collection(db, 'contactMessages'), messageData);
+    console.log('Contact message stored in Firebase with ID:', docRef.id);
+    
+    return { success: true, docId: docRef.id };
+  } catch (error) {
+    console.error('Error storing contact message in Firebase:', error);
+    return { success: false, error: error };
+  }
+};
+
+// Update Firebase message with email status
+const updateEmailStatus = async (docId: string, emailSent: boolean, messageId?: string) => {
+  if (!db || !docId) return;
+
+  try {
+    const { doc, updateDoc } = await import('firebase/firestore');
+    await updateDoc(doc(db, 'contactMessages', docId), {
+      emailSent,
+      emailMessageId: messageId || null,
+      emailSentAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating email status:', error);
+  }
 };
 
 // Send email to all recipients
@@ -131,30 +181,31 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString()
     });
 
-    // Send email to all recipients
+    // 1. Store message in Firebase (FIRST PRIORITY)
+    const firebaseResult = await storeContactMessage(body);
+    
+    // 2. Send email to all recipients (EXISTING FUNCTIONALITY)
     const emailResult = await sendContactEmail(body);
     
-    if (emailResult.success) {
-      return NextResponse.json(
-        { 
-          success: true, 
-          message: 'Thank you for your message. We have received your inquiry and will get back to you soon!',
-          messageId: emailResult.messageId
-        },
-        { status: 200 }
-      );
-    } else {
-      // Even if email fails, we still log the submission
-      console.error('Email sending failed but form was processed:', emailResult.error);
-      return NextResponse.json(
-        { 
-          success: true,
-          message: 'Thank you for your message. We have received your inquiry and will get back to you soon!',
-          warning: 'Email notification may have failed, but your message was received.'
-        },
-        { status: 200 }
-      );
+    // 3. Update Firebase with email status if message was stored
+    if (firebaseResult.success && firebaseResult.docId) {
+      await updateEmailStatus(firebaseResult.docId, emailResult.success, emailResult.messageId);
     }
+    
+    // Return success regardless of individual service failures
+    // This ensures the user always gets a positive response
+    return NextResponse.json(
+      { 
+        success: true, 
+        message: 'Thank you for your message. We have received your inquiry and will get back to you soon!',
+        details: {
+          stored: firebaseResult.success,
+          emailSent: emailResult.success,
+          messageId: emailResult.messageId
+        }
+      },
+      { status: 200 }
+    );
 
   } catch (error) {
     console.error('Contact form error:', error);
