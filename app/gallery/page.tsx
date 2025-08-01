@@ -450,8 +450,22 @@ export default function GalleryPage() {
               )}
             </div>
             <div className="p-4">
-              <h3 className="font-semibold text-sm mb-1 line-clamp-2">{item.title}</h3>
-              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{item.description}</p>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-semibold text-sm line-clamp-2 flex-1">{item.title}</h3>
+                {item.type === 'video' && (
+                  <div className="ml-2 flex-shrink-0">
+                    <Video className="w-5 h-5 text-red-600" />
+                  </div>
+                )}
+              </div>
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-xs text-gray-600 line-clamp-2 flex-1">{item.description}</p>
+                {item.type === 'video' && (
+                  <div className="ml-2 flex-shrink-0">
+                    <span className="text-xs text-red-600 font-medium">VIDEO</span>
+                  </div>
+                )}
+              </div>
               <div className="flex justify-between items-center">
                 <Badge variant="outline" className="text-xs">
                   {item.category}

@@ -237,10 +237,10 @@ export default function GlobalHeader() {
       <header className="villa-header">
         <div className="villa-brand">
           <Link href="/" className="flex items-center">
-            {/* EXCLUSIVE PERMANENT LOGO - DO NOT REPLACE OR MODIFY */}
+            {/* EXCLUSIVE PERMANENT LOGO - SALA LAKE IMAGE AS SPECIFIED */}
             <Image
-              src="/images/ko-lake-ambalama-logo.jpg"
-              alt="Ko Lake Villa - Traditional Lakeside Pavilion"
+              src="/images/sala-lake.jpg"
+              alt="Ko Lake Villa - Beautiful Lakeside Sala Pavilion"
               width={40}
               height={40}
               className="villa-thumbnail"

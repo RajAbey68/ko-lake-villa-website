@@ -82,49 +82,72 @@ export default function KoLakeVilla() {
     <div>
       {/* Hero Section */}
       <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
-                  <div className="absolute inset-0">
-                      <Image
-              src="/images/hero-pool.jpg"
-              alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-          <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-            <div className="flex w-full">
-              {/* Left side - Text content moved further left */}
-              <div className="flex-1 max-w-lg">
-                <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
-                <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
-                <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Reconnect</p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <a href="/accommodation">
-                    <Button
-                      size="lg"
-                      className="bg-white text-amber-900 hover:bg-amber-50 hover:text-amber-900 w-full"
-                    >
-                      View Rooms & Rates
-                    </Button>
-                  </a>
-                  <a href="/gallery">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="text-white border-white hover:bg-white hover:text-amber-900 w-full"
-                    >
-                      Explore Gallery
-                    </Button>
-                  </a>
-                </div>
+        <style jsx>{`
+          .hero-text {
+            text-align: left;
+            margin-left: 2rem;
+            max-width: 60vw;
+          }
+          
+          @media (max-width: 768px) {
+            .hero-text {
+              margin-left: 1rem;
+              max-width: 90vw;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            .hero-text {
+              margin-left: 0.5rem;
+              max-width: 95vw;
+            }
+          }
+        `}</style>
+        
+        <div className="absolute inset-0">
+          <Image
+            src="/images/hero-pool.jpg"
+            alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        
+        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+          <div className="flex w-full">
+            {/* Left side - Text content properly aligned left with margin */}
+            <div className="hero-text flex-1">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
+              <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
+              <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Reconnect</p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a href="/accommodation">
+                  <Button
+                    size="lg"
+                    className="bg-white text-amber-900 hover:bg-amber-50 hover:text-amber-900 w-full"
+                  >
+                    View Rooms & Rates
+                  </Button>
+                </a>
+                <a href="/gallery">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="text-white border-white hover:bg-white hover:text-amber-900 w-full"
+                  >
+                    Explore Gallery
+                  </Button>
+                </a>
               </div>
-              
-              {/* Right side - Space for future video upload */}
-              <div className="flex-1 max-w-md ml-8 hidden lg:block">
-                {/* Video upload component will be added here */}
-              </div>
+            </div>
+            
+            {/* Right side - Space for future video upload */}
+            <div className="flex-1 max-w-md ml-8 hidden lg:block">
+              {/* Video upload component will be added here */}
             </div>
           </div>
         </div>
