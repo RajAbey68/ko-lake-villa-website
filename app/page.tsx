@@ -83,7 +83,7 @@ export default function KoLakeVilla() {
       <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="absolute inset-0">
           <Image
-            src="/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg"
+            src="/images/blue-pool.jpg"
             alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
             fill
             className="object-cover"

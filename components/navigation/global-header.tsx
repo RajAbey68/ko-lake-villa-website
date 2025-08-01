@@ -238,8 +238,8 @@ export default function GlobalHeader() {
         <div className="villa-brand">
           <Link href="/" className="flex items-center">
             <Image
-              src="/uploads/gallery/koggala-lake/KoggalaNinePeaks_koggala-lake_0.jpg"
-              alt="Ko Lake Villa - Traditional Sala by the Lake" 
+              src="/images/sala-lake.jpg"
+              alt="Ko Lake Villa - Traditional Sala by the Lake"
               width={40}
               height={40}
               className="villa-thumbnail"

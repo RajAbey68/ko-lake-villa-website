@@ -101,8 +101,8 @@ export default function AdminContent() {
       subtitle: "Luxury Lakefront Accommodation in Sri Lanka", 
       description: "Experience the perfect blend of luxury and nature at Ko Lake Villa. Our stunning lake house offers breathtaking views, modern amenities, and authentic Sri Lankan hospitality.",
       heroText: "Relax, Revive, Connect",
-      heroImage: "/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg",
-      logoImage: "/uploads/gallery/koggala-lake/KoggalaNinePeaks_koggala-lake_0.jpg"
+      heroImage: "/images/blue-pool.jpg",
+      logoImage: "/images/sala-lake.jpg"
     },
     accommodation: {
       title: "Luxury Accommodation",
