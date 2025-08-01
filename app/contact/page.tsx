@@ -375,31 +375,60 @@ export default function ContactPage() {
                   <CardTitle className="text-xl">Get in Touch</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* General Manager */}
                   <div className="flex items-start space-x-4">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Phone className="w-6 h-6 text-orange-600" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Phone</h3>
-                      <p className="text-gray-600">+94711730345</p>
-                      <p className="text-sm text-gray-500">Available 8 AM - 10 PM daily</p>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">General Manager</h3>
+                      <p className="text-gray-600">+94 71 776 5780</p>
+                      <Button
+                        size="sm"
+                        className="mt-2 bg-green-600 hover:bg-green-700 mr-2"
+                        onClick={() => window.open("https://wa.me/94717765780", "_blank")}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        WhatsApp
+                      </Button>
                     </div>
                   </div>
 
+                  {/* Villa Team Lead */}
                   <div className="flex items-start space-x-4">
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <MessageCircle className="w-6 h-6 text-green-600" />
+                    <div className="bg-blue-100 p-3 rounded-full">
+                      <Phone className="w-6 h-6 text-blue-600" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">WhatsApp</h3>
-                      <p className="text-gray-600">+94711730345</p>
-                      <p className="text-sm text-gray-500">Quick responses, 24/7</p>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">Villa Team Lead</h3>
+                      <p className="text-gray-600">+94 77 315 0602</p>
+                      <p className="text-sm text-gray-500">Sinhala speaker</p>
                       <Button
                         size="sm"
-                        className="mt-2 bg-green-600 hover:bg-green-700"
+                        className="mt-2 bg-green-600 hover:bg-green-700 mr-2"
+                        onClick={() => window.open("https://wa.me/94773150602", "_blank")}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        WhatsApp
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Owner */}
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-amber-100 p-3 rounded-full">
+                      <Phone className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">Owner</h3>
+                      <p className="text-gray-600">+94 711730345</p>
+                      <Button
+                        size="sm"
+                        className="mt-2 bg-green-600 hover:bg-green-700 mr-2"
                         onClick={() => window.open("https://wa.me/94711730345", "_blank")}
                       >
-                        Chat Now
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        WhatsApp
                       </Button>
                     </div>
                   </div>
@@ -451,7 +480,7 @@ export default function ContactPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Reception</span>
-                      <span className="font-medium">8:00 AM - 10:00 PM</span>
+                      <span className="font-medium">7:00 AM - 10:30 PM</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">WhatsApp Support</span>

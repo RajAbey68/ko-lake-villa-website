@@ -451,7 +451,7 @@ export default function KoLakeVilla() {
                       <Phone className="w-5 h-5 text-orange-600" />
                       <div>
                         <div className="font-medium">Phone</div>
-                        <div className="text-gray-600">+94711730345</div>
+                        <div className="text-gray-600">+94 71 776 5780</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
@@ -469,7 +469,7 @@ export default function KoLakeVilla() {
                       </div>
                     </div>
                   </div>
-                  <a href="https://wa.me/94711730345" target="_blank" rel="noopener noreferrer" className="w-full">
+                  <a href="https://wa.me/94717765780" target="_blank" rel="noopener noreferrer" className="w-full">
                     <Button className="w-full mt-6 bg-green-600 hover:bg-green-700">
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Chat on WhatsApp
@@ -505,8 +505,8 @@ export default function KoLakeVilla() {
               <h4 className="font-semibold mb-4">Contact</h4>
               <div className="space-y-2 text-gray-400">
                 <div>
-                  <a href="tel:+94711730345" className="hover:text-amber-400 transition-colors">
-                    +94711730345
+                  <a href="tel:+94717765780" className="hover:text-amber-400 transition-colors">
+                    +94 71 776 5780 (Manager)
                   </a>
                 </div>
                 <div>

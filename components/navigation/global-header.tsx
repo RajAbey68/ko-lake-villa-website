@@ -66,7 +66,7 @@ export default function GlobalHeader() {
   ]
 
   const contactItems = [
-    { href: "tel:+94711730345", label: "Call Us", icon: Phone },
+    { href: "tel:+94717765780", label: "Call Manager", icon: Phone },
     { href: "mailto:contact@KoLakeHouse.com", label: "Email", icon: Mail },
   ]
 
