@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Image, Users, Settings, LogOut, Home, Calendar, FileText, Target, DollarSign, MessageCircle } from "lucide-react"
+import { BarChart3, Image as ImageIcon, Users, Settings, LogOut, Home, Calendar, FileText, Target, DollarSign, MessageCircle } from "lucide-react"
 
 export default function AdminLayout({
   children,
@@ -70,9 +71,13 @@ export default function AdminLayout({
           <div className="nav-container">
             <div className="nav-admin-content">
               <div className="nav-admin-logo">
-                <div className="nav-admin-logo-icon">
-                  <span className="text-white font-bold text-sm">KL</span>
-                </div>
+                <Image
+                  src="/images/sala-lake.jpg"
+                  alt="Ko Lake Villa Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-md object-cover"
+                />
                 <span className="nav-admin-logo-text">Ko Lake Villa Admin</span>
               </div>
             </div>
@@ -91,7 +96,7 @@ export default function AdminLayout({
 
   const navigationItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3, id: "dashboard" },
-    { href: "/admin/gallery", label: "Gallery Manager", icon: Image, id: "gallery" },
+    { href: "/admin/gallery", label: "Gallery Manager", icon: ImageIcon, id: "gallery" },
     { href: "/admin/campaigns", label: "Campaign Manager", icon: Target, id: "campaigns" },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3, id: "analytics" },
     { href: "/admin/content", label: "Content", icon: FileText, id: "content" },
@@ -108,9 +113,13 @@ export default function AdminLayout({
           <div className="nav-admin-content">
             <div className="nav-admin-brand">
               <Link href="/admin/dashboard" className="nav-admin-logo">
-                <div className="nav-admin-logo-icon">
-                  <span className="text-white font-bold text-sm">KL</span>
-                </div>
+                <Image
+                  src="/images/sala-lake.jpg"
+                  alt="Ko Lake Villa Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-md object-cover"
+                />
                 <span className="nav-admin-logo-text">Ko Lake Villa Admin</span>
               </Link>
               

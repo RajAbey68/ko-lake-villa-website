@@ -81,54 +81,142 @@ export default function KoLakeVilla() {
   const renderHomePage = () => (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
+      <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
         <style jsx>{`
+          .hero-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+          }
+          
+          .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+          }
+          
+          .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+              135deg,
+              rgba(0, 0, 0, 0.6) 0%,
+              rgba(0, 0, 0, 0.4) 40%,
+              rgba(0, 0, 0, 0.1) 70%,
+              transparent 100%
+            );
+            z-index: 2;
+          }
+          
+          .hero-content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            min-height: 100%;
+          }
+          
           .hero-text {
-            text-align: left;
-            margin-left: 2rem;
-            max-width: 60vw;
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-left: 0;
+            color: #1f2937;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          }
+          
+          .hero-text h1 {
+            color: #92400e;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+          }
+          
+          .hero-text p {
+            color: #374151;
+            margin-bottom: 1rem;
+          }
+          
+          .hero-text .tagline {
+            color: #92400e;
+            font-style: italic;
+            margin-bottom: 2rem;
           }
           
           @media (max-width: 768px) {
+            .hero-content {
+              padding: 0 1rem;
+            }
+            
             .hero-text {
-              margin-left: 1rem;
-              max-width: 90vw;
+              padding: 2rem;
+              margin-left: 0;
+              max-width: 100%;
+            }
+            
+            .hero-text h1 {
+              font-size: 2.5rem;
             }
           }
           
           @media (max-width: 480px) {
+            .hero-content {
+              padding: 0 0.75rem;
+            }
+            
             .hero-text {
-              margin-left: 0.5rem;
-              max-width: 95vw;
+              padding: 1.5rem;
+              border-radius: 12px;
+            }
+            
+            .hero-text h1 {
+              font-size: 2rem;
             }
           }
         `}</style>
         
-        <div className="absolute inset-0">
+        {/* Background Image */}
+        <div className="hero-background">
           <Image
             src="/images/hero-pool.jpg"
             alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
             fill
-            className="object-contain"
+            className="object-cover"
             priority
+            sizes="100vw"
           />
         </div>
         
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        {/* Gradient Overlay */}
+        <div className="hero-overlay"></div>
         
-        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-          <div className="flex w-full">
-            {/* Left side - Text content properly aligned left with margin */}
-            <div className="hero-text flex-1">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
-              <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
-              <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Reconnect</p>
+        {/* Content */}
+        <div className="hero-container">
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="text-5xl md:text-6xl font-bold">Ko Lake Villa</h1>
+              <p className="text-xl md:text-2xl">Luxury Lakefront Accommodation in Sri Lanka</p>
+              <p className="text-lg md:text-xl font-light tagline">Relax, Revive, Reconnect</p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a href="/accommodation">
                   <Button
                     size="lg"
-                    className="bg-white text-amber-900 hover:bg-amber-50 hover:text-amber-900 w-full"
+                    className="bg-amber-900 text-white hover:bg-amber-800 w-full"
                   >
                     View Rooms & Rates
                   </Button>
@@ -137,17 +225,12 @@ export default function KoLakeVilla() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="text-white border-white hover:bg-white hover:text-amber-900 w-full"
+                    className="border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white w-full"
                   >
                     Explore Gallery
                   </Button>
                 </a>
               </div>
-            </div>
-            
-            {/* Right side - Space for future video upload */}
-            <div className="flex-1 max-w-md ml-8 hidden lg:block">
-              {/* Video upload component will be added here */}
             </div>
           </div>
         </div>
