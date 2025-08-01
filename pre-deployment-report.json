@@ -1,276 +1,276 @@
 {
   "summary": {
     "total": 36,
-    "passed": 35,
-    "failed": 1,
+    "passed": 30,
+    "failed": 6,
     "warnings": 7,
-    "timestamp": "2025-07-30T16:59:01.831Z"
+    "timestamp": "2025-08-01T14:58:52.831Z"
   },
   "details": [
     {
       "test": "Clean Build",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:44.612Z"
+      "timestamp": "2025-08-01T14:58:25.730Z"
     },
     {
       "test": "Build Output Exists",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:44.612Z"
+      "timestamp": "2025-08-01T14:58:25.730Z"
     },
     {
       "test": "All Pages Generated",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:44.612Z"
+      "timestamp": "2025-08-01T14:58:25.730Z"
     },
     {
       "test": "TypeScript Compilation",
-      "passed": true,
-      "details": "",
-      "timestamp": "2025-07-30T16:58:50.929Z"
+      "passed": false,
+      "details": "Type errors found",
+      "timestamp": "2025-08-01T14:58:35.924Z"
     },
     {
       "test": "ESLint Validation",
       "passed": null,
       "details": "Linting issues found (non-blocking)",
-      "timestamp": "2025-07-30T16:58:51.640Z",
+      "timestamp": "2025-08-01T14:58:36.846Z",
       "warning": true
     },
     {
       "test": "Component: app/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: app/layout.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: app/gallery/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: app/accommodation/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: app/dining/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: app/experiences/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: app/admin/page.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: components/ui/button.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Component: components/ui/card.tsx",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.846Z"
     },
     {
       "test": "Gallery: No API Dependencies",
-      "passed": true,
-      "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "passed": false,
+      "details": "Gallery still has API calls - will cause loading issues",
+      "timestamp": "2025-08-01T14:58:36.847Z"
     },
     {
       "test": "Asset: public/images/hero-pool.jpg",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.847Z"
     },
     {
       "test": "Asset: public/images/excursions-hero.jpg",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.847Z"
     },
     {
       "test": "Asset: public/placeholder.svg",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.640Z"
+      "timestamp": "2025-08-01T14:58:36.847Z"
     },
     {
       "test": "Placeholder Usage: app/page.tsx",
       "passed": null,
       "details": "Uses placeholder.svg - replace with real images",
-      "timestamp": "2025-07-30T16:58:51.641Z",
+      "timestamp": "2025-08-01T14:58:36.860Z",
       "warning": true
     },
     {
       "test": "Placeholder Usage: app/gallery/page.tsx",
       "passed": null,
       "details": "Uses placeholder.svg - replace with real images",
-      "timestamp": "2025-07-30T16:58:51.641Z",
+      "timestamp": "2025-08-01T14:58:36.860Z",
       "warning": true
     },
     {
       "test": "Placeholder Usage: components/public-gallery.tsx",
       "passed": null,
       "details": "Uses placeholder.svg - replace with real images",
-      "timestamp": "2025-07-30T16:58:51.641Z",
+      "timestamp": "2025-08-01T14:58:36.861Z",
       "warning": true
     },
     {
       "test": "Package.json Valid",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.862Z"
     },
     {
       "test": "No pnpm-lock.yaml",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.862Z"
     },
     {
       "test": "npm package-lock.json exists",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.862Z"
     },
     {
       "test": "Next.js Config Exists",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.862Z"
     },
     {
       "test": "vercel.json Exists",
       "passed": null,
       "details": "Manual Vercel config - may cause deployment issues",
-      "timestamp": "2025-07-30T16:58:51.641Z",
+      "timestamp": "2025-08-01T14:58:36.862Z",
       "warning": true
     },
     {
       "test": "Brand: Brand Name",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.862Z"
     },
     {
       "test": "Brand: Tagline",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.862Z"
     },
     {
       "test": "Brand: Phone Number",
-      "passed": true,
+      "passed": false,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.863Z"
     },
     {
       "test": "Brand: Brand Colors (Amber)",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.863Z"
     },
     {
       "test": "Brand: WhatsApp Integration",
-      "passed": true,
+      "passed": false,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.863Z"
     },
     {
       "test": "Brand: No Blue Colors",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:58:51.641Z"
+      "timestamp": "2025-08-01T14:58:36.863Z"
     },
     {
       "test": "Homepage Size Optimal",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.758Z"
+      "timestamp": "2025-08-01T14:58:52.702Z"
     },
     {
       "test": "Gallery: Uses Static Data",
-      "passed": true,
-      "details": "",
-      "timestamp": "2025-07-30T16:59:01.760Z"
+      "passed": false,
+      "details": "Gallery may have API dependencies that cause loading issues",
+      "timestamp": "2025-08-01T14:58:52.704Z"
     },
     {
       "test": "Package Manager: No Conflicts",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.760Z"
+      "timestamp": "2025-08-01T14:58:52.704Z"
     },
     {
       "test": "Import: No Pool from lucide-react",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.760Z"
+      "timestamp": "2025-08-01T14:58:52.728Z"
     },
     {
       "test": "API Directory",
       "passed": null,
       "details": "app/api exists - may cause deployment issues if empty",
-      "timestamp": "2025-07-30T16:59:01.760Z",
+      "timestamp": "2025-08-01T14:58:52.728Z",
       "warning": true
     },
     {
       "test": "Environment Variables",
       "passed": null,
       "details": ".env.local exists - check secrets not committed",
-      "timestamp": "2025-07-30T16:59:01.760Z",
+      "timestamp": "2025-08-01T14:58:52.728Z",
       "warning": true
     },
     {
       "test": "Git: No Uncommitted Changes",
       "passed": false,
       "details": "Uncommitted changes found",
-      "timestamp": "2025-07-30T16:59:01.831Z"
+      "timestamp": "2025-08-01T14:58:52.830Z"
     },
     {
       "test": "Deployment: package.json",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.831Z"
+      "timestamp": "2025-08-01T14:58:52.831Z"
     },
     {
       "test": "Deployment: next.config.mjs",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.831Z"
+      "timestamp": "2025-08-01T14:58:52.831Z"
     },
     {
       "test": "Deployment: tailwind.config.ts",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.831Z"
+      "timestamp": "2025-08-01T14:58:52.831Z"
     },
     {
       "test": "Deployment: tsconfig.json",
       "passed": true,
       "details": "",
-      "timestamp": "2025-07-30T16:59:01.831Z"
+      "timestamp": "2025-08-01T14:58:52.831Z"
     }
   ]
 }

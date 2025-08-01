@@ -81,12 +81,12 @@ export default function KoLakeVilla() {
     <div>
       {/* Hero Section */}
       <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
-        <div className="absolute inset-0">
+                  <div className="absolute inset-0">
                       <Image
-              src="/images/blue-pool.jpg"
+              src="/images/hero-pool.jpg"
               alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
