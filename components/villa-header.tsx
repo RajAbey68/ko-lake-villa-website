@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 
 export default function VillaHeader() {
   return (
@@ -39,7 +40,13 @@ export default function VillaHeader() {
       
       <header className="villa-header">
         <div className="villa-brand">
-          <img src="/villa-thumbnail.jpg" alt="Ko Lake Villa Logo" className="villa-thumbnail" />
+          <Image 
+            src="/images/sala-lake.jpg" 
+            alt="Ko Lake Villa - Beautiful Lakeside Sala Pavilion" 
+            width={40} 
+            height={40} 
+            className="villa-thumbnail" 
+          />
           <span className="villa-title">Ko Lake Villa</span>
         </div>
         <nav className="villa-navbar">
