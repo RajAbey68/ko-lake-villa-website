@@ -1,1 +1,32 @@
-{}
+{
+  "default/1747314600586-813125493-20250418_070924.jpg": {
+    "title": "Pool View Morning",
+    "description": "Beautiful morning view of the pool deck with coconut palms",
+    "category": "Pool & Facilities",
+    "tags": [
+      "pool",
+      "morning",
+      "coconut palms"
+    ],
+    "seoTitle": "Pool View Morning | Ko Lake Villa Gallery",
+    "seoDescription": "Beautiful morning view of the pool deck with coconut palms at Ko Lake Villa",
+    "altText": "Morning pool view with coconut palms at Ko Lake Villa",
+    "updatedAt": "2025-08-01T15:56:25.004Z",
+    "updatedBy": "system"
+  },
+  "default/1747314605513.jpeg": {
+    "title": "Garden Walkway",
+    "description": "Peaceful garden walkway surrounded by tropical vegetation",
+    "category": "Garden",
+    "tags": [
+      "garden",
+      "walkway",
+      "tropical"
+    ],
+    "seoTitle": "Garden Walkway | Ko Lake Villa Gallery",
+    "seoDescription": "Peaceful garden walkway surrounded by tropical vegetation at Ko Lake Villa",
+    "altText": "Garden walkway at Ko Lake Villa",
+    "updatedAt": "2025-08-01T15:56:25.012Z",
+    "updatedBy": "system"
+  }
+}
