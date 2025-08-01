@@ -92,7 +92,7 @@ export default function AccommodationPage() {
         "Premium lake-facing bedrooms"
       ],
       amenities: ["Private Pool", "Lake Access", "Full Kitchen", "Free Parking", "WiFi", "AC", "Chef Service"],
-      airbnbLink: "https://www.airbnb.com/rooms/entire-villa-ko-lake",
+      airbnbLink: "https://airbnb.co.uk/h/eklv",
       popularChoice: true
     },
     {
@@ -123,7 +123,7 @@ export default function AccommodationPage() {
         "Shared pool and garden access"
       ],
       amenities: ["Lake View", "Private Balcony", "En-suite Bath", "Pool Access", "WiFi", "AC", "Mini Fridge"],
-      airbnbLink: "https://www.airbnb.com/rooms/master-family-suite-ko-lake"
+      airbnbLink: "https://airbnb.co.uk/h/klv6"
     },
     {
       id: "triple-twin-rooms",
@@ -153,7 +153,7 @@ export default function AccommodationPage() {
         "Perfect for backpackers"
       ],
       amenities: ["Garden View", "Shared Kitchen", "Pool Access", "WiFi", "AC", "Parking"],
-      airbnbLink: "https://www.airbnb.com/rooms/triple-twin-rooms-ko-lake"
+      airbnbLink: "https://airbnb.co.uk/h/klv2or3"
     }
   ]
 
@@ -191,6 +191,36 @@ export default function AccommodationPage() {
                 <strong> Valid until {nextFiveDays}</strong>
               </AlertDescription>
             </Alert>
+            
+            {/* Airbnb URLs Summary - Plain Text Copy & Paste */}
+            <div className="max-w-4xl mx-auto mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-bold text-blue-900 mb-4 text-center">
+                📋 Airbnb Booking URLs (Copy & Paste)
+              </h3>
+              <div className="accommodation-listing space-y-3">
+                <div className="bg-white p-3 rounded border border-blue-200">
+                  <strong className="text-blue-800">Entire Villa:</strong>{" "}
+                  <span className="font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded select-all">
+                    airbnb.co.uk/h/eklv
+                  </span>
+                </div>
+                <div className="bg-white p-3 rounded border border-blue-200">
+                  <strong className="text-blue-800">Master Family Suite:</strong>{" "}
+                  <span className="font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded select-all">
+                    airbnb.co.uk/h/klv6
+                  </span>
+                </div>
+                <div className="bg-white p-3 rounded border border-blue-200">
+                  <strong className="text-blue-800">Triple/Twin Rooms:</strong>{" "}
+                  <span className="font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded select-all">
+                    airbnb.co.uk/h/klv2or3
+                  </span>
+                </div>
+              </div>
+              <p className="text-sm text-blue-700 text-center mt-3">
+                Click on any URL to select all text, then copy and paste into your browser
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -380,6 +410,20 @@ export default function AccommodationPage() {
                           <h5 className="font-bold text-gray-800">Standard Airbnb Booking</h5>
                           <p className="text-sm text-gray-600">Book through Airbnb at regular price</p>
                         </div>
+                        
+                        {/* Plain Text Airbnb URL - Copy & Pastable */}
+                        <div className="bg-white border border-gray-300 rounded-md p-3 mb-3">
+                          <div className="text-sm text-gray-700 mb-1">
+                            <strong>Airbnb URL (Copy & Paste):</strong>
+                          </div>
+                          <div className="font-mono text-sm text-blue-600 bg-gray-50 p-2 rounded border select-all">
+                            {room.airbnbLink.replace('https://', '')}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Click to select all • Copy and paste this URL into your browser
+                          </div>
+                        </div>
+                        
                         <Button 
                           className="w-full bg-[#FF385C] hover:bg-[#E31C5F] text-white font-bold"
                           asChild
