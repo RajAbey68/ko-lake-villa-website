@@ -96,7 +96,7 @@ export default function AccommodationPage() {
                     />
                     <div className="absolute top-4 left-4 flex gap-2">
                       <Badge className="bg-red-500">Save {room.discount}</Badge>
-                      <Badge className="bg-green-500">≤3 days: {room.lastMinuteDiscount}</Badge>
+                      <Badge className="bg-green-500">Last Min &gt;3days is further 5% IF Available</Badge>
                     </div>
                   </div>
 
@@ -199,9 +199,9 @@ export default function AccommodationPage() {
               <div className="text-sm text-gray-600">Direct contact with our team</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-purple-600 mb-2">Free</div>
-              <div className="font-semibold mb-2">Cancellation</div>
-              <div className="text-sm text-gray-600">Flexible booking terms</div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">Flexible</div>
+              <div className="font-semibold mb-2">Booking</div>
+              <div className="text-sm text-gray-600">Reserve popular periods</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-orange-600 mb-2">Best</div>

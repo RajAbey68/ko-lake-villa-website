@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Star } from "lucide-react"
 import Link from "next/link"
 import GlobalHeader from "@/components/navigation/global-header"
@@ -17,6 +18,7 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    countryCode: "",
     phone: "",
     subject: "",
     message: "",
@@ -121,14 +123,60 @@ export default function ContactPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
-                          placeholder="+94711730345"
-                        />
+                        <Label htmlFor="phone">Your Phone Number</Label>
+                        <div className="flex gap-2">
+                          <Select value={formData.countryCode} onValueChange={(value) => handleInputChange("countryCode", value)}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="Country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                              <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                              <SelectItem value="+61">🇦🇺 +61</SelectItem>
+                              <SelectItem value="+64">🇳🇿 +64</SelectItem>
+                              <SelectItem value="+49">🇩🇪 +49</SelectItem>
+                              <SelectItem value="+33">🇫🇷 +33</SelectItem>
+                              <SelectItem value="+39">🇮🇹 +39</SelectItem>
+                              <SelectItem value="+34">🇪🇸 +34</SelectItem>
+                              <SelectItem value="+31">🇳🇱 +31</SelectItem>
+                              <SelectItem value="+46">🇸🇪 +46</SelectItem>
+                              <SelectItem value="+47">🇳🇴 +47</SelectItem>
+                              <SelectItem value="+45">🇩🇰 +45</SelectItem>
+                              <SelectItem value="+41">🇨🇭 +41</SelectItem>
+                              <SelectItem value="+43">🇦🇹 +43</SelectItem>
+                              <SelectItem value="+32">🇧🇪 +32</SelectItem>
+                              <SelectItem value="+91">🇮🇳 +91</SelectItem>
+                              <SelectItem value="+86">🇨🇳 +86</SelectItem>
+                              <SelectItem value="+81">🇯🇵 +81</SelectItem>
+                              <SelectItem value="+82">🇰🇷 +82</SelectItem>
+                              <SelectItem value="+65">🇸🇬 +65</SelectItem>
+                              <SelectItem value="+60">🇲🇾 +60</SelectItem>
+                              <SelectItem value="+66">🇹🇭 +66</SelectItem>
+                              <SelectItem value="+84">🇻🇳 +84</SelectItem>
+                              <SelectItem value="+62">🇮🇩 +62</SelectItem>
+                              <SelectItem value="+63">🇵🇭 +63</SelectItem>
+                              <SelectItem value="+94">🇱🇰 +94</SelectItem>
+                              <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                              <SelectItem value="+974">🇶🇦 +974</SelectItem>
+                              <SelectItem value="+966">🇸🇦 +966</SelectItem>
+                              <SelectItem value="+27">🇿🇦 +27</SelectItem>
+                              <SelectItem value="+55">🇧🇷 +55</SelectItem>
+                              <SelectItem value="+52">🇲🇽 +52</SelectItem>
+                              <SelectItem value="+54">🇦🇷 +54</SelectItem>
+                              <SelectItem value="+56">🇨🇱 +56</SelectItem>
+                              <SelectItem value="+57">🇨🇴 +57</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange("phone", e.target.value)}
+                            placeholder="Your phone number"
+                            className="flex-1"
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Please include your country code so we know your timezone for responding</p>
                       </div>
 
                       <div>

@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Menu, X, LogIn, LogOut, Settings, Shield, Phone, Mail, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
+import Image from "next/image"
 
 interface UserInterface {
   id: string
@@ -31,7 +32,7 @@ export default function GlobalHeader() {
   const pathname = usePathname()
 
   // Don't show GlobalHeader on admin pages - let admin layout handle navigation
-  if (pathname.startsWith('/admin')) {
+  if (pathname?.startsWith('/admin')) {
     return null
   }
 
@@ -117,8 +118,18 @@ export default function GlobalHeader() {
       <div className="nav-container">
         <div className="nav-content">
           {/* Logo */}
-          <Link href="/" className="nav-logo">
-            <h1 className="nav-logo-text">Ko Lake Villa</h1>
+          <Link href="/" className="nav-logo flex flex-col items-center space-y-1">
+            <div className="logo-image-container">
+              <Image
+                src="/logo-pavilion.jpg"
+                alt="Ko Lake Villa - Traditional Pavilion by the Lake"
+                width={60}
+                height={40}
+                className="logo-image rounded-md shadow-sm"
+                priority
+              />
+            </div>
+            <h1 className="nav-logo-text text-center">Ko Lake Villa</h1>
           </Link>
 
           {/* Desktop Navigation */}
@@ -154,7 +165,15 @@ export default function GlobalHeader() {
               </a>
             </div>
 
-            {/* Book Now Button */}
+            {/* Contact & Book Now Buttons */}
+            <Button
+              variant="outline"
+              asChild
+              className="nav-contact-button hidden sm:flex"
+            >
+              <Link href="/contact">Contact Us</Link>
+            </Button>
+            
             <Button
               onClick={() => window.open("https://www.guesty.com/ko-lake-villa", "_blank")}
               className="nav-book-button"

@@ -206,28 +206,51 @@ export default function GalleryPage() {
       </div>
 
       {/* Category Filter */}
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        <Button
-          variant={selectedCategory === "all" ? "default" : "outline"}
-          onClick={() => setSelectedCategory("all")}
-          className={selectedCategory === "all" ? "bg-amber-600 hover:bg-amber-700" : ""}
-        >
-          All Photos ({mediaItems.length})
-        </Button>
-        {categories.map((category) => {
-          const categoryName = formatCategoryName(category)
-          const categoryCount = mediaItems.filter(item => item.category === categoryName).length
-          return (
-            <Button
-              key={category}
-              variant={selectedCategory === categoryName ? "default" : "outline"}
-              onClick={() => setSelectedCategory(categoryName)}
-              className={selectedCategory === categoryName ? "bg-amber-600 hover:bg-amber-700" : ""}
-            >
-              {categoryName} ({categoryCount})
-            </Button>
-          )
-        })}
+      <div className="mb-8">
+        {/* First Row - All Photos and Main Categories */}
+        <div className="flex flex-wrap justify-center gap-2 mb-3">
+          <Button
+            variant={selectedCategory === "all" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("all")}
+            className={selectedCategory === "all" ? "bg-amber-600 hover:bg-amber-700" : ""}
+          >
+            All Photos ({mediaItems.length})
+          </Button>
+          {categories.slice(0, 5).map((category) => {
+            const categoryName = formatCategoryName(category)
+            const categoryCount = mediaItems.filter(item => item.category === categoryName).length
+            return (
+              <Button
+                key={category}
+                variant={selectedCategory === categoryName ? "default" : "outline"}
+                onClick={() => setSelectedCategory(categoryName)}
+                className={selectedCategory === categoryName ? "bg-amber-600 hover:bg-amber-700" : ""}
+              >
+                {categoryName} ({categoryCount})
+              </Button>
+            )
+          })}
+        </div>
+        
+        {/* Second Row - Additional Categories if any */}
+        {categories.length > 5 && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {categories.slice(5).map((category) => {
+              const categoryName = formatCategoryName(category)
+              const categoryCount = mediaItems.filter(item => item.category === categoryName).length
+              return (
+                <Button
+                  key={category}
+                  variant={selectedCategory === categoryName ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(categoryName)}
+                  className={selectedCategory === categoryName ? "bg-amber-600 hover:bg-amber-700" : ""}
+                >
+                  {categoryName} ({categoryCount})
+                </Button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Gallery Grid */}
