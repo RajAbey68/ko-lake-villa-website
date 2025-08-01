@@ -71,9 +71,9 @@ export default function AdminLayout({
             <div className="nav-admin-content">
               <div className="nav-admin-logo">
                 <div className="nav-admin-logo-icon">
-                  <span className="text-white font-bold text-sm">KL</span>
+                  <span className="text-white font-bold text-sm">KLA</span>
                 </div>
-                <span className="nav-admin-logo-text">Ko Lake Villa Admin</span>
+                <span className="nav-admin-logo-text">Ko Lake Ambalama Admin</span>
               </div>
             </div>
           </div>
@@ -107,9 +107,9 @@ export default function AdminLayout({
             <div className="nav-admin-brand">
               <Link href="/admin/dashboard" className="nav-admin-logo">
                 <div className="nav-admin-logo-icon">
-                  <span className="text-white font-bold text-sm">KL</span>
+                  <span className="text-white font-bold text-sm">KLA</span>
                 </div>
-                <span className="nav-admin-logo-text">Ko Lake Villa Admin</span>
+                <span className="nav-admin-logo-text">Ko Lake Ambalama Admin</span>
               </Link>
               
               <nav className="nav-admin-menu">

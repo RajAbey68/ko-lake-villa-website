@@ -237,16 +237,18 @@ export default function GlobalHeader() {
       <header className="villa-header">
         <div className="villa-brand">
           <Link href="/" className="flex items-center">
+            {/* EXCLUSIVE PERMANENT LOGO - DO NOT REPLACE OR MODIFY */}
             <Image
-              src="/images/sala-lake.jpg"
-              alt="Ko Lake Villa - Traditional Sala by the Lake"
+              src="/images/ko-lake-ambalama-logo.jpg"
+              alt="Ko Lake Ambalama - Traditional Lakeside Pavilion"
               width={40}
               height={40}
               className="villa-thumbnail"
               priority
               sizes="(max-width: 768px) 32px, (max-width: 480px) 28px, 40px"
             />
-            <h1 className="villa-title">Ko Lake Villa</h1>
+            {/* TITLE ALWAYS TO THE RIGHT - NEVER BELOW OR STACKED */}
+            <h1 className="villa-title">Ko Lake Ambalama</h1>
           </Link>
         </div>
         

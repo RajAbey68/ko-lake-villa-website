@@ -130,7 +130,7 @@ export default function AccommodationPage() {
       id: "triple-twin-rooms",
       name: "Triple/Twin Rooms",
       subtitle: "Comfortable Accommodation for Small Groups",
-      description: "Flexible and budget-friendly accommodation perfect for backpackers, small groups, or solo travelers seeking comfort without compromising on the Ko Lake Villa experience.",
+      description: "Flexible and budget-friendly accommodation perfect for backpackers, small groups, or solo travelers seeking comfort without compromising on the Ko Lake Ambalama experience.",
       airbnbPrice: 70,
       specialPrice: 60,
       savings: 10,
@@ -469,7 +469,7 @@ export default function AccommodationPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Special Direct Booking Benefits</h2>
-            <p className="text-xl text-gray-600">Why book directly with Ko Lake Villa?</p>
+                              <p className="text-xl text-gray-600">Why book directly with Ko Lake Ambalama?</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
