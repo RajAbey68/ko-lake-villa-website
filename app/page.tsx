@@ -82,17 +82,17 @@ export default function KoLakeVilla() {
       {/* Hero Section */}
       <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <div className="absolute inset-0">
-          <Image
-            src="/images/blue-pool.jpg"
-            alt="Ko Lake Ambalama - Blue Pool with Palm Trees and Pavilion"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Ambalama</h1>
+                      <Image
+              src="/images/blue-pool.jpg"
+              alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+            <div className="max-w-2xl">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
             <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
             <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Connect</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -304,7 +304,7 @@ export default function KoLakeVilla() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-4">Photo Gallery</h1>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
-            Explore the beauty of Ko Lake Ambalama through our comprehensive photo gallery.
+            Explore the beauty of Ko Lake Villa through our comprehensive photo gallery.
           </p>
         </div>
       </section>
@@ -499,7 +499,7 @@ export default function KoLakeVilla() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">Ko Lake Ambalama</h3>
+              <h3 className="text-xl font-bold mb-4">Ko Lake Villa</h3>
               <p className="text-gray-400">Luxury lakefront accommodation in Sri Lanka's southern coast.</p>
             </div>
             <div>
@@ -537,7 +537,7 @@ export default function KoLakeVilla() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Ko Lake Ambalama. All rights reserved.</p>
+            <p>&copy; 2024 Ko Lake Villa. All rights reserved.</p>
           </div>
         </div>
       </footer>

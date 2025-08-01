@@ -38,7 +38,7 @@ const sendContactEmail = async (formData: ContactFormData) => {
   const transporter = createTransporter();
   
   const emailContent = `
-    New Contact Form Submission - Ko Lake Ambalama
+    New Contact Form Submission - Ko Lake Villa
     
     Name: ${formData.name}
     Email: ${formData.email}
@@ -51,19 +51,19 @@ const sendContactEmail = async (formData: ContactFormData) => {
     Submitted at: ${new Date().toLocaleString()}
     
     ---
-    This message was sent from the Ko Lake Ambalama contact form.
+    This message was sent from the Ko Lake Villa contact form.
   `;
 
   const mailOptions = {
-    from: `"Ko Lake Ambalama Contact Form" <${process.env.SMTP_USER || 'contact@kolakeHouse.com'}>`,
+    from: `"Ko Lake Villa Contact Form" <${process.env.SMTP_USER || 'contact@kolakeHouse.com'}>`,
     to: EMAIL_RECIPIENTS.join(', '),
-    subject: `Ko Lake Ambalama Contact: ${formData.subject || 'New Message from ' + formData.name}`,
+    subject: `Ko Lake Villa Contact: ${formData.subject || 'New Message from ' + formData.name}`,
     text: emailContent,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #f59e0b, #ea580c); padding: 20px; border-radius: 8px 8px 0 0;">
           <h2 style="color: white; margin: 0;">New Contact Form Submission</h2>
-          <p style="color: #fef3c7; margin: 5px 0 0 0;">Ko Lake Ambalama</p>
+          <p style="color: #fef3c7; margin: 5px 0 0 0;">Ko Lake Villa</p>
         </div>
         
         <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
@@ -82,7 +82,7 @@ const sendContactEmail = async (formData: ContactFormData) => {
           
           <div style="margin-top: 15px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 12px; color: #92400e;">
             <p style="margin: 0;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-            <p style="margin: 5px 0 0 0;">This message was sent from the Ko Lake Ambalama contact form.</p>
+            <p style="margin: 5px 0 0 0;">This message was sent from the Ko Lake Villa contact form.</p>
           </div>
         </div>
       </div>

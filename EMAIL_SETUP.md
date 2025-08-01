@@ -1,4 +1,4 @@
-# Email Setup for Ko Lake Ambalama Contact Form
+# Email Setup for Ko Lake Villa Contact Form
 
 ## Overview
 The contact form is configured to send emails to multiple recipients when a visitor submits a message through the website.
@@ -50,7 +50,7 @@ SMTP_PORT=587
 
 ## Email Template
 The system sends formatted HTML emails with:
-- Ko Lake Ambalama branding
+- Ko Lake Villa branding
 - Contact details (name, email, phone, subject)
 - Full message content
 - Timestamp
