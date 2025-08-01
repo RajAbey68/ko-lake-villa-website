@@ -9,22 +9,167 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Phone, Mail, MapPin, Clock, Send, MessageCircle, Star } from "lucide-react"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
+import { 
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Clock, 
+  Send, 
+  MessageCircle, 
+  Star, 
+  Check, 
+  ChevronsUpDown 
+} from "lucide-react"
 import Link from "next/link"
 import GlobalHeader from "@/components/navigation/global-header"
 
+interface ContactFormData {
+  name: string
+  email: string
+  countryCode: string
+  phone: string
+  subject: string
+  message: string
+}
+
+// Comprehensive country codes list
+const countryCodesData = [
+  { code: "+1", country: "United States", flag: "🇺🇸", searchTerms: "usa america united states" },
+  { code: "+1", country: "Canada", flag: "🇨🇦", searchTerms: "canada" },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧", searchTerms: "uk britain england scotland wales" },
+  { code: "+61", country: "Australia", flag: "🇦🇺", searchTerms: "australia aussie" },
+  { code: "+64", country: "New Zealand", flag: "🇳🇿", searchTerms: "new zealand nz" },
+  { code: "+49", country: "Germany", flag: "🇩🇪", searchTerms: "germany deutschland" },
+  { code: "+33", country: "France", flag: "🇫🇷", searchTerms: "france" },
+  { code: "+39", country: "Italy", flag: "🇮🇹", searchTerms: "italy italia" },
+  { code: "+34", country: "Spain", flag: "🇪🇸", searchTerms: "spain españa" },
+  { code: "+31", country: "Netherlands", flag: "🇳🇱", searchTerms: "netherlands holland" },
+  { code: "+46", country: "Sweden", flag: "🇸🇪", searchTerms: "sweden sverige" },
+  { code: "+47", country: "Norway", flag: "🇳🇴", searchTerms: "norway norge" },
+  { code: "+45", country: "Denmark", flag: "🇩🇰", searchTerms: "denmark danmark" },
+  { code: "+41", country: "Switzerland", flag: "🇨🇭", searchTerms: "switzerland schweiz" },
+  { code: "+43", country: "Austria", flag: "🇦🇹", searchTerms: "austria österreich" },
+  { code: "+32", country: "Belgium", flag: "🇧🇪", searchTerms: "belgium belgique" },
+  { code: "+91", country: "India", flag: "🇮🇳", searchTerms: "india bharat" },
+  { code: "+86", country: "China", flag: "🇨🇳", searchTerms: "china zhongguo" },
+  { code: "+81", country: "Japan", flag: "🇯🇵", searchTerms: "japan nihon" },
+  { code: "+82", country: "South Korea", flag: "🇰🇷", searchTerms: "south korea korea" },
+  { code: "+65", country: "Singapore", flag: "🇸🇬", searchTerms: "singapore" },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾", searchTerms: "malaysia" },
+  { code: "+66", country: "Thailand", flag: "🇹🇭", searchTerms: "thailand siam" },
+  { code: "+84", country: "Vietnam", flag: "🇻🇳", searchTerms: "vietnam" },
+  { code: "+62", country: "Indonesia", flag: "🇮🇩", searchTerms: "indonesia" },
+  { code: "+63", country: "Philippines", flag: "🇵🇭", searchTerms: "philippines" },
+  { code: "+94", country: "Sri Lanka", flag: "🇱🇰", searchTerms: "sri lanka ceylon" },
+  { code: "+880", country: "Bangladesh", flag: "🇧🇩", searchTerms: "bangladesh" },
+  { code: "+92", country: "Pakistan", flag: "🇵🇰", searchTerms: "pakistan" },
+  { code: "+977", country: "Nepal", flag: "🇳🇵", searchTerms: "nepal" },
+  { code: "+975", country: "Bhutan", flag: "🇧🇹", searchTerms: "bhutan" },
+  { code: "+960", country: "Maldives", flag: "🇲🇻", searchTerms: "maldives" },
+  { code: "+971", country: "UAE", flag: "🇦🇪", searchTerms: "uae emirates dubai abu dhabi" },
+  { code: "+974", country: "Qatar", flag: "🇶🇦", searchTerms: "qatar" },
+  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦", searchTerms: "saudi arabia" },
+  { code: "+965", country: "Kuwait", flag: "🇰🇼", searchTerms: "kuwait" },
+  { code: "+973", country: "Bahrain", flag: "🇧🇭", searchTerms: "bahrain" },
+  { code: "+968", country: "Oman", flag: "🇴🇲", searchTerms: "oman" },
+  { code: "+967", country: "Yemen", flag: "🇾🇪", searchTerms: "yemen" },
+  { code: "+962", country: "Jordan", flag: "🇯🇴", searchTerms: "jordan" },
+  { code: "+961", country: "Lebanon", flag: "🇱🇧", searchTerms: "lebanon" },
+  { code: "+963", country: "Syria", flag: "🇸🇾", searchTerms: "syria" },
+  { code: "+964", country: "Iraq", flag: "🇮🇶", searchTerms: "iraq" },
+  { code: "+98", country: "Iran", flag: "🇮🇷", searchTerms: "iran persia" },
+  { code: "+90", country: "Turkey", flag: "🇹🇷", searchTerms: "turkey türkiye" },
+  { code: "+972", country: "Israel", flag: "🇮🇱", searchTerms: "israel" },
+  { code: "+20", country: "Egypt", flag: "🇪🇬", searchTerms: "egypt" },
+  { code: "+27", country: "South Africa", flag: "🇿🇦", searchTerms: "south africa" },
+  { code: "+234", country: "Nigeria", flag: "🇳🇬", searchTerms: "nigeria" },
+  { code: "+254", country: "Kenya", flag: "🇰🇪", searchTerms: "kenya" },
+  { code: "+256", country: "Uganda", flag: "🇺🇬", searchTerms: "uganda" },
+  { code: "+255", country: "Tanzania", flag: "🇹🇿", searchTerms: "tanzania" },
+  { code: "+251", country: "Ethiopia", flag: "🇪🇹", searchTerms: "ethiopia" },
+  { code: "+233", country: "Ghana", flag: "🇬🇭", searchTerms: "ghana" },
+  { code: "+55", country: "Brazil", flag: "🇧🇷", searchTerms: "brazil brasil" },
+  { code: "+52", country: "Mexico", flag: "🇲🇽", searchTerms: "mexico" },
+  { code: "+54", country: "Argentina", flag: "🇦🇷", searchTerms: "argentina" },
+  { code: "+56", country: "Chile", flag: "🇨🇱", searchTerms: "chile" },
+  { code: "+57", country: "Colombia", flag: "🇨🇴", searchTerms: "colombia" },
+  { code: "+51", country: "Peru", flag: "🇵🇪", searchTerms: "peru" },
+  { code: "+58", country: "Venezuela", flag: "🇻🇪", searchTerms: "venezuela" },
+  { code: "+593", country: "Ecuador", flag: "🇪🇨", searchTerms: "ecuador" },
+  { code: "+591", country: "Bolivia", flag: "🇧🇴", searchTerms: "bolivia" },
+  { code: "+595", country: "Paraguay", flag: "🇵🇾", searchTerms: "paraguay" },
+  { code: "+598", country: "Uruguay", flag: "🇺🇾", searchTerms: "uruguay" },
+  { code: "+7", country: "Russia", flag: "🇷🇺", searchTerms: "russia rossiya" },
+  { code: "+380", country: "Ukraine", flag: "🇺🇦", searchTerms: "ukraine" },
+  { code: "+48", country: "Poland", flag: "🇵🇱", searchTerms: "poland polska" },
+  { code: "+420", country: "Czech Republic", flag: "🇨🇿", searchTerms: "czech republic czechia" },
+  { code: "+421", country: "Slovakia", flag: "🇸🇰", searchTerms: "slovakia" },
+  { code: "+36", country: "Hungary", flag: "🇭🇺", searchTerms: "hungary magyarország" },
+  { code: "+40", country: "Romania", flag: "🇷🇴", searchTerms: "romania" },
+  { code: "+359", country: "Bulgaria", flag: "🇧🇬", searchTerms: "bulgaria" },
+  { code: "+30", country: "Greece", flag: "🇬🇷", searchTerms: "greece hellas" },
+  { code: "+385", country: "Croatia", flag: "🇭🇷", searchTerms: "croatia" },
+  { code: "+386", country: "Slovenia", flag: "🇸🇮", searchTerms: "slovenia" },
+  { code: "+381", country: "Serbia", flag: "🇷🇸", searchTerms: "serbia" },
+  { code: "+382", country: "Montenegro", flag: "🇲🇪", searchTerms: "montenegro" },
+  { code: "+387", country: "Bosnia", flag: "🇧🇦", searchTerms: "bosnia herzegovina" },
+  { code: "+389", country: "North Macedonia", flag: "🇲🇰", searchTerms: "north macedonia" },
+  { code: "+383", country: "Kosovo", flag: "🇽🇰", searchTerms: "kosovo" },
+  { code: "+355", country: "Albania", flag: "🇦🇱", searchTerms: "albania" },
+  { code: "+358", country: "Finland", flag: "🇫🇮", searchTerms: "finland suomi" },
+  { code: "+372", country: "Estonia", flag: "🇪🇪", searchTerms: "estonia" },
+  { code: "+371", country: "Latvia", flag: "🇱🇻", searchTerms: "latvia" },
+  { code: "+370", country: "Lithuania", flag: "🇱🇹", searchTerms: "lithuania" },
+  { code: "+375", country: "Belarus", flag: "🇧🇾", searchTerms: "belarus" },
+  { code: "+373", country: "Moldova", flag: "🇲🇩", searchTerms: "moldova" },
+  { code: "+374", country: "Armenia", flag: "🇦🇲", searchTerms: "armenia" },
+  { code: "+995", country: "Georgia", flag: "🇬🇪", searchTerms: "georgia" },
+  { code: "+994", country: "Azerbaijan", flag: "🇦🇿", searchTerms: "azerbaijan" },
+  { code: "+993", country: "Turkmenistan", flag: "🇹🇲", searchTerms: "turkmenistan" },
+  { code: "+992", country: "Tajikistan", flag: "🇹🇯", searchTerms: "tajikistan" },
+  { code: "+996", country: "Kyrgyzstan", flag: "🇰🇬", searchTerms: "kyrgyzstan" },
+  { code: "+998", country: "Uzbekistan", flag: "🇺🇿", searchTerms: "uzbekistan" },
+  { code: "+7", country: "Kazakhstan", flag: "🇰🇿", searchTerms: "kazakhstan" },
+  { code: "+976", country: "Mongolia", flag: "🇲🇳", searchTerms: "mongolia" },
+  { code: "+850", country: "North Korea", flag: "🇰🇵", searchTerms: "north korea" },
+  { code: "+855", country: "Cambodia", flag: "🇰🇭", searchTerms: "cambodia" },
+  { code: "+856", country: "Laos", flag: "🇱🇦", searchTerms: "laos" },
+  { code: "+95", country: "Myanmar", flag: "🇲🇲", searchTerms: "myanmar burma" },
+  { code: "+673", country: "Brunei", flag: "🇧🇳", searchTerms: "brunei" },
+  { code: "+670", country: "East Timor", flag: "🇹🇱", searchTerms: "east timor timor leste" },
+].sort((a, b) => a.country.localeCompare(b.country))
+
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
-    countryCode: "",
+    countryCode: "+94", // Default to Sri Lanka
     phone: "",
     subject: "",
     message: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [countryCodeOpen, setCountryCodeOpen] = useState(false)
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -125,48 +270,56 @@ export default function ContactPage() {
                       <div>
                         <Label htmlFor="phone">Your Phone Number</Label>
                         <div className="flex gap-2">
-                          <Select value={formData.countryCode} onValueChange={(value) => handleInputChange("countryCode", value)}>
-                            <SelectTrigger className="w-32">
-                              <SelectValue placeholder="Country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="+1">🇺🇸 +1</SelectItem>
-                              <SelectItem value="+44">🇬🇧 +44</SelectItem>
-                              <SelectItem value="+61">🇦🇺 +61</SelectItem>
-                              <SelectItem value="+64">🇳🇿 +64</SelectItem>
-                              <SelectItem value="+49">🇩🇪 +49</SelectItem>
-                              <SelectItem value="+33">🇫🇷 +33</SelectItem>
-                              <SelectItem value="+39">🇮🇹 +39</SelectItem>
-                              <SelectItem value="+34">🇪🇸 +34</SelectItem>
-                              <SelectItem value="+31">🇳🇱 +31</SelectItem>
-                              <SelectItem value="+46">🇸🇪 +46</SelectItem>
-                              <SelectItem value="+47">🇳🇴 +47</SelectItem>
-                              <SelectItem value="+45">🇩🇰 +45</SelectItem>
-                              <SelectItem value="+41">🇨🇭 +41</SelectItem>
-                              <SelectItem value="+43">🇦🇹 +43</SelectItem>
-                              <SelectItem value="+32">🇧🇪 +32</SelectItem>
-                              <SelectItem value="+91">🇮🇳 +91</SelectItem>
-                              <SelectItem value="+86">🇨🇳 +86</SelectItem>
-                              <SelectItem value="+81">🇯🇵 +81</SelectItem>
-                              <SelectItem value="+82">🇰🇷 +82</SelectItem>
-                              <SelectItem value="+65">🇸🇬 +65</SelectItem>
-                              <SelectItem value="+60">🇲🇾 +60</SelectItem>
-                              <SelectItem value="+66">🇹🇭 +66</SelectItem>
-                              <SelectItem value="+84">🇻🇳 +84</SelectItem>
-                              <SelectItem value="+62">🇮🇩 +62</SelectItem>
-                              <SelectItem value="+63">🇵🇭 +63</SelectItem>
-                              <SelectItem value="+94">🇱🇰 +94</SelectItem>
-                              <SelectItem value="+971">🇦🇪 +971</SelectItem>
-                              <SelectItem value="+974">🇶🇦 +974</SelectItem>
-                              <SelectItem value="+966">🇸🇦 +966</SelectItem>
-                              <SelectItem value="+27">🇿🇦 +27</SelectItem>
-                              <SelectItem value="+55">🇧🇷 +55</SelectItem>
-                              <SelectItem value="+52">🇲🇽 +52</SelectItem>
-                              <SelectItem value="+54">🇦🇷 +54</SelectItem>
-                              <SelectItem value="+56">🇨🇱 +56</SelectItem>
-                              <SelectItem value="+57">🇨🇴 +57</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <Popover open={countryCodeOpen} onOpenChange={setCountryCodeOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={countryCodeOpen}
+                                className="w-48 justify-between"
+                              >
+                                {formData.countryCode ? (
+                                  <>
+                                    {countryCodesData.find((country) => country.code === formData.countryCode)?.flag}{" "}
+                                    {formData.countryCode}{" "}
+                                    <span className="text-xs text-gray-500 ml-1 truncate">
+                                      {countryCodesData.find((country) => country.code === formData.countryCode)?.country}
+                                    </span>
+                                  </>
+                                ) : (
+                                  "Select country..."
+                                )}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[300px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search country or type +code..." />
+                                <CommandEmpty>No country found.</CommandEmpty>
+                                <CommandGroup className="max-h-64 overflow-auto">
+                                  {countryCodesData.map((country) => (
+                                    <CommandItem
+                                      key={`${country.code}-${country.country}`}
+                                      value={`${country.country} ${country.code} ${country.searchTerms}`}
+                                      onSelect={() => {
+                                        handleInputChange("countryCode", country.code)
+                                        setCountryCodeOpen(false)
+                                      }}
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          formData.countryCode === country.code ? "opacity-100" : "opacity-0"
+                                        }`}
+                                      />
+                                      <span className="mr-2">{country.flag}</span>
+                                      <span className="font-medium">{country.code}</span>
+                                      <span className="ml-2 text-sm text-gray-600 truncate">{country.country}</span>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           <Input
                             id="phone"
                             type="tel"
@@ -176,7 +329,10 @@ export default function ContactPage() {
                             className="flex-1"
                           />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Please include your country code so we know your timezone for responding</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Please include your country code so we know your timezone for responding.<br />
+                          <span className="text-amber-600">Tip: Search by typing country name or +code</span>
+                        </p>
                       </div>
 
                       <div>
