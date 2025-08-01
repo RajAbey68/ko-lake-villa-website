@@ -39,12 +39,52 @@ export default function GalleryPage() {
   const [error, setError] = useState<string | null>(null)
   const [showVideoHelp, setShowVideoHelp] = useState(true)
 
-  // Generate video poster URL from video URL
+  // State for tracking video thumbnails
+  const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
+
+  // Generate video poster URL from video URL with dynamic loading
   const getVideoPosterUrl = (videoUrl: string, title: string) => {
-    // For real implementation, you'd generate thumbnails on upload
-    // For now, we'll use placeholder with video-specific styling
-    const encodedTitle = encodeURIComponent(title)
-    return `/placeholder.svg?height=400&width=600&text=${encodedTitle}&bg=1a1a1a&color=ffffff`
+    // Check if we already have a thumbnail for this video
+    if (videoThumbnails[videoUrl]) {
+      return videoThumbnails[videoUrl]
+    }
+    
+    // Extract filename without extension for thumbnail lookup
+    const videoFilename = videoUrl.split('/').pop()?.replace(/\.[^/.]+$/, "") || ""
+    
+    // Try to find corresponding thumbnail image (synchronous check)
+    const possibleThumbnails = [
+      `/thumbnails/${videoFilename}.jpg`,
+      `/thumbnails/${videoFilename}.jpeg`, 
+      `/thumbnails/${videoFilename}.png`,
+      `/thumbnails/${videoFilename}-thumb.jpg`,
+      `/uploads/gallery/thumbnails/${videoFilename}.jpg`,
+    ]
+    
+    // Return default while we check for better options
+    const defaultThumbnail = `/thumbnails/video-default.svg`
+    
+    // Async check for better thumbnail (don't await, just update state when ready)
+    checkVideoThumbnail(videoUrl, videoFilename)
+    
+    return defaultThumbnail
+  }
+
+  // Async function to check for video thumbnails
+  const checkVideoThumbnail = async (videoUrl: string, videoFilename: string) => {
+    try {
+      const response = await fetch(`/api/video-thumbnail?videoUrl=${encodeURIComponent(videoUrl)}`)
+      if (response.ok) {
+        const data = await response.json()
+        setVideoThumbnails(prev => ({
+          ...prev,
+          [videoUrl]: data.thumbnailUrl
+        }))
+      }
+    } catch (error) {
+      console.log('Could not load custom thumbnail for', videoFilename)
+      // Keep using default
+    }
   }
 
   // Load gallery items from API
@@ -349,11 +389,36 @@ export default function GalleryPage() {
                     preload="metadata"
                     muted
                     playsInline
+                    onError={(e) => {
+                      console.error('Video thumbnail failed to load:', item.url)
+                      // Fallback to default poster if video fails
+                      const video = e.target as HTMLVideoElement
+                      if (video.poster !== '/thumbnails/video-default.svg') {
+                        video.poster = '/thumbnails/video-default.svg'
+                      }
+                    }}
+                    onLoadedMetadata={(e) => {
+                      // Ensure poster is displayed
+                      const video = e.target as HTMLVideoElement
+                      video.currentTime = 0
+                    }}
                   >
                     <source src={item.url} type="video/mp4" />
                     <source src={item.url} type="video/webm" />
                     <source src={item.url} type="video/ogg" />
+                    Your browser does not support the video tag.
                   </video>
+                  
+                  {/* Backup thumbnail image overlay if video poster fails */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: `url('${getVideoPosterUrl(item.url, item.title)}')`,
+                      display: 'none' // Will be shown if video poster fails
+                    }}
+                    id={`backup-thumb-${item.id}`}
+                  />
+                  
                   <div className="video-play-overlay">
                     <div className="video-play-button">
                       <Play className="video-play-icon fill-current" />
@@ -453,8 +518,21 @@ export default function GalleryPage() {
                   autoPlay
                   poster={getVideoPosterUrl(selectedItem.url, selectedItem.title)}
                   preload="metadata"
+                  playsInline
                   onError={(e) => {
                     console.error('Video failed to load in lightbox:', selectedItem.url)
+                    // Fallback to default poster if video fails
+                    const video = e.target as HTMLVideoElement
+                    if (video.poster !== '/thumbnails/video-default.svg') {
+                      video.poster = '/thumbnails/video-default.svg'
+                    }
+                  }}
+                  onLoadStart={(e) => {
+                    // Ensure poster is visible until video loads
+                    console.log('📹 Loading video in lightbox:', selectedItem.title)
+                  }}
+                  onCanPlay={(e) => {
+                    console.log('✅ Video ready to play:', selectedItem.title)
                   }}
                 >
                   <source src={selectedItem.url} type="video/mp4" />
