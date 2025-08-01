@@ -35,6 +35,9 @@ interface MediaItem {
   publishedAt?: string
   unpublishedAt?: string
   publishedBy?: string
+  isArchived?: boolean
+  archivedAt?: string
+  archivedBy?: string
 }
 
 export default function GalleryManagement() {
@@ -51,6 +54,11 @@ export default function GalleryManagement() {
   const [viewingImage, setViewingImage] = useState<MediaItem | null>(null)
   const [campaignText, setCampaignText] = useState("")
   const [activeCampaign, setActiveCampaign] = useState<any>(null)
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+  const [isArchiveView, setIsArchiveView] = useState(false)
+  const [isBulkOperating, setIsBulkOperating] = useState(false)
+  const [clearGalleryConfirm, setClearGalleryConfirm] = useState(false)
+  const [clearArchiveConfirm, setClearArchiveConfirm] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
@@ -79,11 +87,11 @@ export default function GalleryManagement() {
     "Eco-Conscious & Nature-Loving Guests",
   ]
 
-  // Load gallery items from API
+  // Load gallery items from API (admin view includes archived items)
   const loadGalleryItems = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/gallery/list')
+      const response = await fetch('/api/gallery/admin-list')
       if (!response.ok) {
         throw new Error('Failed to load gallery items')
       }
@@ -221,6 +229,203 @@ export default function GalleryManagement() {
       
       // Still close the dialog even on error
       setDeleteConfirmId(null)
+    }
+  }
+
+  // Archive operations
+  const handleArchiveItems = async (itemIds: string[], reason = "Archived by admin") => {
+    try {
+      setIsBulkOperating(true)
+      
+      const response = await fetch('/api/gallery/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'archive',
+          imageIds: itemIds,
+          reason
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to archive items')
+      }
+
+      const result = await response.json()
+      
+      toast({
+        title: "Success",
+        description: `${result.successCount} item(s) archived successfully`,
+      })
+
+      setSelectedItems(new Set())
+      await loadGalleryItems()
+
+    } catch (error) {
+      console.error('Archive error:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to archive items',
+        variant: "destructive",
+      })
+    } finally {
+      setIsBulkOperating(false)
+    }
+  }
+
+  const handleRestoreItems = async (itemIds: string[]) => {
+    try {
+      setIsBulkOperating(true)
+      
+      const response = await fetch('/api/gallery/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'restore',
+          imageIds: itemIds
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to restore items')
+      }
+
+      const result = await response.json()
+      
+      toast({
+        title: "Success",
+        description: `${result.successCount} item(s) restored successfully`,
+      })
+
+      setSelectedItems(new Set())
+      await loadGalleryItems()
+
+    } catch (error) {
+      console.error('Restore error:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to restore items',
+        variant: "destructive",
+      })
+    } finally {
+      setIsBulkOperating(false)
+    }
+  }
+
+  const handlePermanentDelete = async (itemIds: string[]) => {
+    try {
+      setIsBulkOperating(true)
+      
+      const response = await fetch('/api/gallery/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'permanent-delete',
+          imageIds: itemIds
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to permanently delete items')
+      }
+
+      const result = await response.json()
+      
+      toast({
+        title: "Success",
+        description: `${result.successCount} item(s) permanently deleted`,
+      })
+
+      setSelectedItems(new Set())
+      await loadGalleryItems()
+
+    } catch (error) {
+      console.error('Permanent delete error:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to permanently delete items',
+        variant: "destructive",
+      })
+    } finally {
+      setIsBulkOperating(false)
+    }
+  }
+
+  const handleClearGallery = async () => {
+    try {
+      setIsBulkOperating(true)
+      
+      const response = await fetch('/api/gallery/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'clear-gallery',
+          imageIds: []
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to clear gallery')
+      }
+
+      const result = await response.json()
+      
+      toast({
+        title: "Success",
+        description: `Gallery cleared! ${result.successCount} item(s) moved to archive`,
+      })
+
+      setClearGalleryConfirm(false)
+      await loadGalleryItems()
+
+    } catch (error) {
+      console.error('Clear gallery error:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to clear gallery',
+        variant: "destructive",
+      })
+    } finally {
+      setIsBulkOperating(false)
+    }
+  }
+
+  const handleClearArchive = async () => {
+    try {
+      setIsBulkOperating(true)
+      
+      const response = await fetch('/api/gallery/archive', {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to clear archive')
+      }
+
+      const result = await response.json()
+      
+      toast({
+        title: "Success",
+        description: `Archive cleared! ${result.deletedCount} item(s) permanently deleted`,
+      })
+
+      setClearArchiveConfirm(false)
+      await loadGalleryItems()
+
+    } catch (error) {
+      console.error('Clear archive error:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to clear archive',
+        variant: "destructive",
+      })
+    } finally {
+      setIsBulkOperating(false)
     }
   }
 

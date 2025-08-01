@@ -147,11 +147,7 @@ export async function GET() {
         const publishInfo = publishStatus[imageId] || { isPublished: false }
         const archiveInfo = archiveStatus[imageId] || { isArchived: false }
 
-        // Skip archived items in public gallery view (they should not appear anywhere on the website)
-        if (archiveInfo.isArchived) {
-          continue
-        }
-
+        // For admin interface, include ALL items (published, unpublished, and archived)
         const image: GalleryImage = {
           id: imageId,
           type: isVideo ? 'video' : 'image',
@@ -179,13 +175,20 @@ export async function GET() {
       }
     }
 
-    // Sort by upload date (newest first)
-    images.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime())
+    // Sort by upload date (newest first), but show archived items at the end
+    images.sort((a, b) => {
+      // If one is archived and the other isn't, archived goes to the end
+      if (a.isArchived && !b.isArchived) return 1
+      if (!a.isArchived && b.isArchived) return -1
+      
+      // Otherwise sort by date
+      return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+    })
 
     return NextResponse.json(images)
 
   } catch (error) {
-    console.error('Failed to list gallery images:', error)
-    return NextResponse.json({ error: 'Failed to load gallery images' }, { status: 500 })
+    console.error('Failed to list admin gallery images:', error)
+    return NextResponse.json({ error: 'Failed to load admin gallery images' }, { status: 500 })
   }
 } 

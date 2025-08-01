@@ -8,6 +8,7 @@ import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath } from "lucide-rea
 import Image from "next/image"
 import GlobalHeader from "@/components/navigation/global-header"
 
+
 export default function KoLakeVilla() {
   const [currentPage, setCurrentPage] = useState("home")
 
@@ -93,28 +94,37 @@ export default function KoLakeVilla() {
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-            <div className="max-w-2xl">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
-            <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
-            <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Connect</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/accommodation">
-                <Button
-                  size="lg"
-                  className="bg-white text-amber-900 hover:bg-amber-50 hover:text-amber-900 w-full"
-                >
-                  View Rooms & Rates
-                </Button>
-              </a>
-              <a href="/gallery">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-amber-900 w-full"
-                >
-                  Explore Gallery
-                </Button>
-              </a>
+            <div className="flex w-full">
+              {/* Left side - Text content moved further left */}
+              <div className="flex-1 max-w-lg">
+                <h1 className="text-5xl md:text-6xl font-bold mb-6">Ko Lake Villa</h1>
+                <p className="text-xl md:text-2xl mb-2">Luxury Lakefront Accommodation in Sri Lanka</p>
+                <p className="text-lg md:text-xl mb-8 font-light italic">Relax, Revive, Reconnect</p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <a href="/accommodation">
+                    <Button
+                      size="lg"
+                      className="bg-white text-amber-900 hover:bg-amber-50 hover:text-amber-900 w-full"
+                    >
+                      View Rooms & Rates
+                    </Button>
+                  </a>
+                  <a href="/gallery">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="text-white border-white hover:bg-white hover:text-amber-900 w-full"
+                    >
+                      Explore Gallery
+                    </Button>
+                  </a>
+                </div>
+              </div>
+              
+              {/* Right side - Space for future video upload */}
+              <div className="flex-1 max-w-md ml-8 hidden lg:block">
+                {/* Video upload component will be added here */}
+              </div>
             </div>
           </div>
         </div>
