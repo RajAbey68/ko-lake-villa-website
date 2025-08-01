@@ -192,12 +192,12 @@ export default function ContactPage() {
       <GlobalHeader />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-16">
+      <section className="bg-gradient-to-r from-amber-50 to-orange-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-amber-900 mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-amber-900 mb-4">
             Contact Us
           </h1>
-          <p className="text-xl text-amber-700 max-w-3xl mx-auto mb-8">
+          <p className="text-lg md:text-xl text-amber-700 max-w-3xl mx-auto mb-6">
             Get in touch with our team for reservations, inquiries, or any assistance you need. 
             We're here to help make your stay memorable.
           </p>
@@ -219,9 +219,9 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Content */}
-      <section className="py-16">
+      <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Form */}
             <div>
               <Card>
@@ -502,11 +502,11 @@ export default function ContactPage() {
       </section>
 
       {/* Map Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Find Us</h2>
-            <p className="text-xl text-gray-600">Located on the beautiful Koggala Lake in Sri Lanka's southern coast</p>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Find Us</h2>
+            <p className="text-lg md:text-xl text-gray-600">Located on the beautiful Koggala Lake in Sri Lanka's southern coast</p>
           </div>
 
           <div className="bg-white rounded-lg overflow-hidden shadow-lg h-96">
@@ -523,7 +523,7 @@ export default function ContactPage() {
           </div>
           
           {/* Map Info & Directions */}
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-6 text-center">
                 <MapPin className="w-8 h-8 text-orange-600 mx-auto mb-3" />
@@ -585,10 +585,10 @@ export default function ContactPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-amber-900 text-white">
+      <section className="py-12 bg-amber-900 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold mb-4">Ready to Book Your Stay?</h2>
-          <p className="text-xl mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">Ready to Book Your Stay?</h2>
+          <p className="text-lg md:text-xl mb-6">
             Don't wait - secure your dates at Ko Lake Villa today and save with our direct booking rates.
           </p>
           <Button size="lg" className="bg-white text-amber-900 hover:bg-amber-50" asChild>

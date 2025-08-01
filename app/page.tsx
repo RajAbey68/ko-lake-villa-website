@@ -118,9 +118,9 @@ export default function KoLakeVilla() {
       </section>
 
       {/* Quick Stats */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
               <div className="text-3xl font-bold text-amber-800 mb-2">12</div>
               <div className="text-gray-600">Max Guests</div>
@@ -145,17 +145,17 @@ export default function KoLakeVilla() {
       </section>
 
       {/* Room Preview */}
-      <section className="py-16">
+      <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Perfect Stay</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Choose Your Perfect Stay</h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
               From intimate suites to the entire villa, we offer flexible accommodation options with significant savings
               when you book direct.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {roomTypes.map((room) => (
               <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
