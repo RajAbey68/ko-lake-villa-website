@@ -82,14 +82,16 @@ export default function GlobalHeader() {
           position: sticky;
           top: 0;
           z-index: 50;
-          padding: 1rem;
+          padding: 0.5rem 1rem;
         }
 
         .villa-brand {
           display: flex;
           align-items: center;
-          margin-bottom: 0.75rem;
-          min-height: 48px;
+          gap: 12px;
+          margin-bottom: 0.25rem;
+          min-height: 46px;
+          padding: 6px 0;
           flex-wrap: nowrap;
           width: 100%;
           max-width: 100%;
@@ -100,7 +102,6 @@ export default function GlobalHeader() {
           width: auto;
           max-width: 120px;
           object-fit: contain;
-          margin-right: 12px;
           border-radius: 6px;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
           flex-shrink: 0;
@@ -111,7 +112,7 @@ export default function GlobalHeader() {
           font-weight: bold;
           color: #92400e; /* amber-700 to match your brand */
           margin: 0;
-          line-height: 1.2;
+          line-height: 1;
           white-space: nowrap;
         }
 
@@ -120,6 +121,7 @@ export default function GlobalHeader() {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          margin-top: 4px;
         }
 
         .villa-nav-links {
@@ -171,29 +173,7 @@ export default function GlobalHeader() {
         /* Tablet and mobile optimizations */
         @media (max-width: 768px) {
           .villa-header {
-            padding: 0.75rem 1rem;
-          }
-          
-          .villa-title {
-            font-size: 1.2rem;
-          }
-          
-          .villa-thumbnail {
-            height: 32px;
-            max-width: 80px;
-            margin-right: 10px;
-          }
-          
-          .villa-brand {
-            margin-bottom: 0.5rem;
-            min-height: 40px;
-          }
-        }
-        
-        /* Small mobile phones */
-        @media (max-width: 480px) {
-          .villa-header {
-            padding: 0.5rem 0.75rem;
+            padding: 0.4rem 0.75rem;
           }
           
           .villa-title {
@@ -201,27 +181,55 @@ export default function GlobalHeader() {
           }
           
           .villa-thumbnail {
-            height: 28px;
-            max-width: 70px;
-            margin-right: 8px;
+            height: 32px;
+            max-width: 80px;
           }
           
           .villa-brand {
-            margin-bottom: 0.4rem;
+            gap: 10px;
+            margin-bottom: 0.2rem;
+            min-height: 40px;
+            padding: 4px 0;
+          }
+        }
+        
+        /* Small mobile phones */
+        @media (max-width: 480px) {
+          .villa-header {
+            padding: 0.3rem 0.5rem;
+          }
+          
+          .villa-title {
+            font-size: 1rem;
+          }
+          
+          .villa-thumbnail {
+            height: 28px;
+            max-width: 70px;
+          }
+          
+          .villa-brand {
+            gap: 8px;
+            margin-bottom: 0.15rem;
             min-height: 36px;
+            padding: 3px 0;
           }
         }
         
         /* Extra small screens */
         @media (max-width: 360px) {
           .villa-title {
-            font-size: 1rem;
+            font-size: 0.9rem;
           }
           
           .villa-thumbnail {
             height: 26px;
             max-width: 60px;
-            margin-right: 6px;
+          }
+          
+          .villa-brand {
+            gap: 6px;
+            min-height: 32px;
           }
         }
       `}</style>
