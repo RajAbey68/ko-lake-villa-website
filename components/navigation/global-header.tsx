@@ -90,24 +90,29 @@ export default function GlobalHeader() {
           align-items: center;
           margin-bottom: 0.75rem;
           min-height: 48px;
+          flex-wrap: nowrap;
+          width: 100%;
+          max-width: 100%;
         }
 
         .villa-thumbnail {
-          width: 45px;
-          height: 45px;
-          object-fit: cover;
-          margin-right: 14px;
-          border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          height: 40px;
+          width: auto;
+          max-width: 120px;
+          object-fit: contain;
+          margin-right: 12px;
+          border-radius: 6px;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
           flex-shrink: 0;
         }
 
         .villa-title {
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           font-weight: bold;
           color: #92400e; /* amber-700 to match your brand */
           margin: 0;
           line-height: 1.2;
+          white-space: nowrap;
         }
 
         .villa-navbar {
@@ -163,31 +168,60 @@ export default function GlobalHeader() {
           }
         }
 
+        /* Tablet and mobile optimizations */
         @media (max-width: 768px) {
-          .villa-title {
-            font-size: 1.3rem;
+          .villa-header {
+            padding: 0.75rem 1rem;
           }
           
-          .villa-thumbnail {
-            width: 40px;
-            height: 40px;
-            margin-right: 12px;
-          }
-          
-          .villa-brand {
-            margin-bottom: 0.5rem;
-          }
-        }
-        
-        @media (max-width: 480px) {
           .villa-title {
             font-size: 1.2rem;
           }
           
           .villa-thumbnail {
-            width: 36px;
-            height: 36px;
+            height: 32px;
+            max-width: 80px;
             margin-right: 10px;
+          }
+          
+          .villa-brand {
+            margin-bottom: 0.5rem;
+            min-height: 40px;
+          }
+        }
+        
+        /* Small mobile phones */
+        @media (max-width: 480px) {
+          .villa-header {
+            padding: 0.5rem 0.75rem;
+          }
+          
+          .villa-title {
+            font-size: 1.1rem;
+          }
+          
+          .villa-thumbnail {
+            height: 28px;
+            max-width: 70px;
+            margin-right: 8px;
+          }
+          
+          .villa-brand {
+            margin-bottom: 0.4rem;
+            min-height: 36px;
+          }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 360px) {
+          .villa-title {
+            font-size: 1rem;
+          }
+          
+          .villa-thumbnail {
+            height: 26px;
+            max-width: 60px;
+            margin-right: 6px;
           }
         }
       `}</style>
@@ -198,10 +232,11 @@ export default function GlobalHeader() {
             <Image
               src="/logo-sala-lake.jpg"
               alt="Ko Lake Villa - Traditional Sala by the Lake" 
-              width={45}
-              height={45}
+              width={40}
+              height={40}
               className="villa-thumbnail"
               priority
+              sizes="(max-width: 768px) 32px, (max-width: 480px) 28px, 40px"
             />
             <h1 className="villa-title">Ko Lake Villa</h1>
           </Link>
