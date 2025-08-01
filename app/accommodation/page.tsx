@@ -67,14 +67,14 @@ export default function AccommodationPage() {
       id: "entire-villa",
       name: "Entire Villa Exclusive",
       subtitle: "Perfect for Large Groups & Special Occasions",
-      description: "Experience ultimate luxury with exclusive access to our entire lakefront villa. Ideal for families, celebrations, and group getaways with complete privacy and premium amenities.",
+      description: "Experience ultimate luxury with exclusive access to our entire lakefront villa. Full villa with 7 air-conditioned ensuite bedrooms, sleeps maximum 23 guests on beds. Ideal for families, celebrations, and group getaways with complete privacy and premium amenities.",
       airbnbPrice: 431,
       specialPrice: 366,
       savings: 65,
       discountPercentage: 15,
-      guests: 12,
-      bedrooms: 6,
-      bathrooms: 4,
+      guests: 23,
+      bedrooms: 7,
+      bathrooms: 7,
       image: "/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg",
       gallery: [
         "/uploads/gallery/pool-deck/KoggalaNinePeaks_pool-deck_0.jpg",
@@ -82,14 +82,15 @@ export default function AccommodationPage() {
         "/uploads/gallery/front-garden/KoggalaNinePeaks_front-garden_0.jpg"
       ],
       features: [
+        "7 air-conditioned ensuite bedrooms",
+        "Sleeps maximum 23 guests on beds",
         "Exclusive use of entire property",
         "Private infinity pool with lake views",
         "Chef & full kitchen facilities",
         "Multiple living and dining areas",
         "Private boat dock access",
         "Dedicated parking for 4 cars",
-        "Garden and terrace spaces",
-        "Premium lake-facing bedrooms"
+        "Garden and terrace spaces"
       ],
       amenities: ["Private Pool", "Lake Access", "Full Kitchen", "Free Parking", "WiFi", "AC", "Chef Service"],
       airbnbLink: "https://airbnb.co.uk/h/eklv",
@@ -203,6 +204,11 @@ export default function AccommodationPage() {
                   <span className="font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded select-all">
                     airbnb.co.uk/h/eklv
                   </span>
+                  <div className="mt-2 text-sm">
+                    <em className="text-blue-700 font-medium">
+                      7 air-conditioned ensuite bedrooms, sleeps max 23 on beds
+                    </em>
+                  </div>
                 </div>
                 <div className="bg-white p-3 rounded border border-blue-200">
                   <strong className="text-blue-800">Master Family Suite:</strong>{" "}
@@ -419,6 +425,13 @@ export default function AccommodationPage() {
                           <div className="font-mono text-sm text-blue-600 bg-gray-50 p-2 rounded border select-all">
                             {room.airbnbLink.replace('https://', '')}
                           </div>
+                          {room.id === "entire-villa" && (
+                            <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
+                              <div className="text-sm text-amber-800 font-medium">
+                                <strong>Villa Details:</strong> 7 air-conditioned ensuite bedrooms, sleeps max 23 on beds
+                              </div>
+                            </div>
+                          )}
                           <div className="text-xs text-gray-500 mt-1">
                             Click to select all • Copy and paste this URL into your browser
                           </div>
