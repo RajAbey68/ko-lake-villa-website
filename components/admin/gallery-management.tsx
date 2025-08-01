@@ -185,49 +185,72 @@ export default function GalleryManagement() {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      console.log('Deleting item with ID:', itemId)
+      console.log('🗑️ Delete attempt started for item:', itemId)
+      
+      if (!itemId || itemId.trim() === '') {
+        throw new Error('Invalid item ID provided')
+      }
       
       const encodedId = encodeURIComponent(itemId)
-      console.log('Encoded ID for API call:', encodedId)
+      console.log('📡 Making DELETE request to:', `/api/gallery/${encodedId}`)
       
       const response = await fetch(`/api/gallery/${encodedId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
       })
 
-      console.log('Delete response status:', response.status)
+      console.log('📡 DELETE response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      })
       
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Delete failed with response:', errorData)
-        throw new Error(errorData.error || `HTTP ${response.status}: Failed to delete item`)
+        const errorText = await response.text()
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = { error: errorText || `HTTP ${response.status}: ${response.statusText}` }
+        }
+        
+        console.error('❌ Delete failed:', errorData)
+        throw new Error(errorData.error || `Failed to delete item (${response.status})`)
       }
 
       const result = await response.json()
-      console.log('Delete successful:', result)
+      console.log('✅ Delete successful:', result)
       
       toast({
-        title: "Success",
+        title: "✅ Success",
         description: "Item deleted successfully",
+        className: "bg-green-50 border-green-200"
       })
 
-      // Update local state immediately
+      // Update UI immediately
       setMediaItems(prev => prev.filter(item => item.id !== itemId))
       setDeleteConfirmId(null)
       
-      // Also reload gallery items to ensure complete sync
+      // Reload to ensure sync
+      console.log('🔄 Reloading gallery items...')
       await loadGalleryItems()
+      console.log('✅ Gallery reloaded')
 
     } catch (error) {
-      console.error('Delete error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete item'
+      console.error('💥 Delete operation failed:', error)
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       
       toast({
-        title: "Error",
+        title: "❌ Delete Failed",
         description: errorMessage,
         variant: "destructive",
+        className: "bg-red-50 border-red-200"
       })
       
-      // Still close the dialog even on error
+      // Close dialog even on error
       setDeleteConfirmId(null)
     }
   }
