@@ -81,9 +81,9 @@ export default function KoLakeVilla() {
   const renderHomePage = () => (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
+      <section className="relative h-screen max-h-[800px] min-h-[600px] overflow-hidden">
         <style jsx>{`
-          .hero-container {
+          .hero-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
@@ -107,85 +107,122 @@ export default function KoLakeVilla() {
             width: 100%;
             height: 100%;
             background: linear-gradient(
-              135deg,
-              rgba(0, 0, 0, 0.6) 0%,
-              rgba(0, 0, 0, 0.4) 40%,
-              rgba(0, 0, 0, 0.1) 70%,
-              transparent 100%
+              to right,
+              rgba(0, 0, 0, 0.7) 0%,
+              rgba(0, 0, 0, 0.5) 30%,
+              rgba(0, 0, 0, 0.2) 50%,
+              transparent 70%
             );
             z-index: 2;
           }
           
-          .hero-content {
+          .hero-content-container {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
+            height: 100%;
             display: flex;
             align-items: center;
-            min-height: 100%;
+            padding: 0 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
           }
           
-          .hero-text {
-            max-width: 600px;
-            width: 100%;
+          .hero-text-box {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
             padding: 3rem;
+            max-width: 550px;
+            width: 100%;
             margin-left: 0;
-            color: #1f2937;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 
+              0 25px 50px -12px rgba(0, 0, 0, 0.25),
+              0 0 0 1px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
           }
           
-          .hero-text h1 {
+          .hero-title {
             color: #92400e;
-            margin-bottom: 1.5rem;
+            font-size: 3.5rem;
             font-weight: 800;
+            margin-bottom: 1.5rem;
             line-height: 1.1;
+            letter-spacing: -0.02em;
           }
           
-          .hero-text p {
+          .hero-subtitle {
             color: #374151;
+            font-size: 1.5rem;
             margin-bottom: 1rem;
+            font-weight: 500;
           }
           
-          .hero-text .tagline {
+          .hero-tagline {
             color: #92400e;
+            font-size: 1.25rem;
             font-style: italic;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+          }
+          
+          .hero-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+          }
+          
+          @media (min-width: 640px) {
+            .hero-buttons {
+              flex-direction: row;
+              gap: 1.5rem;
+            }
           }
           
           @media (max-width: 768px) {
-            .hero-content {
+            .hero-content-container {
               padding: 0 1rem;
             }
             
-            .hero-text {
+            .hero-text-box {
               padding: 2rem;
-              margin-left: 0;
               max-width: 100%;
+              margin-left: 0;
             }
             
-            .hero-text h1 {
+            .hero-title {
               font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+              font-size: 1.25rem;
+            }
+            
+            .hero-tagline {
+              font-size: 1.1rem;
             }
           }
           
           @media (max-width: 480px) {
-            .hero-content {
+            .hero-content-container {
               padding: 0 0.75rem;
             }
             
-            .hero-text {
+            .hero-text-box {
               padding: 1.5rem;
-              border-radius: 12px;
+              border-radius: 15px;
             }
             
-            .hero-text h1 {
+            .hero-title {
               font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+              font-size: 1.1rem;
+            }
+            
+            .hero-tagline {
+              font-size: 1rem;
             }
           }
         `}</style>
@@ -196,9 +233,10 @@ export default function KoLakeVilla() {
             src="/images/hero-pool.jpg"
             alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
             fill
-            className="object-cover"
+            className="object-cover object-center"
             priority
             sizes="100vw"
+            quality={90}
           />
         </div>
         
@@ -206,17 +244,17 @@ export default function KoLakeVilla() {
         <div className="hero-overlay"></div>
         
         {/* Content */}
-        <div className="hero-container">
-          <div className="hero-content">
-            <div className="hero-text">
-              <h1 className="text-5xl md:text-6xl font-bold">Ko Lake Villa</h1>
-              <p className="text-xl md:text-2xl">Luxury Lakefront Accommodation in Sri Lanka</p>
-              <p className="text-lg md:text-xl font-light tagline">Relax, Revive, Reconnect</p>
-              <div className="flex flex-col sm:flex-row gap-4">
+        <div className="hero-wrapper">
+          <div className="hero-content-container">
+            <div className="hero-text-box">
+              <h1 className="hero-title">Ko Lake Villa</h1>
+              <p className="hero-subtitle">Luxury Lakefront Accommodation in Sri Lanka</p>
+              <p className="hero-tagline">Relax, Revive, Reconnect</p>
+              <div className="hero-buttons">
                 <a href="/accommodation">
                   <Button
                     size="lg"
-                    className="bg-amber-900 text-white hover:bg-amber-800 w-full"
+                    className="bg-amber-900 text-white hover:bg-amber-800 transition-all duration-200 w-full font-medium"
                   >
                     View Rooms & Rates
                   </Button>
@@ -225,7 +263,7 @@ export default function KoLakeVilla() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white w-full"
+                    className="border-2 border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white transition-all duration-200 w-full font-medium"
                   >
                     Explore Gallery
                   </Button>
