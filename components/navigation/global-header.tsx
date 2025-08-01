@@ -1,33 +1,18 @@
 "use client"
 
+import type React from "react"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Menu, X, LogIn, LogOut, Settings, Shield, Phone, Mail, User } from "lucide-react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
-
-interface UserInterface {
-  id: string
-  name: string
-  email: string
-  avatar?: string
-  role: "admin" | "staff" | "collaborator"
-}
+import { useRouter, usePathname } from "next/navigation"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Menu, X, LogIn, LogOut, Settings, Shield, Phone, Mail, User } from "lucide-react"
 
 export default function GlobalHeader() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<UserInterface | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userInfo, setUserInfo] = useState<{ name?: string; email?: string } | null>(null)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -36,310 +21,288 @@ export default function GlobalHeader() {
     return null
   }
 
-  const navigationItems = [
-    { id: "home", label: "Home", href: "/" },
-    { id: "accommodation", label: "Accommodation", href: "/accommodation" },
-    { id: "dining", label: "Dining", href: "/dining" },
-    { id: "experiences", label: "Experiences", href: "/experiences" },
-    { id: "gallery", label: "Gallery", href: "/gallery" },
-    { id: "contact", label: "Contact", href: "/contact" },
-  ]
-
   useEffect(() => {
-    // Check for existing authentication
-    const authData = localStorage.getItem("userAuth")
-    if (authData) {
-      try {
-        const userData = JSON.parse(authData)
-        setUser(userData)
-      } catch (error) {
-        console.error("Error parsing auth data:", error)
-        localStorage.removeItem("userAuth")
+    const checkAuth = () => {
+      const userAuth = localStorage.getItem("userAuth")
+      if (userAuth) {
+        try {
+          const userData = JSON.parse(userAuth)
+          setIsAuthenticated(true)
+          setUserInfo(userData)
+        } catch (error) {
+          console.error("Error parsing user auth:", error)
+          setIsAuthenticated(false)
+          setUserInfo(null)
+        }
+      } else {
+        setIsAuthenticated(false)
+        setUserInfo(null)
       }
     }
+
+    checkAuth()
   }, [])
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true)
-
-    // Simulate Google OAuth flow
-    try {
-      // In production, this would integrate with Google OAuth
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      const mockUser: UserInterface = {
-        id: "google_123",
-        name: "John Doe",
-        email: "john@kolakevilla.com",
-        avatar: "/placeholder.svg?height=40&width=40&text=JD",
-        role: "staff",
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("userAuth", JSON.stringify(mockUser))
-
-      // Redirect based on role
-      if (mockUser.role === "admin") {
-        router.push("/admin/dashboard")
-      }
-    } catch (error) {
-      console.error("Google login failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleEmailLogin = () => {
-    router.push("/admin")
+  const handleLogin = () => {
+    router.push('/admin/login')
   }
 
   const handleLogout = () => {
-    setUser(null)
     localStorage.removeItem("userAuth")
-    localStorage.removeItem("adminAuth")
-    router.push("/")
+    setIsAuthenticated(false)
+    setUserInfo(null)
+    router.push('/')
   }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "bg-red-100 text-red-800"
-      case "staff":
-        return "bg-blue-100 text-blue-800"
-      case "collaborator":
-        return "bg-green-100 text-green-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
-  }
+  const navigationItems = [
+    { href: "/", label: "Home" },
+    { href: "/accommodation", label: "Accommodation" },
+    { href: "/gallery", label: "Gallery" },
+    { href: "/experiences", label: "Experiences" },
+    { href: "/dining", label: "Dining" },
+    { href: "/deals", label: "Deals" },
+    { href: "/contact", label: "Contact" },
+    { href: "/faq", label: "FAQ" },
+  ]
+
+  const contactItems = [
+    { href: "tel:+94711730345", label: "Call Us", icon: Phone },
+    { href: "mailto:contact@KoLakeHouse.com", label: "Email", icon: Mail },
+  ]
 
   return (
-    <header className="nav-header">
-      <div className="nav-container">
-        <div className="nav-content">
-          {/* Logo */}
-          <Link href="/" className="nav-logo flex items-center space-x-3">
-            <div className="logo-image-container flex-shrink-0">
-              <Image
-                src="/logo-pavilion.jpg"
-                alt="Ko Lake Villa - Traditional Pavilion by the Lake"
-                width={50}
-                height={50}
-                className="logo-image rounded-md shadow-sm object-cover"
-                priority
-              />
-            </div>
-            <h1 className="nav-logo-text text-xl font-bold text-amber-900">Ko Lake Villa</h1>
+    <>
+      <style jsx>{`
+        .villa-header {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          background: white;
+          border-bottom: 1px solid #e5e7eb;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          padding: 1rem;
+        }
+
+        .villa-brand {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+
+        .villa-thumbnail {
+          width: 40px;
+          height: 40px;
+          object-fit: cover;
+          margin-right: 12px;
+          border-radius: 6px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .villa-title {
+          font-size: 1.4rem;
+          font-weight: bold;
+          color: #92400e; /* amber-700 to match your brand */
+          margin: 0;
+        }
+
+        .villa-navbar {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .villa-nav-links {
+          display: flex;
+          gap: 1.5rem;
+          align-items: center;
+        }
+
+        .villa-nav-link {
+          color: #374151;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.2s ease;
+        }
+
+        .villa-nav-link:hover {
+          color: #92400e;
+        }
+
+        .villa-nav-link.active {
+          color: #92400e;
+          font-weight: 600;
+        }
+
+        .villa-mobile-menu {
+          display: none;
+        }
+
+        .villa-actions {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+          .villa-nav-links {
+            display: none;
+          }
+          
+          .villa-mobile-menu {
+            display: block;
+          }
+          
+          .villa-navbar {
+            justify-content: flex-end;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .villa-title {
+            font-size: 1.2rem;
+          }
+          
+          .villa-thumbnail {
+            width: 35px;
+            height: 35px;
+          }
+        }
+      `}</style>
+      
+      <header className="villa-header">
+        <div className="villa-brand">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/hero-pool.jpg"
+              alt="Ko Lake Villa - Pool and Lake View" 
+              width={40}
+              height={40}
+              className="villa-thumbnail"
+              priority
+            />
+            <h1 className="villa-title">Ko Lake Villa</h1>
           </Link>
+        </div>
+        
+        <nav className="villa-navbar">
+          {/* Desktop Navigation Links */}
+          <div className="villa-nav-links">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`villa-nav-link ${pathname === item.href ? 'active' : ''}`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="nav-desktop">
-            <div className="nav-menu">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`nav-link ${
-                    pathname === item.href || (item.href === "/" && pathname === "/")
-                      ? "nav-link-active"
-                      : "nav-link-inactive"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+          {/* Actions */}
+          <div className="villa-actions">
+            {/* Contact Actions - Desktop */}
+            <div className="hidden md:flex items-center gap-2">
+              {contactItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center space-x-1 px-2 py-1 text-sm text-gray-600 hover:text-amber-700 transition-colors"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="hidden lg:inline">{item.label}</span>
+                  </Link>
+                )
+              })}
             </div>
-          </nav>
 
-          {/* Right Side - Auth & Actions */}
-          <div className="nav-actions">
-            {/* Contact Info (Desktop) */}
-            <div className="nav-contact-info">
-              <a href="tel:+94711730345" className="nav-contact-link">
-                <Phone className="w-4 h-4" />
-                <span>+94711730345</span>
-              </a>
-              <a href="mailto:contact@KoLakeHouse.com" className="nav-contact-link">
-                <Mail className="w-4 h-4" />
-                <span>contact@KoLakeHouse.com</span>
-              </a>
-            </div>
-
-            {/* Contact & Book Now Buttons */}
-            <Button
-              variant="outline"
-              asChild
-              className="nav-contact-button hidden sm:flex"
-            >
-              <Link href="/contact">Contact Us</Link>
-            </Button>
-            
-            <Button
-              onClick={() => window.open("https://www.guesty.com/ko-lake-villa", "_blank")}
-              className="nav-book-button"
-            >
-              Book Now
-            </Button>
-
-            {/* Authentication */}
-            {user ? (
+            {/* Auth Actions */}
+            {isAuthenticated && userInfo ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full flex-shrink-0">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                      <AvatarFallback className="bg-amber-100 text-amber-800">
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{userInfo.name || 'User'}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64" align="end" forceMount>
-                  <div className="flex flex-col space-y-2 p-2">
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                        <AvatarFallback className="bg-amber-100 text-amber-800 text-xs">
-                          {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
-                      </div>
-                    </div>
-                    <Badge className={`${getRoleColor(user.role)} text-xs w-fit`}>
-                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                    </Badge>
-                  </div>
-                  <DropdownMenuSeparator />
-
-                  {user.role === "admin" && (
-                    <>
-                      <DropdownMenuItem onClick={() => router.push("/admin/dashboard")}>
-                        <Shield className="mr-2 h-4 w-4" />
-                        Admin Dashboard
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-
-                  <DropdownMenuItem onClick={() => router.push("/profile")}>
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => router.push('/admin/dashboard')} className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                    <span>Admin Panel</span>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                    <span>Logout</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="nav-staff-login hidden sm:flex"
-                    disabled={isLoading}
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    {isLoading ? "Signing in..." : "Staff Login"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64" align="end">
-                  <div className="p-2">
-                    <p className="text-sm font-medium mb-2">Staff & Collaborator Access</p>
-                    <p className="text-xs text-gray-500 mb-3">Sign in to access admin tools and management features</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleGoogleLogin} disabled={isLoading}>
-                    <div className="flex items-center space-x-2 w-full">
-                      <div className="w-4 h-4 bg-blue-500 rounded-sm flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">G</span>
-                      </div>
-                      <span>Continue with Google</span>
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleEmailLogin}>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Sign in with Email
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button onClick={handleLogin} variant="ghost" size="sm" className="hidden sm:flex">
+                <LogIn className="mr-2 h-4 w-4" />
+                Login
+              </Button>
             )}
 
             {/* Mobile Menu Button */}
             <Button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               variant="ghost"
               size="sm"
-              className="nav-mobile-button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              className="villa-mobile-menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
-        </div>
+        </nav>
 
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="nav-mobile">
-            <nav className="nav-mobile-menu">
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden w-full mt-4 pt-4 border-t border-gray-200">
+            <div className="flex flex-col space-y-3">
               {navigationItems.map((item) => (
                 <Link
-                  key={item.id}
+                  key={item.href}
                   href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`nav-mobile-link ${
-                    pathname === item.href || (item.href === "/" && pathname === "/")
-                      ? "nav-mobile-link-active"
-                      : "nav-mobile-link-inactive"
-                  }`}
+                  className={`villa-nav-link ${pathname === item.href ? 'active' : ''}`}
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
               ))}
-
-              {/* Mobile Contact Info */}
-              <div className="nav-mobile-contact">
-                <a href="tel:+94711730345" className="nav-mobile-contact-link">
-                  <Phone className="w-4 h-4" />
-                  <span>+94711730345</span>
-                </a>
-                <a href="mailto:contact@KoLakeHouse.com" className="nav-mobile-contact-link">
-                  <Mail className="w-4 h-4" />
-                  <span>contact@KoLakeHouse.com</span>
-                </a>
+              
+              {/* Mobile Contact Actions */}
+              <div className="flex gap-4 pt-2 border-t border-gray-100">
+                {contactItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-amber-700"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  )
+                })}
               </div>
 
-              {/* Mobile Book Now */}
-              <Button
-                onClick={() => {
-                  setIsMobileMenuOpen(false)
-                  window.open("https://www.guesty.com/ko-lake-villa", "_blank")
-                }}
-                className="nav-mobile-book"
-              >
-                Book Now
-              </Button>
-            </nav>
+              {/* Mobile Auth */}
+              {!isAuthenticated && (
+                <Button onClick={() => { handleLogin(); setIsMenuOpen(false) }} variant="ghost" size="sm" className="justify-start">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login
+                </Button>
+              )}
+            </div>
           </div>
         )}
-      </div>
-    </header>
+      </header>
+    </>
   )
 }

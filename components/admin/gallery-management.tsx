@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, ImageIcon, Video, Trash2, Edit, Eye, Sparkles, Copy, RefreshCw } from "lucide-react"
+import { Upload, ImageIcon, Video, Trash2, Edit, Eye, Sparkles, Copy, RefreshCw, Play } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
 import CampaignGenerator from "@/components/admin/campaign-generator"
@@ -374,6 +374,14 @@ export default function GalleryManagement() {
     }
   }
 
+  // Generate video poster URL from video URL
+  const getVideoPosterUrl = (videoUrl: string, title: string) => {
+    // For real implementation, you'd generate thumbnails on upload
+    // For now, we'll use placeholder with video-specific styling
+    const encodedTitle = encodeURIComponent(title)
+    return `/placeholder.svg?height=400&width=600&text=${encodedTitle}&bg=1a1a1a&color=ffffff`
+  }
+
   const handlePublishToggle = async (itemId: string, currentStatus: boolean) => {
     setPublishingId(itemId)
     try {
@@ -436,6 +444,66 @@ export default function GalleryManagement() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Custom CSS for video hover effects */}
+      <style jsx>{`
+        .admin-video-thumbnail-container {
+          position: relative;
+          overflow: hidden;
+          border-radius: 0.375rem;
+        }
+        
+        .admin-video-thumbnail-container:hover .admin-video-thumbnail {
+          transform: scale(1.02);
+        }
+        
+        .admin-video-thumbnail {
+          transition: transform 0.3s ease;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .admin-video-play-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          opacity: 0;
+        }
+        
+        .admin-video-thumbnail-container:hover .admin-video-play-overlay {
+          background: rgba(0, 0, 0, 0.4);
+          opacity: 1;
+        }
+        
+        .admin-video-play-button {
+          width: 2.5rem;
+          height: 2.5rem;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .admin-video-thumbnail-container:hover .admin-video-play-button {
+          transform: scale(1.05);
+          background: rgba(255, 255, 255, 1);
+        }
+        
+        .admin-video-play-icon {
+          width: 1rem;
+          height: 1rem;
+          color: #1f2937;
+          margin-left: 1px;
+        }
+      `}</style>
+      
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-amber-800">Gallery Management</h1>
         <div className="flex gap-2">
@@ -504,28 +572,27 @@ export default function GalleryManagement() {
                       onClick={() => setViewingImage(item)}
                     />
                   ) : (
-                    <video
-                      src={item.url}
-                      controls
-                      preload="metadata"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.error('Video load error:', e);
-                        // Fallback to placeholder if video fails to load
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    >
-                      <source src={item.url} type="video/mp4" />
-                      <source src={item.url} type="video/webm" />
-                      <source src={item.url} type="video/ogg" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-                  {item.type === "video" && (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200 hidden">
-                      <Video className="w-12 h-12 text-gray-400" />
-                      <span className="ml-2 text-gray-500">Video not supported</span>
+                    <div className="admin-video-thumbnail-container">
+                      <video
+                        className="admin-video-thumbnail"
+                        poster={getVideoPosterUrl(item.url, item.title)}
+                        preload="metadata"
+                        muted
+                        playsInline
+                        onError={(e) => {
+                          console.error('Video load error:', e);
+                        }}
+                      >
+                        <source src={item.url} type="video/mp4" />
+                        <source src={item.url} type="video/webm" />
+                        <source src={item.url} type="video/ogg" />
+                        Your browser does not support the video tag.
+                      </video>
+                      <div className="admin-video-play-overlay">
+                        <div className="admin-video-play-button">
+                          <Play className="admin-video-play-icon fill-current" />
+                        </div>
+                      </div>
                     </div>
                   )}
                   <div className="absolute top-2 left-2">
@@ -774,11 +841,10 @@ export default function GalleryManagement() {
                     src={editingItem.url}
                     controls
                     preload="metadata"
+                    poster={getVideoPosterUrl(editingItem.url, editingItem.title)}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       console.error('Video load error in edit dialog:', e);
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
                     }}
                   >
                     <source src={editingItem.url} type="video/mp4" />
@@ -786,12 +852,6 @@ export default function GalleryManagement() {
                     <source src={editingItem.url} type="video/ogg" />
                     Your browser does not support the video tag.
                   </video>
-                )}
-                {editingItem.type === "video" && (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200 hidden">
-                    <Video className="w-12 h-12 text-gray-400" />
-                    <span className="ml-2 text-gray-500">Video preview not available</span>
-                  </div>
                 )}
               </div>
 

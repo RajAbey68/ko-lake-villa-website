@@ -22,6 +22,14 @@ export default function PublicGallery() {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  // Generate video poster URL from video URL
+  const getVideoPosterUrl = (videoUrl: string, title: string) => {
+    // For real implementation, you'd generate thumbnails on upload
+    // For now, we'll use placeholder with video-specific styling
+    const encodedTitle = encodeURIComponent(title)
+    return `/placeholder.svg?height=400&width=600&text=${encodedTitle}&bg=1a1a1a&color=ffffff`
+  }
+
   const mediaItems: MediaItem[] = [
     {
       id: "1",
@@ -109,6 +117,87 @@ export default function PublicGallery() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      {/* Custom CSS for video hover effects */}
+      <style jsx>{`
+        .video-thumbnail-container {
+          position: relative;
+          overflow: hidden;
+          border-radius: 0.5rem;
+        }
+        
+        .video-thumbnail-container:hover .video-thumbnail {
+          transform: scale(1.05);
+        }
+        
+        .video-thumbnail {
+          transition: transform 0.3s ease;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .video-play-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+        
+        .video-thumbnail-container:hover .video-play-overlay {
+          background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .video-play-button {
+          width: 3rem;
+          height: 3rem;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-thumbnail-container:hover .video-play-button {
+          transform: scale(1.1);
+          background: rgba(255, 255, 255, 1);
+        }
+        
+        .video-play-icon {
+          width: 1.5rem;
+          height: 1.5rem;
+          color: #1f2937;
+          margin-left: 2px; /* Slight offset for better visual centering */
+        }
+        
+        .image-container:hover .image-content {
+          transform: scale(1.05);
+        }
+        
+        .image-content {
+          transition: transform 0.3s ease;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        @media (max-width: 640px) {
+          .video-play-button {
+            width: 2.5rem;
+            height: 2.5rem;
+          }
+          
+          .video-play-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+        }
+      `}</style>
+      
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -142,33 +231,52 @@ export default function PublicGallery() {
         {filteredItems.map((item) => (
           <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
             <div className="relative aspect-video bg-gray-100" onClick={() => openLightbox(item)}>
-              <img src={item.url || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" />
+              
+              {item.type === "video" ? (
+                <div className="video-thumbnail-container">
+                  <video 
+                    className="video-thumbnail"
+                    poster={getVideoPosterUrl(item.url, item.title)}
+                    preload="metadata"
+                    muted
+                    playsInline
+                  >
+                    <source src={item.url} type="video/mp4" />
+                    <source src={item.url} type="video/webm" />
+                    <source src={item.url} type="video/ogg" />
+                  </video>
+                  <div className="video-play-overlay">
+                    <div className="video-play-button">
+                      <Play className="video-play-icon fill-current" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="image-container relative w-full h-full">
+                  <img 
+                    src={item.url || "/placeholder.svg"} 
+                    alt={item.title} 
+                    className="image-content" 
+                  />
+                </div>
+              )}
 
               {/* Media Type Indicator */}
-              <div className="absolute top-3 left-3">
+              <div className="absolute top-3 left-3 z-10">
                 <Badge variant="secondary" className="bg-white/90 text-gray-800">
                   {item.type === "image" ? <ImageIcon className="w-3 h-3 mr-1" /> : <Video className="w-3 h-3 mr-1" />}
                   {item.type}
                 </Badge>
               </div>
 
-              {/* Play Button for Videos */}
-              {item.type === "video" && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-black/50 rounded-full p-4">
-                    <Play className="w-8 h-8 text-white fill-white" />
-                  </div>
-                </div>
-              )}
-
               {/* Tribe Badge */}
               {item.tribe && (
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 z-10">
                   <Badge className="bg-amber-600 text-white text-xs">Perfect for {item.tribe}</Badge>
                 </div>
               )}
 
-              {/* Hover Overlay */}
+              {/* Hover Overlay for Image Info */}
               <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-end">
                 <div className="p-4 text-white opacity-0 hover:opacity-100 transition-opacity">
                   <h3 className="font-semibold">{item.title}</h3>
@@ -227,6 +335,8 @@ export default function PublicGallery() {
                     className="w-full h-full object-contain bg-black"
                     controls
                     autoPlay
+                    poster={getVideoPosterUrl(selectedItem.url, selectedItem.title)}
+                    preload="metadata"
                     onError={(e) => {
                       console.error('Video failed to load in lightbox:', selectedItem.url)
                       const target = e.currentTarget
@@ -248,7 +358,6 @@ export default function PublicGallery() {
                     onCanPlay={() => {
                       console.log('Video can play:', selectedItem.url)
                     }}
-                    poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
                   />
                 )}
               </div>

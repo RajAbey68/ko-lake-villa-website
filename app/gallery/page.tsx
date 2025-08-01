@@ -39,6 +39,14 @@ export default function GalleryPage() {
   const [error, setError] = useState<string | null>(null)
   const [showVideoHelp, setShowVideoHelp] = useState(true)
 
+  // Generate video poster URL from video URL
+  const getVideoPosterUrl = (videoUrl: string, title: string) => {
+    // For real implementation, you'd generate thumbnails on upload
+    // For now, we'll use placeholder with video-specific styling
+    const encodedTitle = encodeURIComponent(title)
+    return `/placeholder.svg?height=400&width=600&text=${encodedTitle}&bg=1a1a1a&color=ffffff`
+  }
+
   // Load gallery items from API
   const loadGalleryItems = async () => {
     try {
@@ -167,6 +175,77 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <GlobalHeader />
+      
+      {/* Custom CSS for video hover effects */}
+      <style jsx>{`
+        .video-thumbnail-container {
+          position: relative;
+          overflow: hidden;
+          border-radius: 0.5rem;
+        }
+        
+        .video-thumbnail-container:hover .video-thumbnail {
+          transform: scale(1.05);
+        }
+        
+        .video-thumbnail {
+          transition: transform 0.3s ease;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .video-play-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+        
+        .video-thumbnail-container:hover .video-play-overlay {
+          background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .video-play-button {
+          width: 3rem;
+          height: 3rem;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-thumbnail-container:hover .video-play-button {
+          transform: scale(1.1);
+          background: rgba(255, 255, 255, 1);
+        }
+        
+        .video-play-icon {
+          width: 1.5rem;
+          height: 1.5rem;
+          color: #1f2937;
+          margin-left: 2px; /* Slight offset for better visual centering */
+        }
+        
+        @media (max-width: 640px) {
+          .video-play-button {
+            width: 2.5rem;
+            height: 2.5rem;
+          }
+          
+          .video-play-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+        }
+      `}</style>
+      
       <div className="max-w-7xl mx-auto p-6">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
@@ -263,18 +342,24 @@ export default function GalleryPage() {
           >
             <div className="relative aspect-square">
               {item.type === 'video' ? (
-                <div className="relative w-full h-full bg-black flex items-center justify-center">
+                <div className="video-thumbnail-container relative w-full h-full bg-black">
                   <video 
-                    className="w-full h-full object-cover"
-                    poster="/placeholder.svg?height=300&width=300&text=Video+Preview"
+                    className="video-thumbnail"
+                    poster={getVideoPosterUrl(item.url, item.title)}
                     preload="metadata"
+                    muted
+                    playsInline
                   >
                     <source src={item.url} type="video/mp4" />
+                    <source src={item.url} type="video/webm" />
+                    <source src={item.url} type="video/ogg" />
                   </video>
-                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-                    <Play className="w-12 h-12 text-white" />
+                  <div className="video-play-overlay">
+                    <div className="video-play-button">
+                      <Play className="video-play-icon fill-current" />
+                    </div>
                   </div>
-                  <Badge className="absolute top-2 left-2 bg-red-600 text-white">
+                  <Badge className="absolute top-2 left-2 bg-red-600 text-white z-10">
                     <Video className="w-3 h-3 mr-1" />
                     Video
                   </Badge>
@@ -366,8 +451,15 @@ export default function GalleryPage() {
                   className="max-w-full max-h-full"
                   controls
                   autoPlay
+                  poster={getVideoPosterUrl(selectedItem.url, selectedItem.title)}
+                  preload="metadata"
+                  onError={(e) => {
+                    console.error('Video failed to load in lightbox:', selectedItem.url)
+                  }}
                 >
                   <source src={selectedItem.url} type="video/mp4" />
+                  <source src={selectedItem.url} type="video/webm" />
+                  <source src={selectedItem.url} type="video/ogg" />
                   Your browser does not support the video tag.
                 </video>
               ) : (
