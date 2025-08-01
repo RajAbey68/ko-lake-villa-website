@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { 
   DollarSign, Save, RefreshCw, TrendingUp, Calendar, AlertCircle, 
-  Check, ExternalLink, Edit, Clock, Users, Bed, Bath
+  Check, ExternalLink, Edit, Clock, Users, Bed, Bath, Search, 
+  CheckCircle, XCircle, Activity, Database
 } from "lucide-react"
 
 interface AccommodationPricing {
@@ -23,6 +24,19 @@ interface AccommodationPricing {
   guests: number
   bedrooms: number
   bathrooms: number
+}
+
+interface AirbnbLookup {
+  id: string
+  accommodation: string
+  airbnbUrl: string
+  timestamp: string
+  status: 'success' | 'failed' | 'pending'
+  originalPrice?: number
+  fetchedPrice?: number
+  discountedPrice?: number
+  errorMessage?: string
+  responseTime?: number
 }
 
 export default function AdminPricing() {
@@ -64,11 +78,48 @@ export default function AdminPricing() {
       bathrooms: 1
     }
   ])
+
+  // Simulated Airbnb lookup history (this would come from your actual logging system)
+  const [lookupHistory, setLookupHistory] = useState<AirbnbLookup[]>([
+    {
+      id: "1",
+      accommodation: "Entire Villa Exclusive",
+      airbnbUrl: "https://airbnb.co.uk/h/eklv",
+      timestamp: "2025-01-25T16:55:00Z",
+      status: "success",
+      originalPrice: 431,
+      fetchedPrice: 431,
+      discountedPrice: 366,
+      responseTime: 2.3
+    },
+    {
+      id: "2", 
+      accommodation: "Master Family Suite",
+      airbnbUrl: "https://airbnb.co.uk/h/klv6",
+      timestamp: "2025-01-25T16:55:00Z",
+      status: "failed",
+      originalPrice: 119,
+      errorMessage: "Rate limiting - Airbnb blocked request",
+      responseTime: 5.1
+    },
+    {
+      id: "3",
+      accommodation: "Triple/Twin Rooms",
+      airbnbUrl: "https://airbnb.co.uk/h/klv2or3", 
+      timestamp: "2025-01-25T16:55:00Z",
+      status: "success",
+      originalPrice: 70,
+      fetchedPrice: 70,
+      discountedPrice: 60,
+      responseTime: 1.8
+    }
+  ])
   
   const [editingId, setEditingId] = useState<string | null>(null)
   const [tempPrice, setTempPrice] = useState<number>(0)
   const [saveMessage, setSaveMessage] = useState("")
   const [isSaving, setIsSaving] = useState(false)
+  const [isLookingUp, setIsLookingUp] = useState(false)
 
   const calculateDiscount = (airbnbPrice: number) => {
     const specialPrice = Math.round(airbnbPrice * 0.85)
@@ -98,12 +149,51 @@ export default function AdminPricing() {
     setIsSaving(false)
   }
 
+  const handleAirbnbLookup = async () => {
+    setIsLookingUp(true)
+    setSaveMessage("Running Airbnb price lookups...")
+    
+    // Simulate API call to your Airbnb lookup service
+    try {
+      // This would call your actual Airbnb price sync API
+      const response = await fetch('/api/admin/airbnb-lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accommodations: pricing.map(p => ({ id: p.id, url: p.airbnbLink })) })
+      })
+      
+      if (response.ok) {
+        const results = await response.json()
+        setSaveMessage("✅ Airbnb lookups completed successfully")
+        // Update lookup history with real results
+        setLookupHistory(prev => [...results.lookups, ...prev.slice(0, 10)]) // Keep last 10
+      } else {
+        setSaveMessage("❌ Airbnb lookup failed - check logs")
+      }
+    } catch (error) {
+      setSaveMessage("❌ Network error during Airbnb lookup")
+    }
+    
+    setTimeout(() => setSaveMessage(""), 5000)
+    setIsLookingUp(false)
+  }
+
   const getTotalRevenuePotential = () => {
     return pricing.reduce((sum, room) => sum + (room.airbnbPrice * 30), 0) // 30 days
   }
 
   const getDiscountRevenuePotential = () => {
     return pricing.reduce((sum, room) => sum + (room.specialPrice * 30), 0) // 30 days
+  }
+
+  const getSuccessfulLookups = () => {
+    return lookupHistory.filter(l => l.status === 'success').length
+  }
+
+  const getAverageResponseTime = () => {
+    const successful = lookupHistory.filter(l => l.status === 'success' && l.responseTime)
+    if (successful.length === 0) return 0
+    return successful.reduce((sum, l) => sum + (l.responseTime || 0), 0) / successful.length
   }
 
   return (
@@ -168,6 +258,146 @@ export default function AdminPricing() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AIRBNB LOOKUP MONITORING WINDOW */}
+      <Card className="mb-8 border-blue-200">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-lg flex items-center space-x-2">
+                <Search className="h-5 w-5 text-blue-600" />
+                <span>Airbnb Lookup Monitoring</span>
+              </CardTitle>
+              <CardDescription>
+                Real-time monitoring of Airbnb price fetching and discount calculations
+              </CardDescription>
+            </div>
+            <Button 
+              onClick={handleAirbnbLookup} 
+              disabled={isLookingUp}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isLookingUp ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Looking up...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Run Airbnb Lookup
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Lookup Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-green-50 p-4 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <span className="text-sm font-medium">Successful Lookups</span>
+              </div>
+              <div className="text-2xl font-bold text-green-600">{getSuccessfulLookups()}/{lookupHistory.length}</div>
+            </div>
+            
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Activity className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium">Avg Response Time</span>
+              </div>
+              <div className="text-2xl font-bold text-blue-600">{getAverageResponseTime().toFixed(1)}s</div>
+            </div>
+            
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Database className="h-5 w-5 text-purple-600" />
+                <span className="text-sm font-medium">Last Lookup</span>
+              </div>
+              <div className="text-sm font-bold text-purple-600">
+                {lookupHistory[0] ? new Date(lookupHistory[0].timestamp).toLocaleTimeString() : 'Never'}
+              </div>
+            </div>
+            
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="h-5 w-5 text-orange-600" />
+                <span className="text-sm font-medium">Total Discounts</span>
+              </div>
+              <div className="text-lg font-bold text-orange-600">
+                £{lookupHistory.filter(l => l.status === 'success').reduce((sum, l) => sum + ((l.fetchedPrice || 0) - (l.discountedPrice || 0)), 0)}
+              </div>
+            </div>
+          </div>
+
+          {/* Lookup History Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-200">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Accommodation</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Status</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Airbnb Price</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Our Price</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Discount</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Time</th>
+                  <th className="border border-gray-200 px-4 py-2 text-left font-medium">Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lookupHistory.slice(0, 10).map((lookup) => (
+                  <tr key={lookup.id} className="hover:bg-gray-50">
+                    <td className="border border-gray-200 px-4 py-2">
+                      <div className="font-medium">{lookup.accommodation}</div>
+                      <div className="text-xs text-gray-500 truncate max-w-40">{lookup.airbnbUrl}</div>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2">
+                      {lookup.status === 'success' ? (
+                        <Badge className="bg-green-100 text-green-800">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Success
+                        </Badge>
+                      ) : lookup.status === 'failed' ? (
+                        <Badge className="bg-red-100 text-red-800">
+                          <XCircle className="w-3 h-3 mr-1" />
+                          Failed
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-yellow-100 text-yellow-800">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Pending
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2 font-mono">
+                      {lookup.fetchedPrice ? `£${lookup.fetchedPrice}` : '-'}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2 font-mono text-green-600">
+                      {lookup.discountedPrice ? `£${lookup.discountedPrice}` : '-'}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2">
+                      {lookup.fetchedPrice && lookup.discountedPrice ? (
+                        <span className="text-red-600 font-medium">
+                          -£{lookup.fetchedPrice - lookup.discountedPrice}
+                        </span>
+                      ) : lookup.errorMessage ? (
+                        <span className="text-xs text-red-600">{lookup.errorMessage}</span>
+                      ) : '-'}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2 text-xs">
+                      {new Date(lookup.timestamp).toLocaleString()}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2 text-xs">
+                      {lookup.responseTime ? `${lookup.responseTime}s` : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Instructions Card */}
       <Card className="mb-6 border-amber-200 bg-amber-50">
