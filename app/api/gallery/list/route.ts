@@ -71,6 +71,34 @@ const loadArchiveStatus = async (): Promise<ArchiveStatus> => {
   }
 }
 
+interface ImageMetadata {
+  [imageId: string]: {
+    title?: string
+    description?: string
+    category?: string
+    tags?: string[]
+    seoTitle?: string
+    seoDescription?: string
+    altText?: string
+    updatedAt?: string
+    updatedBy?: string
+  }
+}
+
+const loadGalleryMetadata = async (): Promise<ImageMetadata> => {
+  try {
+    const metadataFile = path.join(process.cwd(), 'data', 'gallery-metadata.json')
+    if (fs.existsSync(metadataFile)) {
+      const data = fs.readFileSync(metadataFile, 'utf-8')
+      return JSON.parse(data)
+    }
+    return {}
+  } catch (error) {
+    console.error('Error loading gallery metadata:', error)
+    return {}
+  }
+}
+
 export async function GET() {
   try {
     const galleryDirectory = path.join(process.cwd(), 'public', 'uploads', 'gallery')
@@ -85,9 +113,10 @@ export async function GET() {
 
     const images: GalleryImage[] = []
     
-    // Load publish status and archive status
+    // Load publish status, archive status, and metadata
     const publishStatus = await loadPublishStatus()
     const archiveStatus = await loadArchiveStatus()
+    const galleryMetadata = await loadGalleryMetadata()
 
     for (const category of categories) {
       const categoryPath = path.join(galleryDirectory, category)
@@ -102,18 +131,10 @@ export async function GET() {
         // Generate a unique ID based on category and filename
         const imageId = `${category}/${file}`
         
-        // Check for metadata file
-        const metadataPath = filePath + '.meta.json'
-        let metadata = null
-        
-        if (fs.existsSync(metadataPath)) {
-          try {
-            const metadataContent = fs.readFileSync(metadataPath, 'utf-8')
-            metadata = JSON.parse(metadataContent)
-            console.log(`Loaded metadata for ${imageId}:`, metadata)
-          } catch (error) {
-            console.error(`Error reading metadata for ${imageId}:`, error)
-          }
+        // Get metadata from centralized metadata store
+        const metadata = galleryMetadata[imageId] || null
+        if (metadata) {
+          console.log(`Loaded metadata for ${imageId}:`, metadata)
         }
         
         // Use metadata if available, otherwise generate from filename

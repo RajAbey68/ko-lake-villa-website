@@ -75,11 +75,26 @@ export async function DELETE(
     await unlink(fullPath)
     console.log('File deleted successfully')
     
-    // Also delete metadata file if it exists
+    // Also delete metadata file if it exists (legacy cleanup)
     const metadataPath = fullPath + '.meta.json'
     if (existsSync(metadataPath)) {
       await unlink(metadataPath)
-      console.log('Metadata file deleted')
+      console.log('Legacy metadata file deleted')
+    }
+    
+    // Remove from centralized metadata
+    try {
+      const metadataResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/gallery/metadata?imageId=${encodeURIComponent(imageId)}`, {
+        method: 'DELETE'
+      })
+      if (metadataResponse.ok) {
+        console.log('Centralized metadata deleted successfully')
+      } else {
+        console.warn('Failed to delete centralized metadata, but file was deleted')
+      }
+    } catch (metadataError) {
+      console.warn('Error deleting centralized metadata:', metadataError)
+      // Don't fail the whole operation if metadata cleanup fails
     }
 
     return NextResponse.json({ 
@@ -97,112 +112,19 @@ export async function DELETE(
   }
 }
 
+// PUT method deprecated - use /api/gallery/metadata instead
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ imageId: string }> }
 ) {
   const { imageId } = await params
   
-  console.log('PUT request received for imageId:', imageId)
+  console.log('PUT request received for imageId (deprecated):', imageId)
   
-  try {
-    if (!imageId) {
-      console.log('No imageId provided')
-      return NextResponse.json({ error: 'Image ID is required' }, { status: 400 })
-    }
-
-    // Parse the request body
-    const body = await request.json()
-    console.log('PUT request body:', body)
-    
-    const { title, description, category, tags, seoTitle, seoDescription, altText } = body
-
-    // Decode the imageId which should be the relative path like "default/filename.jpg"
-    const decodedPath = decodeURIComponent(imageId)
-    console.log('Decoded path:', decodedPath)
-    
-    // Handle different ID formats - sometimes it might be just a filename
-    let relativePath = decodedPath
-    
-    // If it doesn't contain a slash, it might be just a filename in the default folder
-    if (!decodedPath.includes('/')) {
-      relativePath = `default/${decodedPath}`
-      console.log('Using default folder for path:', relativePath)
-    }
-    
-    // Construct the full file path
-    let fullPath = path.join(process.cwd(), 'public', 'uploads', 'gallery', relativePath)
-    console.log('Full file path:', fullPath)
-    
-    // Check if file exists
-    if (!existsSync(fullPath)) {
-      console.log('File not found at path:', fullPath)
-      
-      // Try alternative paths if the file wasn't found
-      const galleryDir = path.join(process.cwd(), 'public', 'uploads', 'gallery')
-      const categories = ['default', 'entire-villa', 'family-suite', 'group-room', 'triple-room', 
-                         'dining-area', 'pool-deck', 'lake-garden', 'roof-garden', 'front-garden', 
-                         'koggala-lake', 'excursions']
-      
-      let foundPath = null
-      const filename = path.basename(decodedPath)
-      
-      for (const category of categories) {
-        const testPath = path.join(galleryDir, category, filename)
-        if (existsSync(testPath)) {
-          foundPath = testPath
-          console.log('Found file in alternative path:', testPath)
-          break
-        }
-      }
-      
-      if (!foundPath) {
-        return NextResponse.json({ 
-          error: 'Image not found', 
-          searchedPath: relativePath,
-          fullPath: fullPath
-        }, { status: 404 })
-      }
-      
-      // Update the path to the found file
-      fullPath = foundPath
-      relativePath = path.relative(path.join(process.cwd(), 'public', 'uploads', 'gallery'), foundPath)
-    }
-
-    console.log('Updating metadata for file:', fullPath)
-
-    // Create metadata object
-    const metadata = {
-      title: title || '',
-      description: description || '',
-      category: category || 'default',
-      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map((t: string) => t.trim()) : []),
-      seoTitle: seoTitle || '',
-      seoDescription: seoDescription || '',
-      altText: altText || '',
-      updatedAt: new Date().toISOString()
-    }
-
-    console.log('Saving metadata:', metadata)
-
-    // Save metadata to a .meta.json file
-    const metadataPath = fullPath + '.meta.json'
-    await writeFile(metadataPath, JSON.stringify(metadata, null, 2))
-    
-    console.log('Metadata saved to:', metadataPath)
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Image metadata updated successfully',
-      metadata,
-      imagePath: relativePath
-    })
-  } catch (error) {
-    console.error('Error updating image metadata:', error)
-    return NextResponse.json({ 
-      error: 'Failed to update image metadata',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      imageId: imageId
-    }, { status: 500 })
-  }
+  return NextResponse.json({ 
+    error: 'PUT method deprecated. Use /api/gallery/metadata instead.',
+    deprecatedEndpoint: `/api/gallery/${imageId}`,
+    newEndpoint: '/api/gallery/metadata',
+    migration: 'Use POST to /api/gallery/metadata with imageId in body'
+  }, { status: 410 })
 } 

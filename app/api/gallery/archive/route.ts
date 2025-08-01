@@ -196,11 +196,25 @@ export async function POST(request: NextRequest) {
               console.log(`Permanently deleted file: ${filePath}`)
             }
             
-            // Delete metadata file
+            // Delete metadata file (legacy cleanup)
             const metadataPath = filePath + '.meta.json'
             if (existsSync(metadataPath)) {
               await fs.unlink(metadataPath)
-              console.log(`Deleted metadata: ${metadataPath}`)
+              console.log(`Deleted legacy metadata: ${metadataPath}`)
+            }
+            
+            // Remove from centralized metadata
+            try {
+              const metadataFile = path.join(process.cwd(), 'data', 'gallery-metadata.json')
+              if (existsSync(metadataFile)) {
+                const metadataContent = await fs.readFile(metadataFile, 'utf-8')
+                const metadata = JSON.parse(metadataContent)
+                delete metadata[imageId]
+                await fs.writeFile(metadataFile, JSON.stringify(metadata, null, 2))
+                console.log(`Deleted centralized metadata for: ${imageId}`)
+              }
+            } catch (metadataError) {
+              console.warn(`Failed to delete centralized metadata for ${imageId}:`, metadataError)
             }
             
             // Remove from all tracking systems
@@ -269,6 +283,19 @@ export async function DELETE() {
         const metadataPath = filePath + '.meta.json'
         if (existsSync(metadataPath)) {
           await fs.unlink(metadataPath)
+        }
+        
+        // Remove from centralized metadata
+        try {
+          const metadataFile = path.join(process.cwd(), 'data', 'gallery-metadata.json')
+          if (existsSync(metadataFile)) {
+            const metadataContent = await fs.readFile(metadataFile, 'utf-8')
+            const metadata = JSON.parse(metadataContent)
+            delete metadata[imageId]
+            await fs.writeFile(metadataFile, JSON.stringify(metadata, null, 2))
+          }
+        } catch (metadataError) {
+          console.warn(`Failed to delete centralized metadata for ${imageId}:`, metadataError)
         }
         
         // Remove from tracking
