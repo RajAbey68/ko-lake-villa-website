@@ -291,7 +291,7 @@ export default function GlobalHeader() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span className="hidden sm:inline">{userInfo.name || 'User'}</span>
+                    <span className="hidden sm:inline">Staff Login</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
