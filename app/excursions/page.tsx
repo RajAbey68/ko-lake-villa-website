@@ -212,7 +212,7 @@ export default function ExcursionsPage() {
           <div className="max-w-4xl mx-auto px-4">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-lg">Local Excursions</h1>
             <p className="text-xl md:text-2xl mb-4 text-white/95 drop-shadow-md">
-              Relax, Revive, Connect with Sri Lankan Culture
+                                      Relax, Revive, Reconnect with Sri Lankan Culture
             </p>
             <p className="text-lg md:text-xl mb-8 text-white/90 drop-shadow-sm max-w-2xl mx-auto">
               Discover authentic experiences, from historic lake bridges to pristine beaches, all curated for our Ko

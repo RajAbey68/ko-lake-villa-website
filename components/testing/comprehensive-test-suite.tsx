@@ -512,8 +512,8 @@ export default function ComprehensiveTestSuite() {
   }
 
   const testTaglineConsistency = async (): Promise<TestResult> => {
-    const taglineElements = document.querySelectorAll('*:contains("Relax, Revive, Connect")')
-    const correctTagline = "Relax, Revive, Connect"
+            const taglineElements = document.querySelectorAll('*:contains("Relax, Revive, Reconnect")')
+        const correctTagline = "Relax, Revive, Reconnect"
     const pageText = document.body.textContent || ""
     const hasCorrectTagline = pageText.includes(correctTagline)
 
@@ -523,8 +523,8 @@ export default function ComprehensiveTestSuite() {
       category: "Content Validation",
       status: hasCorrectTagline ? "pass" : "fail",
       message: hasCorrectTagline
-        ? "Correct tagline 'Relax, Revive, Connect' found"
-        : "Tagline 'Relax, Revive, Connect' not found",
+                  ? "Correct tagline 'Relax, Revive, Reconnect' found"
+          : "Tagline 'Relax, Revive, Reconnect' not found",
       priority: "medium",
     }
   }

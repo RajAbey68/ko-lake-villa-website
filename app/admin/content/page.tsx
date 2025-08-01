@@ -100,7 +100,7 @@ export default function AdminContent() {
       title: "Ko Lake Villa",
       subtitle: "Luxury Lakefront Accommodation in Sri Lanka", 
       description: "Experience the perfect blend of luxury and nature at Ko Lake Villa. Our stunning lake house offers breathtaking views, modern amenities, and authentic Sri Lankan hospitality.",
-      heroText: "Relax, Revive, Connect",
+      heroText: "Relax, Revive, Reconnect",
       heroImage: "/images/blue-pool.jpg",
       logoImage: "/images/sala-lake.jpg"
     },
