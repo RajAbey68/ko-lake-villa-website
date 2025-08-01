@@ -525,7 +525,7 @@ export default function GalleryManagement() {
       const encodedId = encodeURIComponent(item.id)
       console.log('Encoded ID for save:', encodedId)
       
-      const response = await fetch('/api/gallery/metadata', {
+      const response = await fetch('/api/admin/gallery-metadata', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
