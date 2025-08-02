@@ -16,6 +16,7 @@ import Link from "next/link"
 import useSWR from 'swr'
 import axios from 'axios'
 import GlobalHeader from "@/components/navigation/global-header"
+import BookingInfoBox from "@/components/booking-info-box"
 
 const fetcher = (url: string) => axios.get(url).then(res => res.data)
 
@@ -51,9 +52,11 @@ function BookingContent() {
   })
 
   useEffect(() => {
-    const roomId = searchParams.get('room');
-    if (roomId) {
-      handleInputChange('roomType', roomId);
+    if (searchParams) {
+      const roomId = searchParams.get('room');
+      if (roomId) {
+        handleInputChange('roomType', roomId);
+      }
     }
   }, [searchParams]);
 
@@ -398,6 +401,7 @@ function BookingContent() {
           </div>
         </div>
       </section>
+      <BookingInfoBox />
     </div>
   )
 }

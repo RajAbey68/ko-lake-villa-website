@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import GlobalHeader from "@/components/navigation/global-header"
+import BookingInfoBox from "@/components/booking-info-box"
 
 export default function DealsPage() {
   const deals = [
@@ -126,6 +127,19 @@ export default function DealsPage() {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Airbnb Booking URLs Section */}
+      <section className="py-16 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Book?</h2>
+            <p className="text-lg text-gray-600">
+              Use these direct booking links or contact us for personalized deals
+            </p>
+          </div>
+          <BookingInfoBox variant="page" />
         </div>
       </section>
 

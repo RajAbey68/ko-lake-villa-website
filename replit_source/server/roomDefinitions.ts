@@ -81,14 +81,14 @@ export const validateRoomStructure = (): boolean => {
 
 // Calculate savings for display
 export const calculateSavings = (airbnbPrice: number, checkinDate: string) => {
-  const { directPrice, label } = getDirectPrice(airbnbPrice, checkinDate);
-  const savings = (airbnbPrice - parseFloat(directPrice)).toFixed(2);
+  const pricing = koLakeSmartPricing.getDirectBookingRate(checkinDate);
+  const savings = (airbnbPrice - parseFloat(pricing.directPrice)).toFixed(2);
   
   return {
     airbnbPrice: airbnbPrice.toFixed(2),
-    directPrice,
+    directPrice: pricing.directPrice,
     savings,
-    discountLabel: label
+    discountLabel: pricing.label
   };
 };
 
