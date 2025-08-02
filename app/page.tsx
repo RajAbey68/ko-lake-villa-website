@@ -662,6 +662,46 @@ export default function KoLakeVilla() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Airbnb Booking URLs - Featured Section */}
+          <div className="mb-8 bg-blue-900 border border-blue-700 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-blue-100 mb-4 text-center flex items-center justify-center">
+              📋 Airbnb Booking URLs (Copy & Paste)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg p-4 text-gray-900">
+                <div className="font-bold text-blue-800 mb-2">Entire Villa:</div>
+                <div className="font-mono text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded border select-all mb-2">
+                  airbnb.co.uk/h/eklv
+                </div>
+                <div className="text-xs text-blue-700 italic">
+                  7 air-conditioned ensuite bedrooms, sleeps max 23 on beds
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 text-gray-900">
+                <div className="font-bold text-blue-800 mb-2">Master Family Suite:</div>
+                <div className="font-mono text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded border select-all">
+                  airbnb.co.uk/h/klv6
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 text-gray-900">
+                <div className="font-bold text-blue-800 mb-2">Triple/Twin Rooms:</div>
+                <div className="font-mono text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded border select-all">
+                  airbnb.co.uk/h/klv2or3
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-blue-200 text-center mt-4">
+              Click on any URL to select all text, then copy and paste into your browser
+            </p>
+            <div className="text-center mt-3">
+              <span className="text-green-300 font-medium">
+                💡 Save 15% by booking direct for stays within the next 5 days!
+              </span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-xl font-bold mb-4">Ko Lake Villa</h3>
@@ -701,6 +741,7 @@ export default function KoLakeVilla() {
               </div>
             </div>
           </div>
+          
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
             <p>&copy; 2024 Ko Lake Villa. All rights reserved.</p>
           </div>
