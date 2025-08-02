@@ -85,160 +85,201 @@ export default function KoLakeVilla() {
         <style jsx>{`
           .hero-text {
             text-align: left;
-            margin-left: 2rem;
-            max-width: 50vw;
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            max-width: 25vw; /* 50% smaller than original 50vw */
             background: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
-            border-radius: 12px;
+            padding: 1rem; /* Reduced padding for smaller size */
+            border-radius: 8px; /* Smaller border radius */
             color: #1f2937;
             backdrop-filter: blur(8px);
+            z-index: 10;
           }
           
           .hero-text h1 {
             color: #92400e;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem; /* Reduced margin */
             font-weight: 800;
+            font-size: 1.5rem; /* Smaller font size */
           }
           
           .hero-text p {
             color: #374151;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem; /* Reduced margin */
+            font-size: 0.875rem; /* Smaller font size */
           }
           
           .hero-text .tagline {
-            color: #92400e;
+            color: #dc2626;
             font-style: italic;
-            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 0.75rem; /* Smaller tagline */
+            margin-bottom: 0.5rem;
           }
           
-          .video-player-container {
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 4px;
-            padding: 0.375rem;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 120px;
-          }
-          
-          .video-placeholder {
-            width: 100%;
-            height: 60px;
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-            border-radius: 3px;
+          .hero-text .buttons {
             display: flex;
+            gap: 0.5rem; /* Reduced gap */
+            margin-top: 0.75rem;
+          }
+          
+          .hero-text .btn {
+            padding: 0.375rem 0.75rem; /* Smaller buttons */
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem; /* Smaller button text */
+            text-decoration: none;
+            transition: all 0.2s;
+          }
+          
+          .hero-text .btn-primary {
+            background-color: #92400e;
+            color: white;
+          }
+          
+          .hero-text .btn-secondary {
+            background-color: transparent;
+            color: #92400e;
+            border: 1px solid #92400e;
+          }
+          
+          .hero-video-container {
+            position: absolute;
+            top: 50%;
+            right: 1rem; /* Positioned at extreme right edge */
+            transform: translateY(-50%); /* Vertically centered */
+            width: 156px; /* 30% larger than original 120px */
+            height: 78px; /* 30% larger than original 60px */
+            max-width: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 5;
+          }
+          
+          .hero-video-container h3 {
             color: white;
-            font-size: 0.7rem;
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+            font-size: 0.875rem; /* Proportionally scaled */
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-align: center;
           }
           
-          .video-player-container h3 {
-            font-size: 0.75rem;
+          .hero-video-container p {
+            color: #d1d5db;
+            font-size: 0.625rem; /* Proportionally scaled */
+            margin-bottom: 0.375rem;
+            text-align: center;
+          }
+          
+          .hero-video-container button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.625rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          
+          .hero-video-container button:hover {
+            background: #b91c1c;
+          }
+          
+          .camera-icon {
+            width: 1.5rem; /* Proportionally scaled */
+            height: 1.5rem;
+            color: #9ca3af;
             margin-bottom: 0.25rem;
           }
           
-          .video-placeholder .video-icon {
-            font-size: 1.2rem;
-            margin-bottom: 0.25rem;
-          }
-          
-          .video-placeholder .video-text {
-            font-size: 0.6rem;
-            line-height: 1.1;
+          /* Responsive Design */
+          @media (max-width: 1024px) {
+            .hero-text {
+              max-width: 35vw; /* Larger on tablets */
+              bottom: 1.5rem;
+              left: 1.5rem;
+            }
+            
+            .hero-video-container {
+              width: 130px; /* Smaller on tablets */
+              height: 65px;
+              right: 0.75rem;
+            }
           }
           
           @media (max-width: 768px) {
             .hero-text {
-              margin-left: 1rem;
-              max-width: 90vw;
-              padding: 1.5rem;
+              max-width: 60vw; /* Much larger on mobile */
+              bottom: 1rem;
+              left: 1rem;
+              padding: 0.75rem;
             }
             
             .hero-text h1 {
-              font-size: 2.5rem;
+              font-size: 1.25rem;
+            }
+            
+            .hero-text p {
+              font-size: 0.8rem;
+            }
+            
+            .hero-video-container {
+              display: none; /* Hidden on mobile to prevent crowding */
             }
           }
           
           @media (max-width: 480px) {
             .hero-text {
-              margin-left: 0.5rem;
-              max-width: 95vw;
-              padding: 1rem;
-            }
-            
-            .hero-text h1 {
-              font-size: 2rem;
+              max-width: 70vw;
+              bottom: 0.75rem;
+              left: 0.75rem;
             }
           }
         `}</style>
         
-        <div className="absolute inset-0">
-          <Image
-            src="/images/hero-pool.jpg"
-            alt="Ko Lake Villa - Blue Pool with Palm Trees and Pavilion"
-            fill
-            className="object-cover"
-            priority
-          />
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/hero-pool.jpg')",
+          }}
+        />
+        
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20" />
+        
+        {/* Hero Text Box - Bottom Left */}
+        <div className="hero-text">
+          <h1>Ko Lake Villa</h1>
+          <p>Luxury Lakefront Accommodation in Sri Lanka</p>
+          <p className="tagline">Relax, Revive, Reconnect</p>
+          <div className="buttons">
+            <a href="/accommodation" className="btn btn-primary">
+              View Rooms & Rates
+            </a>
+            <a href="/gallery" className="btn btn-secondary">
+              Explore Gallery
+            </a>
+          </div>
         </div>
         
-        {/* Light overlay for readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-        
-        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
-          <div className="flex w-full gap-8">
-            {/* Left side - Text content */}
-            <div className="hero-text flex-1">
-              <h1 className="text-5xl md:text-6xl font-bold">Ko Lake Villa</h1>
-              <p className="text-xl md:text-2xl">Luxury Lakefront Accommodation in Sri Lanka</p>
-              <p className="text-lg md:text-xl font-light tagline">Relax, Revive, Reconnect</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="/accommodation">
-                  <Button
-                    size="lg"
-                    className="bg-amber-900 text-white hover:bg-amber-800 w-full"
-                  >
-                    View Rooms & Rates
-                  </Button>
-                </a>
-                <a href="/gallery">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-amber-900 text-amber-900 hover:bg-amber-900 hover:text-white w-full"
-                  >
-                    Explore Gallery
-                  </Button>
-                </a>
-              </div>
-            </div>
-            
-            {/* Right side - Video Player (Tiny Size) */}
-            <div className="hidden lg:block">
-              <div className="video-player-container">
-                <h3 className="text-white font-semibold mb-1">Ko Lake Villa</h3>
-                <div className="video-placeholder">
-                  <div className="text-center">
-                    <div className="video-icon">🎥</div>
-                    <div className="video-text">
-                      <div>Tour</div>
-                      <div className="text-gray-300">Soon</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-1 text-center">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="text-white border-white hover:bg-white hover:text-gray-900 text-xs px-2 py-0.5 h-5"
-                  >
-                    Upload
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Video Player - Extreme Right, Vertically Centered */}
+        <div className="hero-video-container">
+          <svg className="camera-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <h3>Ko Lake Villa</h3>
+          <p>Tour</p>
+          <p>Soon</p>
+          <button>Upload</button>
         </div>
       </section>
 
