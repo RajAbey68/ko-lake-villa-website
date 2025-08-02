@@ -71,6 +71,10 @@ export default function AdminLayout({
           <div className="nav-container">
             <div className="nav-admin-content">
               <div className="nav-admin-logo">
+                {/* 
+                ⚠️ CRITICAL: LOADING STATE LOGO PROTECTION ⚠️
+                MUST ALWAYS USE SALA-LAKE.jpg - NO EXCEPTIONS
+                */}
                 <Image
                   src="/images/sala-lake.jpg"
                   alt="Ko Lake Villa Logo"
@@ -113,6 +117,10 @@ export default function AdminLayout({
           <div className="nav-admin-content">
             <div className="nav-admin-brand">
               <Link href="/admin/dashboard" className="nav-admin-logo">
+                {/* 
+                ⚠️ CRITICAL: ADMIN LOGO PROTECTION ⚠️
+                MUST ALWAYS USE SALA-LAKE.jpg - NO EXCEPTIONS
+                */}
                 <Image
                   src="/images/sala-lake.jpg"
                   alt="Ko Lake Villa Logo"

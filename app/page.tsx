@@ -149,13 +149,13 @@ export default function KoLakeVilla() {
             top: 50%;
             right: 1rem; /* Positioned at extreme right edge */
             transform: translateY(-50%); /* Vertically centered */
-            width: 156px; /* 30% larger than original 120px */
-            height: 78px; /* 30% larger than original 60px */
-            max-width: 200px;
+            width: 234px; /* 50% larger than previous 156px */
+            height: 117px; /* 50% larger than previous 78px */
+            max-width: 280px;
             background: rgba(0, 0, 0, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            padding: 0.5rem;
+            padding: 0.75rem; /* Increased padding for larger size */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -165,38 +165,38 @@ export default function KoLakeVilla() {
           
           .hero-video-container h3 {
             color: white;
-            font-size: 0.875rem; /* Proportionally scaled */
+            font-size: 1rem; /* Larger for increased container */
             font-weight: 600;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.375rem;
             text-align: center;
           }
           
           .hero-video-container p {
             color: #d1d5db;
-            font-size: 0.625rem; /* Proportionally scaled */
-            margin-bottom: 0.375rem;
+            font-size: 0.75rem; /* Larger for increased container */
+            margin-bottom: 0.5rem;
             text-align: center;
           }
           
           .hero-video-container button {
-            background: #dc2626;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            border: none;
-            padding: 0.25rem 0.5rem;
+            padding: 0.375rem 0.75rem; /* Larger button */
             border-radius: 4px;
-            font-size: 0.625rem;
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
           }
           
           .hero-video-container button:hover {
-            background: #b91c1c;
+            background: rgba(255, 255, 255, 0.3);
           }
           
           .camera-icon {
-            width: 1.5rem; /* Proportionally scaled */
-            height: 1.5rem;
-            color: #9ca3af;
+            width: 2rem; /* Larger icon for bigger container */
+            height: 2rem;
+            color: #d1d5db;
             margin-bottom: 0.25rem;
           }
           
@@ -209,8 +209,8 @@ export default function KoLakeVilla() {
             }
             
             .hero-video-container {
-              width: 130px; /* Smaller on tablets */
-              height: 65px;
+              width: 195px; /* 50% larger than tablet original */
+              height: 97px;
               right: 0.75rem;
             }
           }
@@ -245,16 +245,19 @@ export default function KoLakeVilla() {
           }
         `}</style>
         
-        {/* Background Image */}
+        {/* Background Image - ZOOMED OUT for more spacious panoramic view */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-contain bg-center bg-no-repeat"
           style={{
             backgroundImage: "url('/images/hero-pool.jpg')",
+            backgroundSize: 'cover',
+            transform: 'scale(1.2)', /* Zoom out effect - shows more background */
+            transformOrigin: 'center center'
           }}
         />
         
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20" />
+        {/* Overlay gradient - lighter to show more of the zoomed background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/15" />
         
         {/* Hero Text Box - Bottom Left */}
         <div className="hero-text">
@@ -271,7 +274,7 @@ export default function KoLakeVilla() {
           </div>
         </div>
         
-        {/* Video Player - Extreme Right, Vertically Centered */}
+        {/* Video Player - Extreme Right, Vertically Centered - 50% LARGER */}
         <div className="hero-video-container">
           <svg className="camera-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />

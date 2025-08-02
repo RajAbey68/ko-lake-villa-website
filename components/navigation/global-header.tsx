@@ -237,18 +237,32 @@ export default function GlobalHeader() {
       <header className="villa-header">
         <div className="villa-brand">
           <Link href="/" className="flex items-center">
-            {/* EXCLUSIVE PERMANENT LOGO - SALA LAKE IMAGE AS SPECIFIED */}
-            <Image
-              src="/images/sala-lake.jpg"
-              alt="Ko Lake Villa - Beautiful Lakeside Sala Pavilion"
-              width={40}
-              height={40}
-              className="villa-thumbnail"
-              priority
-              sizes="(max-width: 768px) 32px, (max-width: 480px) 28px, 40px"
-            />
-            {/* TITLE ALWAYS TO THE RIGHT - NEVER BELOW OR STACKED */}
-            <h1 className="villa-title">Ko Lake Villa</h1>
+            {/* 
+          ⚠️ CRITICAL: LOGO PROTECTION LOCK ⚠️
+          
+          THIS LOGO MUST ALWAYS BE THE SALA-LAKE.jpg IMAGE
+          NO SUBSTITUTIONS, FALLBACKS, OR OVERRIDES ALLOWED
+          
+          Requirements:
+          1. Image src MUST be "/images/sala-lake.jpg" 
+          2. Text MUST be positioned horizontally to the right
+          3. NO fallback images or alternative logos permitted
+          4. This applies to ALL layouts (main site + admin)
+          
+          DO NOT MODIFY WITHOUT EXPLICIT APPROVAL
+          */}
+          {/* EXCLUSIVE PERMANENT LOGO - SALA LAKE IMAGE AS SPECIFIED */}
+          <Image
+            src="/images/sala-lake.jpg"
+            alt="Ko Lake Villa - Beautiful Lakeside Sala Pavilion"
+            width={40}
+            height={40}
+            className="villa-thumbnail"
+            priority
+            sizes="(max-width: 768px) 32px, (max-width: 480px) 28px, 40px"
+          />
+          {/* TITLE ALWAYS TO THE RIGHT - NEVER BELOW OR STACKED */}
+          <h1 className="villa-title">Ko Lake Villa</h1>
           </Link>
         </div>
         
