@@ -80,8 +80,8 @@ export default function KoLakeVilla() {
 
   const renderHomePage = () => (
     <div>
-      {/* Hero Section */}
-      <section className="relative h-[70vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
+      {/* Hero Section - OPTIMIZED ZOOM OUT for Panoramic View */}
+      <section className="hero-section relative h-[60vh] bg-gradient-to-r from-amber-900 to-orange-700 text-white">
         <style jsx>{`
           .hero-text {
             text-align: left;
@@ -89,12 +89,13 @@ export default function KoLakeVilla() {
             bottom: 2rem;
             left: 2rem;
             max-width: 25vw; /* 50% smaller than original 50vw */
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95); /* Slightly more opaque for better readability */
             padding: 1rem; /* Reduced padding for smaller size */
             border-radius: 8px; /* Smaller border radius */
             color: #1f2937;
             backdrop-filter: blur(8px);
             z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Added subtle shadow for better definition */
           }
           
           .hero-text h1 {
@@ -161,6 +162,7 @@ export default function KoLakeVilla() {
             align-items: center;
             justify-content: center;
             z-index: 5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* Added shadow for better definition */
           }
           
           .hero-video-container h3 {
@@ -200,6 +202,25 @@ export default function KoLakeVilla() {
             margin-bottom: 0.25rem;
           }
           
+          /* PANORAMIC ZOOM-OUT BACKGROUND STYLING */
+          .hero-background {
+            position: absolute;
+            inset: 0;
+            width: 100vw;
+            height: 100%;
+            background-image: url('/images/hero-pool.jpg');
+            background-size: cover;
+            background-position: center center;
+            transform: scale(0.85); /* ZOOM OUT - shows 15% more background panorama */
+            transform-origin: center center;
+            transition: transform 0.3s ease-in-out;
+          }
+          
+          /* Optional: Subtle hover effect for enhanced interactivity */
+          .hero-section:hover .hero-background {
+            transform: scale(0.87); /* Slight zoom on hover for engagement */
+          }
+          
           /* Responsive Design */
           @media (max-width: 1024px) {
             .hero-text {
@@ -212,6 +233,10 @@ export default function KoLakeVilla() {
               width: 195px; /* 50% larger than tablet original */
               height: 97px;
               right: 0.75rem;
+            }
+            
+            .hero-background {
+              transform: scale(0.88); /* Slightly less zoom-out on tablets */
             }
           }
           
@@ -234,6 +259,10 @@ export default function KoLakeVilla() {
             .hero-video-container {
               display: none; /* Hidden on mobile to prevent crowding */
             }
+            
+            .hero-background {
+              transform: scale(0.9); /* Less aggressive zoom-out on mobile */
+            }
           }
           
           @media (max-width: 480px) {
@@ -242,22 +271,18 @@ export default function KoLakeVilla() {
               bottom: 0.75rem;
               left: 0.75rem;
             }
+            
+            .hero-background {
+              transform: scale(0.92); /* Minimal zoom-out on small mobile */
+            }
           }
         `}</style>
         
-        {/* Background Image - ZOOMED OUT for more spacious panoramic view */}
-        <div
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('/images/hero-pool.jpg')",
-            backgroundSize: 'cover',
-            transform: 'scale(1.2)', /* Zoom out effect - shows more background */
-            transformOrigin: 'center center'
-          }}
-        />
+        {/* Background Image - ZOOMED OUT for PANORAMIC VIEW */}
+        <div className="hero-background" />
         
-        {/* Overlay gradient - lighter to show more of the zoomed background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/15" />
+        {/* Optimized overlay gradient - lighter to showcase the panoramic background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/10" />
         
         {/* Hero Text Box - Bottom Left */}
         <div className="hero-text">
