@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     try {
       // Mock authentication - for demo purposes
-      if (email === "admin@kolakevilla.com" && password === "admin123") {
+      if (email === "contact@kolakehouse.com" && password === "Admin123") {
         const mockUser: MockUser = {
           uid: "mock-user-id",
           email: email,
