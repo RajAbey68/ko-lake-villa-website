@@ -198,7 +198,7 @@ class AdminConsoleTestSuite {
 
         if (hasRates) {
           // Test room pricing data
-          const rooms = ['knp', 'knp1', 'knp3', 'knp6'];
+          const rooms = ['klv', 'klv1', 'klv3', 'klv6'];
           const roomsWithPricing = rooms.filter(room => 
             data.rates[room] && 
             typeof data.rates[room].sun === 'number' &&

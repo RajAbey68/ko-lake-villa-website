@@ -51,10 +51,10 @@ class BookingModalTest {
     
     // Sample room data (matching the Deals.tsx logic)
     const roomTypes = [
-      { id: 'KNP', name: 'Entire Villa Exclusive', airbnbPrice: 431 },
-      { id: 'KNP1', name: 'Master Family Suite', airbnbPrice: 119 },
-      { id: 'KNP3', name: 'Triple/Twin Rooms', airbnbPrice: 70 },
-      { id: 'KNP6', name: 'Group Room', airbnbPrice: 250 }
+      { id: 'KLV', name: 'Entire Villa (KLV)', airbnbPrice: 431 },
+      { id: 'KLV1', name: 'Master Family Suite (KLV1)', airbnbPrice: 119 },
+      { id: 'KLV3', name: 'Triple/Twin Rooms (KLV3)', airbnbPrice: 70 },
+      { id: 'KLV6', name: 'Group Room (KLV6)', airbnbPrice: 250 }
     ];
 
     roomTypes.forEach(room => {

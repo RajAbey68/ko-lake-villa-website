@@ -2,10 +2,10 @@ import axios from 'axios';
 import { storage } from './storage';
 
 interface AirbnbPricing {
-  knp: number;    // Entire villa
-  knp1: number;   // Master family suite 
-  knp3: number;   // Triple/twin rooms
-  knp6: number;   // Group room
+  klv: number;    // Entire villa
+  klv1: number;   // Master family suite 
+  klv3: number;   // Triple/twin rooms
+  klv6: number;   // Group room
 }
 
 interface DirectBookingRates {
@@ -32,10 +32,10 @@ class AirbnbPriceMonitor {
       // Structure ready for implementation when you provide access
       
       const listings = {
-        knp: 'airbnb.co.uk/h/knp',     // Entire villa
-        knp1: 'airbnb.co.uk/h/knp1',  // Family suite
-        knp3: 'airbnb.co.uk/h/knp3',  // Triple rooms
-        knp6: 'airbnb.co.uk/h/knp6'   // Group room (when active)
+        klv: 'airbnb.co.uk/h/klv',     // Entire villa
+        klv1: 'airbnb.co.uk/h/klv1',  // Family suite
+        klv3: 'airbnb.co.uk/h/klv3',  // Triple rooms
+        klv6: 'airbnb.co.uk/h/klv6'   // Group room
       };
 
       // Placeholder for actual API integration
@@ -57,10 +57,10 @@ class AirbnbPriceMonitor {
     const discountMultiplier = (100 - this.DISCOUNT_PERCENTAGE) / 100;
     
     return {
-      entireVilla: Math.round(airbnbRates.knp * discountMultiplier),
-      familySuite: Math.round(airbnbRates.knp1 * discountMultiplier),
-      tripleRoom: Math.round(airbnbRates.knp3 * discountMultiplier),
-      groupRoom: Math.round(airbnbRates.knp6 * discountMultiplier),
+      entireVilla: Math.round(airbnbRates.klv * discountMultiplier),
+      familySuite: Math.round(airbnbRates.klv1 * discountMultiplier),
+      tripleRoom: Math.round(airbnbRates.klv3 * discountMultiplier),
+      groupRoom: Math.round(airbnbRates.klv6 * discountMultiplier),
       lastUpdated: new Date(),
       discountPercentage: this.DISCOUNT_PERCENTAGE
     };

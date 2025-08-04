@@ -1,10 +1,12 @@
 import axios from "axios";
 import cheerio from "cheerio";
 
-// URLs to scrape
+// URLs to scrape - Updated to use KLV (Ko Lake Villa) listings only
 const urls = [
-  "https://www.airbnb.co.uk/h/knp", // Koggala Nine Peaks Airbnb listing
-  "https://www.airbnb.com/rooms/655958024431001362" // Another possible URL if needed
+  "https://www.airbnb.co.uk/h/klv", // Ko Lake Villa main listing
+  "https://www.airbnb.co.uk/h/klv1", // Ko Lake Villa family suite
+  "https://www.airbnb.co.uk/h/klv3", // Ko Lake Villa twin/triple rooms
+  "https://www.airbnb.co.uk/h/klv6" // Ko Lake Villa group room
 ];
 
 async function scrapeWebsite(url) {

@@ -41,9 +41,10 @@
 **File Modified:** `app/accommodation/page.tsx`
 
 **URLs Implemented:**
-- **Entire Villa:** `https://airbnb.co.uk/h/eklv`
-- **Master Family Suite:** `https://airbnb.co.uk/h/klv6`  
-- **Triple/Twin Rooms:** `https://airbnb.co.uk/h/klv2or3`
+- **Entire Villa:** `https://airbnb.co.uk/h/klv`
+- **Master Family Suite:** `https://airbnb.co.uk/h/klv1`
+- **Triple/Twin Rooms:** `https://airbnb.co.uk/h/klv3`
+- **Group Room:** `https://airbnb.co.uk/h/klv6`
 
 **Features:**
 - Conditional button rendering based on room ID

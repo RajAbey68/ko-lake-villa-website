@@ -45,7 +45,7 @@ export const koLakeVillaRooms: RoomDefinition[] = [
     slug: "klv6",
     capacity: "6+ guests",
     features: ["Group layout", "Communal space", "Shared access", "A/C"],
-    link: "Coming Soon",
+    link: "https://airbnb.co.uk/h/klv6",
     checkinDate: "2025-06-05"
   }
 ];
@@ -59,12 +59,12 @@ koLakeVillaRooms.forEach(room => {
   room.savings = pricing.savings;
 });
 
-// Debug checker for room name integrity
+// Debug checker for room name integrity - Updated to use KLV
 const expectedNames = [
-  "Entire Villa Exclusive (KNP)",
-  "Master Family Suite (KNP1)",
-  "Triple/Twin Rooms (KNP3)",
-  "Group Room (KNP6)"
+  "Entire Villa (KLV)",
+  "Master Family Suite (KLV1)",
+  "Triple/Twin Rooms (KLV3)",
+  "Group Room (KLV6)"
 ];
 
 export const validateRoomStructure = (): boolean => {
@@ -77,19 +77,6 @@ export const validateRoomStructure = (): boolean => {
     console.log("✅ Room names match official Ko Lake Villa structure.");
     return true;
   }
-};
-
-// Calculate savings for display
-export const calculateSavings = (airbnbPrice: number, checkinDate: string) => {
-  const { directPrice, label } = getDirectPrice(airbnbPrice, checkinDate);
-  const savings = (airbnbPrice - parseFloat(directPrice)).toFixed(2);
-  
-  return {
-    airbnbPrice: airbnbPrice.toFixed(2),
-    directPrice,
-    savings,
-    discountLabel: label
-  };
 };
 
 // Initialize and validate on import

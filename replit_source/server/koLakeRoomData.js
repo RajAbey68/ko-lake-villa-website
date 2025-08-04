@@ -16,39 +16,39 @@ const getDirectPrice = (airbnbPrice, checkinDateStr) => {
 
 const rooms = [
   {
-    name: "Entire Villa Exclusive (KNP)",
-    slug: "knp",
+    name: "Entire Villa (KLV)",
+    slug: "klv",
     airbnbPrice: 1800,
     capacity: "16++ guests (up to 25)",
     features: ["All 7 rooms", "60-ft pool", "Rooftop terrace", "Lakefront view"],
-    link: "https://airbnb.co.uk/h/knp",
+    link: "https://airbnb.co.uk/h/klv",
     checkinDate: "2025-06-05"
   },
   {
-    name: "Master Family Suite (KNP1)",
-    slug: "knp1",
+    name: "Master Family Suite (KLV1)",
+    slug: "klv1",
     airbnbPrice: 450,
     capacity: "6 guests",
     features: ["Lake views", "Master suite", "Pool access"],
-    link: "https://airbnb.co.uk/h/knp1",
+    link: "https://airbnb.co.uk/h/klv1",
     checkinDate: "2025-06-05"
   },
   {
-    name: "Triple/Twin Rooms (KNP3)",
-    slug: "knp3",
+    name: "Triple/Twin Rooms (KLV3)",
+    slug: "klv3",
     airbnbPrice: 180,
     capacity: "3 guests per room (4 rooms)",
     features: ["Flexible bedding", "Garden views", "Shared amenities"],
-    link: "https://airbnb.co.uk/h/knp3",
+    link: "https://airbnb.co.uk/h/klv3",
     checkinDate: "2025-06-05"
   },
   {
-    name: "Group Room (KNP6)",
-    slug: "knp6",
+    name: "Group Room (KLV6)",
+    slug: "klv6",
     airbnbPrice: 250,
     capacity: "4 guests",
     features: ["Team layout", "Communal space", "Shared access"],
-    link: "Coming Soon",
+    link: "https://airbnb.co.uk/h/klv6",
     checkinDate: "2025-06-05"
   }
 ];
@@ -62,12 +62,12 @@ rooms.forEach(room => {
   room.discountPercent = discount;
 });
 
-// Debug checker for room name integrity
+// Debug checker for room name integrity - Updated to use KLV
 const expectedNames = [
-  "Entire Villa Exclusive (KNP)",
-  "Master Family Suite (KNP1)",
-  "Triple/Twin Rooms (KNP3)",
-  "Group Room (KNP6)"
+  "Entire Villa (KLV)",
+  "Master Family Suite (KLV1)",
+  "Triple/Twin Rooms (KLV3)",
+  "Group Room (KLV6)"
 ];
 
 const roomTest = rooms.every((room, idx) => room.name === expectedNames[idx]);
