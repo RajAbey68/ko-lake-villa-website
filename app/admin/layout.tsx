@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Image as ImageIcon, Users, Settings, LogOut, Home, Calendar, FileText } from "lucide-react"
+import { BarChart3, Users, Settings, LogOut, Home, Calendar, FileText, Image as GalleryIcon } from "lucide-react"
 
 export default function AdminLayout({
   children,
@@ -92,7 +92,7 @@ export default function AdminLayout({
 
   const navigationItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3, id: "dashboard" },
-    { href: "/admin/gallery", label: "Gallery Manager", icon: ImageIcon, id: "gallery" },
+    { href: "/admin/gallery", label: "Gallery Manager", icon: GalleryIcon, id: "gallery" },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3, id: "analytics" },
     { href: "/admin/content", label: "Content", icon: FileText, id: "content" },
     { href: "/admin/bookings", label: "Bookings", icon: Calendar, id: "bookings" },
