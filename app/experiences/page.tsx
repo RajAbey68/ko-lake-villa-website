@@ -152,8 +152,8 @@ export default function ExperiencesPage() {
             </Link>
           </nav>
 
-          <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-sm px-6 py-2.5 rounded-md shadow-sm transition-all duration-200">
-            Book Now
+          <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-sm px-6 py-2.5 rounded-md shadow-sm transition-all duration-200" asChild>
+            <Link href="/contact">Book Now</Link>
           </Button>
         </div>
       </header>
@@ -232,7 +232,9 @@ export default function ExperiencesPage() {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-orange-400 hover:bg-orange-500 text-white">Book Experience</Button>
+                    <Button className="w-full bg-orange-400 hover:bg-orange-500 text-white" asChild>
+                      <Link href="/contact">Book Experience</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -247,7 +249,9 @@ export default function ExperiencesPage() {
                 Looking for something specific? We can arrange custom tours and experiences tailored to your interests
                 and preferences.
               </p>
-              <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8">Plan Custom Experience</Button>
+              <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8" asChild>
+                <Link href="/contact">Plan Custom Experience</Link>
+              </Button>
             </div>
           </div>
         </div>

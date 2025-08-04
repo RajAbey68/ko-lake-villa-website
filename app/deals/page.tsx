@@ -180,7 +180,9 @@ export default function DealsPage() {
                       ))}
                     </ul>
 
-                    <Button className="w-full bg-orange-400 hover:bg-orange-500 text-white">Book This Deal</Button>
+                    <Button className="w-full bg-orange-400 hover:bg-orange-500 text-white" asChild>
+                      <Link href="/contact">Book This Deal</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

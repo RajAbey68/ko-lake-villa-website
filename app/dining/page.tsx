@@ -118,9 +118,11 @@ export default function DiningPage() {
             </Link>
           </nav>
 
-          <Button className="bg-orange-400 hover:bg-orange-500 text-white font-medium text-sm px-6 py-2.5 rounded-md shadow-sm transition-all duration-200">
-            Book Now
-          </Button>
+          <Link href="/contact">
+            <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg">
+              Book Now
+            </Button>
+          </Link>
         </div>
       </header>
 

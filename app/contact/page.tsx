@@ -67,7 +67,7 @@ export default function ContactPage() {
               </Link>
             </div>
             <Button asChild>
-              <Link href="/booking">Book Now</Link>
+              <Link href="/contact">Book Now</Link>
             </Button>
           </div>
         </div>
@@ -403,7 +403,7 @@ export default function ContactPage() {
             Don't wait - secure your dates at Ko Lake Villa today and save with our direct booking rates.
           </p>
           <Button size="lg" className="bg-white text-amber-900 hover:bg-amber-50" asChild>
-            <Link href="/booking">Book Your Stay</Link>
+            <Link href="/contact">Book Your Stay</Link>
           </Button>
         </div>
       </section>

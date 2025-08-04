@@ -182,7 +182,7 @@ export default function AccommodationPage() {
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button className="flex-1" asChild>
-                        <Link href={`/booking?room=${room.id}`}>Book Direct & Save</Link>
+                        <Link href="/contact">Book Direct & Save</Link>
                       </Button>
                       <Button variant="outline" className="flex-1" asChild>
                         <Link href={`/gallery?category=${room.id}`}>View Photos</Link>
@@ -233,7 +233,7 @@ export default function AccommodationPage() {
             Choose your ideal accommodation and start planning your Ko Lake Villa experience.
           </p>
           <Button size="lg" className="bg-white text-amber-900 hover:bg-amber-50" asChild>
-            <Link href="/booking">Book Your Stay Now</Link>
+            <Link href="/contact">Book Your Stay Now</Link>
           </Button>
         </div>
       </section>

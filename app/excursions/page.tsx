@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Clock, Users, Star, Mountain, TreePine, Utensils, Calendar, Phone } from "lucide-react"
+import Link from "next/link"
 
 interface Excursion {
   id: string
@@ -227,7 +228,9 @@ export default function ExcursionsPage() {
                 <Calendar className="h-4 w-4 mr-2" />
                 View All Experiences
               </Button>
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg">Book Your Adventure</Button>
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white shadow-lg" asChild>
+                <Link href="/contact">Book Your Adventure</Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -441,7 +444,9 @@ export default function ExcursionsPage() {
                       <Calendar className="w-4 h-4 mr-2" />
                       Check Availability
                     </Button>
-                    <Button className="bg-orange-500 hover:bg-orange-600">Book Now</Button>
+                    <Button className="bg-orange-500 hover:bg-orange-600" asChild>
+                      <Link href="/contact">Book Now</Link>
+                    </Button>
                   </div>
                 </div>
               </div>

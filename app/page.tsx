@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath, Mail } from "lucide-react"
 import Image from "next/image"
 import { useListings } from "@/components/listings-provider"
+import Link from "next/link"
 
 export default function KoLakeVilla() {
   const [currentPage, setCurrentPage] = useState("home")
@@ -184,9 +185,9 @@ export default function KoLakeVilla() {
                   <div className="space-y-2">
                     <Button 
                       className="w-full bg-orange-500 hover:bg-orange-600" 
-                      onClick={() => setCurrentPage("booking")}
+                      asChild
                     >
-                      Book Direct & Save
+                      <Link href="/contact">Book Direct & Save</Link>
                     </Button>
                     <a 
                       href={room.url} 
@@ -482,8 +483,8 @@ export default function KoLakeVilla() {
                     </div>
 
                     <div className="space-y-3">
-                      <Button className="w-full" onClick={() => setCurrentPage("booking")}>
-                        Book Direct & Save
+                      <Button className="w-full" asChild>
+                        <Link href="/contact">Book Direct & Save</Link>
                       </Button>
                       <a 
                         href={room.url} 

@@ -197,10 +197,10 @@ export default function GlobalHeader() {
 
             {/* Book Now Button */}
             <Button
-              onClick={() => window.open("https://www.guesty.com/ko-lake-villa", "_blank")}
+              asChild
               className="hidden sm:flex bg-orange-500 hover:bg-orange-600 text-white"
             >
-              Book Now
+              <Link href="/contact">Book Now</Link>
             </Button>
 
             {/* Authentication */}
@@ -352,13 +352,10 @@ export default function GlobalHeader() {
 
               {/* Mobile Book Now */}
               <Button
-                onClick={() => {
-                  setIsMobileMenuOpen(false)
-                  window.open("https://www.guesty.com/ko-lake-villa", "_blank")
-                }}
+                asChild
                 className="mx-2 bg-orange-500 hover:bg-orange-600 text-white"
               >
-                Book Now
+                <Link href="/contact">Book Now</Link>
               </Button>
             </nav>
           </div>
