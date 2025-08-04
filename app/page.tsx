@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath } from "lucide-react"
+import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath, Mail } from "lucide-react"
 import Image from "next/image"
 
 export default function KoLakeVilla() {
@@ -157,8 +157,8 @@ export default function KoLakeVilla() {
         </div>
       </section>
 
-      {/* Room Preview */}
-      <section className="py-16">
+      {/* Room Preview - Accommodation Section */}
+      <section id="accommodation" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Perfect Stay</h2>
@@ -210,6 +210,195 @@ export default function KoLakeVilla() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dining Section */}
+      <section id="dining" className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Exceptional Dining</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Savor authentic Sri Lankan cuisine and international dishes with breathtaking lake views
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="overflow-hidden">
+              <Image
+                src="/placeholder.svg?height=200&width=300&text=Chef+Service"
+                alt="Private Chef Service"
+                width={300}
+                height={200}
+                className="w-full h-48 object-cover"
+              />
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-2">Private Chef Service</h3>
+                <p className="text-gray-600 mb-4">
+                  Enjoy personalized dining with our expert chef who specializes in authentic Sri Lankan cuisine and international dishes.
+                </p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Fresh seafood from local fishermen</li>
+                  <li>• Organic vegetables from local farms</li>
+                  <li>• Custom dietary accommodations</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <Image
+                src="/placeholder.svg?height=200&width=300&text=Lake+Dining"
+                alt="Lakeside Dining"
+                width={300}
+                height={200}
+                className="w-full h-48 object-cover"
+              />
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-2">Lakeside Dining</h3>
+                <p className="text-gray-600 mb-4">
+                  Dine al fresco on our lakeside terrace while enjoying stunning sunset views over Koggala Lake.
+                </p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Sunset dinner experiences</li>
+                  <li>• Romantic candlelit meals</li>
+                  <li>• Traditional Sri Lankan BBQ</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <Image
+                src="/placeholder.svg?height=200&width=300&text=Cooking+Classes"
+                alt="Cooking Classes"
+                width={300}
+                height={200}
+                className="w-full h-48 object-cover"
+              />
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-2">Cooking Classes</h3>
+                <p className="text-gray-600 mb-4">
+                  Learn to prepare authentic Sri Lankan dishes with hands-on cooking classes using traditional methods.
+                </p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Spice garden tours</li>
+                  <li>• Traditional curry preparation</li>
+                  <li>• Rice and coconut dishes</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Get In Touch</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Ready to experience Ko Lake Villa? Contact our friendly team to plan your perfect getaway.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-4">Contact Information</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <Phone className="w-5 h-5 text-orange-600" />
+                      <div>
+                        <div className="font-medium">Phone</div>
+                        <a href="tel:+94711730345" className="text-gray-600 hover:text-orange-600">+94711730345</a>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <MessageCircle className="w-5 h-5 text-green-600" />
+                      <div>
+                        <div className="font-medium">WhatsApp</div>
+                        <a href="https://wa.me/94711730345" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-green-600">
+                          Quick responses, 24/7
+                        </a>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Mail className="w-5 h-5 text-amber-600" />
+                      <div>
+                        <div className="font-medium">Email</div>
+                        <a href="mailto:contact@KoLakeHouse.com" className="text-gray-600 hover:text-amber-600">contact@KoLakeHouse.com</a>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <MapPin className="w-5 h-5 text-orange-600" />
+                      <div>
+                        <div className="font-medium">Location</div>
+                        <div className="text-gray-600">Kathaluwa West, Koggala Lake, Galle District</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => window.open("https://wa.me/94711730345", "_blank")}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Chat on WhatsApp
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => window.open("tel:+94711730345")}
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Now
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Contact Form */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">Quick Inquiry</h3>
+                <form className="space-y-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input 
+                      type="text" 
+                      id="name" 
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input 
+                      type="email" 
+                      id="email" 
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                    <textarea 
+                      id="message" 
+                      rows={4} 
+                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500" 
+                      placeholder="Tell us about your planned stay..."
+                    ></textarea>
+                  </div>
+                  <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600">
+                    Send Message
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
