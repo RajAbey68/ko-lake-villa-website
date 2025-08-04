@@ -6,64 +6,27 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Phone, MessageCircle, Users, Bed, Bath, Mail } from "lucide-react"
 import Image from "next/image"
+import { useListings } from "@/components/listings-provider"
 
 export default function KoLakeVilla() {
   const [currentPage, setCurrentPage] = useState("home")
+  const { listings, loading, getListingUrl } = useListings()
 
-  const roomTypes = [
-    {
-      id: "KNP",
-      name: "Entire Villa Exclusive",
-      airbnbPrice: 431,
-      directPrice: 388,
-      savings: 43,
-      discount: "10%",
-      guests: 12,
-      bedrooms: 6,
-      bathrooms: 4,
-      image: "/placeholder.svg?height=300&width=400&text=Entire+Villa+View",
-      features: ["Private Pool", "Lake Views", "Full Kitchen", "6 Bedrooms"],
-    },
-    {
-      id: "KNP1",
-      name: "Master Family Suite",
-      airbnbPrice: 119,
-      directPrice: 107,
-      savings: 12,
-      discount: "10%",
-      guests: 4,
-      bedrooms: 1,
-      bathrooms: 1,
-      image: "/placeholder.svg?height=300&width=400&text=Master+Suite",
-      features: ["Lake View", "Private Balcony", "King Bed", "En-suite Bath"],
-    },
-    {
-      id: "KNP3",
-      name: "Triple/Twin Rooms",
-      airbnbPrice: 70,
-      directPrice: 63,
-      savings: 7,
-      discount: "10%",
-      guests: 3,
-      bedrooms: 1,
-      bathrooms: 1,
-      image: "/placeholder.svg?height=300&width=400&text=Twin+Room",
-      features: ["Garden View", "Twin/Triple Beds", "Shared Facilities", "AC"],
-    },
-    {
-      id: "KNP6",
-      name: "Group Room",
-      airbnbPrice: 250,
-      directPrice: 225,
-      savings: 25,
-      discount: "10%",
-      guests: 6,
-      bedrooms: 2,
-      bathrooms: 2,
-      image: "/placeholder.svg?height=300&width=400&text=Group+Room",
-      features: ["Multiple Beds", "Shared Space", "Group Friendly", "Lake Access"],
-    },
-  ]
+  // Convert Firebase listings to room format for compatibility
+  const roomTypes = listings.map(listing => ({
+    id: listing.id,
+    name: listing.name,
+    airbnbPrice: 431, // Default - would be set from pricing service
+    directPrice: 388, // Calculated from airbnbPrice * 0.9
+    savings: 43,
+    discount: "10%",
+    guests: listing.maxGuests,
+    bedrooms: listing.bedrooms,
+    bathrooms: listing.bathrooms,
+    image: "/placeholder.svg?height=300&width=400&text=" + encodeURIComponent(listing.name),
+    features: listing.features.slice(0, 4), // Limit to 4 features for display
+    url: listing.url
+  }))
 
   const galleryImages = [
     { src: "/placeholder.svg?height=300&width=400&text=Villa+Exterior", title: "Villa Exterior" },
@@ -74,7 +37,17 @@ export default function KoLakeVilla() {
     { src: "/placeholder.svg?height=300&width=400&text=Dining+Area", title: "Dining Area" },
   ]
 
-
+  // Show loading state while Firebase data loads
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading Ko Lake Villa...</p>
+        </div>
+      </div>
+    )
+  }
 
   const renderHomePage = () => (
     <div>
@@ -135,11 +108,15 @@ export default function KoLakeVilla() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-amber-800 mb-2">12</div>
+              <div className="text-3xl font-bold text-amber-800 mb-2">
+                {Math.max(...listings.map(l => l.maxGuests))}
+              </div>
               <div className="text-gray-600">Max Guests</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-amber-800 mb-2">6</div>
+              <div className="text-3xl font-bold text-amber-800 mb-2">
+                {Math.max(...listings.map(l => l.bedrooms))}
+              </div>
               <div className="text-gray-600">Bedrooms</div>
             </div>
             <div>
@@ -168,7 +145,7 @@ export default function KoLakeVilla() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {roomTypes.map((room) => (
               <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
@@ -183,7 +160,7 @@ export default function KoLakeVilla() {
                 </div>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-2">{room.name}</h3>
-                  <p className="text-gray-600 mb-4">{room.guests} guests</p>
+                  <p className="text-gray-600 mb-4">{room.guests} guests max</p>
 
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
@@ -204,9 +181,27 @@ export default function KoLakeVilla() {
                     ))}
                   </div>
 
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={() => setCurrentPage("booking")}>
-                    Book Direct & Save
-                  </Button>
+                  <div className="space-y-2">
+                    <Button 
+                      className="w-full bg-orange-500 hover:bg-orange-600" 
+                      onClick={() => setCurrentPage("booking")}
+                    >
+                      Book Direct & Save
+                    </Button>
+                    <a 
+                      href={room.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button 
+                        variant="outline" 
+                        className="w-full text-sm"
+                      >
+                        Compare on Airbnb
+                      </Button>
+                    </a>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -486,9 +481,20 @@ export default function KoLakeVilla() {
                       </div>
                     </div>
 
-                    <Button className="w-full" onClick={() => setCurrentPage("booking")}>
-                      Book Direct & Save
-                    </Button>
+                    <div className="space-y-3">
+                      <Button className="w-full" onClick={() => setCurrentPage("booking")}>
+                        Book Direct & Save
+                      </Button>
+                      <a 
+                        href={room.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="outline" className="w-full">
+                          Compare on Airbnb
+                        </Button>
+                      </a>
+                    </div>
                   </CardContent>
                 </div>
               </Card>

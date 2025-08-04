@@ -92,6 +92,7 @@ export default function AdminLayout({
 
   const navigationItems = [
     { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3, id: "dashboard" },
+    { href: "/admin/listings", label: "Listings Manager", icon: Settings, id: "listings" },
     { href: "/admin/gallery", label: "Gallery Manager", icon: GalleryIcon, id: "gallery" },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3, id: "analytics" },
     { href: "/admin/content", label: "Content", icon: FileText, id: "content" },
