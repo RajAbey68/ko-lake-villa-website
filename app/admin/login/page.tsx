@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("kolakevilla@gmail.com")
+  const [email, setEmail] = useState("contact@kolakehouse.com")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -25,15 +25,12 @@ export default function AdminLogin() {
     
     console.log("Processed email:", JSON.stringify(emailProcessed))
     console.log("Processed password:", JSON.stringify(passwordProcessed))
-    console.log("Expected email:", JSON.stringify("contact@KoLakeHouse.com"))
-    console.log("Expected password:", JSON.stringify("admin123"))
+    console.log("Expected email:", JSON.stringify("contact@kolakehouse.com"))
+    console.log("Expected password:", JSON.stringify("Admin123"))
     
-    // Use Replit admin credentials
-    const emailMatch = (emailProcessed === "kolakevilla@gmail.com" || emailProcessed === "rajiv.abey@gmail.com")
-    const passwordMatch = (
-      (emailProcessed === "kolakevilla@gmail.com" && passwordProcessed === "admin123") ||
-      (emailProcessed === "rajiv.abey@gmail.com" && passwordProcessed === "admin456")
-    )
+    // Use updated admin credentials
+    const emailMatch = (emailProcessed === "contact@kolakehouse.com")
+    const passwordMatch = (emailProcessed === "contact@kolakehouse.com" && passwordProcessed === "Admin123")
     
     console.log("Email match result:", emailMatch)
     console.log("Password match result:", passwordMatch)
@@ -63,7 +60,7 @@ export default function AdminLogin() {
       })
       console.log("Password mismatch details:", {
         input: passwordProcessed,
-        expected: "admin123", 
+        expected: "Admin123", 
         match: passwordMatch
       })
       setError(`Invalid credentials. Got email: "${emailProcessed}" password: "${passwordProcessed}"`)
@@ -98,7 +95,7 @@ export default function AdminLogin() {
               value={email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-amber-200 rounded focus:border-orange-400 focus:outline-none"
-              placeholder="contact@KoLakeHouse.com"
+              placeholder="contact@kolakehouse.com"
               required
             />
           </div>
@@ -113,7 +110,7 @@ export default function AdminLogin() {
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-amber-200 rounded focus:border-orange-400 focus:outline-none"
-              placeholder="admin123"
+              placeholder="Admin123"
               required
             />
           </div>
@@ -129,9 +126,8 @@ export default function AdminLogin() {
 
                   <div className="text-center text-sm text-amber-600 mt-4 p-3 bg-amber-50 rounded">
             <p><strong>Admin Credentials:</strong></p>
-            <p>Email: kolakevilla@gmail.com</p>
-            <p>Password: admin123</p>
-            <p className="text-xs mt-1">Or: rajiv.abey@gmail.com / admin456</p>
+            <p>Email: contact@kolakehouse.com</p>
+            <p>Password: Admin123</p>
           </div>
       </div>
     </div>
