@@ -44,62 +44,46 @@ export default function GalleryPage() {
     return path.split('/').pop() || ''
   }
 
-  // Static gallery data (replacing API calls)
+  // Load real gallery data from API
   useEffect(() => {
-    // Simulate loading for smooth UX
-    const loadStaticData = () => {
-      console.log('Loading static gallery data...')
-      
-      // Static gallery data for Ko Lake Villa
-      const staticGalleryData = {
-        "pool-facilities": [
-          "/images/hero-pool.jpg",
-          "/placeholder.svg?height=400&width=600&text=Pool+at+Sunset",
-          "/placeholder.svg?height=400&width=600&text=Pool+Side+Lounge",
-          "/placeholder.svg?height=400&width=600&text=Pool+Deck"
-        ],
-        "accommodation": [
-          "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
-          "/placeholder.svg?height=400&width=600&text=Lake+View+Room",
-          "/placeholder.svg?height=400&width=600&text=Living+Area",
-          "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
-        ],
-        "dining": [
-          "/placeholder.svg?height=400&width=600&text=Dining+Area",
-          "/placeholder.svg?height=400&width=600&text=Kitchen",
-          "/placeholder.svg?height=400&width=600&text=Chef+Preparation",
-          "/placeholder.svg?height=400&width=600&text=Outdoor+Dining"
-        ],
-        "experiences": [
-          "/images/excursions-hero.jpg",
-          "/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4",
-          "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
-          "/placeholder.svg?height=400&width=600&text=Lake+Activities",
-          "/placeholder.svg?height=400&width=600&text=Local+Tours",
-          "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
-        ],
-        "lake-views": [
-          "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
-          "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
-          "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
-          "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
-          "/placeholder.svg?height=400&width=600&text=Lake+Wildlife"
-        ]
-      }
-      
-      const staticCategories = Object.keys(staticGalleryData)
-      
-      console.log('Static categories:', staticCategories)
-      console.log('Static gallery data keys:', Object.keys(staticGalleryData))
+    const fetchGalleryData = async () => {
+      try {
+        console.log('Loading gallery data from API...')
+        setLoading(true)
+        setError(null)
 
-      setCategories(staticCategories)
-      setGalleryData(staticGalleryData)
-      setLoading(false)
-      setError(null)
+        // Fetch gallery data from the actual API
+        const response = await fetch('/api/gallery')
+        if (!response.ok) {
+          throw new Error(`Failed to fetch gallery data: ${response.status}`)
+        }
+
+        const data = await response.json()
+        console.log('Gallery API response:', data)
+
+        if (data.error) {
+          throw new Error(data.error)
+        }
+
+        // Extract categories and set gallery data
+        const categories = Object.keys(data)
+        console.log('Loaded categories:', categories)
+
+        setCategories(categories)
+        setGalleryData(data)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error loading gallery data:', error)
+        setError(error instanceof Error ? error.message : 'Failed to load gallery')
+        setLoading(false)
+        
+        // Fallback to empty data instead of broken placeholders
+        setCategories([])
+        setGalleryData({})
+      }
     }
 
-    // Add small delay to show loading state briefly
-    setTimeout(loadStaticData, 500)
+    fetchGalleryData()
   }, [])
 
   // Convert gallery data to MediaItem format
