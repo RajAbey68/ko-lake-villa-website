@@ -38,18 +38,7 @@ export default function KoLakeVilla() {
     { src: "/placeholder.svg?height=300&width=400&text=Dining+Area", title: "Dining Area" },
   ]
 
-  // Show loading state while Firebase data loads
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading Ko Lake Villa...</p>
-        </div>
-      </div>
-    )
-  }
-
+  // Render content immediately - no more loading dependency
   const renderHomePage = () => (
     <div>
       {/* Hero Section */}
