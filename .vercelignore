@@ -1,0 +1,24 @@
+# Exclude large gallery uploads from serverless function bundling
+public/uploads/gallery/**/*
+
+# Exclude test files and development artifacts
+*.test.js
+*.test.ts
+test-*.js
+admin-gallery-test-results.json
+
+# Exclude source files from replit
+replit_source/**/*
+
+# Exclude documentation and development files
+*.md
+BACKLOG.md
+CODE_REVIEW_CHECKLIST.md
+DEPLOYMENT_GUIDE.md
+
+# Exclude development scripts
+*-test.js
+*-diagnosis.js
+*-fix.js
+emergency-*.js
+comprehensive-*.js 
