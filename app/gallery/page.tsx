@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { ImageIcon, Video, Play, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ImageIcon, Video, Play, X, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import Image from "next/image"
 
 interface MediaItem {
@@ -15,159 +15,152 @@ interface MediaItem {
   title: string
   description: string
   category: string
+  tags?: string[]
+  filename?: string
+  size?: number
+  uploadDate?: string
 }
 
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [images, setImages] = useState<MediaItem[]>([])
   const [categories, setCategories] = useState<string[]>([])
-  const [galleryData, setGalleryData] = useState<Record<string, string[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [currentImage, setCurrentImage] = useState<MediaItem | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Helper functions
-  const formatCategoryName = (name: string) => {
-    return name.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase())
-  }
-
-  const getFileExtension = (filename: string) => {
-    return filename.split('.').pop()?.toLowerCase() || ''
-  }
-
-  const isVideo = (filename: string) => {
-    const videoExtensions = ['mp4', 'mov', 'avi', 'webm', 'ogg']
-    return videoExtensions.includes(getFileExtension(filename))
-  }
-
-  const getFilename = (path: string) => {
-    return path.split('/').pop() || ''
-  }
-
-  // Static gallery data (replacing API calls)
+  // Load real gallery data from API
   useEffect(() => {
-    // Simulate loading for smooth UX
-    const loadStaticData = () => {
-      console.log('Loading static gallery data...')
-      
-      // Static gallery data for Ko Lake Villa
-      const staticGalleryData = {
-        "pool-facilities": [
-          "/images/hero-pool.jpg",
-          "/placeholder.svg?height=400&width=600&text=Pool+at+Sunset",
-          "/placeholder.svg?height=400&width=600&text=Pool+Side+Lounge",
-          "/placeholder.svg?height=400&width=600&text=Pool+Deck"
-        ],
-        "accommodation": [
-          "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
-          "/placeholder.svg?height=400&width=600&text=Lake+View+Room",
-          "/placeholder.svg?height=400&width=600&text=Living+Area",
-          "/placeholder.svg?height=400&width=600&text=Villa+Exterior"
-        ],
-        "dining": [
-          "/placeholder.svg?height=400&width=600&text=Dining+Area",
-          "/placeholder.svg?height=400&width=600&text=Kitchen",
-          "/placeholder.svg?height=400&width=600&text=Chef+Preparation",
-          "/placeholder.svg?height=400&width=600&text=Outdoor+Dining"
-        ],
-        "experiences": [
-          "/images/excursions-hero.jpg",
-          "/uploads/gallery/default/1747446463517-373816080-20250420_164235.mp4",
-          "/uploads/gallery/default/1747367220545-41420806-20250420_170745.mp4",
-          "/placeholder.svg?height=400&width=600&text=Lake+Activities",
-          "/placeholder.svg?height=400&width=600&text=Local+Tours",
-          "/placeholder.svg?height=400&width=600&text=Cultural+Experience"
-        ],
-        "lake-views": [
-          "/uploads/gallery/default/1747345835546-656953027-20250420_170537.mp4",
-          "/placeholder.svg?height=400&width=600&text=Morning+Lake+View",
-          "/placeholder.svg?height=400&width=600&text=Sunset+Over+Lake",
-          "/placeholder.svg?height=400&width=600&text=Villa+from+Lake",
-          "/placeholder.svg?height=400&width=600&text=Lake+Wildlife"
-        ]
+    const loadGalleryData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        console.log('Loading gallery data from API...')
+        
+        // Fetch all published images from the API
+        const response = await fetch('/api/gallery/list')
+        if (!response.ok) {
+          throw new Error(`Failed to fetch gallery data: ${response.statusText}`)
+        }
+        
+        const galleryItems: MediaItem[] = await response.json()
+        console.log(`Loaded ${galleryItems.length} gallery items`)
+        
+        // Extract categories from the loaded images
+        const uniqueCategories = Array.from(
+          new Set(galleryItems.map(item => item.category))
+        ).sort()
+        
+        setImages(galleryItems)
+        setCategories(uniqueCategories)
+        
+        console.log('Categories found:', uniqueCategories)
+        
+      } catch (err) {
+        console.error('Error loading gallery:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load gallery images')
+        
+        // Fallback: try to load from the legacy gallery API endpoint
+        try {
+          console.log('Trying legacy gallery API...')
+          const legacyResponse = await fetch('/api/gallery')
+          if (legacyResponse.ok) {
+            const legacyData = await legacyResponse.json()
+            
+            // Convert legacy format to MediaItem format
+            const legacyItems: MediaItem[] = []
+            Object.entries(legacyData).forEach(([category, urls]) => {
+              if (Array.isArray(urls)) {
+                urls.forEach((url: string) => {
+                  const filename = url.split('/').pop() || ''
+                  const isVideo = /\.(mp4|mov|avi)$/i.test(filename)
+                  
+                  legacyItems.push({
+                    id: url,
+                    type: isVideo ? 'video' : 'image',
+                    url,
+                    title: filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+                    description: `${category} - ${filename}`,
+                    category: category.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                    filename
+                  })
+                })
+              }
+            })
+            
+            const legacyCategories = Array.from(
+              new Set(legacyItems.map(item => item.category))
+            ).sort()
+            
+            setImages(legacyItems)
+            setCategories(legacyCategories)
+            setError(null)
+            
+            console.log(`Loaded ${legacyItems.length} items from legacy API`)
+            
+          } else {
+            throw new Error('Both gallery APIs failed')
+          }
+        } catch (legacyErr) {
+          console.error('Legacy API also failed:', legacyErr)
+          setError('Failed to load gallery images from both API endpoints')
+        }
+      } finally {
+        setLoading(false)
       }
-      
-      const staticCategories = Object.keys(staticGalleryData)
-      
-      console.log('Static categories:', staticCategories)
-      console.log('Static gallery data keys:', Object.keys(staticGalleryData))
-
-      setCategories(staticCategories)
-      setGalleryData(staticGalleryData)
-      setLoading(false)
-      setError(null)
     }
 
-    // Add small delay to show loading state briefly
-    setTimeout(loadStaticData, 500)
+    loadGalleryData()
   }, [])
 
-  // Convert gallery data to MediaItem format
-  const allImages: MediaItem[] = []
-  Object.entries(galleryData).forEach(([category, images]) => {
-    images.forEach((imagePath) => {
-      const filename = getFilename(imagePath)
-      const fileType = isVideo(filename) ? 'video' : 'image'
-      
-      // Generate better titles for videos
-      let title = filename.replace(/\.[^/.]+$/, "").replace(/-/g, ' ').replace(/_/g, ' ')
-      let description = `${formatCategoryName(category)} - ${filename}`
-      
-      // Special handling for villa videos
-      if (fileType === 'video') {
-        if (imagePath.includes('164235')) {
-          title = "Complete Villa Walkthrough Tour"
-          description = "Comprehensive tour showcasing all villa spaces and amenities"
-        } else if (imagePath.includes('170745')) {
-          title = "Lake View Experience"
-          description = "Beautiful views of Koggala Lake from the villa"
-        } else if (imagePath.includes('170537')) {
-          title = "Sunset Over Lake"
-          description = "Stunning sunset views from Ko Lake Villa"
-        } else {
-          title = title.charAt(0).toUpperCase() + title.slice(1) + " Video"
-        }
-      }
-      
-      allImages.push({
-        id: imagePath,
-        type: fileType,
-        url: imagePath,
-        title,
-        description,
-        category: formatCategoryName(category)
-      })
-    })
-  })
-
+  // Filter images by category
   const filteredImages = selectedCategory === "all" 
-    ? allImages 
-    : allImages.filter(item => item.category === selectedCategory)
+    ? images 
+    : images.filter(item => item.category.toLowerCase() === selectedCategory.toLowerCase())
 
   const openLightbox = (item: MediaItem) => {
-    setSelectedItem(item)
-    setCurrentIndex(filteredImages.findIndex((i) => i.id === item.id))
+    setCurrentImage(item)
+    setCurrentIndex(filteredImages.findIndex(img => img.id === item.id))
+    setLightboxOpen(true)
   }
 
-  const navigateLightbox = (direction: "prev" | "next") => {
-    const newIndex =
-      direction === "prev"
-        ? (currentIndex - 1 + filteredImages.length) % filteredImages.length
-        : (currentIndex + 1) % filteredImages.length
+  const closeLightbox = () => {
+    setLightboxOpen(false)
+    setCurrentImage(null)
+  }
 
-    setCurrentIndex(newIndex)
-    setSelectedItem(filteredImages[newIndex])
+  const nextImage = () => {
+    const nextIndex = (currentIndex + 1) % filteredImages.length
+    setCurrentIndex(nextIndex)
+    setCurrentImage(filteredImages[nextIndex])
+  }
+
+  const prevImage = () => {
+    const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length
+    setCurrentIndex(prevIndex)
+    setCurrentImage(filteredImages[prevIndex])
+  }
+
+  const downloadImage = () => {
+    if (currentImage) {
+      const link = document.createElement('a')
+      link.href = currentImage.url
+      link.download = currentImage.filename || `ko-lake-villa-${currentImage.id}`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
   }
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-          <p className="text-lg text-gray-600">Loading gallery images...</p>
-          <div className="mt-4 text-sm text-gray-500">
-            Debug: Fetching data from API endpoints
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading Ko Lake Villa Gallery...</p>
         </div>
       </div>
     )
@@ -175,64 +168,49 @@ export default function GalleryPage() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-          <p className="text-lg text-red-600">Error: {error}</p>
-          <Button onClick={() => window.location.reload()} className="mt-4">
-            Retry
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (allImages.length === 0) {
-    return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-          <p className="text-lg text-gray-600">No images found</p>
-          <div className="mt-4 text-sm text-gray-500">
-            Debug: Categories: {categories.length}, Gallery data keys: {Object.keys(galleryData).length}
-          </div>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <Alert className="border-red-500 bg-red-50">
+          <AlertDescription className="text-red-600">
+            {error}
+          </AlertDescription>
+        </Alert>
       </div>
     )
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-amber-800 mb-4">Villa Gallery</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Villa Gallery</h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Explore Ko Lake Villa's stunning spaces, luxury amenities, and beautiful surroundings
         </p>
         <p className="text-sm text-gray-500 mt-2">
-          {allImages.length} media items across {categories.length} categories
+          {images.length} media items across {categories.length} categories
         </p>
       </div>
 
       {/* Category Filter */}
       <div className="flex flex-wrap justify-center gap-2 mb-8">
         <Button
-          variant={selectedCategory === "all" ? "default" : "outline"}
           onClick={() => setSelectedCategory("all")}
-          className={selectedCategory === "all" ? "bg-amber-600 hover:bg-amber-700" : ""}
+          variant={selectedCategory === "all" ? "default" : "outline"}
+          className={selectedCategory === "all" ? "bg-orange-600 hover:bg-orange-700" : ""}
         >
-          All Photos ({allImages.length})
+          All Photos ({images.length})
         </Button>
+        
         {categories.map((category) => {
-          const categoryName = formatCategoryName(category)
-          const categoryCount = allImages.filter(item => item.category === categoryName).length
+          const count = images.filter(item => item.category.toLowerCase() === category.toLowerCase()).length
           return (
             <Button
               key={category}
-              variant={selectedCategory === categoryName ? "default" : "outline"}
-              onClick={() => setSelectedCategory(categoryName)}
-              className={selectedCategory === categoryName ? "bg-amber-600 hover:bg-amber-700" : ""}
+              onClick={() => setSelectedCategory(category.toLowerCase())}
+              variant={selectedCategory === category.toLowerCase() ? "default" : "outline"}
+              className={selectedCategory === category.toLowerCase() ? "bg-orange-600 hover:bg-orange-700" : ""}
             >
-              {categoryName} ({categoryCount})
+              {category} ({count})
             </Button>
           )
         })}
@@ -250,6 +228,10 @@ export default function GalleryPage() {
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  onError={(e) => {
+                    console.error('Image failed to load:', item.url)
+                    e.currentTarget.style.display = 'none'
+                  }}
                 />
               ) : (
                 <video
@@ -284,118 +266,115 @@ export default function GalleryPage() {
 
               {/* Category Badge */}
               <div className="absolute top-3 right-3">
-                <Badge className="bg-amber-600 text-white text-xs">{item.category}</Badge>
-              </div>
-
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-end">
-                <div className="p-4 text-white opacity-0 hover:opacity-100 transition-opacity">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-sm">{item.description}</p>
-                </div>
+                <Badge className="bg-orange-600">{item.category}</Badge>
               </div>
             </div>
+
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
+              <p className="text-gray-600 text-sm mb-2">{item.description}</p>
+              {item.uploadDate && (
+                <p className="text-gray-400 text-xs">
+                  Uploaded: {new Date(item.uploadDate).toLocaleDateString()}
+                </p>
+              )}
+            </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Lightbox */}
-      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="max-w-4xl w-full p-0">
-          {selectedItem && (
-            <div className="relative">
-              {/* Close Button */}
+      {/* Empty State */}
+      {filteredImages.length === 0 && !loading && (
+        <div className="text-center py-12">
+          <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">No images found</h3>
+          <p className="text-gray-500">
+            {selectedCategory === "all" 
+              ? "No published images available at the moment." 
+              : `No images found in the "${selectedCategory}" category.`
+            }
+          </p>
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {lightboxOpen && currentImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <Button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white"
+              size="sm"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+
+            {/* Download Button */}
+            {currentImage.type === "image" && (
               <Button
-                variant="ghost"
+                onClick={downloadImage}
+                className="absolute top-4 right-16 z-10 bg-black/50 hover:bg-black/70 text-white"
                 size="sm"
-                className="absolute top-4 right-4 z-10 bg-black/50 text-white hover:bg-black/70"
-                onClick={() => setSelectedItem(null)}
               >
-                <X className="w-4 h-4" />
+                <Download className="w-4 h-4" />
               </Button>
+            )}
 
-              {/* Navigation Buttons */}
-              {filteredImages.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
-                    onClick={() => navigateLightbox("prev")}
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 text-white hover:bg-black/70"
-                    onClick={() => navigateLightbox("next")}
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </Button>
-                </>
+            {/* Previous Button */}
+            {filteredImages.length > 1 && (
+              <Button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white"
+                size="sm"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+            )}
+
+            {/* Next Button */}
+            {filteredImages.length > 1 && (
+              <Button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white"
+                size="sm"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            )}
+
+            {/* Media Content */}
+            <div className="relative max-w-full max-h-full">
+              {currentImage.type === "image" ? (
+                <Image
+                  src={currentImage.url}
+                  alt={currentImage.title}
+                  width={1200}
+                  height={800}
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : (
+                <video
+                  src={currentImage.url}
+                  controls
+                  className="max-w-full max-h-full"
+                  autoPlay
+                />
               )}
+            </div>
 
-              {/* Media Content */}
-              <div className="aspect-video">
-                {selectedItem.type === "image" ? (
-                  <Image
-                    src={selectedItem.url}
-                    alt={selectedItem.title}
-                    fill
-                    className="object-contain bg-black"
-                  />
-                ) : (
-                  <video
-                    src={selectedItem.url}
-                    className="w-full h-full object-contain bg-black"
-                    controls
-                    autoPlay
-                    onError={(e) => {
-                      console.error('Video failed to load in lightbox:', selectedItem.url)
-                      const target = e.currentTarget
-                      target.style.display = 'none'
-                      const errorDiv = document.createElement('div')
-                      errorDiv.className = 'flex items-center justify-center h-full text-white text-center'
-                      errorDiv.innerHTML = `
-                        <div>
-                          <h3 className="text-xl font-semibold mb-2">Video Unavailable</h3>
-                          <p className="text-gray-300">Unable to load video: ${selectedItem.title}</p>
-                          <p className="text-sm text-gray-400 mt-2">Please try again later</p>
-                        </div>
-                      `
-                      target.parentNode?.appendChild(errorDiv)
-                    }}
-                    onLoadStart={() => {
-                      console.log('Video loading started:', selectedItem.url)
-                    }}
-                    onCanPlay={() => {
-                      console.log('Video can play:', selectedItem.url)
-                    }}
-                    poster="/placeholder.svg?height=400&width=600&text=Loading+Video..."
-                  />
-                )}
-              </div>
-
-              {/* Media Info */}
-              <div className="p-6 bg-white">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-amber-800 mb-2">{selectedItem.title}</h2>
-                    <p className="text-gray-600 mb-3">{selectedItem.description}</p>
-                    <div className="flex gap-2">
-                      <Badge variant="outline">{selectedItem.category}</Badge>
-                      <Badge className="bg-amber-100 text-amber-800">
-                        {selectedItem.type === "image" ? "Photo" : "Video"}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+            {/* Image Info */}
+            <div className="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-4 rounded">
+              <h3 className="text-lg font-semibold mb-1">{currentImage.title}</h3>
+              <p className="text-sm text-gray-300 mb-1">{currentImage.description}</p>
+              <div className="flex justify-between items-center text-xs text-gray-400">
+                <span>{currentImage.category}</span>
+                <span>{currentIndex + 1} of {filteredImages.length}</span>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
