@@ -2,20 +2,38 @@ import React from 'react';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 
-// Firebase configuration (you'll need to add your config)
+// Firebase configuration with proper fallback handling
 const firebaseConfig = {
-  // Add your Firebase config here
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'demo-key',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'demo-project.firebaseapp.com',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'demo-project',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'demo-project.appspot.com',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '123456789',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:123456789:web:demo'
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Check if we have real Firebase config
+const hasValidFirebaseConfig = !!(
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+);
+
+let app: any = null;
+let db: any = null;
+
+// Initialize Firebase with error handling
+try {
+  if (hasValidFirebaseConfig) {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    console.log('✅ Firebase initialized successfully');
+  } else {
+    console.warn('⚠️ Firebase environment variables not configured, using fallback mode');
+  }
+} catch (error) {
+  console.error('❌ Firebase initialization failed:', error);
+  console.warn('⚠️ Falling back to static data mode');
+}
 
 export interface AirbnbListing {
   id: string;
@@ -82,6 +100,12 @@ class FirebaseListingsService {
    * Initialize listings collection with default data if it doesn't exist
    */
   async initializeListings(): Promise<void> {
+    // Check if Firebase is available
+    if (!db || !hasValidFirebaseConfig) {
+      console.log('🔄 Firebase not available, using static data mode');
+      return;
+    }
+
     try {
       const listingsSnapshot = await getDocs(collection(db, this.COLLECTION_NAME));
       
@@ -97,7 +121,8 @@ class FirebaseListingsService {
       }
     } catch (error) {
       console.error('Error initializing listings:', error);
-      throw error;
+      console.log('🔄 Falling back to static data mode');
+      // Don't throw error, just fall back gracefully
     }
   }
 
@@ -105,6 +130,15 @@ class FirebaseListingsService {
    * Get all active listings
    */
   async getActiveListings(): Promise<AirbnbListing[]> {
+    // Check if Firebase is available
+    if (!db || !hasValidFirebaseConfig) {
+      console.log('🔄 Firebase not available, returning static listings');
+      return DEFAULT_LISTINGS.map(listing => ({
+        ...listing,
+        lastUpdated: new Date()
+      }));
+    }
+
     try {
       const snapshot = await getDocs(collection(db, this.COLLECTION_NAME));
       const listings: AirbnbListing[] = [];
@@ -124,6 +158,7 @@ class FirebaseListingsService {
       return listings.sort((a, b) => a.displayOrder - b.displayOrder);
     } catch (error) {
       console.error('Error fetching listings:', error);
+      console.log('🔄 Falling back to static listings');
       // Return fallback data if Firebase fails
       return DEFAULT_LISTINGS.map(listing => ({
         ...listing,
