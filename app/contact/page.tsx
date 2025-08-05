@@ -8,33 +8,117 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Phone, Mail, MessageCircle, Clock, Star } from "lucide-react"
 import Link from "next/link"
+
+// Common country codes for international guests
+const countryCodes = [
+  { code: "+94", country: "Sri Lanka", flag: "🇱🇰" },
+  { code: "+1", country: "USA/Canada", flag: "🇺🇸" },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧" },
+  { code: "+61", country: "Australia", flag: "🇦🇺" },
+  { code: "+49", country: "Germany", flag: "🇩🇪" },
+  { code: "+33", country: "France", flag: "🇫🇷" },
+  { code: "+91", country: "India", flag: "🇮🇳" },
+  { code: "+65", country: "Singapore", flag: "🇸🇬" },
+  { code: "+971", country: "UAE", flag: "🇦🇪" },
+  { code: "+86", country: "China", flag: "🇨🇳" },
+  { code: "+81", country: "Japan", flag: "🇯🇵" },
+  { code: "+82", country: "South Korea", flag: "🇰🇷" },
+  { code: "+31", country: "Netherlands", flag: "🇳🇱" },
+  { code: "+41", country: "Switzerland", flag: "🇨🇭" },
+  { code: "+46", country: "Sweden", flag: "🇸🇪" },
+  { code: "+47", country: "Norway", flag: "🇳🇴" },
+  { code: "+45", country: "Denmark", flag: "🇩🇰" },
+  { code: "+39", country: "Italy", flag: "🇮🇹" },
+  { code: "+34", country: "Spain", flag: "🇪🇸" },
+  { code: "+351", country: "Portugal", flag: "🇵🇹" },
+]
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    countryCode: "+94",
     phone: "",
     subject: "",
     message: "",
   })
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    // Clear error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: "" }))
+    }
+  }
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {}
+    
+    if (!formData.name.trim()) {
+      errors.name = "Name is required"
+    } else if (formData.name.trim().length < 2) {
+      errors.name = "Name must be at least 2 characters"
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = "Email is required"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Please enter a valid email address"
+    }
+    
+    if (formData.phone && !/^\d{7,15}$/.test(formData.phone.replace(/\s/g, ""))) {
+      errors.phone = "Please enter a valid phone number (7-15 digits)"
+    }
+    
+    if (!formData.subject.trim()) {
+      errors.subject = "Subject is required"
+    }
+    
+    if (!formData.message.trim()) {
+      errors.message = "Message is required"
+    } else if (formData.message.trim().length < 10) {
+      errors.message = "Message must be at least 10 characters"
+    }
+    
+    return errors
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    const errors = validateForm()
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
+    }
+    
     setIsSubmitting(true)
+    setFormErrors({})
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    setIsSubmitting(false)
-    setSubmitted(true)
+    try {
+      // Simulate form submission with actual contact API call
+      const fullPhone = formData.phone ? `${formData.countryCode} ${formData.phone}` : ""
+      const submissionData = {
+        ...formData,
+        fullPhone,
+        submittedAt: new Date().toISOString()
+      }
+      
+      // Here you would normally send to your contact API
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      
+      setIsSubmitting(false)
+      setSubmitted(true)
+    } catch (error) {
+      setIsSubmitting(false)
+      setFormErrors({ submit: "Failed to send message. Please try again." })
+    }
   }
 
   return (
@@ -104,7 +188,17 @@ export default function ContactPage() {
                       </div>
                       <h3 className="text-xl font-semibold text-green-600 mb-2">Message Sent!</h3>
                       <p className="text-gray-600 mb-4">Thank you for contacting us. We'll respond within 24 hours.</p>
-                      <Button onClick={() => setSubmitted(false)}>Send Another Message</Button>
+                      <Button onClick={() => {
+                        setSubmitted(false)
+                        setFormData({
+                          name: "",
+                          email: "",
+                          countryCode: "+94",
+                          phone: "",
+                          subject: "",
+                          message: "",
+                        })
+                      }}>Send Another Message</Button>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -115,9 +209,12 @@ export default function ContactPage() {
                             id="name"
                             value={formData.name}
                             onChange={(e) => handleInputChange("name", e.target.value)}
-                            required
                             placeholder="Your full name"
+                            className={formErrors.name ? "border-red-500" : ""}
                           />
+                          {formErrors.name && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                          )}
                         </div>
                         <div>
                           <Label htmlFor="email">Email Address *</Label>
@@ -126,21 +223,51 @@ export default function ContactPage() {
                             type="email"
                             value={formData.email}
                             onChange={(e) => handleInputChange("email", e.target.value)}
-                            required
                             placeholder="your@email.com"
+                            className={formErrors.email ? "border-red-500" : ""}
                           />
+                          {formErrors.email && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                          )}
                         </div>
                       </div>
 
                       <div>
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
-                          placeholder="+94711730345"
-                        />
+                        <div className="flex gap-2">
+                          <Select 
+                            value={formData.countryCode} 
+                            onValueChange={(value) => handleInputChange("countryCode", value)}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue placeholder="Country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((country) => (
+                                <SelectItem key={country.code} value={country.code}>
+                                  <div className="flex items-center gap-2">
+                                    <span>{country.flag}</span>
+                                    <span>{country.code}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange("phone", e.target.value)}
+                            placeholder="71 123 4567"
+                            className={`flex-1 ${formErrors.phone ? "border-red-500" : ""}`}
+                          />
+                        </div>
+                        {formErrors.phone && (
+                          <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
+                        )}
+                        <p className="text-gray-500 text-xs mt-1">
+                          Selected: {formData.countryCode} {formData.phone && formData.phone}
+                        </p>
                       </div>
 
                       <div>
@@ -149,9 +276,12 @@ export default function ContactPage() {
                           id="subject"
                           value={formData.subject}
                           onChange={(e) => handleInputChange("subject", e.target.value)}
-                          required
                           placeholder="What can we help you with?"
+                          className={formErrors.subject ? "border-red-500" : ""}
                         />
+                        {formErrors.subject && (
+                          <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
+                        )}
                       </div>
 
                       <div>
@@ -160,11 +290,20 @@ export default function ContactPage() {
                           id="message"
                           value={formData.message}
                           onChange={(e) => handleInputChange("message", e.target.value)}
-                          required
                           placeholder="Tell us more about your inquiry..."
                           rows={5}
+                          className={formErrors.message ? "border-red-500" : ""}
                         />
+                        {formErrors.message && (
+                          <p className="text-red-500 text-sm mt-1">{formErrors.message}</p>
+                        )}
                       </div>
+
+                      {formErrors.submit && (
+                        <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                          <p className="text-red-600 text-sm">{formErrors.submit}</p>
+                        </div>
+                      )}
 
                       <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
                         {isSubmitting ? "Sending Message..." : "Send Message"}
@@ -183,55 +322,105 @@ export default function ContactPage() {
                   <CardTitle className="text-xl">Get in Touch</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* General Manager Contact */}
                   <div className="flex items-start space-x-4">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <Phone className="w-6 h-6 text-orange-600" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Phone</h3>
-                      <p className="text-gray-600">+94711730345</p>
-                      <p className="text-sm text-gray-500">Available 8 AM - 10 PM daily</p>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">General Manager</h3>
+                      <p className="text-gray-600">+94 71 776 5780</p>
+                      <Button
+                        size="sm"
+                        className="mt-2 bg-green-600 hover:bg-green-700"
+                        onClick={() => window.open("https://wa.me/94717765780", "_blank")}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        WhatsApp
+                      </Button>
                     </div>
                   </div>
 
+                  {/* Villa Team Lead Contact */}
                   <div className="flex items-start space-x-4">
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <MessageCircle className="w-6 h-6 text-green-600" />
+                    <div className="bg-blue-100 p-3 rounded-full">
+                      <Phone className="w-6 h-6 text-blue-600" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">WhatsApp</h3>
-                      <p className="text-gray-600">+94711730345</p>
-                      <p className="text-sm text-gray-500">Quick responses, 24/7</p>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">Villa Team Lead</h3>
+                      <p className="text-gray-600">+94 77 315 0602</p>
+                      <p className="text-sm text-gray-500">(Sinhala speaker)</p>
+                      <Button
+                        size="sm"
+                        className="mt-2 bg-green-600 hover:bg-green-700"
+                        onClick={() => window.open("https://wa.me/94773150602", "_blank")}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        WhatsApp
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Owner Contact */}
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-amber-100 p-3 rounded-full">
+                      <Phone className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">Owner</h3>
+                      <p className="text-gray-600">+94 711730345</p>
                       <Button
                         size="sm"
                         className="mt-2 bg-green-600 hover:bg-green-700"
                         onClick={() => window.open("https://wa.me/94711730345", "_blank")}
                       >
-                        Chat Now
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        WhatsApp
                       </Button>
                     </div>
                   </div>
 
+                  {/* Email Contact */}
                   <div className="flex items-start space-x-4">
                     <div className="bg-amber-100 p-3 rounded-full">
                       <Mail className="w-6 h-6 text-amber-600" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">Email</h3>
                       <p className="text-gray-600">contact@KoLakeHouse.com</p>
                       <p className="text-sm text-gray-500">Response within 24 hours</p>
                     </div>
                   </div>
 
+                  {/* Reception Hours */}
+                  <div className="flex items-start space-x-4">
+                    <div className="bg-green-100 p-3 rounded-full">
+                      <Clock className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Reception Hours</h3>
+                      <p className="text-gray-600">The Reception is open from 7am to 10:30pm</p>
+                      <p className="text-sm text-gray-500">Daily service available</p>
+                    </div>
+                  </div>
+
+                  {/* Location */}
                   <div className="flex items-start space-x-4">
                     <div className="bg-orange-100 p-3 rounded-full">
                       <MapPin className="w-6 h-6 text-orange-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Location</h3>
-                      <p className="text-gray-600">Kathaluwa West</p>
-                      <p className="text-gray-600">Koggala Lake, Galle District</p>
-                      <p className="text-sm text-gray-500">2 hours from Colombo Airport</p>
+                      <h3 className="font-semibold text-gray-900">Location & Access</h3>
+                      <p className="text-gray-600 font-medium">Kathaluwa West, Koggala Lake</p>
+                      <p className="text-gray-600">Galle District, Sri Lanka</p>
+                      <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-gray-500">
+                        <div>🛬 Colombo Airport: 2.5hrs</div>
+                        <div>🏛️ Colombo City: 2hrs</div>
+                        <div>🏰 Galle: 30min</div>
+                        <div>🏖️ Ahangama: 15min</div>
+                        <div>🦁 Yala National Park: 2.5hrs</div>
+                        <div>📍 GPS: 5.968°N, 80.327°E</div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -369,9 +558,14 @@ export default function ContactPage() {
               <CardContent className="p-6 text-center">
                 <Clock className="w-8 h-8 text-amber-600 mx-auto mb-3" />
                 <h3 className="font-semibold text-gray-900 mb-2">Travel Time</h3>
-                <p className="text-gray-600 text-sm">2 hours from Colombo Airport</p>
-                <p className="text-gray-600 text-sm">30 minutes from Galle</p>
-                <p className="text-gray-600 text-sm">15 minutes from Ahangama</p>
+                <div className="grid grid-cols-2 gap-1 text-xs text-gray-600">
+                  <div>🛬 Colombo Airport: 2.5hrs</div>
+                  <div>🏛️ Colombo City: 2hrs</div>
+                  <div>🏰 Galle: 30min</div>
+                  <div>🏖️ Ahangama: 15min</div>
+                  <div>🦁 Yala National Park: 2.5hrs</div>
+                  <div>📍 GPS: Available</div>
+                </div>
               </CardContent>
             </Card>
             

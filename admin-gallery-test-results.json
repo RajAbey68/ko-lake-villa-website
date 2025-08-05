@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-08-04T19:23:46.519Z",
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "successRate": 0
+  },
+  "results": [
+    {
+      "name": "Gallery List API",
+      "status": "FAIL",
+      "error": "Gallery list API failed: 401 Unauthorized",
+      "stack": "Error: Gallery list API failed: 401 Unauthorized\n    at /Users/arajiv/GitHub/ko-lake-villa-website/test-admin-gallery-functionality.js:74:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async AdminGalleryTester.test (/Users/arajiv/GitHub/ko-lake-villa-website/test-admin-gallery-functionality.js:41:22)\n    at async AdminGalleryTester.runAllTests (/Users/arajiv/GitHub/ko-lake-villa-website/test-admin-gallery-functionality.js:71:7)\n    at async main (/Users/arajiv/GitHub/ko-lake-villa-website/test-admin-gallery-functionality.js:262:3)"
+    }
+  ]
+}
