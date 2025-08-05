@@ -1,5 +1,5 @@
-# Exclude large gallery uploads from serverless function bundling
-public/uploads/gallery/**/*
+# Note: Removed gallery exclusion to allow images to be deployed as static assets
+# The vercel.json maxDuration config handles the large function size issue instead
 
 # Exclude test files and development artifacts
 *.test.js
