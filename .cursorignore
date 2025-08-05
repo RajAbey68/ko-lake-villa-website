@@ -1,0 +1,21 @@
+# ANTI-REGRESSION PROTECTION SYSTEM
+# DO NOT MODIFY THESE WORKING COMPONENTS WITHOUT EXPLICIT INSTRUCTION
+
+# GALLERY SYSTEM - WORKING PERFECTLY
+app/gallery/page.tsx
+components/admin/gallery-management.tsx
+components/public-gallery.tsx
+app/admin/gallery/page.tsx
+
+# API ENDPOINTS - WORKING
+app/api/gallery/list/route.ts
+app/api/gallery/upload/route.ts
+app/api/gallery/ai-tag/route.ts
+app/api/gallery/publish/route.ts
+app/api/gallery/[imageId]/route.ts
+
+# CONTACT PAGE - ENHANCED WITH COUNTRY CODES
+app/contact/page.tsx
+
+# CRITICAL: Gallery images directory
+# public/uploads/gallery/**/*
