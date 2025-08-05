@@ -184,19 +184,75 @@ export default function GalleryManagement() {
   const generateAISEO = async (item: MediaItem) => {
     setIsGeneratingAI(true)
 
-    // Simulate AI generation
-    setTimeout(() => {
+    try {
+      console.log('🤖 Generating AI SEO for:', item.title);
+      
+      // Call the real OpenAI API
+      const response = await fetch('/api/gallery/ai-tag', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imagePath: item.url,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`AI API failed: ${response.statusText}`)
+      }
+
+      const aiResult = await response.json()
+      
+      if (aiResult.error) {
+        throw new Error(aiResult.error)
+      }
+
+      // Update the item with AI-generated SEO data
       const updatedItem = {
         ...item,
-        seoTitle: `${item.title} | Ko Lake Villa Luxury Accommodation Sri Lanka`,
-        seoDescription: `${item.description} Perfect for luxury travelers seeking premium villa rental in Ahangama, Sri Lanka. Book direct and save 10%.`,
-        altText: `${item.title} at Ko Lake Villa - luxury villa rental in Ahangama Sri Lanka`,
+        seoTitle: aiResult.seoTitle || `${item.title} | Ko Lake Villa Luxury Accommodation Sri Lanka`,
+        seoDescription: aiResult.seoDescription || `${item.description} Perfect for luxury travelers seeking premium villa rental in Ahangama, Sri Lanka. Book direct and save 10%.`,
+        altText: aiResult.altText || `${item.title} at Ko Lake Villa - luxury villa rental in Ahangama Sri Lanka`,
+        tags: [...(item.tags || []), ...(aiResult.tags || [])].slice(0, 10), // Merge and limit tags
       }
 
       setMediaItems((prev) => prev.map((i) => (i.id === item.id ? updatedItem : i)))
       setSelectedItem(updatedItem)
+      
+      toast({
+        title: "Success",
+        description: `AI SEO generated successfully! Confidence: ${Math.round((aiResult.confidence || 0.85) * 100)}%`,
+      })
+
+      console.log('✅ AI SEO generation completed:', {
+        processingTime: aiResult.processingTime,
+        confidence: aiResult.confidence,
+        tags: aiResult.tags?.length || 0
+      });
+
+    } catch (error) {
+      console.error('AI SEO generation error:', error)
+      
+      // Fallback to manual SEO generation
+      const fallbackItem = {
+        ...item,
+        seoTitle: `${item.title} | Ko Lake Villa Luxury Accommodation Sri Lanka`,
+        seoDescription: `${item.description} Experience luxury at Ko Lake Villa with stunning lake views and premium amenities in Ahangama, Sri Lanka.`,
+        altText: `${item.title} at Ko Lake Villa - luxury villa rental in Ahangama Sri Lanka`,
+      }
+
+      setMediaItems((prev) => prev.map((i) => (i.id === item.id ? fallbackItem : i)))
+      setSelectedItem(fallbackItem)
+      
+      toast({
+        title: "Partial Success",
+        description: error instanceof Error ? `AI unavailable: ${error.message}. Used fallback SEO.` : "AI unavailable. Used fallback SEO.",
+        variant: "destructive",
+      })
+    } finally {
       setIsGeneratingAI(false)
-    }, 2000)
+    }
   }
 
   const handleSaveEdit = async (item: MediaItem) => {
