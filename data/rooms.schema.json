@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ko Lake Villa Rooms Data",
+  "description": "Schema for validating room pricing and guest capacity data",
+  "type": "object",
+  "required": ["updatedFromAirbnb", "rooms"],
+  "properties": {
+    "updatedFromAirbnb": {
+      "type": "string",
+      "description": "Date of last Airbnb price extraction",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^sunday-auto$"
+    },
+    "rooms": {
+      "type": "array",
+      "description": "List of available rooms/accommodations",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "guestsMin", "guestsMax", "weeklyAirbnb", "perks", "airbnbSlug"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the room",
+            "pattern": "^[a-z-]+$"
+          },
+          "title": {
+            "type": "string",
+            "description": "Display name of the room",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "guestsMin": {
+            "type": "integer",
+            "description": "Minimum number of guests",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "guestsMax": {
+            "type": "integer",
+            "description": "Maximum number of guests",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "weeklyAirbnb": {
+            "type": "number",
+            "description": "Weekly price from Airbnb in USD",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "perks": {
+            "type": "array",
+            "description": "List of room amenities",
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 50
+            }
+          },
+          "airbnbSlug": {
+            "type": "string",
+            "description": "Airbnb URL slug (e.g., 'eklv' for airbnb.co.uk/h/eklv)",
+            "pattern": "^[a-z0-9-]+$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

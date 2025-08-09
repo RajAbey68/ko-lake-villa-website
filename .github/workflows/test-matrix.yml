@@ -1,0 +1,121 @@
+name: Full Test Matrix
+on:
+  pull_request:
+    branches: [ main, GuestyPro ]
+  push:
+    branches: [ main, develop, feature/**, fix/** ]
+  deployment_status:
+
+jobs:
+  test-unit:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci
+      - run: npm run test:unit
+
+  test-e2e-local:
+    runs-on: ubuntu-latest
+    needs: test-unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - name: Start dev server
+        run: |
+          npm run dev &
+          npx wait-on http://localhost:3000
+      - run: npm run test:local
+
+  test-vercel-preview:
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success' && contains(github.event.deployment_status.environment, 'Preview')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - name: Run Playwright on Vercel Preview
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+        run: npm run test:e2e
+
+  validate-pricing-data:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check if rooms.json was modified
+        id: check_files
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "data/rooms.json"; then
+            echo "rooms_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "rooms_changed=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Validate price update label
+        if: steps.check_files.outputs.rooms_changed == 'true'
+        run: |
+          if [[ ! "${{ contains(github.event.pull_request.labels.*.name, 'price-update') }}" == "true" ]]; then
+            echo "::error::data/rooms.json was modified without 'price-update' label"
+            exit 1
+          fi
+      - name: Validate JSON schema
+        if: steps.check_files.outputs.rooms_changed == 'true'
+        run: |
+          npm install -g ajv-cli
+          cat > rooms.schema.json <<'SCHEMA'
+          {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "required": ["updatedFromAirbnb", "rooms"],
+            "properties": {
+              "updatedFromAirbnb": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$|^sunday-auto$" },
+              "rooms": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "title", "guestsMin", "guestsMax", "weeklyAirbnb", "perks", "airbnbSlug"],
+                  "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "guestsMin": { "type": "number", "minimum": 1 },
+                    "guestsMax": { "type": "number", "minimum": 1 },
+                    "weeklyAirbnb": { "type": "number", "minimum": 0 },
+                    "perks": { "type": "array", "items": { "type": "string" } },
+                    "airbnbSlug": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+          SCHEMA
+          ajv validate -s rooms.schema.json -d data/rooms.json
+
+  compliance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for web scraping code
+        run: |
+          # Check for common scraping libraries
+          if grep -r "puppeteer\|cheerio\|scrapy\|beautifulsoup" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" .; then
+            echo "::warning::Found potential web scraping libraries"
+          fi
+          # Check for Airbnb API calls
+          if grep -r "airbnb\.com/api\|airbnb\.com.*scrape" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" .; then
+            echo "::error::Found potential Airbnb scraping code"
+            exit 1
+          fi
