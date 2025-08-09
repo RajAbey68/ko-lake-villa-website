@@ -111,7 +111,7 @@
       "timestamp": "2025-08-09T16:01:29.423Z"
     },
     {
-      "test": "Asset: public//images/hero.svg",
+      "test": "Asset: public/placeholder.svg",
       "passed": true,
       "details": "",
       "timestamp": "2025-08-09T16:01:29.423Z"
@@ -119,21 +119,21 @@
     {
       "test": "Placeholder Usage: app/page.tsx",
       "passed": null,
-      "details": "Uses /images/hero.svg - replace with real images",
+      "details": "Uses placeholder.svg - replace with real images",
       "timestamp": "2025-08-09T16:01:29.424Z",
       "warning": true
     },
     {
       "test": "Placeholder Usage: app/gallery/page.tsx",
       "passed": null,
-      "details": "Uses /images/hero.svg - replace with real images",
+      "details": "Uses placeholder.svg - replace with real images",
       "timestamp": "2025-08-09T16:01:29.424Z",
       "warning": true
     },
     {
       "test": "Placeholder Usage: components/public-gallery.tsx",
       "passed": null,
-      "details": "Uses /images/hero.svg - replace with real images",
+      "details": "Uses placeholder.svg - replace with real images",
       "timestamp": "2025-08-09T16:01:29.424Z",
       "warning": true
     },

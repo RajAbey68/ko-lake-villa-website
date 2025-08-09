@@ -12,7 +12,7 @@ export default function ExperiencesPage() {
       duration: "2-3 hours",
       price: "$45",
       difficulty: "Easy",
-      image: "//images/hero.svg?height=300&width=500&text=Boat+Safari",
+      image: "/placeholder.svg?height=300&width=500&text=Boat+Safari",
       description:
         "Explore the pristine waters of Koggala Lake, spot exotic birds, and visit the famous cinnamon island.",
       highlights: ["Bird Watching", "Cinnamon Island", "Mangrove Exploration", "Local Wildlife", "Sunset Views"],
@@ -23,7 +23,7 @@ export default function ExperiencesPage() {
       duration: "1-2 hours",
       price: "$25",
       difficulty: "Easy",
-      image: "//images/hero.svg?height=300&width=500&text=Stilt+Fishing",
+      image: "/placeholder.svg?height=300&width=500&text=Stilt+Fishing",
       description:
         "Learn the traditional art of stilt fishing, a unique Sri Lankan fishing method practiced for generations.",
       highlights: [
@@ -40,7 +40,7 @@ export default function ExperiencesPage() {
       duration: "Half Day",
       price: "$60",
       difficulty: "Easy",
-      image: "//images/hero.svg?height=300&width=500&text=Galle+Fort",
+      image: "/placeholder.svg?height=300&width=500&text=Galle+Fort",
       description:
         "Discover the UNESCO World Heritage site of Galle Fort with its colonial architecture and rich history.",
       highlights: ["UNESCO Site", "Colonial Architecture", "Historical Sites", "Local Markets", "Ocean Views"],
@@ -51,7 +51,7 @@ export default function ExperiencesPage() {
       duration: "Full Day",
       price: "$85",
       difficulty: "Moderate",
-      image: "//images/hero.svg?height=300&width=500&text=Whale+Watching",
+      image: "/placeholder.svg?height=300&width=500&text=Whale+Watching",
       description:
         "Embark on an unforgettable whale watching adventure from Mirissa, one of the world's best whale watching destinations.",
       highlights: ["Blue Whales", "Sperm Whales", "Dolphins", "Ocean Adventure", "Professional Guide"],
@@ -62,7 +62,7 @@ export default function ExperiencesPage() {
       duration: "3-4 hours",
       price: "$40",
       difficulty: "Easy",
-      image: "//images/hero.svg?height=300&width=500&text=Cooking+Class",
+      image: "/placeholder.svg?height=300&width=500&text=Cooking+Class",
       description:
         "Learn to prepare authentic Sri Lankan dishes using fresh local ingredients and traditional cooking methods.",
       highlights: [
@@ -79,7 +79,7 @@ export default function ExperiencesPage() {
       duration: "Half Day",
       price: "$50",
       difficulty: "Easy",
-      image: "//images/hero.svg?height=300&width=500&text=Temple+Tour",
+      image: "/placeholder.svg?height=300&width=500&text=Temple+Tour",
       description:
         "Visit ancient Buddhist temples and learn about Sri Lankan culture, traditions, and spiritual practices.",
       highlights: [
@@ -162,7 +162,7 @@ export default function ExperiencesPage() {
       <section className="relative h-96 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="//images/hero.svg?height=400&width=1200&text=Experiences"
+            src="/placeholder.svg?height=400&width=1200&text=Experiences"
             alt="Ko Lake Villa Experiences"
             fill
             className="object-cover object-center"
@@ -194,7 +194,7 @@ export default function ExperiencesPage() {
               <Card key={experience.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="relative">
                   <Image
-                    src={experience.image || "//images/hero.svg"}
+                    src={experience.image || "/placeholder.svg"}
                     alt={experience.name}
                     width={500}
                     height={300}

@@ -373,7 +373,7 @@ export default function GalleryManagement() {
                 <div className="relative aspect-video bg-gray-100">
                   {item.type === "image" ? (
                     <img
-                      src={item.url || "//images/hero.svg"}
+                      src={item.url || "/placeholder.svg"}
                       alt={item.altText || item.title}
                       className="w-full h-full object-cover"
                     />
@@ -573,7 +573,7 @@ export default function GalleryManagement() {
               <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 {editingItem.type === "image" ? (
                   <img
-                    src={editingItem.url || "//images/hero.svg"}
+                    src={editingItem.url || "/placeholder.svg"}
                     alt={editingItem.altText || editingItem.title}
                     className="w-full h-full object-cover"
                   />

@@ -73,7 +73,7 @@ export default function ExcursionsPage() {
       location: "Ahangama Beach",
       rating: 4.8,
       reviews: 41,
-      image: "//images/hero.svg?height=300&width=400&text=Surf+Lesson",
+      image: "/placeholder.svg?height=300&width=400&text=Surf+Lesson",
       tribe: ["Surf Travelers", "Adventure Seekers", "Digital Nomads"],
     },
     {
@@ -96,7 +96,7 @@ export default function ExcursionsPage() {
       location: "Weligama Mangroves",
       rating: 4.7,
       reviews: 18,
-      image: "//images/hero.svg?height=300&width=400&text=Mangrove+Kayaking",
+      image: "/placeholder.svg?height=300&width=400&text=Mangrove+Kayaking",
       tribe: ["Eco-Conscious Guests", "Nature Lovers", "Wellness Seekers"],
     },
     {
@@ -114,7 +114,7 @@ export default function ExcursionsPage() {
       location: "Local Village Kitchen",
       rating: 4.9,
       reviews: 35,
-      image: "//images/hero.svg?height=300&width=400&text=Cooking+Class",
+      image: "/placeholder.svg?height=300&width=400&text=Cooking+Class",
       tribe: ["Cultural Travelers", "Family Groups", "Culinary Enthusiasts"],
     },
     {
@@ -137,7 +137,7 @@ export default function ExcursionsPage() {
       location: "Yala National Park",
       rating: 4.8,
       reviews: 29,
-      image: "//images/hero.svg?height=300&width=400&text=Yala+Safari",
+      image: "/placeholder.svg?height=300&width=400&text=Yala+Safari",
       tribe: ["Nature Lovers", "Eco-Conscious Guests", "Adventure Seekers"],
     },
     {
@@ -155,7 +155,7 @@ export default function ExcursionsPage() {
       location: "Ko Lake Villa Rooftop",
       rating: 4.9,
       reviews: 42,
-      image: "//images/hero.svg?height=300&width=400&text=Sunset+Yoga",
+      image: "/placeholder.svg?height=300&width=400&text=Sunset+Yoga",
       tribe: ["Wellness Seekers", "Yoga Enthusiasts", "Spiritual Travelers"],
     },
   ]
@@ -275,7 +275,7 @@ export default function ExcursionsPage() {
                 >
                   <div className="relative h-48 bg-gray-100">
                     <img
-                      src={excursion.image || "//images/hero.svg"}
+                      src={excursion.image || "/placeholder.svg"}
                       alt={excursion.title}
                       className="w-full h-full object-cover"
                     />
@@ -351,7 +351,7 @@ export default function ExcursionsPage() {
               </Button>
               <div className="flex items-start gap-4">
                 <img
-                  src={selectedExcursion.image || "//images/hero.svg"}
+                  src={selectedExcursion.image || "/placeholder.svg"}
                   alt={selectedExcursion.title}
                   className="w-32 h-32 object-cover rounded-lg"
                 />

@@ -101,7 +101,7 @@ export default function AccommodationPage() {
                   {/* Image Section */}
                   <div className={`relative ${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
                     <Image
-                      src={room.image || "//images/hero.svg"}
+                      src={room.image || "/placeholder.svg"}
                       alt={room.name}
                       width={600}
                       height={400}

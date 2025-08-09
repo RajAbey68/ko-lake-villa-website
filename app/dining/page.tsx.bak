@@ -9,7 +9,7 @@ export default function DiningPage() {
       id: 1,
       name: "Lakeside Dining Area",
       description: "Enjoy meals with panoramic views of Koggala Lake in our open-air dining pavilion",
-      image: "//images/hero.svg?height=300&width=500&text=Lakeside+Dining",
+      image: "/placeholder.svg?height=300&width=500&text=Lakeside+Dining",
       features: ["Lake Views", "Open Air", "Breakfast Included", "Local Cuisine", "Fresh Seafood"],
       hours: "7:00 AM - 10:00 PM",
     },
@@ -17,7 +17,7 @@ export default function DiningPage() {
       id: 2,
       name: "Private Villa Kitchen",
       description: "Fully equipped kitchen for guests who prefer to prepare their own meals",
-      image: "//images/hero.svg?height=300&width=500&text=Villa+Kitchen",
+      image: "/placeholder.svg?height=300&width=500&text=Villa+Kitchen",
       features: ["Full Kitchen", "Modern Appliances", "Dining Table", "Cookware Provided", "Refrigerator"],
       hours: "24/7 Access",
     },
@@ -25,7 +25,7 @@ export default function DiningPage() {
       id: 3,
       name: "BBQ & Grill Area",
       description: "Perfect for evening gatherings with friends and family by the pool",
-      image: "//images/hero.svg?height=300&width=500&text=BBQ+Area",
+      image: "/placeholder.svg?height=300&width=500&text=BBQ+Area",
       features: ["Outdoor Grill", "Pool Side", "Evening Ambiance", "Group Dining", "Fresh Ingredients"],
       hours: "5:00 PM - 11:00 PM",
     },
@@ -128,7 +128,7 @@ export default function DiningPage() {
       <section className="relative h-96 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="//images/hero.svg?height=400&width=1200&text=Dining+Experience"
+            src="/placeholder.svg?height=400&width=1200&text=Dining+Experience"
             alt="Ko Lake Villa Dining"
             fill
             className="object-cover object-center"
@@ -159,7 +159,7 @@ export default function DiningPage() {
             {diningOptions.map((option) => (
               <Card key={option.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <Image
-                  src={option.image || "//images/hero.svg"}
+                  src={option.image || "/placeholder.svg"}
                   alt={option.name}
                   width={500}
                   height={300}

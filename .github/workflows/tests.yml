@@ -1,4 +1,4 @@
-name: Tests (unit + e2e)
+name: Tests (blockers + full)
 on:
   pull_request:
     branches: [ main, GuestyPro, fix/**, feat/** ]
@@ -10,11 +10,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22', cache: 'npm' }
       - run: npm ci || npm install
+      - name: Typecheck (must pass)
+        run: npx tsc --noEmit
       - name: Unit tests (Jest)
         run: npm run test:unit
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: E2E (dev server + Playwright)
+      - name: E2E tests
         env:
           ADMIN_EMAIL: \${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: \${{ secrets.ADMIN_PASSWORD }}

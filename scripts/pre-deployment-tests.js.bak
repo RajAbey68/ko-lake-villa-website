@@ -151,7 +151,7 @@ class PreDeploymentTester {
     const criticalAssets = [
       'public/images/hero-pool.jpg',
       'public/images/excursions-hero.jpg',
-      'public//images/hero.svg'
+      'public/placeholder.svg'
     ];
     
     criticalAssets.forEach(asset => {
@@ -169,9 +169,9 @@ class PreDeploymentTester {
     pageFiles.forEach(file => {
       if (fs.existsSync(file)) {
         const content = fs.readFileSync(file, 'utf8');
-        const hasPlaceholder = content.includes('/images/hero.svg');
+        const hasPlaceholder = content.includes('placeholder.svg');
         if (hasPlaceholder) {
-          this.recordWarning(`Placeholder Usage: ${file}`, 'Uses /images/hero.svg - replace with real images');
+          this.recordWarning(`Placeholder Usage: ${file}`, 'Uses placeholder.svg - replace with real images');
         }
       }
     });

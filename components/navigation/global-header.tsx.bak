@@ -71,7 +71,7 @@ export default function GlobalHeader() {
         id: "google_123",
         name: "John Doe",
         email: "john@kolakevilla.com",
-        avatar: "//images/hero.svg?height=40&width=40&text=JD",
+        avatar: "/placeholder.svg?height=40&width=40&text=JD",
         role: "staff",
       }
 
@@ -193,7 +193,7 @@ export default function GlobalHeader() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar || "//images/hero.svg"} alt={user.name} />
+                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                       <AvatarFallback className="bg-amber-100 text-amber-800">
                         {user.name
                           .split(" ")
@@ -208,7 +208,7 @@ export default function GlobalHeader() {
                   <div className="flex flex-col space-y-2 p-2">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar || "//images/hero.svg"} alt={user.name} />
+                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                         <AvatarFallback className="bg-amber-100 text-amber-800 text-xs">
                           {user.name
                             .split(" ")

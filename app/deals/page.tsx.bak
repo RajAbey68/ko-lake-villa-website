@@ -12,7 +12,7 @@ export default function DealsPage() {
       description: "Skip the booking fees and save when you book directly with us",
       discount: "15% OFF",
       validUntil: "Valid until Dec 31, 2024",
-      image: "//images/hero.svg?height=300&width=400&text=Direct+Booking+Deal",
+      image: "/placeholder.svg?height=300&width=400&text=Direct+Booking+Deal",
       features: ["Free WiFi", "Complimentary Breakfast", "Late Checkout"],
       originalPrice: 450,
       dealPrice: 383,
@@ -23,7 +23,7 @@ export default function DealsPage() {
       description: "Stay 7 nights or more and enjoy significant savings",
       discount: "20% OFF",
       validUntil: "Valid for stays 7+ nights",
-      image: "//images/hero.svg?height=300&width=400&text=Extended+Stay",
+      image: "/placeholder.svg?height=300&width=400&text=Extended+Stay",
       features: ["Weekly Housekeeping", "Laundry Service", "Kitchen Access"],
       originalPrice: 450,
       dealPrice: 360,
@@ -34,7 +34,7 @@ export default function DealsPage() {
       description: "Book 30 days in advance and save on your lakefront getaway",
       discount: "12% OFF",
       validUntil: "Book 30 days ahead",
-      image: "//images/hero.svg?height=300&width=400&text=Early+Bird",
+      image: "/placeholder.svg?height=300&width=400&text=Early+Bird",
       features: ["Free Airport Transfer", "Welcome Drink", "Room Upgrade"],
       originalPrice: 450,
       dealPrice: 396,
@@ -111,7 +111,7 @@ export default function DealsPage() {
       <section className="relative h-96 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="//images/hero.svg?height=400&width=1200&text=Special+Deals"
+            src="/placeholder.svg?height=400&width=1200&text=Special+Deals"
             alt="Ko Lake Villa Special Deals"
             fill
             className="object-cover object-center"
@@ -143,7 +143,7 @@ export default function DealsPage() {
               <Card key={deal.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="relative">
                   <Image
-                    src={deal.image || "//images/hero.svg"}
+                    src={deal.image || "/placeholder.svg"}
                     alt={deal.title}
                     width={400}
                     height={300}

@@ -11,7 +11,7 @@ describe('AI Tagging API Test', () => {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageUrl: '//images/hero.svg' }),
+      body: JSON.stringify({ imageUrl: '/placeholder.svg' }),
     });
 
     // Expect 501 "Not Implemented" because the key is missing

@@ -26,7 +26,7 @@ export default function PublicGallery() {
     {
       id: "1",
       type: "image",
-      url: "//images/hero.svg?height=400&width=600&text=Infinity+Pool",
+      url: "/placeholder.svg?height=400&width=600&text=Infinity+Pool",
       title: "Infinity Pool at Sunset",
       description: "Our stunning 60-foot infinity pool overlooking the tranquil lake",
       category: "Pool & Facilities",
@@ -35,7 +35,7 @@ export default function PublicGallery() {
     {
       id: "2",
       type: "image",
-      url: "//images/hero.svg?height=400&width=600&text=Master+Bedroom",
+      url: "/placeholder.svg?height=400&width=600&text=Master+Bedroom",
       title: "Master Bedroom Suite",
       description: "Spacious master bedroom with lake views and ensuite bathroom",
       category: "Bedrooms",
@@ -44,7 +44,7 @@ export default function PublicGallery() {
     {
       id: "3",
       type: "video",
-      url: "//images/hero.svg?height=400&width=600&text=Villa+Tour",
+      url: "/placeholder.svg?height=400&width=600&text=Villa+Tour",
       title: "Complete Villa Tour",
       description: "Take a virtual tour of all our luxury amenities and spaces",
       category: "Villa Tour",
@@ -53,7 +53,7 @@ export default function PublicGallery() {
     {
       id: "4",
       type: "image",
-      url: "//images/hero.svg?height=400&width=600&text=Rooftop+Yoga",
+      url: "/placeholder.svg?height=400&width=600&text=Rooftop+Yoga",
       title: "Rooftop Yoga Deck",
       description: "Perfect space for morning yoga and meditation sessions",
       category: "Outdoor Spaces",
@@ -62,7 +62,7 @@ export default function PublicGallery() {
     {
       id: "5",
       type: "image",
-      url: "//images/hero.svg?height=400&width=600&text=Beach+Access",
+      url: "/placeholder.svg?height=400&width=600&text=Beach+Access",
       title: "Private Beach Access",
       description: "Just 300 yards to pristine beaches and surf breaks",
       category: "Local Area",
@@ -71,7 +71,7 @@ export default function PublicGallery() {
     {
       id: "6",
       type: "image",
-      url: "//images/hero.svg?height=400&width=600&text=Living+Area",
+      url: "/placeholder.svg?height=400&width=600&text=Living+Area",
       title: "Open-Air Living Space",
       description: "Spacious living area perfect for remote work and relaxation",
       category: "Living Areas",
@@ -142,7 +142,7 @@ export default function PublicGallery() {
         {filteredItems.map((item) => (
           <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
             <div className="relative aspect-video bg-gray-100" onClick={() => openLightbox(item)}>
-              <img src={item.url || "//images/hero.svg"} alt={item.title} className="w-full h-full object-cover" />
+              <img src={item.url || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" />
 
               {/* Media Type Indicator */}
               <div className="absolute top-3 left-3">
@@ -217,7 +217,7 @@ export default function PublicGallery() {
               <div className="aspect-video">
                 {selectedItem.type === "image" ? (
                   <img
-                    src={selectedItem.url || "//images/hero.svg"}
+                    src={selectedItem.url || "/placeholder.svg"}
                     alt={selectedItem.title}
                     className="w-full h-full object-contain bg-black"
                   />

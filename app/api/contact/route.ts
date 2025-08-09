@@ -1,61 +1,38 @@
 import { NextResponse } from 'next/server';
+import { ContactSchema, allowedOrigin } from '@/lib/validate';
+import { rateLimit } from '@/lib/rateLimit';
 
-interface ContactFormData {
-  name: string;
-  email: string;
-  message: string;
-  phone?: string;
-  subject?: string;
+export const runtime = 'nodejs';
+
+export async function OPTIONS() {
+  const res = new NextResponse(null, { status: 204 });
+  res.headers.set('Access-Control-Allow-Origin', '*');
+  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-Token');
+  res.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  return res;
 }
 
-export async function POST(request: Request) {
-  try {
-    const body: ContactFormData = await request.json();
-    
-    // Validate required fields
-    if (!body.name || !body.email || !body.message) {
-      return NextResponse.json(
-        { error: 'Name, email, and message are required.' },
-        { status: 400 }
-      );
-    }
+export async function POST(req: Request) {
+  // Method enforcement & rate limit by IP
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || '127.0.0.1';
+  const rl = rateLimit(\`contact:\${ip}\`, 10, 60_000);
+  if (!rl.ok) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
-      return NextResponse.json(
-        { error: 'Please provide a valid email address.' },
-        { status: 400 }
-      );
-    }
-
-    // Here you would typically:
-    // 1. Send an email notification
-    // 2. Store the contact form data in a database
-    // 3. Log the contact attempt
-    
-    console.log('Contact form submission:', {
-      name: body.name,
-      email: body.email,
-      phone: body.phone,
-      subject: body.subject,
-      message: body.message,
-      timestamp: new Date().toISOString()
-    });
-
-    // For now, we'll just return a success response
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Thank you for your message. We will get back to you soon!' 
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('Contact form error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process contact form. Please try again.' },
-      { status: 500 }
-    );
+  // CSRF / Origin check
+  const origin = req.headers.get('origin');
+  const referer = req.headers.get('referer');
+  if (!allowedOrigin(origin ?? referer)) {
+    return NextResponse.json({ error: 'Forbidden origin' }, { status: 403 });
   }
-} 
+
+  // Validate payload
+  const json = await req.json().catch(() => null);
+  const parse = ContactSchema.safeParse(json);
+  if (!parse.success) {
+    return NextResponse.json({ error: 'Invalid payload', issues: parse.error.flatten() }, { status: 400 });
+  }
+  const body = parse.data;
+
+  // TODO: send email / write to Firestore. For now, return echo ok
+  return NextResponse.json({ ok: true, data: { name: body.name, email: body.email, source: body.source ?? 'web' } }, { status: 200 });
+}

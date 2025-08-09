@@ -1,0 +1,5 @@
+[
+  { "id": "hero-1", "src": "/images/hero.svg", "alt": "Ko Lake Villa – veranda", "width": 1600, "height": 900, "category": "hero" },
+  { "id": "pool-1", "src": "/images/hero.svg", "alt": "Infinity pool", "width": 1600, "height": 900, "category": "pool" },
+  { "id": "room-1", "src": "/images/hero.svg", "alt": "Premium suite", "width": 1600, "height": 900, "category": "rooms" }
+]

@@ -21,7 +21,7 @@ export default function KoLakeVilla() {
       guests: 12,
       bedrooms: 6,
       bathrooms: 4,
-      image: "//images/hero.svg?height=300&width=400&text=Entire+Villa+View",
+      image: "/placeholder.svg?height=300&width=400&text=Entire+Villa+View",
       features: ["Private Pool", "Lake Views", "Full Kitchen", "6 Bedrooms"],
     },
     {
@@ -34,7 +34,7 @@ export default function KoLakeVilla() {
       guests: 4,
       bedrooms: 1,
       bathrooms: 1,
-      image: "//images/hero.svg?height=300&width=400&text=Master+Suite",
+      image: "/placeholder.svg?height=300&width=400&text=Master+Suite",
       features: ["Lake View", "Private Balcony", "King Bed", "En-suite Bath"],
     },
     {
@@ -47,7 +47,7 @@ export default function KoLakeVilla() {
       guests: 3,
       bedrooms: 1,
       bathrooms: 1,
-      image: "//images/hero.svg?height=300&width=400&text=Twin+Room",
+      image: "/placeholder.svg?height=300&width=400&text=Twin+Room",
       features: ["Garden View", "Twin/Triple Beds", "Shared Facilities", "AC"],
     },
     {
@@ -60,18 +60,18 @@ export default function KoLakeVilla() {
       guests: 6,
       bedrooms: 2,
       bathrooms: 2,
-      image: "//images/hero.svg?height=300&width=400&text=Group+Room",
+      image: "/placeholder.svg?height=300&width=400&text=Group+Room",
       features: ["Multiple Beds", "Shared Space", "Group Friendly", "Lake Access"],
     },
   ]
 
   const galleryImages = [
-    { src: "//images/hero.svg?height=300&width=400&text=Villa+Exterior", title: "Villa Exterior" },
-    { src: "//images/hero.svg?height=300&width=400&text=Pool+Area", title: "Pool Area" },
-    { src: "//images/hero.svg?height=300&width=400&text=Lake+View", title: "Lake View" },
-    { src: "//images/hero.svg?height=300&width=400&text=Master+Bedroom", title: "Master Bedroom" },
-    { src: "//images/hero.svg?height=300&width=400&text=Living+Room", title: "Living Room" },
-    { src: "//images/hero.svg?height=300&width=400&text=Dining+Area", title: "Dining Area" },
+    { src: "/placeholder.svg?height=300&width=400&text=Villa+Exterior", title: "Villa Exterior" },
+    { src: "/placeholder.svg?height=300&width=400&text=Pool+Area", title: "Pool Area" },
+    { src: "/placeholder.svg?height=300&width=400&text=Lake+View", title: "Lake View" },
+    { src: "/placeholder.svg?height=300&width=400&text=Master+Bedroom", title: "Master Bedroom" },
+    { src: "/placeholder.svg?height=300&width=400&text=Living+Room", title: "Living Room" },
+    { src: "/placeholder.svg?height=300&width=400&text=Dining+Area", title: "Dining Area" },
   ]
 
 
@@ -173,7 +173,7 @@ export default function KoLakeVilla() {
               <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <Image
-                    src={room.image || "//images/hero.svg"}
+                    src={room.image || "/placeholder.svg"}
                     alt={room.name}
                     width={400}
                     height={300}
@@ -236,7 +236,7 @@ export default function KoLakeVilla() {
                 <div className={`grid grid-cols-1 lg:grid-cols-2 ${index % 2 === 1 ? "lg:grid-flow-col-dense" : ""}`}>
                   <div className={`relative ${index % 2 === 1 ? "lg:col-start-2" : ""}`}>
                     <Image
-                      src={room.image || "//images/hero.svg"}
+                      src={room.image || "/placeholder.svg"}
                       alt={room.name}
                       width={600}
                       height={400}
@@ -330,7 +330,7 @@ export default function KoLakeVilla() {
                 className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
               >
                 <Image
-                  src={image.src || "//images/hero.svg"}
+                  src={image.src || "/placeholder.svg"}
                   alt={image.title}
                   width={400}
                   height={300}
