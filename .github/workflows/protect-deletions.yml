@@ -1,16 +1,19 @@
-name: Protect Feature Deletions
-on: { pull_request: { branches: [ main, GuestyPro, fix/**, feat/** ] } }
+name: Block Deletions (Critical Paths)
+on:
+  pull_request:
+    branches: [ main, GuestyPro, fix/**, feat/**, chore/** ]
 jobs:
-  guard:
+  delete-guard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - run: |
+      - name: Detect deletions in app/ or components/
+        run: |
           base="${{ github.event.pull_request.base.sha }}"
           head="${{ github.event.pull_request.head.sha }}"
           dels=$(git diff --name-status "$base" "$head" | awk '$1=="D" && ($2 ~ /^app\/|^components\//){print $2}')
           if [ -n "$dels" ]; then
-            echo "::error::Critical files deleted: $dels. Add label 'approved-removal' or include 'APPROVED-REMOVAL' in commit message."
+            echo "::error::Deletion(s) in critical paths:\n$dels\nAdd label 'approved-removal' or revert."
             exit 1
           fi

@@ -1,9 +1,15 @@
-modules = ["nodejs-20", "web", "postgresql-16"]
-run = "npm run dev"
-hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+# IMPORTANT: Replit — DO NOT change framework or entrypoints.
+run = "bash scripts/replit-start.sh"
+entrypoint = "app/page.tsx"
+
+[env]
+PORT = "3000"
+
+[interpreter]
+command = [ "bash", "-lc" ]
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-23_11"
 packages = ["zip", "nano", "psmisc", "yakut", "openssh", "unzip"]
 
 [deployment]

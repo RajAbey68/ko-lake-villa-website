@@ -1,8 +1,10 @@
-# Owners for critical architecture files
+# Review/approval required for protected files
 /app/* @RajAbey68
 /components/* @RajAbey68
 /next.config.* @RajAbey68
 /tailwind.config.* @RajAbey68
 /package.json @RajAbey68
+/pnpm-lock.yaml @RajAbey68
+/package-lock.json @RajAbey68
+/yarn.lock @RajAbey68
 /postcss.config.* @RajAbey68
-/turbo.json @RajAbey68
