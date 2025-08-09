@@ -1,0 +1,12 @@
+
+> ko-lake-villa-website@1.0.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3001
+   - Network:      http://172.30.0.2:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1170ms
