@@ -1,0 +1,266 @@
+name: Pre-Merge Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop, staging]
+  
+  # Allow manual trigger with branch selection
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to validate'
+        required: false
+        default: 'current'
+
+jobs:
+  validate:
+    name: Full Validation Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci || npm install
+          npx playwright install --with-deps chromium
+      
+      - name: TypeScript check
+        id: typescript
+        run: |
+          echo "::group::TypeScript Validation"
+          npx tsc --noEmit || echo "typescript_failed=true" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+      
+      - name: Lint check
+        id: lint
+        continue-on-error: true
+        run: |
+          echo "::group::Lint Check"
+          npm run lint || echo "lint_failed=true" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+      
+      - name: Build application
+        id: build
+        run: |
+          echo "::group::Production Build"
+          npm run build
+          echo "::endgroup::"
+      
+      - name: Critical files check
+        id: files
+        run: |
+          echo "::group::Critical Files"
+          MISSING=0
+          for file in app/page.tsx app/accommodation/page.tsx app/contact/page.tsx app/booking/page.tsx; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing: $file"
+              MISSING=$((MISSING + 1))
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          if [ $MISSING -gt 0 ]; then
+            echo "files_missing=$MISSING" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "::endgroup::"
+      
+      - name: Content validation
+        id: content
+        run: |
+          echo "::group::Content Validation"
+          ISSUES=0
+          
+          # Check home page
+          if ! grep -q "Ko Lake Villa" app/page.tsx; then
+            echo "❌ Hero text missing"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check contact page
+          if ! grep -qE "General Manager|Villa Team Lead|Owner" app/contact/page.tsx; then
+            echo "❌ Contact roles missing"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check accommodation
+          if ! grep -qE "guests|Airbnb|Book Direct" app/accommodation/page.tsx; then
+            echo "❌ Accommodation content incomplete"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          if [ $ISSUES -gt 0 ]; then
+            echo "content_issues=$ISSUES" >> $GITHUB_OUTPUT
+          fi
+          echo "::endgroup::"
+      
+      - name: Run E2E tests
+        id: e2e
+        if: matrix.node-version == 22
+        run: |
+          echo "::group::E2E Tests"
+          npm run test:e2e || echo "e2e_failed=true" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+      
+      - name: Run unit tests
+        id: unit
+        continue-on-error: true
+        run: |
+          echo "::group::Unit Tests"
+          npm run test:unit || echo "unit_failed=true" >> $GITHUB_OUTPUT
+          echo "::endgroup::"
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-node-${{ matrix.node-version }}
+          path: |
+            playwright-report/
+            test-results/
+            coverage/
+          retention-days: 7
+      
+      - name: Generate validation report
+        if: always()
+        run: |
+          echo "## Validation Report (Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          # TypeScript
+          if [ "${{ steps.typescript.outputs.typescript_failed }}" == "true" ]; then
+            echo "| TypeScript | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| TypeScript | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Lint
+          if [ "${{ steps.lint.outputs.lint_failed }}" == "true" ]; then
+            echo "| Lint | ⚠️ Issues |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Lint | ✅ Clean |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Build
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "| Build | ✅ Success |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Build | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Files
+          if [ -n "${{ steps.files.outputs.files_missing }}" ]; then
+            echo "| Critical Files | ❌ Missing ${{ steps.files.outputs.files_missing }} |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Critical Files | ✅ Complete |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Content
+          if [ -n "${{ steps.content.outputs.content_issues }}" ]; then
+            echo "| Content | ⚠️ ${{ steps.content.outputs.content_issues }} issues |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Content | ✅ Valid |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # E2E
+          if [ "${{ matrix.node-version }}" == "22" ]; then
+            if [ "${{ steps.e2e.outputs.e2e_failed }}" == "true" ]; then
+              echo "| E2E Tests | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| E2E Tests | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          # Unit
+          if [ "${{ steps.unit.outputs.unit_failed }}" == "true" ]; then
+            echo "| Unit Tests | ⚠️ Failed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Unit Tests | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment PR (if failed)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## ❌ Validation Failed
+            
+            Some checks did not pass. Please review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+            
+            **Quick fixes:**
+            - TypeScript errors: Run \`npx tsc --noEmit\`
+            - Build errors: Run \`npm run build\`
+            - Test failures: Run \`npm run test:all\`
+            
+            After fixing, push your changes to update this PR.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+  
+  # Quick validation job (runs in parallel)
+  quick-check:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      
+      - name: Quick checks
+        run: |
+          npm ci || npm install
+          
+          echo "### Quick Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # TypeScript
+          if npx tsc --noEmit >/dev/null 2>&1; then
+            echo "- ✅ TypeScript" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ TypeScript has errors" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          # Critical files
+          MISSING=0
+          for f in app/page.tsx app/accommodation/page.tsx app/contact/page.tsx; do
+            [ -f "$f" ] || MISSING=1
+          done
+          
+          if [ $MISSING -eq 0 ]; then
+            echo "- ✅ Critical files present" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Critical files missing" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Full validation running in parallel..." >> $GITHUB_STEP_SUMMARY
