@@ -29,6 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = getStoredAuthUser()
     if (storedUser) {
       setUser(storedUser)
+      // Ensure cookie is set if user is already authenticated
+      document.cookie = "ko-lake-admin-auth=true; path=/; max-age=86400"
     }
   }, [])
 
@@ -46,6 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setUser(mockUser)
         storeAuthUser(mockUser)
+        // Set cookie for server-side middleware
+        document.cookie = "ko-lake-admin-auth=true; path=/; max-age=86400"
       } else {
         throw new Error("Invalid credentials")
       }
@@ -83,6 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       clearStoredAuthUser()
       setUser(null)
+      // Clear cookie
+      document.cookie = "ko-lake-admin-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
     } catch (error) {
       console.error("Logout error:", error)
       throw error

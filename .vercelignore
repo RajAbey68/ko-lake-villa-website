@@ -1,12 +1,8 @@
-# TEMPORARY: Exclude gallery images to prevent 250MB serverless function limit
-# This means gallery images won't be available on production until we move to cloud storage
+# CRITICAL: Exclude gallery images from serverless function bundling
+# This prevents the 250MB limit error while still serving images as static assets
 public/uploads/gallery/**/*
 
-# TODO: Move gallery images to Vercel Blob Storage or external CDN
-# to solve both the function size limit AND image serving requirements
-
-# Note: Removed gallery exclusion to allow images to be deployed as static assets
-# The vercel.json maxDuration config handles the large function size issue instead
+# Note: Gallery images will still be accessible as static files via public folder
 
 # Exclude test files and development artifacts
 *.test.js

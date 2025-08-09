@@ -1,23 +1,27 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Only protect admin routes (except login)
-  if (request.nextUrl.pathname.startsWith("/admin") && 
-      request.nextUrl.pathname !== "/admin/login") {
+  // Check if the request is for admin pages (except login)
+  if (request.nextUrl.pathname.startsWith('/admin') && 
+      !request.nextUrl.pathname.startsWith('/admin/login')) {
     
-    // Check for auth cookie
-    const authToken = request.cookies.get("authToken")?.value
+    // Check for authentication token in cookies
+    const isAuthenticated = request.cookies.get('ko-lake-admin-auth')?.value === 'true';
     
-    // If no auth token, redirect to login
-    if (!authToken || authToken !== "admin-authenticated") {
-      return NextResponse.redirect(new URL("/admin/login", request.url))
+    if (!isAuthenticated) {
+      // Redirect to admin login page
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"]
-} 
+  matcher: [
+    '/admin/:path*'
+  ]
+};

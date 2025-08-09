@@ -1,0 +1,25 @@
+# STABLE COMPONENTS - DO NOT OVERWRITE
+# These files have been tested and verified working
+# Only modify with explicit manual instruction
+
+# Contact page - PERFECT contact information restored
+app/contact/page.tsx
+
+# Gallery components - Working hover and thumbnails  
+app/gallery/page.tsx
+components/admin/gallery-management.tsx
+
+# Working booking button flow
+components/navigation/global-header.tsx
+
+# Firebase listings architecture - Core system
+lib/firebase-listings.ts
+components/listings-provider.tsx
+
+# AI functionality - Working OpenAI integration
+app/api/gallery/ai-tag/route.ts
+
+# Gallery APIs - Working file system integration
+app/api/gallery/list/route.ts
+app/api/gallery/route.ts
+app/api/gallery/upload/route.ts 
