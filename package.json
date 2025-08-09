@@ -13,7 +13,7 @@
     "test:quick": "node scripts/test-runner.js quick",
     "test:full": "node scripts/test-runner.js full",
     "test:predeployment": "node scripts/pre-deployment-tests.js",
-    "test:visual": "node scripts/visual-regression-tests.js",
+    "test:visual": "playwright test --config=playwright.visual.config.ts",
     "test:integration": "npx playwright test tests/integration-tests.spec.js",
     "test:manual": "echo 'See tests/manual-test-checklist.md for manual testing checklist'",
     "test:nav": "playwright test tests/nav.spec.ts --reporter=html",
@@ -24,7 +24,9 @@
     "test:all": "npm run test:unit && npm run test:e2e",
     "test": "playwright test",
     "test:local": "BASE_URL=http://localhost:3000 playwright test",
-    "test:vercel": "BASE_URL=$VERCEL_URL playwright test"
+    "test:vercel": "BASE_URL=$VERCEL_URL playwright test",
+    "test:visual:update": "playwright test --config=playwright.visual.config.ts --update-snapshots",
+    "test:visual:ui": "playwright test --config=playwright.visual.config.ts --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
