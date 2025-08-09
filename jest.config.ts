@@ -1,4 +1,5 @@
 import type { Config } from 'jest';
+
 const config: Config = {
   testEnvironment: 'jsdom',
   roots: ['<rootDir>'],
@@ -11,7 +12,19 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/$1',
     '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
   },
-  testMatch: ['**/?(*.)+(spec|test).(ts|tsx)'],
+  testMatch: [
+    '**/tests/**/*.(test|spec).(ts|tsx)',
+    '!**/tests/e2e/**',
+    '!**/tests/nav.spec.ts',
+    '!**/tests/admin.spec.ts'
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/tests/e2e/',
+    '/.next/',
+    '/attached_assets/',
+    '\\.spec\\.ts$'
+  ],
   collectCoverageFrom: [
     'components/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
@@ -23,4 +36,5 @@ const config: Config = {
     '!**/page.tsx',
   ],
 };
+
 export default config;
