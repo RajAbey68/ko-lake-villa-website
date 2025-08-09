@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/ui/input.tsx';
+import * as Module from '@/components/ui/input';
 
 describe('components/ui/input.tsx', () => {
   test('module loads', () => {

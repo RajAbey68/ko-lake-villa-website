@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/ui/tabs.tsx';
+import * as Module from '@/components/ui/tabs';
 
 describe('components/ui/tabs.tsx', () => {
   test('module loads', () => {

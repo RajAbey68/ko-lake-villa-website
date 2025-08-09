@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/admin/guesty-integration.tsx';
+import * as Module from '@/components/admin/guesty-integration';
 
 describe('components/admin/guesty-integration.tsx', () => {
   test('module loads', () => {

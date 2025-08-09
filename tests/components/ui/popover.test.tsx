@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/ui/popover.tsx';
+import * as Module from '@/components/ui/popover';
 
 describe('components/ui/popover.tsx', () => {
   test('module loads', () => {

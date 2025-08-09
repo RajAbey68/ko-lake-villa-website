@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/ui/alert.tsx';
+import * as Module from '@/components/ui/alert';
 
 describe('components/ui/alert.tsx', () => {
   test('module loads', () => {

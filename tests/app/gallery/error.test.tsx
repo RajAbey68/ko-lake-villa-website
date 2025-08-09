@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/app/gallery/error.tsx';
+import * as Module from '@/app/gallery/error';
 
 describe('app/gallery/error.tsx', () => {
   test('module loads', () => {

@@ -17,7 +17,7 @@ test('crawl internal links depth=2', async ({ page, context }) => {
     visited.add(path);
 
     await page.goto(path, { waitUntil: 'networkidle' });
-    await expect(page.locator('h1, [role="heading"]')).toHaveCountGreaterThan(0);
+    await expect(page.locator('h1, [role="heading"]')).toHaveCount({ min: 0 + 1 });
 
     const links = await page.$$eval('a[href]', as => as.map(a => (a as HTMLAnchorElement).getAttribute('href') || '').filter(Boolean));
     for (const href of links) {

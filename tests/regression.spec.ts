@@ -50,7 +50,7 @@ test.describe('Gallery', () => {
     await page.goto('/gallery');
     await expect(page.locator('h1:has-text("Gallery")')).toBeVisible();
     const images = page.locator('img');
-    await expect(images).toHaveCountGreaterThan(0);
+    await expect(images).toHaveCount({ min: 0 + 1 });
   });
 
   test('Shows categories when available', async ({ page }) => {

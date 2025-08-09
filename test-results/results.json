@@ -1,0 +1,702 @@
+{
+  "config": {
+    "configFile": "/workspace/playwright.visual.config.ts",
+    "rootDir": "/workspace/tests/visual",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Desktop Chrome",
+        "name": "Desktop Chrome",
+        "testDir": "/workspace/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/workspace/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "changed",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 2,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "visual-regression.spec.ts",
+      "file": "visual-regression.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Visual Regression Tests",
+          "file": "visual-regression.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Home page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 23655,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-full-Desktop-Chrome-linux.png, writing actual.\n"
+                        },
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-mobile-Desktop-Chrome-linux.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Optional selector not found: .hero\n"
+                        },
+                        {
+                          "text": "Optional selector not found: [data-testid=\"room-card\"]\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-09T20:59:20.840Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "home-full-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-full-Desktop-Chrome-linux.png"
+                        },
+                        {
+                          "name": "home-full-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-d6f96-ome-page-visual-consistency-Desktop-Chrome/home-full-actual.png"
+                        },
+                        {
+                          "name": "home-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-mobile-Desktop-Chrome-linux.png"
+                        },
+                        {
+                          "name": "home-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-d6f96-ome-page-visual-consistency-Desktop-Chrome/home-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-a9390d054dabeb1b9ae8",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Accommodation page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 26764,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-full-Desktop-Chrome-linux.png, writing actual.\n"
+                        },
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-mobile-Desktop-Chrome-linux.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Optional selector not found: [data-testid=\"room-card\"]\n"
+                        },
+                        {
+                          "text": "Optional selector not found: :has-text(\"Airbnb Booking URLs\")\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-09T20:59:44.573Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "accommodation-full-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-full-Desktop-Chrome-linux.png"
+                        },
+                        {
+                          "name": "accommodation-full-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-b2aef-ion-page-visual-consistency-Desktop-Chrome/accommodation-full-actual.png"
+                        },
+                        {
+                          "name": "accommodation-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-mobile-Desktop-Chrome-linux.png"
+                        },
+                        {
+                          "name": "accommodation-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-b2aef-ion-page-visual-consistency-Desktop-Chrome/accommodation-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-1e4bbc0ebcb5f3c3d948",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Contact page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "interrupted",
+                      "duration": 4755,
+                      "error": {
+                        "message": "Error: expect.toHaveScreenshot(contact-full.png): Target page, context or browser has been closed",
+                        "stack": "Error: expect.toHaveScreenshot(contact-full.png): Target page, context or browser has been closed\n    at /workspace/tests/visual/visual-regression.spec.ts:24:7",
+                        "location": {
+                          "file": "/workspace/tests/visual/visual-regression.spec.ts",
+                          "column": 7,
+                          "line": 24
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 22 |\u001b[39m       \n \u001b[90m 23 |\u001b[39m       \u001b[90m// Take full page screenshot\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 24 |\u001b[39m       \u001b[36mawait\u001b[39m expect(playwright)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${page.name.toLowerCase()}-full.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 25 |\u001b[39m         fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 26 |\u001b[39m         animations\u001b[33m:\u001b[39m \u001b[32m'disabled'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 27 |\u001b[39m         mask\u001b[33m:\u001b[39m [playwright\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-dynamic]'\u001b[39m)]\u001b[33m,\u001b[39m \u001b[90m// Mask dynamic content\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/workspace/tests/visual/visual-regression.spec.ts",
+                            "column": 7,
+                            "line": 24
+                          },
+                          "message": "Error: expect.toHaveScreenshot(contact-full.png): Target page, context or browser has been closed\n\n\u001b[0m \u001b[90m 22 |\u001b[39m       \n \u001b[90m 23 |\u001b[39m       \u001b[90m// Take full page screenshot\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 24 |\u001b[39m       \u001b[36mawait\u001b[39m expect(playwright)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${page.name.toLowerCase()}-full.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 25 |\u001b[39m         fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 26 |\u001b[39m         animations\u001b[33m:\u001b[39m \u001b[32m'disabled'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 27 |\u001b[39m         mask\u001b[33m:\u001b[39m [playwright\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-dynamic]'\u001b[39m)]\u001b[33m,\u001b[39m \u001b[90m// Mask dynamic content\u001b[39m\u001b[0m\n\u001b[2m    at /workspace/tests/visual/visual-regression.spec.ts:24:7\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Optional selector not found: h1:has-text(\"Contact\")\n"
+                        },
+                        {
+                          "text": "Optional selector not found: :has-text(\"General Manager\")\n"
+                        },
+                        {
+                          "text": "Optional selector not found: a[href^=\"tel:\"]\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-09T21:00:11.354Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-7d0e7-act-page-visual-consistency-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-7d0e7-act-page-visual-consistency-Desktop-Chrome/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/workspace/tests/visual/visual-regression.spec.ts",
+                        "column": 7,
+                        "line": 24
+                      }
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-93ea3b9421efef567310",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Gallery page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-25c34f81f043b0469041",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Booking page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-3a22bb7aac9ef62010db",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Hero section with video/GIF",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-28e165701bf4f0e90d59",
+              "file": "visual-regression.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "Room cards pricing display",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-a4c8c6369284cf091dc6",
+              "file": "visual-regression.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "Home page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 23502,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-full-Mobile-Safari-linux.png, writing actual.\n"
+                        },
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-mobile-Mobile-Safari-linux.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Optional selector not found: .hero\n"
+                        },
+                        {
+                          "text": "Optional selector not found: [data-testid=\"room-card\"]\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-09T20:59:20.844Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "home-full-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-full-Mobile-Safari-linux.png"
+                        },
+                        {
+                          "name": "home-full-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-d6f96-ome-page-visual-consistency-Mobile-Safari/home-full-actual.png"
+                        },
+                        {
+                          "name": "home-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/home-mobile-Mobile-Safari-linux.png"
+                        },
+                        {
+                          "name": "home-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-d6f96-ome-page-visual-consistency-Mobile-Safari/home-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-247f0c08941fbaf3e670",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Accommodation page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 24848,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-full-Mobile-Safari-linux.png, writing actual.\n"
+                        },
+                        {
+                          "text": "A snapshot doesn't exist at /workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-mobile-Mobile-Safari-linux.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "Optional selector not found: [data-testid=\"room-card\"]\n"
+                        },
+                        {
+                          "text": "Optional selector not found: :has-text(\"Airbnb Booking URLs\")\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-09T20:59:44.418Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "accommodation-full-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-full-Mobile-Safari-linux.png"
+                        },
+                        {
+                          "name": "accommodation-full-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-b2aef-ion-page-visual-consistency-Mobile-Safari/accommodation-full-actual.png"
+                        },
+                        {
+                          "name": "accommodation-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/tests/visual/screenshots/visual-regression.spec.ts-snapshots/accommodation-mobile-Mobile-Safari-linux.png"
+                        },
+                        {
+                          "name": "accommodation-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-b2aef-ion-page-visual-consistency-Mobile-Safari/accommodation-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-7c46a923cb9ea6a5b3fd",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Contact page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "interrupted",
+                      "duration": 6826,
+                      "error": {
+                        "message": "Error: expect.toHaveScreenshot(contact-full.png): Target page, context or browser has been closed",
+                        "stack": "Error: expect.toHaveScreenshot(contact-full.png): Target page, context or browser has been closed\n    at /workspace/tests/visual/visual-regression.spec.ts:24:7",
+                        "location": {
+                          "file": "/workspace/tests/visual/visual-regression.spec.ts",
+                          "column": 7,
+                          "line": 24
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 22 |\u001b[39m       \n \u001b[90m 23 |\u001b[39m       \u001b[90m// Take full page screenshot\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 24 |\u001b[39m       \u001b[36mawait\u001b[39m expect(playwright)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${page.name.toLowerCase()}-full.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 25 |\u001b[39m         fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 26 |\u001b[39m         animations\u001b[33m:\u001b[39m \u001b[32m'disabled'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 27 |\u001b[39m         mask\u001b[33m:\u001b[39m [playwright\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-dynamic]'\u001b[39m)]\u001b[33m,\u001b[39m \u001b[90m// Mask dynamic content\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/workspace/tests/visual/visual-regression.spec.ts",
+                            "column": 7,
+                            "line": 24
+                          },
+                          "message": "Error: expect.toHaveScreenshot(contact-full.png): Target page, context or browser has been closed\n\n\u001b[0m \u001b[90m 22 |\u001b[39m       \n \u001b[90m 23 |\u001b[39m       \u001b[90m// Take full page screenshot\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 24 |\u001b[39m       \u001b[36mawait\u001b[39m expect(playwright)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${page.name.toLowerCase()}-full.png`\u001b[39m\u001b[33m,\u001b[39m {\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 25 |\u001b[39m         fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 26 |\u001b[39m         animations\u001b[33m:\u001b[39m \u001b[32m'disabled'\u001b[39m\u001b[33m,\u001b[39m\n \u001b[90m 27 |\u001b[39m         mask\u001b[33m:\u001b[39m [playwright\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-dynamic]'\u001b[39m)]\u001b[33m,\u001b[39m \u001b[90m// Mask dynamic content\u001b[39m\u001b[0m\n\u001b[2m    at /workspace/tests/visual/visual-regression.spec.ts:24:7\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Optional selector not found: h1:has-text(\"Contact\")\n"
+                        },
+                        {
+                          "text": "Optional selector not found: :has-text(\"General Manager\")\n"
+                        },
+                        {
+                          "text": "Optional selector not found: a[href^=\"tel:\"]\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-09T21:00:09.269Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-7d0e7-act-page-visual-consistency-Mobile-Safari/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/workspace/test-results/visual-regression-Visual-R-7d0e7-act-page-visual-consistency-Mobile-Safari/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/workspace/tests/visual/visual-regression.spec.ts",
+                        "column": 7,
+                        "line": 24
+                      }
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-bfe2e0edbea15afd8146",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Gallery page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-e33b56e36fa3315d6781",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Booking page visual consistency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-5fb9df3efbc47d74879b",
+              "file": "visual-regression.spec.ts",
+              "line": 13,
+              "column": 5
+            },
+            {
+              "title": "Hero section with video/GIF",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-d733d38efffd5c5e97db",
+              "file": "visual-regression.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "Room cards pricing display",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "78e23c5201ba1ea12e76-978d18b848b8cde2c7b6",
+              "file": "visual-regression.spec.ts",
+              "line": 56,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-09T20:59:12.793Z",
+    "duration": 63407.352,
+    "expected": 4,
+    "skipped": 10,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -11,12 +11,12 @@ test('contact page shows phones, WhatsApp actions, and mailto addresses', async 
   ]) {
     await expect(page.getByText(txt)).toBeVisible();
   }
-  await expect(page.locator('a[href^="tel:+"]')).toHaveCountGreaterThan(0);
-  await expect(page.locator('a[href*="wa.me"]')).toHaveCountGreaterThan(0);
+  await expect(page.locator('a[href^="tel:+"]')).toHaveCount({ min: 0 + 1 });
+  await expect(page.locator('a[href*="wa.me"]')).toHaveCount({ min: 0 + 1 });
 
   // Email block (guestypro had contact@, stay@ etc.)
   const emails = page.locator('a[href^="mailto:"]');
-  await expect(emails).toHaveCountGreaterThan(0);
+  await expect(emails).toHaveCount({ min: 0 + 1 });
 
   // If an international dial-hint exists, make sure it's visible
   // (Relaxed: optional – don't fail if not present)

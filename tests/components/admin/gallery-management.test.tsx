@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/admin/gallery-management.tsx';
+import * as Module from '@/components/admin/gallery-management';
 
 describe('components/admin/gallery-management.tsx', () => {
   test('module loads', () => {

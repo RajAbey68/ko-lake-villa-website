@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/mobile-menu.tsx';
+import * as Module from '@/components/mobile-menu';
 
 describe('components/mobile-menu.tsx', () => {
   test('module loads', () => {

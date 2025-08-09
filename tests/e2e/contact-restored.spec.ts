@@ -29,7 +29,7 @@ test.describe('Contact Page - Restored Features', () => {
 
     // Verify mailto links with prefilled subjects
     const mailtoLinks = page.locator('a[href^="mailto:"]');
-    await expect(mailtoLinks).toHaveCountGreaterThan(3);
+    await expect(mailtoLinks).toHaveCount({ min: 3 + 1 });
     const firstMailto = await mailtoLinks.first().getAttribute('href');
     expect(firstMailto).toContain('subject=');
   });

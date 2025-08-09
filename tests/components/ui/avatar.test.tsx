@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { TestProviders } from '@/tests/utils/TestProviders';
-import * as Module from '@/components/ui/avatar.tsx';
+import * as Module from '@/components/ui/avatar';
 
 describe('components/ui/avatar.tsx', () => {
   test('module loads', () => {

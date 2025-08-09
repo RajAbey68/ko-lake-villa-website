@@ -1,0 +1,23 @@
+▶ Fixing TypeScript configuration and UI components on branch: fix/typescript-config-and-ui-shims
+▶ Fixing tsconfig.json...
+✓ wrote tsconfig.json
+▶ Creating UI component shims...
+✓ wrote components/ui/use-toast.ts
+✓ wrote components/ui/use-mobile.tsx
+▶ Installing required packages...
+npm warn idealTree Removing dependencies.clsx in favor of devDependencies.clsx
+npm warn idealTree Removing dependencies.tailwind-merge in favor of devDependencies.tailwind-merge
+npm warn idealTree Removing dependencies.class-variance-authority in favor of devDependencies.class-variance-authority
+
+changed 1 package, and audited 764 packages in 1s
+
+91 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+▶ Fixing test import extensions...
+▶ Fixing Playwright test expectations...
+✓ wrote jest.setup.js
+▶ Updating package.json...
+✓ package.json updated
+▶ Running type check to verify fixes...
