@@ -13,8 +13,8 @@ export default function ContactPage() {
       <h1 className="text-2xl font-semibold mb-6">Contact Us</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         {CONTACTS.map(c => {
-          const tel = `tel:${c.phone.replace(/\\s+/g,'')}`;
-          const wa = waLink(c.phone, 'Hello! I'm contacting Ko Lake Villa via the website.');
+          const tel = `tel:${c.phone.replace(/\s+/g,'')}`;
+          const wa = waLink(c.phone, "Hello! I'm contacting Ko Lake Villa via the website.");
           return (
             <section key={c.phone} className="rounded-2xl border border-gray-200 bg-white p-5">
               <h2 className="text-lg font-semibold">{c.role}</h2>
