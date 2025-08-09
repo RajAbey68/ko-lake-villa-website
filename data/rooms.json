@@ -1,0 +1,41 @@
+{
+  "updatedFromAirbnb": "sunday-auto", 
+  "rooms": [
+    {
+      "id": "villa",
+      "title": "Entire Villa Exclusive",
+      "guestsMin": 16,
+      "guestsMax": 24,
+      "weeklyAirbnb": 3017,
+      "perks": ["Private Pool","Lake Views"],
+      "airbnbSlug": "eklv"
+    },
+    {
+      "id": "suite",
+      "title": "Master Family Suite",
+      "guestsMin": 6,
+      "guestsMax": 6,
+      "weeklyAirbnb": 833,
+      "perks": ["Lake View","Private Balcony"],
+      "airbnbSlug": "klv6"
+    },
+    {
+      "id": "triple",
+      "title": "Triple/Twin Rooms",
+      "guestsMin": 3,
+      "guestsMax": 4,
+      "weeklyAirbnb": 490,
+      "perks": ["Garden View","Twin/Triple Beds"],
+      "airbnbSlug": "klv2or3"
+    },
+    {
+      "id": "group",
+      "title": "Group Room",
+      "guestsMin": 6,
+      "guestsMax": 6,
+      "weeklyAirbnb": 1750,
+      "perks": ["Multiple Beds","Shared Space"],
+      "airbnbSlug": "klv-group"
+    }
+  ]
+}
