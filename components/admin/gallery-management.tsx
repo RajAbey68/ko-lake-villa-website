@@ -1,734 +1,663 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, ImageIcon, Video, Trash2, Edit, Eye, Sparkles, Copy, RefreshCw } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useToast } from "@/hooks/use-toast"
-import CampaignGenerator from "@/components/admin/campaign-generator"
-import MarketingAssetsGenerator from "@/components/admin/marketing-assets-generator"
+import { Upload, Image as ImageIcon, Trash2, Edit, Eye, X, RefreshCw, AlertTriangle } from 'lucide-react'
+import Image from 'next/image'
 
-interface MediaItem {
-  id: string
-  type: "image" | "video"
-  url: string
-  title: string
-  description: string
+interface GalleryImage {
+  id: number
+  imageUrl: string
+  alt: string
+  description?: string
   category: string
-  tags: string[]
-  seoTitle: string
-  seoDescription: string
-  altText: string
-  uploadDate: string
-  filename: string
-  size: number
-  isPublished: boolean
-  publishedAt?: string
-  unpublishedAt?: string
-  publishedBy?: string
+  tags?: string
+  featured: boolean
+  sortOrder: number
+  mediaType: 'image' | 'video'
+  fileSize?: number
+  createdAt?: string
 }
 
+const CATEGORIES = [
+  { value: 'entire-villa', label: 'Entire Villa' },
+  { value: 'family-suite', label: 'Family Suite' },
+  { value: 'group-room', label: 'Group Room' },
+  { value: 'triple-room', label: 'Triple Room' },
+  { value: 'dining-area', label: 'Dining Area' },
+  { value: 'pool-deck', label: 'Pool Deck' },
+  { value: 'lake-garden', label: 'Lake Garden' },
+  { value: 'roof-garden', label: 'Roof Garden' },
+  { value: 'front-garden', label: 'Front Garden' },
+  { value: 'koggala-lake', label: 'Koggala Lake' },
+  { value: 'excursions', label: 'Excursions' },
+  { value: 'default', label: 'Default' }
+]
+
 export default function GalleryManagement() {
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [isUploading, setIsUploading] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
-  const [editingItem, setEditingItem] = useState<MediaItem | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
-  const [publishingId, setPublishingId] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
+  const [images, setImages] = useState<GalleryImage[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  
+  // Upload states
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const [uploadFile, setUploadFile] = useState<File | null>(null)
+  const [uploadData, setUploadData] = useState({
+    alt: '',
+    description: '',
+    category: 'default',
+    tags: '',
+    featured: false
+  })
+  const [uploading, setUploading] = useState(false)
 
-  const categories = [
-    "Pool & Facilities",
-    "Bedrooms", 
-    "Living Areas",
-    "Kitchen & Dining",
-    "Outdoor Spaces",
-    "Villa Tour",
-    "Local Area",
-    "Activities",
-    "Default"
-  ]
+  // Edit states
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null)
+  const [editData, setEditData] = useState({
+    alt: '',
+    description: '',
+    category: '',
+    tags: '',
+    featured: false
+  })
 
-  const targetTribes = [
-    "Family Groups",
-    "Wellness & Yoga Retreats",
-    "Surf Travellers & Beach Lovers",
-    "Digital Nomads & Remote Workers",
-    "Creative & Soulful Travellers",
-    "Small Celebration Groups",
-    "Eco-Conscious & Nature-Loving Guests",
-  ]
+  // View states
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [viewingImage, setViewingImage] = useState<GalleryImage | null>(null)
 
-  // Load gallery items from API
-  const loadGalleryItems = async () => {
+  // Load images
+  const loadImages = async () => {
     try {
-      setIsLoading(true)
-      const response = await fetch('/api/gallery/list')
+      setLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/gallery')
       if (!response.ok) {
-        throw new Error('Failed to load gallery items')
+        throw new Error('Failed to fetch images')
       }
-      const items = await response.json()
-      setMediaItems(items)
-    } catch (error) {
-      console.error('Error loading gallery items:', error)
-      toast({
-        title: "Error",
-        description: "Failed to load gallery items",
-        variant: "destructive",
-      })
+      
+      const data = await response.json()
+      setImages(Array.isArray(data) ? data : [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load images')
+      setImages([])
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  // Load gallery items on component mount
   useEffect(() => {
-    loadGalleryItems()
+    loadImages()
   }, [])
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files) return
+  // Filter images by category
+  const filteredImages = selectedCategory === 'all' 
+    ? images 
+    : images.filter(img => img.category === selectedCategory)
 
-    setIsUploading(true)
+  // Handle file upload
+  const handleUpload = async () => {
+    if (!uploadFile || !uploadData.alt) {
+      alert('Please select a file and enter a title')
+      return
+    }
 
     try {
-      for (const file of Array.from(files)) {
-        const formData = new FormData()
-        formData.append('image', file)
-        formData.append('category', 'default')
-        formData.append('description', file.name)
+      setUploading(true)
+      
+      const formData = new FormData()
+      formData.append('file', uploadFile)
+      formData.append('alt', uploadData.alt)
+      formData.append('description', uploadData.description)
+      formData.append('category', uploadData.category)
+      formData.append('tags', uploadData.tags)
+      formData.append('featured', uploadData.featured.toString())
 
-        const response = await fetch('/api/gallery/upload', {
-          method: 'POST',
-          body: formData
-        })
+      const response = await fetch('/api/gallery/upload', {
+        method: 'POST',
+        body: formData
+      })
 
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`)
-        }
-
-        const result = await response.json()
-        console.log('Upload result:', result)
+      if (!response.ok) {
+        throw new Error('Upload failed')
       }
 
-      toast({
-        title: "Success",
-        description: "Files uploaded successfully",
+      // Reset form
+      setUploadFile(null)
+      setUploadData({
+        alt: '',
+        description: '',
+        category: 'default',
+        tags: '',
+        featured: false
       })
-
-      // Reload gallery items after upload
-      await loadGalleryItems()
-
-    } catch (error) {
-      console.error('Upload error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to upload files",
-        variant: "destructive",
-      })
+      
+      setUploadDialogOpen(false)
+      await loadImages()
+      
+    } catch (err) {
+      alert('Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
-      setIsUploading(false)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""
-      }
+      setUploading(false)
     }
   }
 
-  const handleDeleteItem = async (itemId: string) => {
+  // Handle edit
+  const openEdit = (image: GalleryImage) => {
+    setEditingImage(image)
+    setEditData({
+      alt: image.alt,
+      description: image.description || '',
+      category: image.category,
+      tags: image.tags || '',
+      featured: image.featured
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleEdit = async () => {
+    if (!editingImage) return
+
     try {
-      const encodedId = encodeURIComponent(itemId)
-      const response = await fetch(`/api/gallery/${encodedId}`, {
+      const response = await fetch(`/api/gallery/${editingImage.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Update failed')
+      }
+
+      setEditDialogOpen(false)
+      await loadImages()
+      
+    } catch (err) {
+      alert('Update failed: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    }
+  }
+
+  // Handle delete
+  const handleDelete = async (image: GalleryImage) => {
+    if (!confirm(`Are you sure you want to delete "${image.alt}"?`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/gallery/${image.id}`, {
         method: 'DELETE'
       })
 
       if (!response.ok) {
-        throw new Error('Failed to delete item')
+        throw new Error('Delete failed')
       }
 
-      const result = await response.json()
+      await loadImages()
       
-      toast({
-        title: "Success",
-        description: "Item deleted successfully",
-      })
-
-      // Remove item from local state
-      setMediaItems(prev => prev.filter(item => item.id !== itemId))
-      setDeleteConfirmId(null)
-
-    } catch (error) {
-      console.error('Delete error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to delete item",
-        variant: "destructive",
-      })
+    } catch (err) {
+      alert('Delete failed: ' + (err instanceof Error ? err.message : 'Unknown error'))
     }
   }
 
-  const generateAISEO = async (item: MediaItem) => {
-    setIsGeneratingAI(true)
-
-    // Simulate AI generation
-    setTimeout(() => {
-      const updatedItem = {
-        ...item,
-        seoTitle: `${item.title} | Ko Lake Villa Luxury Accommodation Sri Lanka`,
-        seoDescription: `${item.description} Perfect for luxury travelers seeking premium villa rental in Ahangama, Sri Lanka. Book direct and save 10%.`,
-        altText: `${item.title} at Ko Lake Villa - luxury villa rental in Ahangama Sri Lanka`,
-      }
-
-      setMediaItems((prev) => prev.map((i) => (i.id === item.id ? updatedItem : i)))
-      setSelectedItem(updatedItem)
-      setIsGeneratingAI(false)
-    }, 2000)
+  // Handle view
+  const openView = (image: GalleryImage) => {
+    setViewingImage(image)
+    setViewDialogOpen(true)
   }
 
-  const handleSaveEdit = async (item: MediaItem) => {
-    if (!item) return
-
-    setIsSaving(true)
-
-    try {
-      const encodedId = encodeURIComponent(item.id)
-      const response = await fetch(`/api/gallery/${encodedId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: item.title,
-          description: item.description,
-          category: item.category,
-          tags: item.tags,
-          seoTitle: item.seoTitle,
-          seoDescription: item.seoDescription,
-          altText: item.altText,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update item')
-      }
-
-      const result = await response.json()
-      
-      toast({
-        title: "Success",
-        description: "Item updated successfully",
-      })
-
-      // Update item in local state
-      setMediaItems(prev => prev.map(i => i.id === item.id ? item : i))
-      setEditingItem(null)
-
-    } catch (error) {
-      console.error('Update error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update item",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handlePublishToggle = async (itemId: string, currentStatus: boolean) => {
-    setPublishingId(itemId)
-    try {
-      const action = currentStatus ? 'unpublish' : 'publish'
-      const response = await fetch('/api/gallery/publish', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageId: itemId,
-          action: action,
-        }),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        
-        // Update the item in the local state
-        setMediaItems(prev => prev.map(item => 
-          item.id === itemId ? { 
-            ...item, 
-            isPublished: result.status.isPublished,
-            publishedAt: result.status.publishedAt,
-            unpublishedAt: result.status.unpublishedAt,
-            publishedBy: result.status.publishedBy
-          } : item
-        ))
-        
-        toast({
-          title: "Success",
-          description: `Item ${action}ed successfully`,
-        })
-      } else {
-        throw new Error(`Failed to ${action} item`)
-      }
-    } catch (error) {
-      console.error('Publish error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update publish status. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setPublishingId(null)
-    }
-  }
-
-  const filteredItems =
-    selectedCategory === "all" ? mediaItems : mediaItems.filter((item) => item.category.toLowerCase().includes(selectedCategory.toLowerCase()))
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full" />
-        <span className="ml-3 text-gray-600">Loading gallery...</span>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <RefreshCw className="w-8 h-8 animate-spin text-orange-500" />
+        <span className="ml-2 text-lg">Loading gallery...</span>
       </div>
     )
   }
 
+  if (error) {
+    return (
+      <Alert className="border-red-500 bg-red-50">
+        <AlertTriangle className="h-4 w-4 text-red-600" />
+        <AlertDescription className="text-red-600">
+          {error}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="ml-4"
+            onClick={loadImages}
+          >
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-amber-800">Gallery Management</h1>
-        <div className="flex gap-2">
-          <Button
-            onClick={loadGalleryItems}
-            variant="outline"
-            disabled={isLoading}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-amber-600 hover:bg-amber-700"
-            disabled={isUploading}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            {isUploading ? "Uploading..." : "Upload Media"}
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/*,video/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
+        <div>
+          <h1 className="text-2xl font-bold">Gallery Management</h1>
+          <p className="text-gray-600">Manage photos and videos for Ko Lake Villa</p>
         </div>
+        <Button onClick={() => setUploadDialogOpen(true)} className="bg-orange-500 hover:bg-orange-600">
+          <Upload className="w-4 h-4 mr-2" />
+          Upload Image
+        </Button>
       </div>
 
-      <Tabs defaultValue="gallery" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="gallery">Gallery</TabsTrigger>
-          <TabsTrigger value="seo">SEO Optimization</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaign Generator</TabsTrigger>
-          <TabsTrigger value="marketing">Marketing Assets</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="gallery" className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Badge variant="outline">{filteredItems.length} items</Badge>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <div className="relative aspect-video bg-gray-100">
-                  {item.type === "image" ? (
-                    <img
-                      src={item.url || "//images/hero.svg"}
-                      alt={item.altText || item.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <video
-                      src={item.url}
-                      controls
-                      preload="metadata"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.error('Video load error:', e);
-                        // Fallback to placeholder if video fails to load
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    >
-                      <source src={item.url} type="video/mp4" />
-                      <source src={item.url} type="video/webm" />
-                      <source src={item.url} type="video/ogg" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-                  {item.type === "video" && (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200 hidden">
-                      <Video className="w-12 h-12 text-gray-400" />
-                      <span className="ml-2 text-gray-500">Video not supported</span>
-                    </div>
-                  )}
-                  <div className="absolute top-2 left-2">
-                    <Badge variant="secondary" className="bg-white/90">
-                      {item.type === "image" ? (
-                        <ImageIcon className="w-3 h-3 mr-1" />
-                      ) : (
-                        <Video className="w-3 h-3 mr-1" />
-                      )}
-                      {item.type}
-                    </Badge>
-                  </div>
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    <Badge className="bg-amber-600 text-white text-xs">{item.category}</Badge>
-                    <Badge className={`text-xs ${item.isPublished ? 'bg-green-600 text-white' : 'bg-gray-400 text-white'}`}>
-                      {item.isPublished ? 'Live' : 'Draft'}
-                    </Badge>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold mb-1 line-clamp-1">{item.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs">
-                      {(item.size / 1024).toFixed(1)} KB
-                    </Badge>
-                    <div className="flex gap-1">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handlePublishToggle(item.id, item.isPublished)}
-                        disabled={publishingId === item.id}
-                        className={item.isPublished ? 'text-orange-600 hover:text-orange-700' : 'text-green-600 hover:text-green-700'}
-                      >
-                        {publishingId === item.id ? (
-                          <div className="w-3 h-3 animate-spin border-2 border-current border-t-transparent rounded-full" />
-                        ) : item.isPublished ? (
-                          <Eye className="w-3 h-3" />
-                        ) : (
-                          <Sparkles className="w-3 h-3" />
-                        )}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => setEditingItem(item)}>
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => setDeleteConfirmId(item.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredItems.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No items found for this category.</p>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <ImageIcon className="h-8 w-8 text-blue-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Images</p>
+                <p className="text-2xl font-bold">{images.length}</p>
+              </div>
             </div>
-          )}
-        </TabsContent>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Badge className="h-8 w-8 text-green-600 bg-green-100" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Featured</p>
+                <p className="text-2xl font-bold">{images.filter(img => img.featured).length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-purple-100 rounded flex items-center justify-center">
+                <span className="text-purple-600 font-bold text-sm">{CATEGORIES.length}</span>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Categories</p>
+                <p className="text-2xl font-bold">{new Set(images.map(img => img.category)).size}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <RefreshCw className="h-8 w-8 text-orange-600" />
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Filtered</p>
+                <p className="text-2xl font-bold">{filteredImages.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="seo" className="space-y-4">
-          {selectedItem ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-600" />
-                  AI SEO Optimization - {selectedItem.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="seo-title">SEO Title</Label>
-                    <Input
-                      id="seo-title"
-                      value={selectedItem.seoTitle}
-                      onChange={(e) => setSelectedItem({ ...selectedItem, seoTitle: e.target.value })}
-                      placeholder="Enter SEO title"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">{selectedItem.seoTitle.length}/60 characters</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="alt-text">Alt Text</Label>
-                    <Input
-                      id="alt-text"
-                      value={selectedItem.altText}
-                      onChange={(e) => setSelectedItem({ ...selectedItem, altText: e.target.value })}
-                      placeholder="Enter alt text for accessibility"
-                    />
-                  </div>
-                </div>
+      {/* Category Filter */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filter by Category</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory('all')}
+              size="sm"
+            >
+              All ({images.length})
+            </Button>
+            {CATEGORIES.map(category => {
+              const count = images.filter(img => img.category === category.value).length
+              if (count === 0) return null
+              
+              return (
+                <Button
+                  key={category.value}
+                  variant={selectedCategory === category.value ? 'default' : 'outline'}
+                  onClick={() => setSelectedCategory(category.value)}
+                  size="sm"
+                >
+                  {category.label} ({count})
+                </Button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
-                <div>
-                  <Label htmlFor="seo-description">SEO Description</Label>
-                  <Textarea
-                    id="seo-description"
-                    value={selectedItem.seoDescription}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, seoDescription: e.target.value })}
-                    placeholder="Enter SEO description"
-                    rows={3}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">{selectedItem.seoDescription.length}/160 characters</p>
-                </div>
-
-                <div className="flex gap-2">
+      {/* Images Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredImages.map((image) => (
+          <Card key={image.id} className="overflow-hidden">
+            <div className="relative aspect-video bg-gray-100">
+              <Image
+                src={image.imageUrl}
+                alt={image.alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                onError={(e: any) => {
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+              {image.featured && (
+                <Badge className="absolute top-2 left-2 bg-yellow-500">
+                  Featured
+                </Badge>
+              )}
+              <Badge className="absolute top-2 right-2 bg-blue-500">
+                {image.category}
+              </Badge>
+            </div>
+            <CardContent className="p-3">
+              <h3 className="font-semibold text-sm truncate">{image.alt}</h3>
+              {image.description && (
+                <p className="text-xs text-gray-600 truncate">{image.description}</p>
+              )}
+              <div className="flex justify-between items-center mt-2">
+                <div className="flex gap-1">
                   <Button
-                    onClick={() => generateAISEO(selectedItem)}
-                    disabled={isGeneratingAI}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openView(image)}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {isGeneratingAI ? "Generating..." : "Generate AI SEO"}
+                    <Eye className="w-3 h-3" />
                   </Button>
-                  <Button variant="outline">
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy SEO Data
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openEdit(image)}
+                  >
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(image)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="w-3 h-3" />
                   </Button>
                 </div>
+                <span className="text-xs text-gray-500">#{image.id}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-                {isGeneratingAI && (
-                  <Alert>
-                    <Sparkles className="h-4 w-4" />
-                    <AlertDescription>
-                      AI is analyzing your content and generating optimized SEO metadata...
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Eye className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Select Media for SEO Optimization</h3>
-                <p className="text-gray-600">
-                  Choose an image or video from the gallery to optimize its SEO metadata with AI.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+      {filteredImages.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">No images found</h3>
+            <p className="text-gray-500">
+              {selectedCategory === 'all' 
+                ? 'Upload some images to get started.' 
+                : `No images in the "${selectedCategory}" category.`
+              }
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="campaigns">
-          <CampaignGenerator />
-        </TabsContent>
+      {/* Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload New Image</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="upload-file">Select Image</Label>
+              <Input
+                id="upload-file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="upload-title">Title *</Label>
+              <Input
+                id="upload-title"
+                value={uploadData.alt}
+                onChange={(e) => setUploadData(prev => ({ ...prev, alt: e.target.value }))}
+                placeholder="Enter image title"
+              />
+            </div>
 
-        <TabsContent value="marketing">
-          <MarketingAssetsGenerator />
-        </TabsContent>
-      </Tabs>
+            <div>
+              <Label htmlFor="upload-description">Description</Label>
+              <Textarea
+                id="upload-description"
+                value={uploadData.description}
+                onChange={(e) => setUploadData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Enter description"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="upload-category">Category</Label>
+              <Select
+                value={uploadData.category}
+                onValueChange={(value) => setUploadData(prev => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map(category => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="upload-tags">Tags</Label>
+              <Input
+                id="upload-tags"
+                value={uploadData.tags}
+                onChange={(e) => setUploadData(prev => ({ ...prev, tags: e.target.value }))}
+                placeholder="Enter tags separated by commas"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="upload-featured"
+                checked={uploadData.featured}
+                onChange={(e) => setUploadData(prev => ({ ...prev, featured: e.target.checked }))}
+              />
+              <Label htmlFor="upload-featured">Featured image</Label>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleUpload}
+                disabled={uploading || !uploadFile || !uploadData.alt}
+                className="flex-1"
+              >
+                {uploading ? 'Uploading...' : 'Upload'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setUploadDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
-      {editingItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Edit className="w-5 h-5 text-amber-600" />
-                Edit Media Item
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Media Preview */}
-              <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                {editingItem.type === "image" ? (
-                  <img
-                    src={editingItem.url || "//images/hero.svg"}
-                    alt={editingItem.altText || editingItem.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <video
-                    src={editingItem.url}
-                    controls
-                    preload="metadata"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      console.error('Video load error in edit dialog:', e);
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                    }}
-                  >
-                    <source src={editingItem.url} type="video/mp4" />
-                    <source src={editingItem.url} type="video/webm" />
-                    <source src={editingItem.url} type="video/ogg" />
-                    Your browser does not support the video tag.
-                  </video>
-                )}
-                {editingItem.type === "video" && (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200 hidden">
-                    <Video className="w-12 h-12 text-gray-400" />
-                    <span className="ml-2 text-gray-500">Video preview not available</span>
-                  </div>
-                )}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Image</DialogTitle>
+          </DialogHeader>
+          {editingImage && (
+            <div className="space-y-4">
+              <div className="relative aspect-video bg-gray-100 rounded overflow-hidden">
+                <Image
+                  src={editingImage.imageUrl}
+                  alt={editingImage.alt}
+                  fill
+                  className="object-cover"
+                />
               </div>
-
-              {/* Edit Form */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-title">Title</Label>
-                  <Input
-                    id="edit-title"
-                    value={editingItem.title}
-                    onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                    placeholder="Enter title"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-category">Category</Label>
-                  <Select 
-                    value={editingItem.category} 
-                    onValueChange={(value) => setEditingItem({ ...editingItem, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category.toLowerCase()}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={editData.alt}
+                  onChange={(e) => setEditData(prev => ({ ...prev, alt: e.target.value }))}
+                />
               </div>
 
               <div>
-                <Label htmlFor="edit-description">Description</Label>
+                <Label>Description</Label>
                 <Textarea
-                  id="edit-description"
-                  value={editingItem.description}
-                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                  placeholder="Enter description"
+                  value={editData.description}
+                  onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="edit-alt-text">Alt Text</Label>
+                <Label>Category</Label>
+                <Select
+                  value={editData.category}
+                  onValueChange={(value) => setEditData(prev => ({ ...prev, category: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map(category => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Tags</Label>
                 <Input
-                  id="edit-alt-text"
-                  value={editingItem.altText}
-                  onChange={(e) => setEditingItem({ ...editingItem, altText: e.target.value })}
-                  placeholder="Enter alt text for accessibility"
+                  value={editData.tags}
+                  onChange={(e) => setEditData(prev => ({ ...prev, tags: e.target.value }))}
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-seo-title">SEO Title</Label>
-                  <Input
-                    id="edit-seo-title"
-                    value={editingItem.seoTitle}
-                    onChange={(e) => setEditingItem({ ...editingItem, seoTitle: e.target.value })}
-                    placeholder="Enter SEO title"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">{editingItem.seoTitle.length}/60 characters</p>
-                </div>
-                <div>
-                  <Label htmlFor="edit-seo-description">SEO Description</Label>
-                  <Textarea
-                    id="edit-seo-description"
-                    value={editingItem.seoDescription}
-                    onChange={(e) => setEditingItem({ ...editingItem, seoDescription: e.target.value })}
-                    placeholder="Enter SEO description"
-                    rows={2}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">{editingItem.seoDescription.length}/160 characters</p>
-                </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="edit-featured"
+                  checked={editData.featured}
+                  onChange={(e) => setEditData(prev => ({ ...prev, featured: e.target.checked }))}
+                />
+                <Label htmlFor="edit-featured">Featured image</Label>
               </div>
 
-              <div className="flex gap-2 justify-end pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setEditingItem(null)}
-                  disabled={isSaving}
+              <div className="flex gap-2">
+                <Button onClick={handleEdit} className="flex-1">
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditDialogOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  onClick={() => handleSaveEdit(editingItem)}
-                  disabled={isSaving}
-                  className="bg-amber-600 hover:bg-amber-700"
-                >
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle className="text-red-600">Confirm Delete</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">
-                Are you sure you want to delete this item? This action cannot be undone.
-              </p>
-              <div className="flex gap-2 justify-end">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setDeleteConfirmId(null)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  onClick={() => handleDeleteItem(deleteConfirmId)}
-                >
-                  Delete
-                </Button>
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>{viewingImage?.alt}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewDialogOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          {viewingImage && (
+            <div className="space-y-4">
+              <div className="relative max-h-[60vh] bg-gray-100 rounded overflow-hidden">
+                <Image
+                  src={viewingImage.imageUrl}
+                  alt={viewingImage.alt}
+                  width={800}
+                  height={600}
+                  className="object-contain w-full h-full"
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <strong>Category:</strong> {viewingImage.category}
+                </div>
+                <div>
+                  <strong>Featured:</strong> {viewingImage.featured ? 'Yes' : 'No'}
+                </div>
+                <div>
+                  <strong>ID:</strong> {viewingImage.id}
+                </div>
+                <div>
+                  <strong>Type:</strong> {viewingImage.mediaType}
+                </div>
+              </div>
+              
+              {viewingImage.description && (
+                <div>
+                  <strong>Description:</strong>
+                  <p className="mt-1 text-gray-600">{viewingImage.description}</p>
+                </div>
+              )}
+              
+              {viewingImage.tags && (
+                <div>
+                  <strong>Tags:</strong>
+                  <p className="mt-1 text-gray-600">{viewingImage.tags}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

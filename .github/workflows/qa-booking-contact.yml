@@ -1,0 +1,32 @@
+name: QA – Booking/Contact (GuestyPro parity)
+on:
+  pull_request:
+    branches: [ main, GuestyPro, fix/**, feat/** ]
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: 'npm' }
+      - run: npm ci || npm install
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Install Playwright deps
+        run: npx playwright install --with-deps
+      - name: E2E (Preview parity)
+        env:
+          PW_NO_SERVER: "1"
+          BASE_URL: ${{ github.event.pull_request.head.repo.html_url && github.event.pull_request.number && format('https://vercel.com/{0}/projects/{1}', 'rajabey68', 'ko-lake-villa-website') }}
+        run: |
+          # If Vercel preview URL is not known in CI, fall back to local webServer mode:
+          if [ -z "$BASE_URL" ]; then
+            echo "No external BASE_URL provided – running with dev server"
+            unset PW_NO_SERVER
+          fi
+          npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report

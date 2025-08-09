@@ -20,7 +20,7 @@
     "test:admin": "playwright test tests/admin.spec.ts --reporter=html",
     "predeployment": "npm run test:quick",
     "test:unit": "jest --coverage",
-    "test:e2e": "playwright test",
+    "test:e2e": "PW_NO_SERVER= npx playwright test",
     "test:all": "npm run test:unit && npm run test:e2e",
     "test": "playwright test",
     "test:local": "BASE_URL=http://localhost:3000 playwright test",
