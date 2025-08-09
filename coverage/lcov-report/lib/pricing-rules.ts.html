@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>22/22</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/10</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>0/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -91,59 +91,59 @@
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export type RoomPricingInput = { weeklyAirbnb: number; now?: Date; checkIn?: Date };
-export const DIRECT_DISCOUNT = 10;
-export const LATE_DISCOUNT = 15;
-export const LATE_WINDOW_DAYS = 4; // Sun + 3 days → Sun..Wed inclusive
+export const <span class="cstat-no" title="statement not covered" >DIRECT_DISCOUNT = 10;</span>
+export const <span class="cstat-no" title="statement not covered" >LATE_DISCOUNT = 15;</span>
+export const <span class="cstat-no" title="statement not covered" >LATE_WINDOW_DAYS = 4; </span>// Sun + 3 days → Sun..Wed inclusive
 &nbsp;
-export function lastSunday(d=<span class="branch-0 cbranch-no" title="branch not covered" >new Date())</span>{
-  const x=new Date(d); const day=x.getDay(); // 0=Sun
-  x.setDate(x.getDate() - day); x.setHours(0,0,0,0); return x;
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >l</span>astSunday(</span>d=<span class="branch-0 cbranch-no" title="branch not covered" >new Date())</span>{
+  const x=<span class="cstat-no" title="statement not covered" >new Date(d);</span> const day=<span class="cstat-no" title="statement not covered" >x.getDay();</span> // 0=Sun
+<span class="cstat-no" title="statement not covered" >  x.setDate(x.getDate() - day); <span class="cstat-no" title="statement not covered" ></span>x.setHours(0,0,0,0); <span class="cstat-no" title="statement not covered" ></span>return x;</span>
 }
-export function inLateWindow(d=<span class="branch-0 cbranch-no" title="branch not covered" >new Date())</span>{
-  const sunday = lastSunday(d).getTime();
-  const diffDays = Math.floor((d.getTime()-sunday)/(24*60*60*1000));
-  return diffDays &gt;= 0 &amp;&amp; diffDays &lt; LATE_WINDOW_DAYS; // Sun..Wed inclusive
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >i</span>nLateWindow(</span>d=<span class="branch-0 cbranch-no" title="branch not covered" >new Date())</span>{
+  const sunday = <span class="cstat-no" title="statement not covered" >lastSunday(d).getTime();</span>
+  const diffDays = <span class="cstat-no" title="statement not covered" >Math.floor((d.getTime()-sunday)/(24*60*60*1000));</span>
+<span class="cstat-no" title="statement not covered" >  return diffDays &gt;= 0 &amp;&amp; diffDays &lt; LATE_WINDOW_DAYS; </span>// Sun..Wed inclusive
 }
 &nbsp;
-export function priceFromWeekly({ weeklyAirbnb, now, checkIn }: RoomPricingInput){
-  const today = now ?? new Date();
-  const nightly = Math.round((weeklyAirbnb/7)*100)/100;
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >p</span>riceFromWeekly(</span>{ weeklyAirbnb, now, checkIn }: RoomPricingInput){
+  const today = <span class="cstat-no" title="statement not covered" >now ?? new Date();</span>
+  const nightly = <span class="cstat-no" title="statement not covered" >Math.round((weeklyAirbnb/7)*100)/100;</span>
 &nbsp;
-  const directPct = DIRECT_DISCOUNT;
-  const latePct = inLateWindow(today) ? LATE_DISCOUNT : 0;
-  const totalPct = directPct + latePct;
+  const directPct = <span class="cstat-no" title="statement not covered" >DIRECT_DISCOUNT;</span>
+  const latePct = <span class="cstat-no" title="statement not covered" >inLateWindow(today) ? LATE_DISCOUNT : 0;</span>
+  const totalPct = <span class="cstat-no" title="statement not covered" >directPct + latePct;</span>
 &nbsp;
-  const final = Math.max(0, Math.round(nightly*(1-totalPct/100)*100)/100);
-  const savings = Math.round((nightly-final)*100)/100;
+  const final = <span class="cstat-no" title="statement not covered" >Math.max(0, Math.round(nightly*(1-totalPct/100)*100)/100);</span>
+  const savings = <span class="cstat-no" title="statement not covered" >Math.round((nightly-final)*100)/100;</span>
 &nbsp;
-  return { nightlyAirbnb: nightly, directPct, latePct, totalPct, final, savings };
+<span class="cstat-no" title="statement not covered" >  return { nightlyAirbnb: nightly, directPct, latePct, totalPct, final, savings };</span>
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -151,7 +151,7 @@ export function priceFromWeekly({ weeklyAirbnb, now, checkIn }: RoomPricingInput
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-09T17:01:51.898Z
+                at 2025-08-09T17:12:56.464Z
             </div>
         <script src="../prettify.js"></script>
         <script>

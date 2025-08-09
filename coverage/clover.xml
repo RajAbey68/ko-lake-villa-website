@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1754758911914" clover="3.2.0">
-  <project timestamp="1754758911914" name="All files">
-    <metrics statements="477" coveredstatements="19" conditionals="209" coveredconditionals="8" methods="82" coveredmethods="3" elements="768" coveredelements="30" complexity="0" loc="477" ncloc="477" packages="15" files="25" classes="25"/>
+<coverage generated="1754759576481" clover="3.2.0">
+  <project timestamp="1754759576481" name="All files">
+    <metrics statements="495" coveredstatements="9" conditionals="235" coveredconditionals="2" methods="87" coveredmethods="3" elements="817" coveredelements="14" complexity="0" loc="495" ncloc="495" packages="15" files="26" classes="26"/>
     <package name="app.api.booking">
       <metrics statements="11" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="1" coveredmethods="0"/>
       <file name="route.ts" path="/workspace/app/api/booking/route.ts">
@@ -20,33 +20,42 @@
       </file>
     </package>
     <package name="app.api.contact">
-      <metrics statements="24" coveredstatements="0" conditionals="20" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <metrics statements="33" coveredstatements="0" conditionals="44" coveredconditionals="0" methods="5" coveredmethods="0"/>
       <file name="route.ts" path="/workspace/app/api/contact/route.ts">
-        <metrics statements="24" coveredstatements="0" conditionals="20" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <metrics statements="33" coveredstatements="0" conditionals="44" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="11" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
         <line num="15" count="0" type="stmt"/>
-        <line num="17" count="0" type="cond" truecount="0" falsecount="6"/>
+        <line num="17" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
         <line num="22" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="24" count="0" type="cond" truecount="0" falsecount="6"/>
         <line num="25" count="0" type="stmt"/>
-        <line num="29" count="0" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="6"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="30" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="6"/>
         <line num="32" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="37" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
       </file>
     </package>
     <package name="app.api.gallery">
@@ -488,7 +497,7 @@
       </file>
     </package>
     <package name="lib">
-      <metrics statements="85" coveredstatements="19" conditionals="48" coveredconditionals="8" methods="14" coveredmethods="3"/>
+      <metrics statements="94" coveredstatements="9" conditionals="50" coveredconditionals="2" methods="17" coveredmethods="3"/>
       <file name="gallery.ts" path="/workspace/lib/gallery.ts">
         <metrics statements="9" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
@@ -501,27 +510,39 @@
         <line num="11" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="13" count="0" type="stmt"/>
       </file>
+      <file name="intlPhone.ts" path="/workspace/lib/intlPhone.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="5" type="stmt"/>
+        <line num="4" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+      </file>
       <file name="pricing-rules.ts" path="/workspace/lib/pricing-rules.ts">
-        <metrics statements="19" coveredstatements="19" conditionals="10" coveredconditionals="8" methods="3" coveredmethods="3"/>
-        <line num="2" count="1" type="stmt"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="4" count="1" type="stmt"/>
-        <line num="6" count="1" type="cond" truecount="0" falsecount="1"/>
-        <line num="7" count="13" type="stmt"/>
-        <line num="8" count="13" type="stmt"/>
-        <line num="10" count="1" type="cond" truecount="0" falsecount="1"/>
-        <line num="11" count="11" type="stmt"/>
-        <line num="12" count="11" type="stmt"/>
-        <line num="13" count="11" type="cond" truecount="2" falsecount="0"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="17" count="7" type="cond" truecount="4" falsecount="0"/>
-        <line num="18" count="7" type="stmt"/>
-        <line num="20" count="7" type="stmt"/>
-        <line num="21" count="7" type="cond" truecount="2" falsecount="0"/>
-        <line num="22" count="7" type="stmt"/>
-        <line num="24" count="7" type="stmt"/>
-        <line num="25" count="7" type="stmt"/>
-        <line num="27" count="7" type="stmt"/>
+        <metrics statements="19" coveredstatements="0" conditionals="10" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="6" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="10" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
       </file>
       <file name="pricing.ts" path="/workspace/lib/pricing.ts">
         <metrics statements="17" coveredstatements="0" conditionals="16" coveredconditionals="0" methods="2" coveredmethods="0"/>
