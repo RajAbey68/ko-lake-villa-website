@@ -4,9 +4,9 @@ const ROUTES = ['/', '/accommodation', '/gallery', '/contact', '/admin'];
 
 test.describe('Top navigation works', () => {
   for (const r of ROUTES) {
-    test(\`route \${r} loads\`, async ({ page }) => {
+    test(`route ${r} loads`, async ({ page }) => {
       await page.goto(r);
-      await expect(page).toHaveURL(new RegExp(\`\${r === '/' ? '/?$' : r + '$'}\`));
+      await expect(page).toHaveURL(new RegExp(`${r === '/' ? '/?$' : r + '$'}`));
       // No full-screen overlay intercepting clicks at top
       const top = await page.evaluate(() => {
         const el = document.elementFromPoint(10, 10) as HTMLElement | null;
