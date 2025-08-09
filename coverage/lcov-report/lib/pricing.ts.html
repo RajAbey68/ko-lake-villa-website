@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for app/api/booking/route.ts</title>
+    <title>Code coverage report for lib/pricing.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../prettify.css" />
-    <link rel="stylesheet" href="../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../sort-arrow-sprite.png);
+            background-image: url(../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">app/api/booking</a> route.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">lib</a> pricing.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -95,21 +95,7 @@
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
-<a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a>
-<a name='L35'></a><a href='#L35'>35</a>
-<a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a>
-<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L33'></a><a href='#L33'>33</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -122,65 +108,58 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { NextResponse } from 'next/server';</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export type PriceCalc = {
+  base: number;                           // nightly base price
+  checkIn?: Date;                          // optional check-in date
+  now?: Date;                              // for testing
+};
 &nbsp;
-interface BookingRequest {
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-  checkinDate: string;
-  checkoutDate: string;
-  guestCount: string;
-  roomType: string;
-  specialRequests?: string;
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >c</span>omputeDiscounts(</span>{ base, checkIn, now }: PriceCalc) {
+  const today = <span class="cstat-no" title="statement not covered" >now ?? new Date();</span>
+  const ci = <span class="cstat-no" title="statement not covered" >checkIn ?? today;</span>
+&nbsp;
+  // Always-on direct booking discount
+  const directPct = <span class="cstat-no" title="statement not covered" >10;</span> // %
+  let extraPct = <span class="cstat-no" title="statement not covered" >0;</span>
+&nbsp;
+  const msPerDay = <span class="cstat-no" title="statement not covered" >24*60*60*1000;</span>
+  const daysAhead = <span class="cstat-no" title="statement not covered" >Math.floor((ci.getTime() - today.getTime())/msPerDay);</span>
+&nbsp;
+  const dow = <span class="cstat-no" title="statement not covered" >ci.getDay();</span> // 0=Sun ... 6=Sat
+  const isSunThu = <span class="cstat-no" title="statement not covered" >dow &gt;= 0 &amp;&amp; dow &lt;= 4;</span> // Sun..Thu
+  const isWithin3Days = <span class="cstat-no" title="statement not covered" >daysAhead &gt;= 0 &amp;&amp; daysAhead &lt;= 3;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  if (isSunThu &amp;&amp; isWithin3Days) {</span>
+<span class="cstat-no" title="statement not covered" >    extraPct = 15;</span>
+  }
+&nbsp;
+  const totalPct = <span class="cstat-no" title="statement not covered" >directPct + extraPct;</span>
+  const final = <span class="cstat-no" title="statement not covered" >round2(base * (1 - totalPct/100));</span>
+  const savings = <span class="cstat-no" title="statement not covered" >round2(base - final);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return { base, directPct, extraPct, totalPct, final, savings, isSunThu, isWithin3Days };</span>
 }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export async function <span class="fstat-no" title="function not covered" >P</span>OST(</span>request: Request) {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const body: BookingRequest = <span class="cstat-no" title="statement not covered" >await request.json();</span>
-&nbsp;
-    // Basic validation
-    const { guestName, guestEmail, checkinDate, checkoutDate, roomType, guestCount } = <span class="cstat-no" title="statement not covered" >body;</span>
-<span class="cstat-no" title="statement not covered" >    if (!guestName || !guestEmail || !checkinDate || !checkoutDate || !roomType || !guestCount) {</span>
-<span class="cstat-no" title="statement not covered" >      return NextResponse.json({ error: 'Missing required booking fields.' }, { status: 400 });</span>
-    }
-&nbsp;
-    // In a real application, you would:
-    // 1. Check room availability with Guesty API
-    // 2. Calculate the total price
-    // 3. Create a reservation in Guesty
-    // 4. Handle payment processing (e.g., with Stripe)
-    // 5. Send a confirmation email
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    console.log('Received booking request:', body);</span>
-&nbsp;
-    // For now, we simulate a successful booking
-<span class="cstat-no" title="statement not covered" >    return NextResponse.json({ success: true, message: 'Booking request received successfully.' });</span>
-&nbsp;
-  } catch (error) {
-<span class="cstat-no" title="statement not covered" >    console.error('Booking API error:', error);</span>
-<span class="cstat-no" title="statement not covered" >    return NextResponse.json({ error: 'Failed to process booking request.' }, { status: 500 });</span>
-  }
-} </pre></td></tr></table></pre>
+function <span class="fstat-no" title="function not covered" >round2(</span>n:number){ <span class="cstat-no" title="statement not covered" >return Math.round(n*100)/100; </span>}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
@@ -189,14 +168,14 @@ interface BookingRequest {
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2025-08-09T16:51:35.358Z
             </div>
-        <script src="../../../prettify.js"></script>
+        <script src="../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../sorter.js"></script>
-        <script src="../../../block-navigation.js"></script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
     </body>
 </html>
     

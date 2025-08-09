@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for lib/validate.ts</title>
+    <title>Code coverage report for lib/rooms.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">lib</a> validate.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">lib</a> rooms.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -32,21 +32,21 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
@@ -81,8 +81,14 @@
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
 <a name='L18'></a><a href='#L18'>18</a>
-<a name='L19'></a><a href='#L19'>19</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -91,6 +97,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -98,25 +105,39 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { z } from 'zod';</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import path from 'node:path';</span>
+<span class="cstat-no" title="statement not covered" >import { promises as fs } from 'node:fs';</span>
 &nbsp;
-export const <span class="cstat-no" title="statement not covered" >ContactSchema = z.object({</span>
-  name: z.string().min(1).max(200),
-  email: z.string().email().max(320),
-  message: z.string().min(1).max(5000),
-  source: z.string().optional()
-});
-export type ContactPayload = z.infer&lt;typeof ContactSchema&gt;;
+export type Room = {
+  id: string; title: string;
+  guestsMin: number; guestsMax: number;
+  weeklyAirbnb: number;
+  perks: string[]; airbnbSlug: string;
+};
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >a</span>llowedOrigin(</span>origin?: string | null) {
-<span class="cstat-no" title="statement not covered" >  if (!origin) <span class="cstat-no" title="statement not covered" >return false;</span></span>
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const u = <span class="cstat-no" title="statement not covered" >new URL(origin);</span>
-    const allow = <span class="cstat-no" title="statement not covered" >(process.env.ALLOWED_ORIGINS ?? '').split(',').map(<span class="fstat-no" title="function not covered" >s </span>=&gt; <span class="cstat-no" title="statement not covered" >s.trim())</span>.filter(Boolean);</span>
-<span class="cstat-no" title="statement not covered" >    if (!allow.length) <span class="cstat-no" title="statement not covered" >return true; </span></span>// permissive until configured
-<span class="cstat-no" title="statement not covered" >    return allow.includes(u.origin);</span>
-  } catch { <span class="cstat-no" title="statement not covered" >return false; </span>}
+<span class="cstat-no" title="statement not covered" >export async function <span class="fstat-no" title="function not covered" >g</span>etRooms(</span>): Promise&lt;Room[]&gt; {
+<span class="cstat-no" title="statement not covered" >  try{</span>
+    const p = <span class="cstat-no" title="statement not covered" >path.join(process.cwd(),'data','rooms.json');</span>
+    const raw = <span class="cstat-no" title="statement not covered" >await fs.readFile(p,'utf8');</span>
+    const j = <span class="cstat-no" title="statement not covered" >JSON.parse(raw);</span>
+<span class="cstat-no" title="statement not covered" >    return Array.isArray(j.rooms) ? j.rooms : [];</span>
+  }catch{ <span class="cstat-no" title="statement not covered" >return []; </span>}
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >g</span>uestsLabel(</span>min:number,max:number){
+<span class="cstat-no" title="statement not covered" >  return min===max ? `${min} guests` : `${min}–${max} guests`;</span>
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >a</span>irbnbUrl(</span>slug:string){
+<span class="cstat-no" title="statement not covered" >  return `https://airbnb.co.uk/h/${slug}`;</span>
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
