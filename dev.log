@@ -1,0 +1,20 @@
+nohup: ignoring input
+
+> ko-lake-villa-website@1.0.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://172.30.0.2:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1140ms
+ ○ Compiling /contact ...
+ ✓ Compiled /contact in 5.3s (728 modules)
+ GET /contact 200 in 5562ms
+ ✓ Compiled in 1421ms (322 modules)
+ ✓ Compiled /accommodation in 244ms (717 modules)
+ GET /accommodation 200 in 354ms
+ GET /accommodation 200 in 31ms
+ GET /accommodation 200 in 41ms
