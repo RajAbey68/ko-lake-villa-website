@@ -15,7 +15,7 @@ export async function OPTIONS() {
 export async function POST(req: Request) {
   // Method enforcement & rate limit by IP
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || '127.0.0.1';
-  const rl = rateLimit(\`contact:\${ip}\`, 10, 60_000);
+  const rl = rateLimit(`contact:${ip}`, 10, 60_000);
   if (!rl.ok) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
 
   // CSRF / Origin check

@@ -4,7 +4,7 @@ import { getStaticGallery } from '@/lib/gallery';
 async function getGalleryData() {
   // Try dynamic API first; fall back to static file
   try {
-    const res = await fetch(\`\${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/gallery\`, { next: { revalidate: 60 } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/api/gallery`, { next: { revalidate: 60 } });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length) return data;
