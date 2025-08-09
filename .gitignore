@@ -26,3 +26,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts.cursor/
 .cursor/
+
+# Cursor MCP Configuration (contains secrets)
+.cursor/
+.cursor/mcp*.json
