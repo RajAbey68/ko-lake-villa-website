@@ -1,0 +1,8 @@
+tools/
+tests/
+test-results/
+playwright-report/
+uploads/
+*.md
+stabilize.sh
+test-utils/
