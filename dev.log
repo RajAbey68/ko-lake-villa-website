@@ -18,3 +18,8 @@ nohup: ignoring input
  GET /accommodation 200 in 354ms
  GET /accommodation 200 in 31ms
  GET /accommodation 200 in 41ms
+ ✓ Compiled in 1105ms (322 modules)
+ ✓ Compiled in 325ms (322 modules)
+ ✓ Compiled /api/gallery in 329ms (393 modules)
+ GET /api/gallery 200 in 381ms
+ ✓ Compiled in 382ms (322 modules)
