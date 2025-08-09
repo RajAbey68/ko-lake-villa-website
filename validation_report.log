@@ -1,0 +1,85 @@
+▶ Node & deps
+v22.16.0
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+added 763 packages, and audited 764 packages in 10s
+
+91 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+▶ Typecheck
+tests/app/gallery/error.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/MainHeader.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/admin/campaign-generator.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/admin/gallery-management.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/admin/guesty-integration.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/admin/marketing-assets-generator.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/admin/quick-copy-assets.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/brand.test.tsx(4,25): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/mobile-menu.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/navigation/global-header.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/public-gallery.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/testing/comprehensive-test-suite.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/theme-provider.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/accordion.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/alert-dialog.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/alert.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/aspect-ratio.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/avatar.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/badge.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/breadcrumb.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/button.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/calendar.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/card.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/carousel.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/chart.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/checkbox.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/collapsible.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/command.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/context-menu.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/dialog.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/drawer.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/dropdown-menu.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/form.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/hover-card.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/input-otp.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/input.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/label.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/menubar.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/navigation-menu.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/pagination.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/popover.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/progress.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/radio-group.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/resizable.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/scroll-area.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/select.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/separator.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/sheet.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/sidebar.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/skeleton.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/slider.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/sonner.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/switch.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/table.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/tabs.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/textarea.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/toast.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/toaster.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/toggle-group.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/toggle.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/tooltip.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/use-mobile.test.tsx(4,25): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+tests/components/ui/use-toast.test.tsx(4,25): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+tests/e2e/contact-guestypro.spec.ts(14,50): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/e2e/contact-guestypro.spec.ts(15,50): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/e2e/contact-guestypro.spec.ts(19,24): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/e2e/contact-restored.spec.ts(32,31): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/e2e/crawl.spec.ts(20,56): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/e2e/gallery-fallback.spec.ts(5,37): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/lib/utils.test.tsx(4,25): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+tests/regression.spec.ts(53,26): error TS2339: Property 'toHaveCountGreaterThan' does not exist on type 'MakeMatchers<void, Locator, {}>'.
+tests/unit/pricing.spec.ts(1,10): error TS2305: Module '"@/lib/pricing"' has no exported member 'computeDirectAndLastMinute'.
