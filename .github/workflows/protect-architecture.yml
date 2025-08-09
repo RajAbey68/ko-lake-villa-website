@@ -1,0 +1,36 @@
+name: Protect Architecture
+on:
+  pull_request:
+    branches: [ main, GuestyPro, fix/**, feat/**, chore/** ]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Detect protected file changes
+        id: diff
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          CHANGED="$(git diff --name-only "$base" "$head")"
+          echo "$CHANGED" | sed '/^$/d' > changed.txt
+          echo "Changed files:"; cat changed.txt || true
+          # any of these require approval
+          PROTECTED_REGEX='^(next\.config\.(js|mjs)|tailwind\.config\.(js|ts)|package\.json|postcss\.config\.(js|cjs|ts)|turbo\.json|app/|components/)'
+          if grep -E "$PROTECTED_REGEX" changed.txt; then
+            echo "protected=1" >> $GITHUB_OUTPUT
+          else
+            echo "protected=0" >> $GITHUB_OUTPUT
+          fi
+      - name: Require approval label or token
+        if: steps.diff.outputs.protected == '1'
+        run: |
+          label_ok=$(jq -r '.pull_request.labels[].name' <<< '${{ toJson(github.event) }}' | grep -i '^architecture-approved$' || true)
+          token_ok=$(git log -1 --pretty=%B | grep -F 'ARCH-APPROVED' || true)
+          if [ -z "$label_ok" ] && [ -z "$token_ok" ]; then
+            echo "::error::Protected files changed. Add PR label 'architecture-approved' or include 'ARCH-APPROVED' in the commit message."
+            exit 1
+          else
+            echo "Architecture change approved."
+          fi

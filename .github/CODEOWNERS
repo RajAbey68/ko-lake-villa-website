@@ -1,0 +1,8 @@
+# Owners for critical architecture files
+/app/* @RajAbey68
+/components/* @RajAbey68
+/next.config.* @RajAbey68
+/tailwind.config.* @RajAbey68
+/package.json @RajAbey68
+/postcss.config.* @RajAbey68
+/turbo.json @RajAbey68
