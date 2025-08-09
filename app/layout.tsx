@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import MainHeader from '@/components/MainHeader'
+import GlobalHeader from '@/components/navigation/global-header'
+import { ListingsProvider } from '@/components/listings-provider'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kolakevilla.com'),
@@ -29,8 +30,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <MainHeader />
-        {children}
+        <ListingsProvider>
+          <GlobalHeader />
+          {children}
+        </ListingsProvider>
       </body>
     </html>
   )

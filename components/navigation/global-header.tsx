@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -71,7 +71,7 @@ export default function GlobalHeader() {
         id: "google_123",
         name: "John Doe",
         email: "john@kolakevilla.com",
-        avatar: "//images/hero.svg?height=40&width=40&text=JD",
+        avatar: "/placeholder.svg?height=40&width=40&text=JD",
         role: "staff",
       }
 
@@ -100,23 +100,38 @@ export default function GlobalHeader() {
     router.push("/")
   }
 
-  const handleNavigation = (href: string) => {
+  // Optimized navigation handler with better performance
+  const handleNavigation = useCallback((href: string) => {
     setIsMobileMenuOpen(false)
 
     if (href.startsWith("/#")) {
-      // Handle anchor links
+      // Handle anchor links with better performance
+      const anchorId = href.substring(2)
+      
       if (pathname === "/") {
-        const element = document.getElementById(href.substring(2))
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" })
-        }
+        // On homepage, scroll to element
+        requestAnimationFrame(() => {
+          const element = document.getElementById(anchorId)
+          if (element) {
+            const headerOffset = 80 // Account for sticky header
+            const elementPosition = element.getBoundingClientRect().top
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth"
+            })
+          }
+        })
       } else {
+        // Navigate to homepage with anchor
         router.push(href)
       }
     } else {
+      // Standard navigation
       router.push(href)
     }
-  }
+  }, [pathname, router])
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -154,11 +169,12 @@ export default function GlobalHeader() {
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item.href)}
-                className={`text-sm font-medium transition-colors hover:text-orange-500 ${
+                className={`text-sm font-medium transition-colors hover:text-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 rounded px-2 py-1 ${
                   pathname === item.href || (item.href === "/" && pathname === "/")
                     ? "text-orange-500"
                     : "text-amber-700"
                 }`}
+                type="button"
               >
                 {item.label}
               </button>
@@ -181,10 +197,10 @@ export default function GlobalHeader() {
 
             {/* Book Now Button */}
             <Button
-              onClick={() => window.open("https://www.guesty.com/ko-lake-villa", "_blank")}
+              asChild
               className="hidden sm:flex bg-orange-500 hover:bg-orange-600 text-white"
             >
-              Book Now
+              <Link href="/contact">Book Now</Link>
             </Button>
 
             {/* Authentication */}
@@ -193,7 +209,7 @@ export default function GlobalHeader() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar || "//images/hero.svg"} alt={user.name} />
+                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                       <AvatarFallback className="bg-amber-100 text-amber-800">
                         {user.name
                           .split(" ")
@@ -208,7 +224,7 @@ export default function GlobalHeader() {
                   <div className="flex flex-col space-y-2 p-2">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar || "//images/hero.svg"} alt={user.name} />
+                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                         <AvatarFallback className="bg-amber-100 text-amber-800 text-xs">
                           {user.name
                             .split(" ")
@@ -294,6 +310,9 @@ export default function GlobalHeader() {
               size="sm"
               className="lg:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              type="button"
+              aria-expanded={isMobileMenuOpen}
+              aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
@@ -308,11 +327,12 @@ export default function GlobalHeader() {
                 <button
                   key={item.id}
                   onClick={() => handleNavigation(item.href)}
-                  className={`text-left px-2 py-2 text-sm font-medium transition-colors hover:text-orange-500 ${
+                  className={`text-left px-2 py-2 text-sm font-medium transition-colors hover:text-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 rounded ${
                     pathname === item.href || (item.href === "/" && pathname === "/")
                       ? "text-orange-500 bg-orange-50 rounded"
                       : "text-amber-700"
                   }`}
+                  type="button"
                 >
                   {item.label}
                 </button>
@@ -332,13 +352,10 @@ export default function GlobalHeader() {
 
               {/* Mobile Book Now */}
               <Button
-                onClick={() => {
-                  setIsMobileMenuOpen(false)
-                  window.open("https://www.guesty.com/ko-lake-villa", "_blank")
-                }}
+                asChild
                 className="mx-2 bg-orange-500 hover:bg-orange-600 text-white"
               >
-                Book Now
+                <Link href="/contact">Book Now</Link>
               </Button>
             </nav>
           </div>

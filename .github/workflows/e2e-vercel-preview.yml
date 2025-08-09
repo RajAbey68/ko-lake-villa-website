@@ -1,0 +1,35 @@
+name: E2E on Vercel Preview
+on:
+  deployment_status:
+    types: [success]
+
+jobs:
+  preview-e2e:
+    if: contains(github.event.deployment.environment, 'Preview')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with: 
+          node-version: 22
+          cache: 'npm'
+      
+      - run: npm ci || npm install
+      
+      - run: npx playwright install --with-deps
+      
+      - name: Smoke test the preview
+        env: 
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+          PW_NO_SERVER: 1
+        run: |
+          echo "Testing preview at: $BASE_URL"
+          npx playwright test tests/e2e/home-visual.spec.ts tests/e2e/accommodation-ui.spec.ts --reporter=list,html
+      
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: 
+          name: playwright-report-preview-${{ github.run_id }}
+          path: playwright-report
+          retention-days: 7
