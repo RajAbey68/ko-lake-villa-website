@@ -1,22 +1,47 @@
 {
   "version": 2,
   "name": "ko-lake-villa",
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
-  "buildCommand": "cd client && npm run build",
-  "outputDirectory": "client/dist",
-  "devCommand": "cd client && npm run dev",
-  "installCommand": "npm install",
-  "framework": "vite",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://your-replit-url.replit.app/api/$1"
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "dist/**",
+          "server/**",
+          "client/dist/**"
+        ]
+      }
     }
   ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@18"
+    },
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@18"
+    }
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "VITE_API_URL": "@vite_api_url",
+    "VITE_STRIPE_PUBLIC_KEY": "@vite_stripe_public_key",
+    "VITE_GA_MEASUREMENT_ID": "@vite_ga_measurement_id",
+    "OPENAI_API_KEY": "@openai_api_key",
+    "STRIPE_SECRET_KEY": "@stripe_secret_key",
+    "DATABASE_URL": "@database_url",
+    "API_SECRET_KEY": "@api_secret_key"
+  },
   "headers": [
     {
       "source": "/api/(.*)",
@@ -35,10 +60,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_API_URL": "https://your-replit-url.replit.app",
-    "VITE_STRIPE_PUBLIC_KEY": "@vite_stripe_public_key",
-    "VITE_GA_MEASUREMENT_ID": "@vite_ga_measurement_id"
-  }
+  ]
 }
