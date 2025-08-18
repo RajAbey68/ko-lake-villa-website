@@ -5,8 +5,12 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build:vercel": "vite build -c vite.config.vercel.ts",
     "start": "NODE_ENV=production node dist/index.js",
+    "vercel-build": "npm run build:vercel",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
